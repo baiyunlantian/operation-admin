@@ -1,9 +1,12 @@
 <template>
-  <div class="header">头部</div>
-  <div class="header">标签</div>
-  <div class="body">
-    <router-view />
-  </div>
+  <el-container>
+    <el-header>Header</el-header>
+    <el-main>
+      <div class="body">
+        <router-view />
+      </div>
+    </el-main>
+  </el-container>
 </template>
 
     

@@ -1,14 +1,8 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png" />
-  <HelloWorld msg="Welcome to Your Vue.js App" />
-  <el-button  @click="Fn" type="primary">{{age}}</el-button>
-  <el-icon><Male /></el-icon>
-  
- 
+  <router-view />
 </template>
 
 <script >
-import HelloWorld from "./components/HelloWorld.vue";
 import { reactive } from "vue";
 export default {
   name: "App",
@@ -23,9 +17,7 @@ export default {
     }
     return { age, Fn };
   },
-  created(){
-
-  },
+  created() {}
 };
 </script>
 

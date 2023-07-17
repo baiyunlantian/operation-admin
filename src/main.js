@@ -5,7 +5,7 @@ import './assets/css/index.scss'
 // vuex
 import store from './store/index'
 // router 引入
-// import router from './router'
+import router from './router'
 
 import App from './App.vue'
 
@@ -21,7 +21,7 @@ app.use(ElementPlus)
 // 载入vuex
 app.use(store)
 // 路由引入
-// app.use(router);
+app.use(router);
 
 app.mount('#app')
 

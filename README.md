@@ -23,6 +23,11 @@ npm run lint
 element-plus
 node-sass
 element-icon
+vuex
+axios
+
+### 如遇到node-sass报错可以尝试使用该指令
+npm install -g mirror-config-china --registry=http://registry.npm.taobao.org
 
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
