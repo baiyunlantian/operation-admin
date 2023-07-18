@@ -1,11 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import store from '@/store/index.js';
-import {  mapActions,mapGetters } from 'vuex';
 import layout from '@/layout/layout.vue'
 import Login from '../pages/login/index.vue'
 // import asyncRouterMap from './menuRouter.js';
-let userGetter = mapGetters('user',['permissionList'])
-let userAction = mapActions('user',['getPermissionList'])
 const routerHistory = createWebHistory()
 // const routerHistory = createWebHashHistory()
 // createWebHashHistory hash 路由
@@ -74,15 +71,14 @@ router.beforeEach((to, from, next) => {
   let token = window.localStorage.getItem('token') || '';
   if (token) {
     // 权限列表为空则调用 获取权限列表的方法
-    // console.log(user)
-    if (userGetter.permissionList.length === 0) {
-      store.dispatch(userAction.getPermissionList).then(res => {
-        
+    if (store.getters['user/permissionList'].length === 0) {
+      store.dispatch('user/getPermissionList').then(res => {
 
+        addRouterList(store.state.user.permission);
         // router.addRoutes之后的next()可能会失效，因为可能next()的时候路由并没有完全add完成，使用 next(to) 重新走一遍router.beforeEach这个钩子
         next(to);
       });
-    } else if (white.indexOf(to.name) < 0) {          // 跳转的页面是登录页时跳转到主页
+    } else if (white.indexOf(to.name) > -1) {          // 跳转的页面是登录页时跳转到主页
       next({
         name: '首页'
       });
@@ -108,37 +104,36 @@ router.beforeEach((to, from, next) => {
 
 
 // 根据权限列表获取添加router列表
-function addRouterList(state) {
+function addRouterList(permissionList) {
   // 过滤只有一级分类 但是没有权限
-  let permissionList = asyncRouterMap.filter((item, i) => {
+  let asyncRouterList = asyncRouterMap.filter((item, i) => {
     // console.log(!!state.permissionList.includes(item.permission) || !!item['children'], "xxxxxx")
-    return !!state.permissionList.includes(item.permission) || !!item['children'];
+    return !!permissionList.includes(item.permission) || !!item['children'];
   })
   // 过滤二级分类
   // 过滤有二级分类但二级分类子类没有权限的
   // let routerList = permissionList
-  let routerList = permissionList.filter((item, index) => {
-    if (!!permissionList[index].children) {
-      let children = permissionList[index].children;
-      permissionList[index].children = children.filter((item, i) => {
-        return state.permissionList.includes(item.permission);
+  let routerList = asyncRouterList.filter((item, index) => {
+    if (!!item.children) {
+      let children = item.children;
+      item.children = children.filter((item, i) => {
+        return permissionList.includes(item.permission);
       });
     }
     return !!item.children.length > 0 || !!item['permission'];
   })
-  store.commit('SET_FILTERROUTER_LIST', routerList);
   routerPackag(routerList)
-  router.addRoute('404', {
-    path: '/:w+',
-    redirect: '/404',
-    component: Index
-  })
+  store.commit('user/SET_FILTERROUTER_LIST', routerList);
+  // router.addRoute('404', {
+  //   path: '/:w+',
+  //   redirect: '/404',
+  //   component: layout
+  // })
 }
 
 
 
 function routerPackag(routerList, parentPath) {
-
   routerList.forEach(item => {
     // path格式为 [父/子]
     var path = !!parentPath ? (parentPath + '/' + item.path) : item.path;
@@ -149,9 +144,9 @@ function routerPackag(routerList, parentPath) {
     }
     // 设置重定向
     if (item.children) {
-      console.log(item.children)
       list.redirect = { name: item.children[0]['name'] }
     }
+    console.log(list,"list")
     router.addRoute(list)
     if (item.children && item.children.length > 0) {
       routerPackag(item.children, item.path);

@@ -17,6 +17,7 @@ const modules = modulesFiles.keys().reduce((modules, modulePath) => {
 console.log(modules)
 
 const store = new createStore({
+    modules,
     state() {
 
     },
@@ -24,11 +25,8 @@ const store = new createStore({
 
     },
     actions: {
-        getPermissionList(){
-            console.log(11111)
-        },
     },
-    modules
+
 })
 
 

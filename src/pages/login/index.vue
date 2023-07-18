@@ -5,12 +5,18 @@
 </template>
     
 <script>
+import { useStore } from "vuex";
+
 export default {
   name: "login",
   data() {
     return {
       msg: "login"
     };
+  },
+  setup() {
+    let store = useStore();
+    console.log(store,"1231231231")
   }
 };
 </script>

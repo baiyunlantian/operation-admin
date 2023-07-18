@@ -2,11 +2,12 @@
 
 
 const user = {
-    // namespaced: true,
+    namespaced: true,
     state() {
         return {
             token: "",
-            permission: []
+            permission: [],
+            filterRouter: []
         }
     },
     mutations: {
@@ -18,14 +19,17 @@ const user = {
         REMOVE_TOKEN(statem) {
             state.token = "" // 删除vuex的token
         },
+        SET_FILTERROUTER_LIST(state, list) {
+            state.filterRouterList = list;
+        },
         SET_PERMISSION_LIST(state, val) {
             state.permission = val
         }
 
     },
-    action: {
+    actions: {
         getPermissionList({ commit }) {
-            let list = ['1'];
+            let list = [1];
             commit('SET_PERMISSION_LIST', list);
             return list;
             // return new Promise((resolve, reject) => {
@@ -33,7 +37,7 @@ const user = {
             // });
         }
     },
-    getter: {
+    getters: {
         permissionList: state => state.permission
     }
 }

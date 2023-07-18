@@ -5,7 +5,7 @@ export default [
     {
         path: '/test',
         component: layout,
-        name: "测试页面",
+        name: "",
         permission: 1,
         children: [
             {

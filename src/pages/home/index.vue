@@ -11,7 +11,8 @@ export default {
     return {
       msg: "首页"
     };
-  }
+  },
+  
 };
 </script>
   
