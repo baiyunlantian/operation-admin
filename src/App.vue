@@ -6,9 +6,6 @@
 import { reactive } from "vue";
 export default {
   name: "App",
-  components: {
-    HelloWorld
-  },
   setup() {
     let age = reactive({ value: 18 });
     function Fn() {

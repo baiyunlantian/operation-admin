@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 // import store from '@/store/index.js';
-import Index from '../pages/index.vue'
+import layout from '@/layout/layout.vue'
 import Login from '../pages/login/index.vue'
 // import asyncRouterMap from './menuRouter.js';
 
@@ -9,13 +9,17 @@ const routerHistory = createWebHistory()
 // createWebHashHistory hash 路由
 // createWebHistory history 路由
 // createMemoryHistory 带缓存 history 路由
+
+
+
+
 const router = createRouter({
   history: routerHistory,
   routes: [
     {
       path: '/',
       name: '首页',
-      component: Index,
+      component: layout,
       redirect: { name: 'home' },
       children: [{
         path: 'home',
@@ -35,6 +39,25 @@ const router = createRouter({
     // },
   ]
 })
+
+
+// 获取modules下所有的js文件
+const modulesFiles = require.context('./modules', true, /\.js$/)
+
+const asyncRouterMap = modulesFiles.keys().reduce((modules, modulePath) => {
+  // 获取每个文件的名称
+  // const moduleName = modulePath.replace(/^\.\/(.*)\.\w+$/, '$1')
+  // 获取文件的内容
+  const value = modulesFiles(modulePath)
+  // push数据
+  modules.push(...value.default)
+  return modules
+}, [])
+
+
+
+
+
 // const login = 'login';
 // const homeName = '首页';
 
