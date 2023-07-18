@@ -1,16 +1,16 @@
 import axios from 'axios'
 import { ElLoading, ElMessage } from 'element-plus'
-import config from './index'
+// import config from './index'
 import router from '../router';
-
 
 // 创建axios默认请求
 const service = axios.create({
-    baseURL: process.env.NODE_ENV === 'development' ? config.baseUrl.dev : config.baseUrl.pro,
+    baseURL: process.env.VUE_APP_BASE_API,
     // token认证
     headers: {
         // 'token': window.localStorage.getItem("authorization") || ""
-    }
+    },
+    timeout: 5000 // request timeout
 
 })
 // 请求拦截
