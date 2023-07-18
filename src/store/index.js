@@ -3,6 +3,7 @@ import { createStore } from 'vuex'
 // 获取modules下所有的js文件
 const modulesFiles = require.context('./modules', true, /\.js$/)
 
+
 const modules = modulesFiles.keys().reduce((modules, modulePath) => {
     // 获取每个文件的名称
     const moduleName = modulePath.replace(/^\.\/(.*)\.\w+$/, '$1')
@@ -13,7 +14,7 @@ const modules = modulesFiles.keys().reduce((modules, modulePath) => {
     return modules
 }, {})
 
-
+console.log(modules)
 
 const store = new createStore({
     state() {
@@ -21,6 +22,11 @@ const store = new createStore({
     },
     mutations: {
 
+    },
+    actions: {
+        getPermissionList(){
+            console.log(11111)
+        },
     },
     modules
 })

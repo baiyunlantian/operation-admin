@@ -9,7 +9,6 @@ import router from './router'
 
 import App from './App.vue'
 
-import axios from '@/utils/request.js'
 
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 

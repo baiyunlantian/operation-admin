@@ -2,8 +2,12 @@
 
 
 const user = {
-    state: {
-        token: ""
+    // namespaced: true,
+    state() {
+        return {
+            token: "",
+            permission: []
+        }
     },
     mutations: {
         // 设置token
@@ -11,17 +15,27 @@ const user = {
             state.token = val
         },
         // 删除token
-        REMOVE_TOKEN(state) {
+        REMOVE_TOKEN(statem) {
             state.token = "" // 删除vuex的token
         },
+        SET_PERMISSION_LIST(state, val) {
+            state.permission = val
+        }
 
     },
     action: {
-        login(commit) {
-            commit("SET_USER_TOKEN", true)
+        getPermissionList({ commit }) {
+            let list = ['1'];
+            commit('SET_PERMISSION_LIST', list);
+            return list;
+            // return new Promise((resolve, reject) => {
+
+            // });
         }
     },
-    getter: {}
+    getter: {
+        permissionList: state => state.permission
+    }
 }
 
 
