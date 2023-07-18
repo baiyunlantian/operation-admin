@@ -13,6 +13,7 @@ export default [
                 component: () => import('@/pages/test/index.vue'),
                 name: '测试页面',
                 permission: 1
+
             }
         ]
     }

@@ -105,38 +105,57 @@ router.beforeEach((to, from, next) => {
 
 // 根据权限列表获取添加router列表
 function addRouterList(permissionList) {
+  let routerList = filterRouter(asyncRouterMap, permissionList)
   // 过滤只有一级分类 但是没有权限
-  let asyncRouterList = asyncRouterMap.filter((item, i) => {
-    // console.log(!!state.permissionList.includes(item.permission) || !!item['children'], "xxxxxx")
-    return !!permissionList.includes(item.permission) || !!item['children'];
-  })
-  // 过滤二级分类
-  // 过滤有二级分类但二级分类子类没有权限的
-  // let routerList = permissionList
-  let routerList = asyncRouterList.filter((item, index) => {
-    if (!!item.children) {
-      let children = item.children;
-      item.children = children.filter((item, i) => {
-        return permissionList.includes(item.permission);
-      });
-    }
-    return !!item.children.length > 0 || !!item['permission'];
-  })
+  // let asyncRouterList = asyncRouterMap.filter((item, i) => {
+  //   // console.log(!!state.permissionList.includes(item.permission) || !!item['children'], "xxxxxx")
+  //   return !!permissionList.includes(item.permission) || !!item['children'];
+  // })
+  // // 过滤二级分类
+  // // 过滤有二级分类但二级分类子类没有权限的
+  // // let routerList = permissionList
+  // let routerList = asyncRouterList.filter((item, index) => {
+  //   if (!!item.children) {
+  //     let children = item.children;
+  //     item.children = children.filter((item, i) => {
+  //       return permissionList.includes(item.permission);
+  //     });
+  //   }
+  //   return !!item.children.length > 0 || !!item['permission'];
+  // })
   routerPackag(routerList)
   store.commit('user/SET_FILTERROUTER_LIST', routerList);
-  // router.addRoute('404', {
-  //   path: '/:w+',
-  //   redirect: '/404',
-  //   component: layout
-  // })
+  router.addRoute('404', {
+    path: '/:w+',
+    redirect: '/404',
+    component: layout
+  })
 }
 
+
+function filterRouter(routerList, permissionList) {
+  let filterRouterList = routerList.filter(item => {
+    if (!permissionList.includes(item.permission)) {
+      return false
+    }
+    if (item.children) {
+      let children = []
+      children = filterRouter(item.children, permissionList)
+      item.children = children
+      return children.length > 0
+    } else {
+      return true
+    }
+  })
+  return filterRouterList
+}
 
 
 function routerPackag(routerList, parentPath) {
   routerList.forEach(item => {
     // path格式为 [父/子]
     var path = !!parentPath ? (parentPath + '/' + item.path) : item.path;
+    
     let list = {
       path: path,
       name: item.name,
@@ -146,10 +165,10 @@ function routerPackag(routerList, parentPath) {
     if (item.children) {
       list.redirect = { name: item.children[0]['name'] }
     }
-    console.log(list,"list")
+    console.log(list, "list")
     router.addRoute(list)
     if (item.children && item.children.length > 0) {
-      routerPackag(item.children, item.path);
+      routerPackag(item.children, path);
     }
   })
 }
