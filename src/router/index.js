@@ -80,7 +80,7 @@ router.beforeEach((to, from, next) => {
       });
     } else if (white.indexOf(to.name) > -1) {          // 跳转的页面是登录页时跳转到主页
       next({
-        name: '首页'
+       path: "/"
       });
     } else {
       next();
