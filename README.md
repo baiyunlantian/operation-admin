@@ -29,5 +29,8 @@ axios
 ### 如遇到node-sass报错可以尝试使用该指令
 npm install -g mirror-config-china --registry=http://registry.npm.taobao.org
 
+### 项目结构
+
+
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).

@@ -32,12 +32,7 @@ const router = createRouter({
       path: '/login',
       name: 'login',
       component: Login
-    },
-    // {
-    //   path: '/404',
-    //   name: '404',
-    //   component: () => import('@/components/error/404.vue')
-    // },
+    }
   ]
 })
 
@@ -80,7 +75,7 @@ router.beforeEach((to, from, next) => {
       });
     } else if (white.indexOf(to.name) > -1) {          // 跳转的页面是登录页时跳转到主页
       next({
-       path: "/"
+        path: "/"
       });
     } else {
       next();
@@ -106,24 +101,8 @@ router.beforeEach((to, from, next) => {
 // 根据权限列表获取添加router列表
 function addRouterList(permissionList) {
   let routerList = filterRouter(asyncRouterMap, permissionList)
-  // 过滤只有一级分类 但是没有权限
-  // let asyncRouterList = asyncRouterMap.filter((item, i) => {
-  //   // console.log(!!state.permissionList.includes(item.permission) || !!item['children'], "xxxxxx")
-  //   return !!permissionList.includes(item.permission) || !!item['children'];
-  // })
-  // // 过滤二级分类
-  // // 过滤有二级分类但二级分类子类没有权限的
-  // // let routerList = permissionList
-  // let routerList = asyncRouterList.filter((item, index) => {
-  //   if (!!item.children) {
-  //     let children = item.children;
-  //     item.children = children.filter((item, i) => {
-  //       return permissionList.includes(item.permission);
-  //     });
-  //   }
-  //   return !!item.children.length > 0 || !!item['permission'];
-  // })
   routerPackag(routerList)
+
   store.commit('user/SET_FILTERROUTER_LIST', routerList);
   router.addRoute('404', {
     path: '/:w+',
@@ -151,24 +130,31 @@ function filterRouter(routerList, permissionList) {
 }
 
 
-function routerPackag(routerList, parentPath) {
+function routerPackag(routerList, parentPath, pathName = '') {
+
   routerList.forEach(item => {
     // path格式为 [父/子]
     var path = !!parentPath ? (parentPath + '/' + item.path) : item.path;
-    
+
     let list = {
       path: path,
+      title: item.title,
+      mate: item.mate,
       name: item.name,
       component: item.component
     }
     // 设置重定向
-    if (item.children) {
+    if (item.children && !item.redirect) {
       list.redirect = { name: item.children[0]['name'] }
     }
-    console.log(list, "list")
-    router.addRoute(list)
+    // console.log(pathName)
+    if (pathName) {
+      router.addRoute(pathName, list)
+    } else {
+      router.addRoute(list)
+    }
     if (item.children && item.children.length > 0) {
-      routerPackag(item.children, path);
+      routerPackag(item.children, path, item.name);
     }
   })
 }
