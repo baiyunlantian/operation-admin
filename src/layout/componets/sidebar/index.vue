@@ -6,54 +6,52 @@
         </div>
 
         <div class="menu-container">
-            <el-menu
-                    :default-active="activeIndex"
-                    class="el-menu-left"
-                    mode="horizontal"
-                    background-color="transparent"
-                    text-color="#ffffff"
-                    :ellipsis="false"
-                    @select="handleSelect"
-            >
-                <template v-for="(menu, index) in leftMenuList" :key="menu.menuId">
-                    <el-menu-item v-if="menu.children.length === 0" class="menu-item"  :index="menu.menuId">
-                        {{menu.name}}
-                    </el-menu-item>
+            <template v-for="(menuItems, index) in ['left', 'right']" :key="index">
+                <el-menu
+                        :default-active="activeIndex"
+                        :class="`el-menu-${menuItems}`"
+                        mode="horizontal"
+                        background-color="transparent"
+                        text-color="#ffffff"
+                        :active-color="menuItems === 'left' ? '#FD681C' : '#ffffff'"
+                        :ellipsis="false"
+                        :router="true"
+                        @select="handleSelect"
+                >
 
-                    <el-sub-menu v-else class="sub-menu-item" :index="index+'b'">
-                        <template #title>{{menu.name}}</template>
-                        <template v-for="(secondMenu, sIndex) in menu.children" :key="secondMenu.menuId">
-                            <el-menu-item :index="secondMenu.menuId+'c'">{{secondMenu.name}}</el-menu-item>
-                        </template>
-                    </el-sub-menu>
-                </template>
-            </el-menu>
+                    <template v-if="menuItems === 'left'">
+                        <template v-for="(menu, index) in leftMenuList" :key="menu.menuId">
+                            <el-menu-item v-if="menu.children.length === 0" class="menu-item"  :index="menu.path">
+                                {{menu.name}}
+                            </el-menu-item>
 
-            <el-menu
-                    class="el-menu-right"
-                    mode="horizontal"
-                    background-color="transparent"
-                    text-color="#ffffff"
-                    active-color="#ffffff"
-                    :ellipsis="false"
-                    @select="handleSelect"
-            >
-                <template v-for="(menu, index) in rightMenuList" :key="menu.menuId">
+                            <el-sub-menu v-else class="sub-menu-item" :index="index+'b'">
+                                <template #title>{{menu.name}}</template>
+                                <template v-for="(secondMenu, sIndex) in menu.children" :key="secondMenu.menuId">
+                                    <el-menu-item :index="secondMenu.path">{{secondMenu.name}}</el-menu-item>
+                                </template>
+                            </el-sub-menu>
+                        </template>
+                    </template>
 
-                    <el-sub-menu class="sub-menu-item" :index="index+'b'">
-                        <template #title>
-                            <div class="user-box u-flex u-col-center">
-                                <div class="user-child">
-                                    <el-icon :size="36"><Avatar /></el-icon>
-                                </div>
-                            </div>
+                    <template v-else>
+                        <template v-for="(menu, index) in rightMenuList" :key="menu.menuId">
+                            <el-sub-menu class="sub-menu-item" :index="index+'b'">
+                                <template #title>
+                                    <div class="user-box u-flex u-col-center">
+                                        <div class="user-child">
+                                            <el-icon :size="36"><Avatar /></el-icon>
+                                        </div>
+                                    </div>
+                                </template>
+                                <template v-for="(secondMenu, sIndex) in menu.children" :key="secondMenu.menuId">
+                                    <el-menu-item :index="secondMenu.path">{{secondMenu.name}}</el-menu-item>
+                                </template>
+                            </el-sub-menu>
                         </template>
-                        <template v-for="(secondMenu, sIndex) in menu.children" :key="secondMenu.menuId">
-                            <el-menu-item :index="secondMenu.menuId+'c'">{{secondMenu.name}}</el-menu-item>
-                        </template>
-                    </el-sub-menu>
-                </template>
-            </el-menu>
+                    </template>
+                </el-menu>
+            </template>
         </div>
 
     </div>
@@ -68,7 +66,7 @@
       name: '首页',
       descType: 'text',
       menuId: '1',
-      path: '/index',
+      path: '/',
       menuData:'indexAdmin',
       children: []
     },
@@ -77,14 +75,14 @@
       name:'我的',
       descType:'img',
       menuId:'2',
-      path:'/index',
+      path:'/',
       children:[
         {
           type:'user',
           name:'账号设置',
           descType:'text',
           menuId:'2-1',
-          path:'',
+          path:'test',
           children:[],
         },
         {
@@ -92,7 +90,7 @@
           name:'个人信息',
           descType:'text',
           menuId:'2-2',
-          path:'',
+          path:'test',
           children:[],
         }
       ]
@@ -102,22 +100,21 @@
       name: '用户管理',
       descType: 'text',
       menuId: '3',
-      path: '/index',
+      path: '/',
       children: [
         {
           type:'system',
           name:'用户中心',
           descType:'text',
           menuId:'3-1',
-          path:'',
+          path:'test',
           children:[],
         },
       ]
     },
   ]
   const menuList = reactive(_menuList)
-  const activeIndex = ref('1')
-  const activeIndex1 = ref('2')
+  const activeIndex = ref('/')
 
   const leftMenuList = computed(() => {
     return menuList.filter(item=>item.type === 'system')
@@ -126,12 +123,7 @@
     return menuList.filter(item=>item.type === 'user')
   })
 
-  function handleSelect() {
-
-  }
-  function handleClick() {
-
-  }
+  function handleSelect() {}
 </script>
 
 
@@ -150,6 +142,7 @@
 
         .logo-container{
             position: relative;
+            margin: 0 50px;
             .logo{
                 margin-top: 10px;
             }
@@ -173,6 +166,12 @@
                 .sub-menu-item{
                     ::v-deep .el-sub-menu__icon-arrow{
                         display: none;
+                    }
+                }
+                .el-sub-menu.is-active {
+                    ::v-deep .el-sub-menu__title{
+                        border-bottom: unset;
+                        color: #ffffff;
                     }
                 }
 
