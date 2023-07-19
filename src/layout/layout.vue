@@ -24,3 +24,9 @@ export default {
   }
 };
 </script>
+
+<style scoped lang="scss">
+  .el-header{
+    padding: 0;
+  }
+</style>
