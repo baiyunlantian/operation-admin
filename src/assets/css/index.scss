@@ -4,3 +4,6 @@
 );
 // sass已经抛弃@improt
 @use 'element-plus/theme-chalk/src/index.scss' as *;
+@use './base.scss';
+@use './page.scss';
+@use './transition.scss';

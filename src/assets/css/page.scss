@@ -1,0 +1,15 @@
+.page-left {
+    width: 200px;
+    // border: 1px solid #ddd;
+    overflow: auto;
+  }
+.page-right {
+    width: calc(100% - 200px);
+    overflow: auto;
+}
+p {
+    margin: 0 !important;
+    &.el-popconfirm__main {
+        margin-bottom: 5px !important;
+    }
+}

@@ -1,0 +1,435 @@
+html,
+body {
+    width: 100%;
+    height: 100%;
+    margin: 0 auto;
+    font-family: "微软雅黑";
+    font-size: 14px;
+    color: #333;
+}
+
+.page-box {
+    height: calc(100% - 30px);
+    padding: 15px;
+}
+.page-over {
+    overflow: auto;
+}
+.page-scroll {
+    height: calc(100% - 15px);
+    padding: 15px 0 0 15px;
+}
+.scroll-box {
+    height: calc(100% - 47px);
+    padding-right: 14px;
+    overflow: auto;
+}
+
+.wh {
+    width: 100%;
+    height: 100%;
+}
+
+.fc {
+    display: flex;
+    align-items: center;
+}
+
+.fcjc {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.fcjs {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.fline {
+    flex: 1;
+}
+
+.fl {
+    float: left;
+}
+
+.fr {
+    float: right;
+}
+.fw {
+    font-weight: bold;
+}
+.auto-img img {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.to2 {
+    text-overflow: -o-ellipsis-lastline;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.mr {
+    margin-right: 15px;
+}
+
+.mb {
+    margin-bottom: 15px;
+}
+
+.input-box {
+    width: 220px;
+}
+
+.input-disabled input[disabled] {
+    color: #606266 !important;
+    background-color: transparent !important;
+}
+.input-group-box {
+    .el-input-group__append, .el-input-group__prepend {
+        padding: 0 5px;
+    }
+}
+
+.select-box {
+    display: block;
+}
+
+.select-box_ {
+    .el-select {
+        width: 100%;
+    }
+}
+
+.textarea-box {
+    font-family: '微软雅黑' !important;
+    font-size: 14px;
+    font-size: #606266 !important;
+}
+
+.textarea-box textarea[disabled] {
+    background-color: #fff !important;
+    color: #606266 !important;
+}
+
+.line {
+    padding: 0 10px;
+}
+
+.date-box {
+    .el-date-editor--daterange.el-input,
+    .el-date-editor--daterange.el-input__inner,
+    .el-date-editor--timerange.el-input,
+    .el-date-editor--timerange.el-input__inner {
+        width: 100%;
+    }
+}
+
+.date-box_ {
+    .el-date-editor {
+        width: 100%;
+    }
+}
+
+.step-box {
+    .el-step__icon {
+        border: 2px solid #409EFF;
+    }
+    .el-step__line {
+        background-color: #409EFF;
+    }
+    .is-wait {
+        color: #409EFF;
+    }
+}
+
+
+.table-box {
+    width: 100%;
+    font-size: 14px;
+    .search-box {
+        display: flex;
+        flex-wrap: wrap;
+        .search-child {
+            width: 275px;
+        }
+    }
+    .el-button {
+        margin: 0 3px;
+    }
+    .table-img {
+        border-radius: 4px;
+        border: 1px solid #eee;
+        margin-right: 4px;
+    }
+    .table-btn {
+        padding: 4px 10px;
+        font-size: 12px;
+    }
+}
+.table-header {
+    .el-button {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+}
+
+.star {
+    color: #F56C6C;
+}
+
+.pagination-box {
+    display: flex;
+    justify-content: flex-end;
+    padding: 12px 0;
+}
+
+.form-item-upload .el-form-item__content {
+    line-height: 0;
+}
+.action{
+    background-color: #F5F7FB;
+    border-radius: 4px;
+}
+
+.bg-fff {
+    background-color: #fff;
+}
+
+.blue {
+    color: #409EFF;
+}
+.red {
+    color: #F56C6C;
+}
+.green {
+    color: #67C23A;
+}
+.yellow {
+    color: #E6A23C;
+}
+.f-999 {
+    color: #999;
+}
+
+
+
+
+
+
+
+
+
+.u-flex {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+}
+
+.u-flex-wrap {
+	flex-wrap: wrap;
+}
+
+.u-flex-nowrap {
+	flex-wrap: nowrap;
+}
+
+.u-col-center {
+	align-items: center;
+}
+
+.u-col-top {
+	align-items: flex-start;
+}
+
+.u-col-bottom {
+	align-items: flex-end;
+}
+
+.u-row-center {
+	justify-content: center;
+}
+
+.u-row-left {
+	justify-content: flex-start;
+}
+
+.u-row-right {
+	justify-content: flex-end;
+}
+
+.u-row-between {
+	justify-content: space-between;
+}
+
+.u-row-around {
+	justify-content: space-around;
+}
+
+.u-relative,
+.u-rela {
+	position: relative;
+}
+
+.u-absolute,
+.u-abso {
+	position: absolute;
+}
+
+.u-text-left {
+	text-align: left;
+}
+
+.u-text-center {
+	text-align: center;
+}
+
+.u-text-right {
+	text-align: right;
+}
+
+.u-flex-col {
+	display: flex;
+	flex-direction: column;
+}
+.u-flex-self {
+    align-self: flex-start;
+}
+
+.u-margin-auto {
+    margin: 0 auto;
+}
+
+.u-line-1 {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.u-line-2 {
+    -webkit-line-clamp: 2;
+}
+.u-line-3 {
+    -webkit-line-clamp: 3;
+}
+.u-line-4 {
+    -webkit-line-clamp: 4;
+}
+.u-line-5 {
+    -webkit-line-clamp: 5;
+}
+.u-line-2, .u-line-3, .u-line-4, .u-line-5 {
+    overflow: hidden;
+	word-break: break-all;
+    text-overflow: ellipsis; 
+    display: -webkit-box; // 弹性伸缩盒
+    -webkit-box-orient: vertical; // 设置伸缩盒子元素排列方式
+}
+
+// 定义flex等分
+@for $i from 0 through 12 {
+	.u-flex-#{$i} {
+		flex: $i;
+	}
+}
+
+// 定义字体(px)单位，小于20都为px单位字体
+@for $i from 9 to 20 {
+	.u-font-#{$i} {
+		font-size: $i + px;
+	}
+}
+
+// 定义字体(px)单位，大于或等于20的都为px单位字体
+@for $i from 20 through 40 {
+	.u-font-#{$i} {
+		font-size: $i + px;
+	}
+}
+
+// 定义圆角(px)单位
+@for $i from 4 through 40 {
+	.u-border-radius-#{$i} {
+		border-radius: $i + px;
+	}
+}
+
+// 定义内外边距，历遍1-80
+@for $i from 0 through 80 {
+	// 只要双数和能被5除尽的数
+	@if $i % 2 == 0 or $i % 5 == 0 {
+		// 得出：n-margin-30或者n-m-30
+		.u-margin-#{$i}, .u-m-#{$i} {
+			margin: $i + px!important;
+		}
+		
+		// 得出：n-padding-30或者n-p-30
+		.u-padding-#{$i}, .u-p-#{$i} {
+			padding: $i + px!important;
+		}
+		
+		@each $short, $long in l left, t top, r right, b bottom {
+			// 缩写版，结果如： n-m-l-30
+			// 定义外边距
+			.u-m-#{$short}-#{$i} {
+				margin-#{$long}: $i + px!important;
+			}
+			
+			// 定义内边距
+			.u-p-#{$short}-#{$i} {
+				padding-#{$long}: $i + px!important;
+			}
+			
+			// 完整版，结果如：n-margin-left-30
+			// 定义外边距
+			.u-margin-#{$long}-#{$i} {
+				margin-#{$long}: $i + px!important;
+			}
+			
+			// 定义内边距
+			.u-padding-#{$long}-#{$i} {
+				padding-#{$long}: $i + px!important;
+			}
+		}
+	}
+}
+.u-font-weight {
+    font-weight: bold;
+}
+.u-cursor {
+    cursor: pointer;
+}
+.u-html {
+    img {
+        display: block;
+        width: 100% !important;
+        height: auto;
+    }
+}
+.u-scroll {
+    overflow-y: auto;
+    overflow-x: hidden;
+    cursor: pointer;
+}
+.u-scroll::-webkit-scrollbar {
+    width: 6px; 
+}
+.u-scroll::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    box-shadow: inset 0 0 5px #C1C1C1;
+    background: #C1C1C1;
+}
+.u-scroll::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 5px #C1C1C1;
+    border-radius: 0;
+    background: transparent;
+}
+.u-b-b{
+    border-bottom: 1px solid #EFECEC;
+}
