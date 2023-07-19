@@ -101,6 +101,23 @@ router.beforeEach((to, from, next) => {
 // 根据权限列表获取添加router列表
 function addRouterList(permissionList) {
   let routerList = filterRouter(asyncRouterMap, permissionList)
+  // 过滤只有一级分类 但是没有权限
+  // let asyncRouterList = asyncRouterMap.filter((item, i) => {
+  //   // console.log(!!state.permissionList.includes(item.permission) || !!item['children'], "xxxxxx")
+  //   return !!permissionList.includes(item.permission) || !!item['children'];
+  // })
+  // // 过滤二级分类
+  // // 过滤有二级分类但二级分类子类没有权限的
+  // // let routerList = permissionList
+  // let routerList = asyncRouterList.filter((item, index) => {
+  //   if (!!item.children) {
+  //     let children = item.children;
+  //     item.children = children.filter((item, i) => {
+  //       return permissionList.includes(item.permission);
+  //     });
+  //   }
+  //   return !!item.children.length > 0 || !!item['permission'];
+  // })
   routerPackag(routerList)
 
   store.commit('user/SET_FILTERROUTER_LIST', routerList);

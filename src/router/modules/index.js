@@ -9,7 +9,7 @@ export default [
         permission: 1,
         children: [
             {
-                path: 'index/:id',
+                path: 'index',
                 component: () => import('@/pages/test/index.vue'),
                 name: '测试页面',
                 permission: 1
