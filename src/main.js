@@ -1,5 +1,6 @@
 import { createApp } from 'vue'
 import ElementPlus from 'element-plus'
+import { ElMessage } from 'element-plus'
 // import 'element-plus/dist/index.css'
 import './assets/css/index.scss'
 // vuex
@@ -9,6 +10,7 @@ import router from './router'
 
 import App from './App.vue'
 
+import Utils from './assets/js/utils'
 
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 
@@ -23,6 +25,9 @@ app.use(ElementPlus)
 app.use(store)
 // 路由引入
 app.use(router);
+
+app.config.globalProperties.$utils = Utils;
+app.config.globalProperties.$message = ElMessage;
 
 app.mount('#app')
 

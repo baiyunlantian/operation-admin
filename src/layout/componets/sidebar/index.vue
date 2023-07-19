@@ -87,10 +87,10 @@
         },
         {
           type:'user',
-          name:'个人信息',
+          name:'注册',
           descType:'text',
           menuId:'2-2',
-          path:'test',
+          path:'register',
           children:[],
         }
       ]
@@ -100,7 +100,7 @@
       name: '用户管理',
       descType: 'text',
       menuId: '3',
-      path: '/',
+      path: '',
       children: [
         {
           type:'system',
@@ -110,7 +110,23 @@
           path:'test',
           children:[],
         },
+        {
+          type:'system',
+          name:'用户列表',
+          descType:'text',
+          menuId:'3-2',
+          path:'test',
+          children:[],
+        },
       ]
+    },
+    {
+      type: 'system',
+      name: '统计',
+      descType: 'text',
+      menuId: '4',
+      path: '',
+      children: []
     },
   ]
   const menuList = reactive(_menuList)
