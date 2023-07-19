@@ -13,14 +13,17 @@ const routerHistory = createWebHistory()
 
 
 const router = createRouter({
+  // 指定模式
   history: routerHistory,
+  // 默认路由
   routes: [
     {
       path: '/',
       name: '首页',
+      meta: {title: "首页"},
       permission: '1',
       component: layout,
-      redirect: { name: 'home' },
+      redirect: { path: '/home' },
       children: [{
         path: 'home',
         name: 'home',
@@ -31,6 +34,7 @@ const router = createRouter({
     {
       path: '/login',
       name: 'login',
+      meta: {title: "登录页"},
       component: Login
     }
   ]
@@ -156,13 +160,18 @@ function routerPackag(routerList, parentPath, pathName = '') {
     let list = {
       path: path,
       title: item.title,
-      mate: item.mate,
+      meta: item.meta,
       name: item.name,
       component: item.component
     }
-    // 设置重定向
+    // 设置重定向 兼容动态路由
     if (item.children && !item.redirect) {
-      list.redirect = { name: item.children[0]['name'] }
+      if (item.children[0]['default']) {
+        list.redirect = { path: `${path}/${item.children[0]['default']}` }
+      }else{
+        list.redirect = { path: `${path}/${item.children[0]['path']}` }
+      }
+
     }
     // console.log(pathName)
     if (pathName) {

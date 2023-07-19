@@ -1,15 +1,9 @@
 <template>
-  <el-container>
-    <el-header>
-      <sidebar />
-      <tegView />
-    </el-header>
-    <el-main>
-      <div class="body">
-        <router-view />
-      </div>
-    </el-main>
-  </el-container>
+  <sidebar />
+  <tegView />
+  <div class="body">
+    <router-view />
+  </div>
 </template>
 
     
