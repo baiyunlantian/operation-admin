@@ -42,9 +42,16 @@ export default {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
   color: #2c3e50;
+<<<<<<< HEAD
   width: 100%;
   height: 100%;
+=======
+}
+html,
+body {
+  margin: 0;
+  padding: 0;
+>>>>>>> 979a1740bafefa9ec3cb4818b8efacfde94e23d1
 }
 </style>

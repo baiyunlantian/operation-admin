@@ -3,20 +3,20 @@ import layout from '@/layout/layout.vue'
 
 export default [
     {
-        path: '/test',
-        meta: {title: "测试"},
+        path: '/ccc',
+        meta: {title: "ccc"},
         component: layout,
-        name: "test",
+        name: "layout",
         permission: 1,
         children: [
             {
-                path: '/index',
-                meta: {title: "测试页面"},
+                path: '/ccccs',
+                meta: {title: "ccccs"},
                 component: () => import('@/pages/test/index.vue'),
-                name: '测试页面',
+                name: '122',
                 permission: 1
-            },
-            
+
+            }
         ]
     }
 ]

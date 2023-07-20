@@ -1,24 +1,79 @@
 <template>
-    <div class="tab-nav" style="width: 100%; background:#242D3F;">
-        <breadcrumb @toParent="toParent" :getNavPath="getNavPath" :mainNavList="getNavCtrl"></breadcrumb>
-    </div>
+  <div class="tag_view_container">
+    <el-scrollbar ref="scrollContainer" class="scroll-container">
+      <div class="tag_view_tags">
+        <TransitionGroup name="list">
+          <el-tag
+            v-for="(items,index) in dynamicTags"
+            :key="items.fullPath"
+            class="tag_item"
+            :closable="items.closable"
+            :type="active != items.fullPath?'info':''"
+            :disable-transitions="false"
+            @click="goToPage(items)"
+            @close="handleClose(index)"
+          >{{ items.meta.title }}</el-tag>
+        </TransitionGroup>
+      </div>
+    </el-scrollbar>
+    <div>{{test}}</div>
+  </div>
 </template>
 
 <script setup>
-  import breadcrumb from '@/components/breadcrumb/breadcrumb';
-  import { ref, reactive } from 'vue';
-  import { useStore } from 'vuex';
-  const store = useStore()
-  const getNavPath = ref(store.state.navCtrl.navPath)
-  const getNavCtrl = reactive(store.state.navCtrl.navCtrl)
-  console.log('store', store.state.navCtrl.navCtrl)
+import { ref, reactive, watch, computed } from "vue";
+import { useRouter } from "vue-router";
+import { useStore } from "vuex";
+// 路由
+const router = useRouter();
+// vuex
+const store = useStore();
 
-  function toParent() {
-  }
+const active = ref("");
+
+const dynamicTags = computed(() => {
+  return store.getters["tagsView/visitedViews"];
+});
+watch(
+  () => router.currentRoute.value.fullPath,
+  value => {
+    // 添加信息
+    let { fullPath, meta, name, path } = router.currentRoute.value;
+    store.dispatch("tagsView/addView", {fullPath, meta, name, path});
+    active.value = value;
+  },
+  { immediate: true }
+);
+// 关闭tags标签
+const handleClose = index => {
+  dynamicTags.splice(index, 1);
+};
+
+const goToPage = items => {
+  router.push({
+    path: items.fullPath
+  });
+};
 </script>
 
-<style scoped lang="scss">
-    .tab-nav {
-        background-color: #f7f7f7;
+<style lang="scss" scoped>
+.tag_view_container {
+    background: #eaedf7;
+    padding: 5px 20px;
+  .tag_view_tags {
+    display: flex;
+    .tag_item {
+      margin-right: 10px;
     }
+  }
+}
+.list-enter-active,
+.list-leave-active {
+  transition: all 0.5s ease;
+}
+.list-enter-from,
+.list-leave-to {
+  opacity: 0;
+  transform: translateY(-30px);
+}
 </style>

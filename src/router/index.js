@@ -13,14 +13,17 @@ const routerHistory = createWebHistory()
 
 
 const router = createRouter({
+  // 指定模式
   history: routerHistory,
+  // 默认路由
   routes: [
     {
       path: '/',
       name: '首页',
+      meta: {title: "首页"},
       permission: '1',
       component: layout,
-      redirect: { name: 'home' },
+      redirect: { path: '/home' },
       children: [{
         path: 'home',
         name: 'home',
@@ -31,13 +34,9 @@ const router = createRouter({
     {
       path: '/login',
       name: 'login',
+      meta: {title: "登录页"},
       component: Login
-    },
-    // {
-    //   path: '/404',
-    //   name: '404',
-    //   component: () => import('@/components/error/404.vue')
-    // },
+    }
   ]
 })
 
@@ -81,7 +80,7 @@ router.beforeEach((to, from, next) => {
       });
     } else if (white.indexOf(to.name) > -1) {          // 跳转的页面是登录页时跳转到主页
       next({
-       path: "/"
+        path: "/"
       });
     } else {
       let data = {
@@ -132,6 +131,7 @@ function addRouterList(permissionList) {
   //   return !!item.children.length > 0 || !!item['permission'];
   // })
   routerPackag(routerList)
+
   store.commit('user/SET_FILTERROUTER_LIST', routerList);
   router.addRoute('404', {
     path: '/:w+',
@@ -159,24 +159,36 @@ function filterRouter(routerList, permissionList) {
 }
 
 
-function routerPackag(routerList, parentPath) {
+function routerPackag(routerList, parentPath, pathName = '') {
+
   routerList.forEach(item => {
     // path格式为 [父/子]
     var path = !!parentPath ? (parentPath + '/' + item.path) : item.path;
-    
+
     let list = {
       path: path,
+      title: item.title,
+      meta: item.meta,
       name: item.name,
       component: item.component
     }
-    // 设置重定向
-    if (item.children) {
-      list.redirect = { name: item.children[0]['name'] }
+    // 设置重定向 兼容动态路由
+    if (item.children && !item.redirect) {
+      if (item.children[0]['default']) {
+        list.redirect = { path: `${path}/${item.children[0]['default']}` }
+      }else{
+        list.redirect = { path: `${path}/${item.children[0]['path']}` }
+      }
+
     }
-    console.log(list, "list")
-    router.addRoute(list)
+    // console.log(pathName)
+    if (pathName) {
+      router.addRoute(pathName, list)
+    } else {
+      router.addRoute(list)
+    }
     if (item.children && item.children.length > 0) {
-      routerPackag(item.children, path);
+      routerPackag(item.children, path, item.name);
     }
   })
 }
