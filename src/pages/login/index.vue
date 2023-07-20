@@ -1,129 +1,282 @@
 <template>
-  <div id="login">
-    <div class="box">
-      <div class="title">用户登录</div>
-      <div class="item">
-        <span class="label">用户名：</span>
-        <el-input v-model="formData.user" suffix-icon="el-icon-phone"></el-input>
-      </div>
-      <div class="item">
-        <span class="label">密码：</span>
-        <el-input
-          v-model="formData.pwd"
-          suffix-icon="el-icon-lock"
-          type="password"
-          @keyup.enter="login"
-        ></el-input>
-      </div>
-      <div style="display: flex;justify-content: center;">
-        <el-button type="primary" style="width: 100%;" @click="login">登 录</el-button>
-      </div>
-      <div class="bottom_btn">
-        <el-button link style="color: #ccc;">忘记密码？</el-button>
-      </div>
+  <div class="login-container">
+    <div class="content">
+      <div class="title">马利呀咔AI ERP运营后台</div>
+
+      <el-form class="account-form" ref="formRef" :rules="rules" :model="formData" label-width="90px">
+
+        <el-form-item v-for="(item, index) in formConfig" :prop="item.key" :key="item.key">
+          <template v-if="item.key === 'code'">
+            <div class="inputFormCode">
+              <el-input v-model="formData[item.key]" :placeholder="`请输入${item.label}`"/>
+
+              <div class="code-content">
+                <div v-if="IMG" class="img-container">
+                  <img class="code-img" :src="IMG">
+                </div>
+
+                <el-button v-else type="default" @click="handleGetCode" :loading="loadingCode">获取验证码</el-button>
+              </div>
+            </div>
+          </template>
+
+          <el-input
+                  v-else
+                  v-model="formData[item.key]"
+                  :type="item.compoentType === 'password' ? 'password' : 'text'"
+                  :placeholder="`请输入${item.label}`"
+                  :show-password="item.compoentType === 'password'"
+          />
+        </el-form-item>
+
+        <el-form-item>
+          <el-button type="primary" @click="handleClickBtn('submit')">{{isForget ? '重置密码' : '登录'}}</el-button>
+        </el-form-item>
+
+        <el-form-item v-if="!isForget">
+          <div class="bottom-text u-flex u-row-between">
+            <div class="u-flex">
+              <el-checkbox v-model="autoLogin">自动登录</el-checkbox>
+            </div>
+            <el-link @click="handleClickBtn('switchForm')" type="primary" :underline="false">
+              <span class="f-999">忘记密码？</span>
+            </el-link>
+          </div>
+        </el-form-item>
+      </el-form>
+
     </div>
+
+    <div v-if="isForget" class="once-login" @click="handleClickBtn('switchForm')">立即登录</div>
   </div>
+
 </template>
+
 <script setup>
-import { ref, reactive,onBeforeMount } from "vue";
-import { ElMessage } from 'element-plus'
+  import { reactive, ref, computed, getCurrentInstance, onMounted } from 'vue';
+  import IMGURL from '@/assets/images/logo.png';
+  import { useRouter } from 'vue-router';
 
-let formData = reactive({
-  user: "",
-  pwd: ""
-});
+  const { proxy } = getCurrentInstance()
+  const router = useRouter()
+  let formData = reactive({})
+  const rules = reactive({
+    password: [{
+      required: true,
+      message: '原密码不能为空!',
+      trigger: 'blur'
+    }],
+    newPassword: [
+      {
+        required: true,
+        message: '新密码不能为空!',
+        trigger: 'blur'
+      },
+      {
+        required: true,
+        message: '新密码不能为空!',
+        trigger: 'blur'
+      },
+      {
+        pattern: /^[a-zA-Z0-9]{6,16}$/,
+        message: '请输入不低于8位数的数字和字符!',
+        trigger: 'blur'
+      }
+    ],
+    confirmPassword: [
+      {
+        required: true,
+        message: '确认密码不能为空!',
+        trigger: 'blur'
+      },
+      {
+        validator: validConfirmPassword,
+        message: '新密码输入不一致!',
+        trigger: 'blur'
+      },
+    ],
+    phone: [
+      {
+        required: true,
+        message: '手机号码不能为空!',
+        trigger: 'blur',
+      },
+      {
+        pattern: /^1(3|4|5|6|7|8|9)\d{9}$/,
+        message: '请输入正确的手机号!',
+        trigger: 'blur'
+      }
+    ],
+    code: [{
+      required: true,
+      message: '验证码不能为空!',
+      trigger: 'blur'
+    }]
+  })
+  const formRef = ref(null)
+  const isForget = ref(false)
+  const loadingCode = ref(false)
+  const IMG = ref(null)
+  const autoLogin = ref(false)
 
-// 登录
-function login() {
-  if (!formData.user || !formData.pwd) {
-    ElMessage.error("手机号码和密码不能为空！");
-  } else {
-    localStorage.setItem("token", "123123");
-    // router.push({
-    //   path: "/"
-    // });
+  const formConfig = computed(() => {
+    let arr = []
+    if (!isForget.value) {
+      arr = [
+        {label: '手机号码', key: 'phone', placeholder: '手机号码', compoentType:'text'},
+        {label: '验证码', key: 'code', placeholder: '验证码', compoentType:'text'},
+        {label: '密码', key: 'password', placeholder: '密码', compoentType:'password'},
+      ]
+    }else {
+      arr = [
+        {label: '手机号码', key: 'phone', placeholder: '手机号码', compoentType:'text'},
+        {label: '验证码', key: 'code', placeholder: '验证码', compoentType:'text'},
+        {label: '密码', key: 'password', placeholder: '密码', compoentType:'password'},
+        {label: '确认密码', key: 'confirmPassword', placeholder: '密码（不低于8位数的字符组合）', compoentType:'password'}
+      ]
+    }
+
+    return arr
+  })
+
+
+  function handleClickBtn(type) {
+    console.log('handleClickBtn', type)
+    if (type === 'switchForm') {
+      isForget.value = !isForget.value
+      if (isForget.value) {
+        formData = reactive({
+          password:'',
+          newPassword:'',
+          confirmPassword:'',
+        })
+      }else {
+        formData = reactive({
+          phone:'',
+          code:'',
+          newPassword:'',
+          confirmPassword:'',
+        })
+      }
+    }
+    else if (type === 'cancel') {
+      router.back()
+    }else {
+      formRef.value.validate(valid=>{
+        if (valid) {
+
+          console.log('ok', formData)
+        }
+      })
+    }
   }
-}
+  // 校验两次密码是否一致
+  function validConfirmPassword(rule, value, callback) {
+    if (value !== formData.newPassword) {
+      callback(false);
+    }
+    callback();
+  }
+  // 获取验证码
+  function handleGetCode() {
+    loadingCode.value = true
+    setTimeout(() => {
+      IMG.value = IMGURL
+      loadingCode.value = false
+    }, 2000)
+  }
 
-// export default {
-//   data() {
-//     return {
-//       user: '',
-//       pwd: ''
-//     };
-//   },
-//   created() {
-//     if (!!localStorage.lastPhone) {
-//       this.user = localStorage.lastPhone;
-//     }
-//   },
-//   methods: {
-//     login() {
-//       if (!this.user || !this.pwd) {
-//         this.$message.error('手机号码和密码不能为空！')
-//       } else {
-//         localStorage.setItem("token", "123123");
-//         this.$router.push({
-//           path: "/"
-//         })
-//       }
-//     }
-//   },
-// }
 </script>
-<style lang="scss" scoped>
-#login {
-  width: 100vw;
-  height: 100vh;
-  // background: url(../../assets/images/loginBg.jpg) no-repeat;
-  background-size: cover;
-  position: relative;
-  .box {
-    border-radius: 10px;
-    background-color: #00000088;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -60%);
-    padding: 30px 40px 15px;
-    .title {
-      color: #fff;
-      font-size: 22px;
-      text-align: center;
-      padding-bottom: 30px;
+
+<style scoped lang="scss">
+  .login-container{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    width: 100vw;
+    height: 100vh;
+
+    .content{
+      border: 1px solid #d8d4d4;
+      width: 500px;
+      height: 400px;
+      padding: 20px;
+      border-radius: 5px;
+
+      .title{
+        font-size: 32px;
+        font-weight: bold;
+        color: #000000;
+        margin-bottom: 25px;
+        text-align: center;
+        letter-spacing: 1px;
+      }
+
+      .account-form{
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        height: 240px;
+
+        ::v-deep .el-form-item{
+          width: 350px;
+
+          .bottom-text{
+            width: 100% ;
+          }
+
+          .inputFormCode{
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+
+            .el-input{
+              width: 220px;
+            }
+
+            .img-container{
+              height: 35px;
+              border: 1px solid #dadada;
+              border-radius: 2px;
+
+              .code-img{
+                height: 100%;
+              }
+            }
+
+          }
+
+          .el-form-item__content{
+            margin-left: 0 !important;
+
+            button{
+              width: 100%;
+            }
+          }
+
+          .el-form-item__label{
+          }
+
+          .el-input__wrapper{
+            width: 100%;
+            height: 35px;
+          }
+        }
+      }
+
+    }
+
+    .once-login{
       position: relative;
+      color: #3f99f7;
+      cursor: pointer;
+      top: 10vh;
+      letter-spacing: 1px;
+      font-size: 16px;
     }
-    .title::after {
-      left: 0;
-    }
-    .title::before,
-    .title::after {
-      content: "";
-      position: absolute;
-      right: 0;
-      top: 50%;
-      transform: translate(0, -13px);
-      height: 1px;
-      width: 125px;
-      background-color: #ccc;
-    }
-    .bottom_btn {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 10px;
-    }
-    .item {
-      display: flex;
-      align-items: center;
-      margin-bottom: 30px;
-      .label {
-        width: 80px;
-        color: #fff;
-      }
-      .el-input {
-        width: 300px;
-      }
-    }
+
   }
-}
 </style>

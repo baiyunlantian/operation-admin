@@ -135,7 +135,7 @@
             .account-form{
                 position: relative;
 
-                ::v-deep .el-form-item{
+                :deep .el-form-item{
                     margin-bottom: 40px;
 
                     .el-form-item__label{
