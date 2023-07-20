@@ -56,36 +56,20 @@
 
     </div>
 
-<!--    <div class="sidebar_container">-->
-<!--        <div>logo</div>-->
-<!--        <div class="menu_container">-->
-<!--            <span>菜单栏</span>-->
-<!--            <el-menu-->
-<!--              :default-active="activeIndex2"-->
-<!--              class="el-menu-demo"-->
-<!--              mode="horizontal"-->
-<!--              background-color="#242d3f"-->
-<!--              text-color="#fff"-->
-<!--              @select="handleSelect"-->
-<!--            >-->
-<!--              <el-menu-item index="1">Processing Center</el-menu-item>-->
-<!--              <el-menu-item index="4">Orders</el-menu-item>-->
-<!--            </el-menu>-->
-<!--        </div>-->
-<!--        <div>user</div>-->
-<!--    </div>-->
 </template>
 
 <script setup>
-  import {reactive, ref, computed } from 'vue';
+  import {reactive, ref, computed, watch} from 'vue';
+  import { useRouter } from "vue-router";
 
+  const router = useRouter();
   const _menuList = [
     {
       type: 'system',
       name: '首页',
       descType: 'text',
       menuId: '1',
-      path: '/',
+      path: '/home',
       menuData:'indexAdmin',
       children: []
     },
@@ -126,16 +110,16 @@
           name:'测试页面',
           descType:'text',
           menuId:'3-1',
-          path:'test',
+          path:'/user/index1',
           children:[],
           meta:{level:'用户中心'}
         },
         {
           type:'system',
-          name:'用户列表',
+          name:'测试画面2',
           descType:'text',
           menuId:'3-2',
-          path:'',
+          path:'/user/index2',
           children:[],
         },
       ]
@@ -145,12 +129,12 @@
       name: '统计',
       descType: 'text',
       menuId: '4',
-      path: '',
+      path: '/statistic',
       children: []
     },
   ]
   const menuList = reactive(_menuList)
-  const activeIndex = ref('/')
+  const activeIndex = ref('/home')
 
   const leftMenuList = computed(() => {
     return menuList.filter(item=>item.type === 'system')
@@ -160,6 +144,15 @@
   })
 
   function handleSelect() {}
+
+  watch(
+    () => router.currentRoute.value.fullPath,
+    value => {
+      // 添加信息
+      activeIndex.value = value;
+    },
+    { immediate: true }
+  );
 </script>
 
 

@@ -3,20 +3,26 @@ import layout from '@/layout/layout.vue'
 
 export default [
     {
-        path: '/test',
+        path: '/user',
         meta: {title: "测试"},
         component: layout,
-        name: "test",
+        name: "user",
         permission: 1,
         children: [
             {
-                path: '/index',
+                path: 'index1',
                 meta: {title: "测试页面"},
                 component: () => import('@/pages/test/index.vue'),
-                name: '测试页面',
+                name: 'index1',
                 permission: 1
             },
-            
+            {
+                path: 'index2',
+                meta: {title: "测试页面2222"},
+                component: () => import('@/pages/test/index2.vue'),
+                name: 'index2',
+                permission: 1
+            },
         ]
     }
 ]

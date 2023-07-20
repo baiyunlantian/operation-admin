@@ -83,13 +83,6 @@ router.beforeEach((to, from, next) => {
         path: "/"
       });
     } else {
-      let data = {
-        meta: { ...to.meta },
-        name: to.name,
-        path: to.fullPath
-      };
-      store.commit("navCtrl/setNavCtrl", data);
-      store.commit("navCtrl/setNavPath", data.path);
       next();
     }
     // 已登录

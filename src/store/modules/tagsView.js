@@ -2,7 +2,14 @@ const tagsView = {
     namespaced: true,
     state() {
         return {
-            visitedViews: [],
+            visitedViews: [
+                {
+                    fullPath:'/home',
+                    meta:{title:'首页'},
+                    name:'home',
+                    path:'/home'
+                }
+            ],
             cachedViews: []
         }
     },

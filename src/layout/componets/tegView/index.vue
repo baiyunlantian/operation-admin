@@ -11,7 +11,7 @@
             :type="active != items.fullPath?'info':''"
             :disable-transitions="false"
             @click="goToPage(items)"
-            @close="handleClose(index)"
+            @close="handleClose(index, items)"
           >{{ items.meta.title }}</el-tag>
         </TransitionGroup>
       </div>
@@ -39,14 +39,18 @@ watch(
   value => {
     // 添加信息
     let { fullPath, meta, name, path } = router.currentRoute.value;
-    store.dispatch("tagsView/addView", {fullPath, meta, name, path});
+    store.dispatch("tagsView/addView", {fullPath, meta, name, path, closable:true});
     active.value = value;
   },
   { immediate: true }
 );
 // 关闭tags标签
-const handleClose = index => {
-  dynamicTags.splice(index, 1);
+const handleClose = (index, item) => {
+  // 关闭当前激活的标签
+  if (active.value == item.path) {
+    router.push({path:dynamicTags.value[index - 1]['path']})
+  }
+  dynamicTags.value.splice(index, 1);
 };
 
 const goToPage = items => {
