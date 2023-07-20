@@ -3,7 +3,7 @@ import layout from '@/layout/layout.vue'
 
 export default [
   {
-    path: '/account',
+    path: '/',
     meta: {title: "个人资料"},
     component: layout,
     name: "个人资料",

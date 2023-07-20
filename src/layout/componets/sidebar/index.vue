@@ -85,7 +85,7 @@
           name:'个人资料',
           descType:'text',
           menuId:'2-1',
-          path:'/account/info',
+          path:'/info',
           children:[],
         },
         {
@@ -93,7 +93,7 @@
           name:'修改密码',
           descType:'text',
           menuId:'2-2',
-          path:'/account/updatePassword',
+          path:'/updatePassword',
           children:[],
         }
       ]
@@ -110,7 +110,7 @@
           name:'会员用户列表',
           descType:'text',
           menuId:'3-1',
-          path:'/user/member',
+          path:'/member',
           children:[],
           meta:{level:'用户中心'}
         },
@@ -119,7 +119,7 @@
           name:'运营后台用户列表',
           descType:'text',
           menuId:'3-2',
-          path:'/user/operate',
+          path:'/operate',
           children:[],
         },
       ]

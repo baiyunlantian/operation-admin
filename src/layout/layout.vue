@@ -23,4 +23,13 @@ export default {
   .el-header{
     padding: 0;
   }
+
+  .body{
+    padding: 10px 20px 5px 20px;
+    flex: 1;
+
+    >div{
+      height: 100%;
+    }
+  }
 </style>
