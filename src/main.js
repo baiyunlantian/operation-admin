@@ -1,5 +1,6 @@
 import { createApp } from 'vue'
 import ElementPlus from 'element-plus'
+import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
 import { ElMessage } from 'element-plus'
 // import 'element-plus/dist/index.css'
 import './assets/css/index.scss'
@@ -20,7 +21,7 @@ for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
     app.component(key, component)
 }
 // 载入element
-app.use(ElementPlus)
+app.use(ElementPlus, {locale: zhCn})
 // 载入vuex
 app.use(store)
 // 路由引入

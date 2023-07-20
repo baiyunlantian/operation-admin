@@ -4,23 +4,23 @@ import layout from '@/layout/layout.vue'
 export default [
     {
         path: '/user',
-        meta: {title: "测试"},
+        meta: {title: "用户管理"},
         component: layout,
-        name: "user",
+        name: "用户管理",
         permission: 1,
         children: [
             {
-                path: 'index1',
-                meta: {title: "测试页面"},
-                component: () => import('@/pages/test/index.vue'),
-                name: 'index1',
+                path: '/member',
+                meta: {title: "会员用户列表"},
+                component: () => import('@/pages/user/member.vue'),
+                name: 'member',
                 permission: 1
             },
             {
-                path: 'index2',
-                meta: {title: "测试页面2222"},
-                component: () => import('@/pages/test/index2.vue'),
-                name: 'index2',
+                path: '/operate',
+                meta: {title: "运营后台用户列表"},
+                component: () => import('@/pages/user/operate.vue'),
+                name: 'operate',
                 permission: 1
             },
         ]

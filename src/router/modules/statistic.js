@@ -10,11 +10,18 @@ export default [
         permission: 1,
         children: [
             {
-                path: '',
-                component: () => import('@/pages/statistic/index.vue'),
-                name: 'statistic',
+                path: '/user',
+                meta: {title: "用户统计"},
+                component: () => import('@/pages/statistic/user.vue'),
+                name: 'user',
                 permission: 1
-
+            },
+            {
+                path: '/trading',
+                meta: {title: "交易统计"},
+                component: () => import('@/pages/statistic/trading.vue'),
+                name: 'trading',
+                permission: 1
             }
         ]
     }

@@ -75,25 +75,25 @@
     },
     {
       type:'user',
-      name:'我的',
+      name:'个人中心',
       descType:'img',
       menuId:'2',
-      path:'/',
+      path:'',
       children:[
         {
           type:'user',
-          name:'账号设置',
+          name:'个人资料',
           descType:'text',
           menuId:'2-1',
-          path:'test',
+          path:'/account/info',
           children:[],
         },
         {
           type:'user',
-          name:'注册',
+          name:'修改密码',
           descType:'text',
           menuId:'2-2',
-          path:'register',
+          path:'/account/updatePassword',
           children:[],
         }
       ]
@@ -107,19 +107,19 @@
       children: [
         {
           type:'system',
-          name:'测试页面',
+          name:'会员用户列表',
           descType:'text',
           menuId:'3-1',
-          path:'/user/index1',
+          path:'/user/member',
           children:[],
           meta:{level:'用户中心'}
         },
         {
           type:'system',
-          name:'测试画面2',
+          name:'运营后台用户列表',
           descType:'text',
           menuId:'3-2',
-          path:'/user/index2',
+          path:'/user/operate',
           children:[],
         },
       ]
@@ -129,8 +129,25 @@
       name: '统计',
       descType: 'text',
       menuId: '4',
-      path: '/statistic',
-      children: []
+      path: '',
+      children: [
+        {
+          type:'system',
+          name:'用户统计',
+          descType:'text',
+          menuId:'4-1',
+          path:'/statistic/user',
+          children:[],
+        },
+        {
+          type:'system',
+          name:'交易统计',
+          descType:'text',
+          menuId:'4-2',
+          path:'/statistic/trading',
+          children:[],
+        },
+      ]
     },
   ]
   const menuList = reactive(_menuList)
