@@ -104,18 +104,19 @@
       children: [
         {
           type:'system',
-          name:'用户中心',
+          name:'测试页面',
           descType:'text',
           menuId:'3-1',
           path:'test',
           children:[],
+          meta:{level:'用户中心'}
         },
         {
           type:'system',
           name:'用户列表',
           descType:'text',
           menuId:'3-2',
-          path:'test',
+          path:'',
           children:[],
         },
       ]

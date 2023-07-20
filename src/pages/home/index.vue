@@ -1,23 +1,23 @@
 <template>
   <div class="hello">
-    <h1>{{ msg }}</h1>
+    <h1 @click="click">{{ msg }}</h1>
   </div>
 </template>
   
-<script>
-export default {
-  name: "home",
-  data() {
-    return {
-      msg: "首页"
-    };
-  },
-  
-};
+<script setup>
+  import { ref } from 'vue';
+  import { useStore } from 'vuex';
+  const store = useStore()
+  const msg = ref('首页')
+
+  function click() {
+    console.log('click')
+    store.commit('navCtrl/setNavPath', 'home')
+  }
+
 </script>
   
-  <!-- Add "scoped" attribute to limit CSS to this component only -->
-  <style scoped>
+<style scoped lang="scss">
 h3 {
   margin: 40px 0 0;
 }

@@ -68,6 +68,7 @@ const white = ['login', 'register', '404']
 
 
 router.beforeEach((to, from, next) => {
+  console.log('to ==== ', to)
   let token = window.localStorage.getItem('token') || '';
   if (token) {
     // 权限列表为空则调用 获取权限列表的方法
@@ -83,6 +84,13 @@ router.beforeEach((to, from, next) => {
        path: "/"
       });
     } else {
+      let data = {
+        meta: { ...to.meta },
+        name: to.name,
+        path: to.fullPath
+      };
+      store.commit("navCtrl/setNavCtrl", data);
+      store.commit("navCtrl/setNavPath", data.path);
       next();
     }
     // 已登录
