@@ -1,0 +1,6 @@
+@forward 'element-plus/theme-chalk/src/common/var.scss' with ($colors: ('primary': ('base': #FD681C,
+    ),
+  ),
+);
+// sass已经抛弃@improt
+@use 'element-plus/theme-chalk/src/index.scss' as *;
