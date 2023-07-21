@@ -10,7 +10,7 @@ export default [
         permission: 1,
         children: [
             {
-                path: '/user',
+                path: '/userStatistic',
                 meta: {title: "用户统计"},
                 component: () => import('@/pages/statistic/user.vue'),
                 name: 'user',

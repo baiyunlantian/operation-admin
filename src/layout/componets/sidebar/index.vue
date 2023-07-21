@@ -136,7 +136,7 @@
           name:'用户统计',
           descType:'text',
           menuId:'4-1',
-          path:'/statistic/user',
+          path:'/userStatistic',
           children:[],
         },
         {
@@ -144,7 +144,7 @@
           name:'交易统计',
           descType:'text',
           menuId:'4-2',
-          path:'/statistic/trading',
+          path:'/trading',
           children:[],
         },
       ]
