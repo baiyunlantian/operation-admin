@@ -25,8 +25,8 @@
   </div>
 </template>
 <script setup>
-import { ref, reactive,onBeforeMount } from "vue";
-import { ElMessage } from 'element-plus'
+import { ref, reactive, onBeforeMount } from "vue";
+import { ElMessage } from "element-plus";
 
 let formData = reactive({
   user: "",

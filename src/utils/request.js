@@ -56,6 +56,7 @@ service.interceptors.response.use(response => {
     }
     return result;
 }, error => {
+    ElMessage.error(error.message);
     console.error('responseERROR', error);
     // // 关闭加载动画
     // ElLoading.service().close();

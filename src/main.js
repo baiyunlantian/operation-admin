@@ -12,6 +12,9 @@ import App from './App.vue'
 
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 
+
+await store.dispatch('enumList/getEnum')
+
 const app = createApp(App)
 // 载入icons
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
