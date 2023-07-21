@@ -27,6 +27,7 @@ export default {
   .body{
     padding: 10px 20px 5px 20px;
     flex: 1;
+    background-color: #eaedf7;
 
     >div{
       height: 100%;

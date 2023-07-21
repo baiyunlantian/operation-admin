@@ -3,7 +3,7 @@ import layout from '@/layout/layout.vue'
 
 export default [
     {
-        path: '',
+        path: '/',
         meta: {title: "用户管理"},
         component: layout,
         name: "用户管理",
@@ -18,7 +18,7 @@ export default [
             },
             {
                 path: '/operate',
-                meta: {title: "运营后台用户列表"},
+                meta: {title: "后台用户列表"},
                 component: () => import('@/pages/user/operate.vue'),
                 name: 'operate',
                 permission: 1

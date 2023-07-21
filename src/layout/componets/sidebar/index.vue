@@ -116,7 +116,7 @@
         },
         {
           type:'system',
-          name:'运营后台用户列表',
+          name:'后台用户列表',
           descType:'text',
           menuId:'3-2',
           path:'/operate',

@@ -1,5 +1,5 @@
 <template>
-  <div class="tag_view_container">
+  <div class="tag_view_container bg-fff">
     <el-scrollbar ref="scrollContainer" class="scroll-container">
       <div class="tag_view_tags">
         <TransitionGroup name="list">
@@ -62,12 +62,13 @@ const goToPage = items => {
 
 <style lang="scss" scoped>
 .tag_view_container {
-    background: #eaedf7;
-    padding: 5px 20px;
+    padding: 8px 20px;
   .tag_view_tags {
     display: flex;
     .tag_item {
       margin-right: 10px;
+      height: 35px;
+      min-width: 60px;
     }
   }
 }

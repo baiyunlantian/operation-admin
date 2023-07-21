@@ -3,7 +3,7 @@ import layout from '@/layout/layout.vue'
 
 export default [
     {
-        path: '/statistic',
+        path: '/',
         meta: {title: "统计"},
         component: layout,
         name: "统计",
