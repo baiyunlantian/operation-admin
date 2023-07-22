@@ -24,21 +24,27 @@
       required: true,
       type: Array,
       default() {
+        return [{type:'line'}]
+      }
+    },
+    xAxisData: {
+      required: true,
+      type: Array,
+      default() {
         return []
       }
     },
   })
   const echartsRef = ref(null)
-  const xAxisData = ref([])
-  const seriesData = ref([])
-  const legendData = ref([])
 
   // 初始化
   function echartsInit() {
     const myChars = echarts.init(echartsRef.value)
     myChars.clear(); // 清除画布内容
     myChars.setOption({
-      legend: {data: legendData.value},
+      legend: {
+        show: true
+      },
       // 鼠标移动到数据项时显示
       tooltip: {
         trigger: 'axis',
@@ -49,7 +55,7 @@
           alignWithLabel:true
         },
         name: props.xAxisEndText || '',
-        data: xAxisData.value,
+        data: props.xAxisData,
       },
       yAxis: {
         type: 'value',
@@ -58,35 +64,8 @@
         },
         name: props.yAxisEndText || ''
       },
-      series: seriesData.value
+      series: props.lineData || []
     })
-  }
-
-  // 格式化数据
-  function formatLineData(lineData) {
-    let _xAxisData = [], _seriesData = [], _legendData = [];
-    lineData.forEach((items, index)=>{
-      let seriesItem = {type:'line', name:items.name, data:[]};
-
-      (items.series || []).forEach((item, itemIndex)=>{
-        if (index === 0) {
-          _xAxisData.push(item.xAxia)
-        }
-        seriesItem['data'].push(item.yAxia)
-      })
-
-      _seriesData.push(seriesItem)
-      _legendData.push(items.name)
-    })
-
-
-    xAxisData.value = _xAxisData
-    seriesData.value = _seriesData
-    legendData.value = _legendData
-
-    setTimeout(() => {
-      echartsInit()
-    }, 100)
   }
 
   // onMounted(() => {
@@ -94,9 +73,10 @@
   // });
 
   watch(() => props.lineData, (newVal, oldVal) => {
-      formatLineData(newVal)
+      setTimeout(() => {
+        echartsInit()
+      }, 100)
     },
-    {deep:true}
   )
 
 </script>

@@ -50,6 +50,8 @@
             </div>
         </div>
 
+        <div class="total-statistic">共计{{ totalStatistic }}人</div>
+
         <div class="echarts-container">
             <MutiLine
                     height="500px"
@@ -57,7 +59,7 @@
                     x-axis-end-text="日期/天"
                     y-axis-end-text="用户/人"
                     :x-axis-data="xAxisData"
-                    :line-data="userEchartsDataList"
+                    :line-data="lineData"
             />
         </div>
 
@@ -95,7 +97,9 @@
     {label:'AI ERP', key:'AIERP'},
   ])
   const userEchartsDataList = ref([])
+  const lineData = ref([])
   const xAxisData = ref([])
+  const totalStatistic = ref(0)
   const timeRangeTags = reactive([
     {label:'今日', key:'today'},
     {label:'最近7天', key:'week'},
@@ -181,22 +185,33 @@
           {xAxia:'7-27', yAxia:54},
         ],
       },
-    ], data = [];
+    ];
 
-    responseData.forEach(item=>{
-      if (item.name ===  userEchartsCategoryText.value) {
-        data.push(item)
-      }
+    formatLineData(responseData)
+    userEchartsDataList.value = responseData
+  }
+
+  // 格式化数据
+  function formatLineData(list) {
+    let _xAxisData = [], _seriesData = [], total = 0;
+    list.forEach((items, index)=>{
+      let seriesItem = {type:'line', name:items.name, data:[]};
+
+      (items.series || []).forEach((item, itemIndex)=>{
+        if (index === 0) {
+          _xAxisData.push(item.xAxia)
+        }
+        total += item.yAxia
+        seriesItem['data'].push(item.yAxia)
+      })
+
+      _seriesData.push(seriesItem)
     })
-    // 过滤数据
-    if (userEchartsCategoryText.value !== '全部') {
-      data = responseData.filter(item=>item.name ===  userEchartsCategoryText.value)
-    }else {
-      data = responseData
-    }
-    setTimeout(() => {
-      userEchartsDataList.value = data
-    }, 1500)
+
+
+    totalStatistic.value = total
+    xAxisData.value = _xAxisData
+    lineData.value = _seriesData
   }
 
   const userEchartsCategoryText = computed(()=>{
@@ -207,8 +222,16 @@
   // 用户统计图表切换
   watch(
     () => userEchartsCategory.value,
-    value => {
-      handleGetUserStatistic()
+    Category => {
+      let data = [];
+      // 过滤数据
+      if (userEchartsCategoryText.value !== '全部') {
+        data = userEchartsDataList.value.filter(item=>item.name ===  userEchartsCategoryText.value)
+      }else {
+        data = userEchartsDataList.value
+      }
+
+      formatLineData(data)
     }
   )
 
@@ -331,6 +354,13 @@
                     }
                 }
             }
+        }
+
+        .total-statistic{
+            position: absolute;
+            bottom: 30px;
+            right: 20%;
+            font-size: 16px;
         }
 
         .echarts-container{
