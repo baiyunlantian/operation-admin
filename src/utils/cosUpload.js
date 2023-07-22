@@ -1,0 +1,68 @@
+import config from "@/config/index.js";
+import COS from 'cos-js-sdk-v5';
+
+
+const cos = new COS({
+    SecretId: '',
+    SecretKey: '',
+});
+
+
+
+
+/**
+ * 
+ * 
+ * @param {桶位置} cosBucket 
+ * @param {桶key} cosRegion 
+ * @param {文件名称} fileName 
+ * @param {文件} file 
+ * @param {文件上传回调} callBack 
+ * ******************非必填************************
+ * @param {做切片的上传的最小值} fileSize  kb为单位
+ * @param {进度条回调} onProgressCallBack 
+ * @param {文件上传完的回调} onFileFinishCallBack 
+ * @returns 
+ */
+export function cosUploadImage(cosBucket, cosRegion, fileName, file, callBack, fileSize = "", onProgressCallBack = "", onFileFinishCallBack = "") {
+    return cos.uploadFile({
+        Bucket: cosBucket,
+        Region: cosRegion,
+        Key: fileName,
+        Body: file,
+        SliceSize: fileSize,
+        onProgress: function (info) {
+            onProgressCallBack(info)
+        },
+        onFileFinish: function (err, data, options) {
+            onFileFinishCallBack(err, data, options)
+        },
+    }, (err, data) => {
+        callBack(err || data)
+    })
+}
+
+/**
+ * 
+ * @param {文件集合} fileList 
+ * @param {默认的回调} callBack 
+ * ****************非必填*******************
+ * @param {做切片的上传的最小值} fileSize 
+ * @param {进度条的回调} onProgressCallBack 
+ * @param {上传完的回调} onFileFinishCallBack 
+*/
+export function cosBatchUploadImage(fileList, callBack, fileSize, onProgressCallBack, onFileFinishCallBack) {
+    return cos.uploadFiles({
+        files: fileList,
+        SliceSize: fileSize,    /* 设置大于10MB采用分块上传 */
+        onProgress: function (info) {
+            onProgressCallBack(info)
+        },
+        onFileFinish: function (err, data, options) {
+            onFileFinishCallBack(err, data, options)
+        },
+    }, (err, data) => {
+        callBack(err || data)
+    });
+
+}

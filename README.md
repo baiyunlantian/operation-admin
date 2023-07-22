@@ -24,7 +24,8 @@ element-plus
 node-sass
 element-icon
 vuex
-axios
+axios,
+npm i cos-js-sdk-v5 --save
 
 ### 如遇到node-sass报错可以尝试使用该指令
 npm install -g mirror-config-china --registry=http://registry.npm.taobao.org

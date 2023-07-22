@@ -23,6 +23,7 @@ service.interceptors.request.use(config => {
     //   text: 'Loading',
     //   background: 'rgba(0, 0, 0, 0.7)',
     // })
+    console.log(config,"=================")
     return config
 }, error => {
     // Do something with request error
