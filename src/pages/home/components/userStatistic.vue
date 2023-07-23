@@ -2,13 +2,13 @@
     <div class="chart-container bg-fff">
         <div class="search-container">
             <div class="left u-m-l-20 u-m-r-20">
-                <div v-for="(item, index) in userStatisticConfig" :key="index" class="desc-item">
+                <div v-for="(item, index) in leftStatisticConfig" :key="index" class="desc-item">
                     <div class="desc-text">{{item.title}}</div>
-                    <div class="value">{{item.value}}</div>
-                    <div :class="[item.ratioType, 'bottom']">
+                    <div class="value">{{ leftData[item.countProp] }}</div>
+                    <div :class="[handleJudgeIsIncrease(leftData[item.ratioProp]), 'bottom']">
                         <div class="icon"></div>
-                        <div class="ratio">{{item.ratio}}</div>
-                        <div class="ratio-text">{{item.ratioText}}</div>
+                        <div class="ratio">{{ leftData[item.ratioProp] }}</div>
+                        <div class="ratio-text">{{item.subText}}</div>
                     </div>
                 </div>
             </div>
@@ -18,24 +18,24 @@
                     <template #reference>
                         <div class="popover-text">
                             <span class="point"></span>
-                            <span class="text u-m-l-10">{{userEchartsCategoryText}}</span>
+                            <span class="text u-m-l-10">{{productTypeText}}</span>
                         </div>
                     </template>
-                    <el-radio-group v-model="userEchartsCategory">
-                        <el-radio v-for="(item) in userEchartsCategoryList" :key="item.key" :label="item.key">{{item.label}}
+                    <el-radio-group v-model="productType">
+                        <el-radio v-for="(item) in productTypeList" :key="item.key" :label="item.key">{{item.label}}
                         </el-radio>
                     </el-radio-group>
                 </el-popover>
 
                 <div class="time-range">
                     <div v-for="(item, index) in timeRangeTags" :key="index"
-                         :class="[timeRangeTagActive === item.key ? 'active' : '', 'u-cursor u-m-r-10']"
+                         :class="[dateScopeType === item.key ? 'active' : '', 'u-cursor u-m-r-10']"
                          @click="handleClickTimeTag('user', item.key)"
                     >
                         {{ item.label }}
                     </div>
                     <el-date-picker
-                            v-model="timeRange.data"
+                            v-model="timeRange"
                             type="daterange"
                             range-separator="至"
                             format="YYYY-MM-DD"
@@ -52,16 +52,18 @@
 
         <div class="total-statistic">共计{{ totalStatistic }}人</div>
 
-        <div class="echarts-container">
-            <MutiLine
-                    height="500px"
-                    width="100%"
-                    x-axis-end-text="日期/天"
-                    y-axis-end-text="用户/人"
-                    :x-axis-data="xAxisData"
-                    :line-data="lineData"
-            />
-        </div>
+        <el-row :gutter="0"  justify="center" class="echarts-container">
+            <el-col :span="20">
+                <MutiLine
+                        height="500px"
+                        width="100%"
+                        x-axis-end-text="日期/天"
+                        y-axis-end-text="用户/人"
+                        :x-axis-data="xAxisData"
+                        :line-data="lineData"
+                />
+            </el-col>
+        </el-row>
 
     </div>
 </template>
@@ -75,36 +77,48 @@
   import IncreaseImg from '@/assets/images/home-increase.png';
   import MutiLine from '@/components/Echarts/muti-line';
 
-  const timeRange = reactive({data:[]})
+  const timeRange = ref([])
   const startDate = ref(null)
   const echartsRef = ref(null)
-  const userEchartsCategory = ref('ALL')
-  const timeRangeTagActive = ref('today')
-  const totalStatisticConfig = reactive([
-    {text:'今日新增用户', value:'200', imgUrl:UserImg},
-    {text:'今日收益总额', value:'200.00', imgUrl:MoneyImg},
-    {text:'近7天收益总额', value:'200279873.00', imgUrl:IncreaseImg},
+  const productType = ref('0')
+  const dateScopeType = ref('1')
+  const leftStatisticConfig = reactive([
+    {title:'本月用户总数', subText:'同比上月', countProp:'currentMonthUserCount', ratioProp:'monthRatio'},
+    {title:'本周用户数量', subText:'同比上周', countProp:'currentWeekUserCount', ratioProp:'weekRatio'}
   ])
-  const userStatisticConfig = reactive([
-    {title:'本月用户总数', ratioText:'同比上月', value:'10000', ratio:"7%", ratioType:'increase'},
-    {title:'本周用户数量', ratioText:'同比上周', value:'1000', ratio:"7%", ratioType:'descend'},
-  ])
-  const userEchartsCategoryList = reactive([
-    {label:'全部', key:'ALL'},
-    {label:'智文', key:'ZHIWEN'},
-    {label:'智绘', key:'ZHIHUI'},
-    {label:'智像', key:'ZHIXIANG'},
-    {label:'AI ERP', key:'AIERP'},
+  const leftData = reactive({
+    currentMonthUserCount: 1000,
+    monthRatio: '-10%',
+    currentWeekUserCount: 251,
+    weekRatio: '+10%',
+    total: 256,
+  })
+  const productTypeList = reactive([
+    {label:'全部', key:'0'},
+    {label:'智文', key:'1'},
+    {label:'智绘', key:'2'},
+    {label:'智像', key:'3'},
+    {label:'AI ERP', key:'4'},
   ])
   const userEchartsDataList = ref([])
   const lineData = ref([])
   const xAxisData = ref([])
   const totalStatistic = ref(0)
   const timeRangeTags = reactive([
-    {label:'今日', key:'today'},
-    {label:'最近7天', key:'week'},
-    {label:'最近一个月', key:'month'},
+    {label:'今日', key:'1'},
+    {label:'最近7天', key:'2'},
+    {label:'最近一个月', key:'3'},
   ])
+
+  // 判断增长还是下降
+  function handleJudgeIsIncrease(value) {
+    let className = 'increase'
+    if (value && value.indexOf('-') === 0) {
+      className = 'descend'
+    }
+
+    return className
+  }
 
   function datePickerChange(dates) {
     // 记录选择的起始日期
@@ -115,21 +129,24 @@
     if (start && end) {
       const _start = dayjs(start).format('YYYY-MM-DD')
       const _end = dayjs(end).format('YYYY-MM-DD')
-      timeRange.data = [_start, _end]
+      timeRange.value = [_start, _end]
 
       // 选择时间范围时，清空左侧tag样式
-      timeRangeTagActive.value = ''
+      dateScopeType.value = ''
+      handleGetUserStatistic()
     }
   }
   function dateChange(dates) {
-    timeRange.data = dates;
+    timeRange.value = dates;
     if (dates === null || dates.length === 0) {
       startDate.value = null
     }
   }
   // 点击图表上的日期tag
   function handleClickTimeTag(type, tagValue) {
-    timeRangeTagActive.value = tagValue
+    dateScopeType.value = tagValue
+    timeRange.value = []
+    handleGetUserStatistic()
   }
 
   // 限定时间选择范围
@@ -145,9 +162,16 @@
   }
   // 获取用户统计图表数据
   function handleGetUserStatistic() {
-    // console.log('userEchartsCategory', userEchartsCategory.value)
-    // console.log('timeRangeTagActive', timeRangeTagActive.value)
-    // console.log('timeRangeTagActive', timeRange.data)
+    // console.log('productType', productType.value)
+    // console.log('dateScopeType', dateScopeType.value)
+    // console.log('dateScopeType', timeRange.data)
+    let params = {
+      productType: productType.value,
+      dateScopeType: dateScopeType.value,
+      startDate: timeRange.value[0],
+      endDate: timeRange.value[1],
+    }
+    console.log('handleGetUserStatistic', params)
     let responseData = [
       {
         name:'智文',
@@ -214,24 +238,25 @@
     lineData.value = _seriesData
   }
 
-  const userEchartsCategoryText = computed(()=>{
-    const obj = userEchartsCategoryList.find(item=>item.key === userEchartsCategory.value)
+  const productTypeText = computed(()=>{
+    const obj = productTypeList.find(item=>item.key === productType.value)
     return obj ? obj['label'] : '';
   })
 
   // 用户统计图表切换
   watch(
-    () => userEchartsCategory.value,
+    () => productType.value,
     Category => {
       let data = [];
       // 过滤数据
-      if (userEchartsCategoryText.value !== '全部') {
-        data = userEchartsDataList.value.filter(item=>item.name ===  userEchartsCategoryText.value)
+      if (productTypeText.value !== '全部') {
+        data = userEchartsDataList.value.filter(item=>item.name ===  productTypeText.value)
       }else {
         data = userEchartsDataList.value
       }
 
       formatLineData(data)
+      handleGetUserStatistic()
     }
   )
 
@@ -325,6 +350,7 @@
                 display: flex;
                 justify-content: space-between;
                 padding: 0 20px;
+                z-index: 999;
 
                 .time-range{
                     display: flex;
@@ -365,10 +391,11 @@
 
         .echarts-container{
             height: 600px;
-            width: 80%;
-            margin: 0 auto;
-            display: flex;
-            align-items: center;
+
+            .el-col{
+                display: flex;
+                align-items: center;
+            }
 
             .echarts-ref{
                 height: 500px;

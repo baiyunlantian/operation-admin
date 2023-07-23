@@ -1,14 +1,14 @@
 <template>
     <div class="trading-container u-m-t-20">
         <div class="title">
-            <div class="text">交易收益金额</div>
+            <div class="text">{{ statisticType === 'user' ? '用户增长情况' : '交易收益金额'}}</div>
 
-            <el-row :gutter="0" class="btns">
-                <el-col :span="1" :offset="1">
+            <div class="btns">
+                <div class="btn-item">
                     <el-button type="default">导出数据</el-button>
-                </el-col>
-                <el-col :span="2" :offset="1">
-                    <el-select v-model="selectValue" class="m-2">
+                </div>
+                <div class="btn-item u-m-l-10">
+                    <el-select v-model="dateScopeType" @change="handleSelectChange" class="m-2">
                         <el-option
                                 v-for="item in selectOptions"
                                 :key="item.value"
@@ -16,12 +16,12 @@
                                 :value="item.value"
                         />
                     </el-select>
-                </el-col>
+                </div>
 
-                <el-col :span="5" :offset="1">
+                <div class="btn-item u-m-l-10">
                     <div class="time-range">
                         <el-date-picker
-                                v-model="timeRange.data"
+                                v-model="timeRange"
                                 type="daterange"
                                 range-separator="至"
                                 format="YYYY-MM-DD"
@@ -32,22 +32,35 @@
                                 @calendar-change="datePickerChange"
                                 @change="dateChange"
                         />
-                    </div>
-                </el-col>
 
-            </el-row>
+<!--                        <el-date-picker-->
+<!--                                v-model="timeRange"-->
+<!--                                type="monthrange"-->
+<!--                                range-separator="至"-->
+<!--                                format="YYYY-MM"-->
+<!--                                value-format="YYYY-MM"-->
+<!--                                start-placeholder="请选择起始时间"-->
+<!--                                end-placeholder="请选择结束时间"-->
+<!--                                :disabled-date="disabledMonth"-->
+<!--                                @onPick="monthPickerChange"-->
+<!--                                @change="dateChange"-->
+<!--                        />-->
+                    </div>
+                </div>
+
+            </div>
         </div>
 
         <div class="chart-container bg-fff">
             <div class="search-container">
                 <div class="left u-m-l-20 u-m-r-20">
-                    <div v-for="(item, index) in userStatisticConfig" :key="index" class="desc-item">
+                    <div v-for="(item, index) in leftStatisticConfig" :key="index" class="desc-item">
                         <div class="desc-text">{{item.title}}</div>
-                        <div class="value">{{item.value}}</div>
-                        <div :class="[item.ratioType, 'bottom']">
+                        <div class="value">{{ leftData[item.countProp] }}</div>
+                        <div :class="[handleJudgeIsIncrease(leftData[item.ratioProp]), 'bottom']">
                             <div class="icon"></div>
-                            <div class="ratio">{{item.ratio}}</div>
-                            <div class="ratio-text">{{item.ratioText}}</div>
+                            <div class="ratio">{{ leftData[item.ratioProp] }}</div>
+                            <div class="ratio-text">{{item.subText}}</div>
                         </div>
                     </div>
                 </div>
@@ -57,11 +70,11 @@
                         <template #reference>
                             <div class="popover-text">
                                 <span class="point" :style="{backgroundColor:tableShow ? '#fff' : 'blue'}"></span>
-                                <span class="blue u-m-l-10">{{userEchartsCategoryText}}</span>
+                                <span class="blue u-m-l-10">{{productTypeText}}</span>
                             </div>
                         </template>
-                        <el-radio-group v-model="userEchartsCategory">
-                            <el-radio v-for="(item) in userEchartsCategoryList" :key="item.key" :label="item.key">{{item.label}}
+                        <el-radio-group v-model="productType">
+                            <el-radio v-for="(item) in productTypeList" :key="item.key" :label="item.key">{{item.label}}
                             </el-radio>
                         </el-radio-group>
                     </el-popover>
@@ -70,7 +83,15 @@
                 </div>
             </div>
 
-            <div v-show="!tableShow" class="total-statistic">共收益￥{{ totalStatistic }}</div>
+            <div v-show="!tableShow" class="total-statistic">
+                <template v-if="props.statisticType === 'user'">
+                    <span class="u-m-r-10">新增用户数</span>
+                    <span>共计{{ totalStatistic }}人</span>
+                </template>
+
+                <template v-else>共收益￥{{ totalStatistic }}</template>
+
+            </div>
 
             <el-row :gutter="0" justify="center" class="echarts-container">
                 <el-col :span="20">
@@ -89,7 +110,7 @@
                             height="500px"
                             width="100%"
                             x-axis-end-text="日期/月份"
-                            y-axis-end-text="金额/元"
+                            :y-axis-end-text="yAxixEndText"
                             :x-axis-data="xAxisData"
                             :line-data="lineData"
                     />
@@ -103,38 +124,94 @@
 </template>
 
 <script setup>
-  import { reactive, ref, onMounted, computed, watch } from 'vue';
+  import {reactive, ref, onMounted, computed, watch, defineProps, defineEmits, getCurrentInstance} from 'vue';
   import dayjs from 'dayjs';
   import MutiLine from '@/components/Echarts/muti-line';
 
-  const timeRange = reactive({data:[]})
+  const emit = defineEmits(['update'])
+  const props = defineProps({
+    statisticType: {
+      // user--用户  trading--收益
+      type: String,
+      default: 'user'
+    },
+    statisticData: {
+      required: true,
+      type: Array
+    },
+    leftData: {
+      required: true,
+      type: Object,
+      default: () => {
+        return {
+          currentMonth:'',
+          currentWeek:'',
+          monthRatio:'',
+          weekRatio:'',
+        }
+      }
+    },
+    totalStatistic: {
+      type: Number,
+      default: 0,
+    }
+  })
+  const { proxy } = getCurrentInstance()
+
+  const timeRange = ref([])
   const startDate = ref(null)
-  const userEchartsCategory = ref('ALL')
-  const timeRangeTagActive = ref('today')
-  const userStatisticConfig = reactive([
-    {title:'本月用户总数', ratioText:'同比上月', value:'10000', ratio:"7%", ratioType:'increase'},
-    {title:'本周用户数量', ratioText:'同比上周', value:'1000', ratio:"7%", ratioType:'descend'},
+  const productType = ref('0')
+  const productTypeList = reactive([
+    {label:'全部', key:'0'},
+    {label:'智文', key:'1'},
+    {label:'智绘', key:'2'},
+    {label:'智像', key:'3'},
+    {label:'AI ERP', key:'4'},
   ])
-  const userEchartsCategoryList = reactive([
-    {label:'全部', key:'ALL'},
-    {label:'智文', key:'ZHIWEN'},
-    {label:'智绘', key:'ZHIHUI'},
-    {label:'智像', key:'ZHIXIANG'},
-    {label:'AI ERP', key:'AIERP'},
-  ])
-  const userEchartsDataList = ref([])
   const lineData = ref([])
   const tableData = ref([])
   const tableColumnConfig = ref([])
   const xAxisData = ref([])
-  const totalStatistic = ref(0)
   const selectOptions = ref([
     {label:'按天统计', value:'1'},
     {label:'按月统计', value:'2'},
   ])
-  const selectValue = ref('1')
+  const dateScopeType = ref('1')
   const tableShow = ref(false)
+  const monthPickerOptions = reactive({
+    onPick: monthPickerChange,
+    disabledDate: disabledMonth
+  })
 
+  function disabledMonth (e) {
+    console.log('disabledMonth', e)
+    console.log('startDate', startDate.value)
+    let minMonth = '202302'
+    let maxMonth = '202308'
+    // 时间选择器月份信息
+    const timeyear = e.getFullYear()
+    let timemonth = e.getMonth() + 1
+    if (timemonth >= 1 && timemonth <= 9) {
+      timemonth = '0' + timemonth
+    }
+    const elTimeData = timeyear.toString() + timemonth.toString()
+    if (elTimeData > maxMonth) {
+      return true
+    }
+    if (elTimeData < minMonth) {
+      return true
+    }
+  }
+  function monthPickerChange ({ maxDate, minDate }) {
+    console.log('maxDate', maxDate)
+    console.log('minDate', minDate)
+    // if (!maxDate) {
+    //   this.time = minDate
+    // } else {
+    //   this.time = ''
+    // }
+  }
+  // 选择时间范围
   function datePickerChange(dates) {
     // 记录选择的起始日期
     let hasSelectDate = dates !== null && dates.length > 0
@@ -144,14 +221,20 @@
     if (start && end) {
       const _start = dayjs(start).format('YYYY-MM-DD')
       const _end = dayjs(end).format('YYYY-MM-DD')
-      timeRange.data = [_start, _end]
+      timeRange.value = [_start, _end]
 
-      // 选择时间范围时，清空左侧tag样式
-      timeRangeTagActive.value = ''
+
+      emit('update',
+          {
+            productType:productType.value,
+            dateScopeType:dateScopeType.value,
+            startDate:_start,
+            endDate:_end,
+          })
     }
   }
   function dateChange(dates) {
-    timeRange.data = dates;
+    timeRange.value = dates;
     if (dates === null || dates.length === 0) {
       startDate.value = null
     }
@@ -162,61 +245,44 @@
 
   // 限定时间选择范围
   function handleDisabledDate(time) {
+    // console.log('handleDisabledDate', time)
+    /**
+     * 按日筛选，时间区间选择为（7~30）天
+     * 按月筛选，则时间区间选择为（6~24）月
+     * */
     const day = 24 * 60 * 60 * 1000;
+    // 当前选中的时间
     const timestamp = time.getTime()
     if (startDate.value !== null) {
+      const startDateTime = startDate.value.getTime();
+      // 小于7-30天
+      const lessThan = timestamp < startDateTime - 7 * day && timestamp > startDateTime - 30 * day
+      // 大于7-30天
+      const moreThan = timestamp > startDateTime + 7 * day && timestamp < startDateTime + 30 * day
       return (
-        timestamp < startDate.value.getTime() - 7 * day ||
-        timestamp > startDate.value.getTime() + 7 * day
+          !(lessThan || moreThan)
       )
     }
   }
-  // 获取用户统计图表数据
-  function handleGetUserStatistic() {
-    // console.log('userEchartsCategory', userEchartsCategory.value)
-    // console.log('timeRangeTagActive', timeRangeTagActive.value)
-    // console.log('timeRangeTagActive', timeRange.data)
-    let responseData = [
-      {
-        name:'智文',
-        series:[
-          {xAxia:'7-21', yAxia:50},
-          {xAxia:'7-23', yAxia:88},
-          {xAxia:'7-25', yAxia:45},
-          {xAxia:'7-27', yAxia:15},
-        ],
-      },
-      {
-        name:'智绘',
-        series:[
-          {xAxia:'7-21', yAxia:14},
-          {xAxia:'7-23', yAxia:64},
-          {xAxia:'7-25', yAxia:54},
-          {xAxia:'7-27', yAxia:33},
-        ],
-      },
-      {
-        name:'智像',
-        series:[
-          {xAxia:'7-21', yAxia:54},
-          {xAxia:'7-23', yAxia:87},
-          {xAxia:'7-25', yAxia:43},
-          {xAxia:'7-27', yAxia:21},
-        ],
-      },
-      {
-        name:'AI ERP',
-        series:[
-          {xAxia:'7-21', yAxia:12},
-          {xAxia:'7-23', yAxia:34},
-          {xAxia:'7-25', yAxia:77},
-          {xAxia:'7-27', yAxia:54},
-        ],
-      },
-    ];
 
-    formatLineData(responseData)
-    userEchartsDataList.value = responseData
+  function handleDisabledMonth(time) {
+    // console.log('handleDisabledDate', time)
+    /**
+     * 按月筛选，则时间区间选择为（6~24）月
+     * */
+    const month = 30 * 24 * 60 * 60 * 1000;
+    // 当前选中的时间
+    const timestamp = time.getTime()
+    if (startDate.value !== null) {
+      const startDateTime = startDate.value.getTime();
+      // 小于6~24月
+      const lessThan = timestamp < startDateTime - 6 * month && timestamp > startDateTime - 24 * month
+      // 大于6~24月
+      const moreThan = timestamp > startDateTime + 6 * month && timestamp < startDateTime + 24 * month
+      return (
+          !(lessThan || moreThan)
+      )
+    }
   }
 
   // 格式化数据
@@ -230,8 +296,6 @@
      *  其余列 prop:xAxia字段的值  label:xAxia字段的值
      * */
     let _xAxisData = [], _seriesData = [], _tableData = [], _tableColumnConfig = [{label:'', prop:'name'}];
-    // 所有类型的总数量
-    let total = 0;
     // 存放 table 汇总行数据
     let tableLastRowData = new Map();
 
@@ -249,7 +313,6 @@
           _tableColumnConfig.push({label:item.xAxia, prop:item.xAxia})
         }
 
-        total += item.yAxia
         categoryTotal += item.yAxia
         seriesItem['data'].push(item.yAxia)
         // 取 xAxia 字段作为column的prop
@@ -270,43 +333,89 @@
     })
 
     // 构造table 最后一行数据
-    let tableLastRowObj = {name:'汇总', total };
+    let tableLastRowObj = {name:'汇总', total: props.totalStatistic };
     tableLastRowData.forEach((value, prop) => {
       tableLastRowObj[prop] = value
     })
     _tableData.push(tableLastRowObj)
 
-    totalStatistic.value = total
     xAxisData.value = _xAxisData
     lineData.value = _seriesData
     tableData.value = _tableData
     tableColumnConfig.value = _tableColumnConfig.concat([{label:'汇总', prop:'total'}])
   }
 
-  const userEchartsCategoryText = computed(()=>{
-    const obj = userEchartsCategoryList.find(item=>item.key === userEchartsCategory.value)
+  // 判断增长还是下降
+  function handleJudgeIsIncrease(value) {
+    let className = 'increase'
+    if (value && value.indexOf('-') === 0) {
+      className = 'descend'
+    }
+
+    return className
+  }
+
+  // 选择按日/月统计
+  function handleSelectChange() {
+    timeRange.value = []
+    proxy.$message({
+      type:'info',
+      message:'请选择时间范围'
+    })
+  }
+
+  const leftStatisticConfig = computed(() => {
+    if (props.statisticType === 'user') {
+      return [
+        {title:'本月用户总数', subText:'同比上月', countProp:'currentMonth', ratioProp:'monthRatio'},
+        {title:'本周用户数量', subText:'同比上周', countProp:'currentWeek', ratioProp:'weekRatio'}
+      ]
+    }else {
+      return [
+        {title:'本月收益总额', subText:'同比上月', countProp:'currentMonth', ratioProp:'monthRatio'},
+        {title:'本周收益总额', subText:'同比上周', countProp:'currentWeek', ratioProp:'weekRatio'}
+      ]
+    }
+  })
+  const yAxixEndText = computed(() => {
+      return props.statisticType === 'user' ? '用户/人' : '金额/元'
+  })
+  const productTypeText = computed(()=>{
+    const obj = productTypeList.find(item=>item.key === productType.value)
     return obj ? obj['label'] : '';
   })
 
-  // 用户统计图表切换
+  // 统计图表切换类型
   watch(
-    () => userEchartsCategory.value,
+    () => productType.value,
     Category => {
       let data = [];
       // 过滤数据
-      if (userEchartsCategoryText.value !== '全部') {
-        data = userEchartsDataList.value.filter(item=>item.name ===  userEchartsCategoryText.value)
+      if (productTypeText.value !== '全部') {
+        data = props.statisticData.filter(item=>item.name ===  productTypeText.value)
       }else {
-        data = userEchartsDataList.value
+        data = props.statisticData
       }
 
       formatLineData(data)
+
+      emit('update',
+          {
+            productType:productType.value,
+            dateScopeType:dateScopeType.value,
+            startDate:timeRange.value[0],
+            endDate:timeRange.value[1],
+          })
     }
   )
 
-  onMounted(() => {
-    handleGetUserStatistic();
-  })
+  watch(
+      () => props.statisticData,
+      value => {
+        formatLineData(value)
+      },
+      {deep: true}
+  )
 
 </script>
 
@@ -326,7 +435,16 @@
         .btns{
             flex: 1;
             display: flex;
-            justify-content: flex-end;
+            align-items: center;
+            justify-content: end;
+
+            ::v-deep .el-select{
+                width: 110px;
+            }
+
+            .btn-item{
+                position: relative;
+            }
         }
 
         .chart-container{

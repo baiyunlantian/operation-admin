@@ -49,14 +49,16 @@
   function handleClickMonth(value) {
     // console.log('value', value)
     selectValue.value = value
+    handleGetEarningStatistic()
   }
   function dateChange(value) {
     console.log('dateChange', value)
-    // month.value = dates;
+    month.value = value;
+    handleGetEarningStatistic()
   }
 
   // 获取用户收益分布数据
-  function handleGetUserStatistic() {
+  function handleGetEarningStatistic() {
     // console.log('userEchartsCategory', userEchartsCategory.value)
     // console.log('timeRangeTagActive', timeRangeTagActive.value)
     // console.log('timeRangeTagActive', timeRange.data)
@@ -125,7 +127,7 @@
 
   onMounted(() => {
     month.value = dayjs(new Date()).format('YYYY-MM')
-    handleGetUserStatistic();
+    handleGetEarningStatistic();
   })
 
 </script>
