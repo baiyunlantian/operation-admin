@@ -13,12 +13,13 @@
             <el-form class="account-form" ref="formRef" :rules="rules" :model="formData" label-width="70px">
 
                 <el-form-item v-for="(item, index) in formConfig" :label="item.label" :prop="item.key" :key="item.key">
-                    <el-input v-model="formData[item.key]" />
+                    <div v-if="item.readOnly" class="content">{{ formData[item.key] }}</div>
+                    <el-input v-else v-model="formData[item.key]" />
                 </el-form-item>
             </el-form>
             <div class="btn-container">
-                <el-button type="default" @click="handleClickBtn('update')">修改密码</el-button>
-                <el-button type="primary" @click="handleClickBtn('edit')">编辑</el-button>
+                <el-button type="default" @click="handleClickBtn('leftBtn')">{{isReadOnly ? '修改密码' : '取消'}}</el-button>
+                <el-button type="primary" @click="handleClickBtn('rightBtn')">{{isReadOnly ? '编辑' : '确认修改'}}</el-button>
             </div>
         </div>
         <BottomBox />
@@ -27,18 +28,14 @@
 </template>
 
 <script setup>
-  import { reactive, ref, getCurrentInstance } from 'vue';
+  import { reactive, ref, getCurrentInstance, computed } from 'vue';
   import { useRouter } from 'vue-router';
   import BottomBox from '@/components/bottom-box';
 
   const { proxy } = getCurrentInstance()
   const router = useRouter()
-  const _formConfig = [
-    {label:'账号:', key:'account'},
-    {label:'邮箱:', key:'email'},
-    {label:'用户名:', key:'name'},
-  ]
-  const formConfig = reactive(_formConfig)
+
+  const isReadOnly = ref(true)
   const formData = reactive({
     account:'109803321',
     email:'1820388',
@@ -47,13 +44,11 @@
   const formRef = ref(null)
   const rules = reactive({
     account: [{
-      required: true,
       message: '账号不能为空!',
       trigger: 'blur'
     }],
     email: [
       {
-        required: true,
         message: '邮箱不能为空!',
         trigger: 'blur'
       },
@@ -64,18 +59,29 @@
       }
     ],
     name: [{
-      required: true,
       message: '用户名不能为空!',
       trigger: 'blur'
     }]
   })
 
-  function handleClickBtn(type) {
-    console.log('handleClickBtn', type)
-    if (type === 'update') {
-      // 跳转路由
+  function handleClickBtn(btnType) {
+    // console.log('handleClickBtn', btnType)
+    const isReadOnlyVal = isReadOnly.value
+    // 修改密码按钮
+    if (btnType === 'leftBtn' && isReadOnlyVal) {
       router.push({path:'/updatePassword'})
-    }else {
+    }
+    // 取消按钮
+    else if (btnType === 'leftBtn' && !isReadOnlyVal){
+      isReadOnly.value = true
+      formRef.value.resetFields()
+    }
+    // 编辑按钮
+    else if (btnType === 'rightBtn' && isReadOnlyVal){
+      isReadOnly.value = false
+    }
+    // 确认修改按钮
+    else if (btnType === 'rightBtn' && !isReadOnlyVal) {
       formRef.value.validate(valid=>{
         if (valid) {
           proxy.$confirm('确认修改信息吗',  {
@@ -93,6 +99,16 @@
       })
     }
   }
+
+
+  const formConfig = computed(() => {
+    return [
+      {label:'账号:', key:'account', readOnly:true},
+      {label:'邮箱:', key:'email', readOnly:isReadOnly.value},
+      {label:'用户名:', key:'name', readOnly:isReadOnly.value}
+    ]
+  })
+
   function goBack() {
     router.back()
   }
@@ -102,7 +118,7 @@
 <style scoped lang="scss">
     .account-info-container{
         display: flex;
-    flex-direction: column;
+        flex-direction: column;
 
         .header{
             color: #ffffff;
@@ -115,6 +131,7 @@
         .content{
             flex: 1;
             margin: 0 auto;
+            width: 272px;
 
             .avatar{
                 position: relative;

@@ -15,7 +15,7 @@
                         text-color="#ffffff"
                         :active-color="menuItems === 'left' ? '#FD681C' : '#ffffff'"
                         :ellipsis="false"
-                        :router="true"
+                        :router="false"
                         @select="handleSelect"
                 >
 
@@ -89,11 +89,11 @@
           children:[],
         },
         {
-          type:'user',
-          name:'修改密码',
+          type:'logout',
+          name:'退出登录',
           descType:'text',
           menuId:'2-2',
-          path:'/updatePassword',
+          path:'',
           children:[],
         }
       ]
@@ -160,7 +160,15 @@
     return menuList.filter(item=>item.type === 'user')
   })
 
-  function handleSelect() {}
+  function handleSelect(index, indexPath, item) {
+    if (!index) {
+      // 退出登录
+      localStorage.removeItem('token')
+      router.push({path:'/login'})
+    }else {
+      router.push({path:index})
+    }
+  }
 
   watch(
     () => router.currentRoute.value.fullPath,
@@ -175,8 +183,12 @@
 
 <style scoped lang='scss'>
     .el-menu--popup-container{
+        .el-menu-item.is-active {
+            color: #FD681C !important;
+        }
+
         .el-menu-item{
-            color: #000000;
+            color: #000 ;
         }
     }
 
@@ -203,6 +215,14 @@
 
             .el-menu-left{
                 position: relative;
+
+                .el-sub-menu.is-active {
+                    ::v-deep .el-sub-menu__title{
+                        border-bottom: 2px solid #FD681C;
+                        color: #FD681C;
+                    }
+                }
+
             }
 
             .el-menu-right{

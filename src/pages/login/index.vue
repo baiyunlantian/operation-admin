@@ -1,11 +1,11 @@
 <template>
   <div class="login-container">
     <div class="content">
-      <div class="title">马利呀咔AI ERP运营后台</div>
+      <div class="title">吗哩呀咔AI ERP运营后台</div>
 
       <el-form class="account-form" ref="formRef" :rules="rules" :model="formData" label-width="90px">
 
-        <el-form-item v-for="(item, index) in formConfig" :prop="item.key" :key="item.key">
+        <el-form-item v-for="(item, index) in formConfig[formType]['form']" :prop="item.key" :key="item.key">
           <template v-if="item.key === 'code'">
             <div class="inputFormCode">
               <el-input v-model="formData[item.key]" :placeholder="`请输入${item.label}`"/>
@@ -30,15 +30,15 @@
         </el-form-item>
 
         <el-form-item>
-          <el-button type="primary" @click="handleClickBtn('submit')">{{isForget ? '重置密码' : '登录'}}</el-button>
+          <el-button type="primary" @click="handleClickBtn('submit')">{{formType === 'forget' ? '重置密码' : '登录'}}</el-button>
         </el-form-item>
 
-        <el-form-item v-if="!isForget">
+        <el-form-item v-if="formType !== 'forget'">
           <div class="bottom-text u-flex u-row-between">
             <div class="u-flex">
               <el-checkbox v-model="autoLogin">自动登录</el-checkbox>
             </div>
-            <el-link @click="handleClickBtn('switchForm')" type="primary" :underline="false">
+            <el-link @click="handleSwitchForm('forgetPassword')" type="primary" :underline="false">
               <span class="f-999">忘记密码？</span>
             </el-link>
           </div>
@@ -47,7 +47,7 @@
 
     </div>
 
-    <div v-if="isForget" class="once-login" @click="handleClickBtn('switchForm')">立即登录</div>
+    <div class="once-login" @click="handleSwitchForm(formType)">{{formConfig[formType]['tip']}}</div>
   </div>
 
 </template>
@@ -55,10 +55,8 @@
 <script setup>
   import { reactive, ref, computed, getCurrentInstance, onMounted } from 'vue';
   import IMGURL from '@/assets/images/logo.png';
-  import { useRouter } from 'vue-router';
 
   const { proxy } = getCurrentInstance()
-  const router = useRouter()
   let formData = reactive({})
   const rules = reactive({
     password: [{
@@ -114,61 +112,61 @@
     }]
   })
   const formRef = ref(null)
-  const isForget = ref(false)
   const loadingCode = ref(false)
   const IMG = ref(null)
   const autoLogin = ref(false)
-
-  const formConfig = computed(() => {
-    let arr = []
-    if (!isForget.value) {
-      arr = [
+  const formType = ref('code')
+  // 表单类型  code:验证码登录    password:密码登录    forget:忘记密码
+  const formConfig = reactive({
+    'code':{
+      tip:'密码登录',
+      form:[
         {label: '手机号码', key: 'phone', placeholder: '手机号码', compoentType:'text'},
         {label: '验证码', key: 'code', placeholder: '验证码', compoentType:'text'},
+      ]
+    },
+    'password':{
+      tip:'验证码登录',
+      form:[
+        {label: '手机号码', key: 'phone', placeholder: '手机号码', compoentType:'text'},
         {label: '密码', key: 'password', placeholder: '密码', compoentType:'password'},
       ]
-    }else {
-      arr = [
+    },
+    'forget':{
+      tip:'立即登录',
+      form:[
         {label: '手机号码', key: 'phone', placeholder: '手机号码', compoentType:'text'},
         {label: '验证码', key: 'code', placeholder: '验证码', compoentType:'text'},
         {label: '密码', key: 'password', placeholder: '密码', compoentType:'password'},
         {label: '确认密码', key: 'confirmPassword', placeholder: '密码（不低于8位数的字符组合）', compoentType:'password'}
       ]
     }
-
-    return arr
   })
 
+  function handleSwitchForm(type) {
+    if (type === 'code') {
+      formType.value = 'password'
+    }else if (type === 'password' || type === 'forget') {
+      formType.value = 'code'
+    }else if (type === 'forgetPassword'){
+      formType.value = 'forget'
+    }
+
+    formRef.value.resetFields()
+  }
 
   function handleClickBtn(type) {
-    console.log('handleClickBtn', type)
-    if (type === 'switchForm') {
-      isForget.value = !isForget.value
-      if (isForget.value) {
-        formData = reactive({
-          password:'',
-          newPassword:'',
-          confirmPassword:'',
-        })
-      }else {
-        formData = reactive({
-          phone:'',
-          code:'',
-          newPassword:'',
-          confirmPassword:'',
-        })
-      }
-    }
-    else if (type === 'cancel') {
-      router.back()
-    }else {
-      formRef.value.validate(valid=>{
-        if (valid) {
 
-          console.log('ok', formData)
+    formRef.value.validate(valid=>{
+      if (valid) {
+        if (type === 'forget') {
+          // 重置密码
+        }else {
+          // 登录
         }
-      })
-    }
+        console.log('ok', formData)
+      }
+    })
   }
   // 校验两次密码是否一致
   function validConfirmPassword(rule, value, callback) {
@@ -200,7 +198,6 @@
     .content{
       border: 1px solid #d8d4d4;
       width: 500px;
-      height: 400px;
       padding: 20px;
       border-radius: 5px;
 
@@ -218,7 +215,7 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        height: 240px;
+        min-height: 240px;
 
         ::v-deep .el-form-item{
           width: 350px;
