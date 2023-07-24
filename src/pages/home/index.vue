@@ -32,8 +32,7 @@
       </el-row>
     </div>
 
-    <div class="bottom bg-box"></div>
-
+    <BottomBox />
   </div>
 </template>
   
@@ -47,6 +46,7 @@
   import FastIncrease from '@/assets/images/fast-increase.png';
   import UserStatistic from './components/userStatistic';
   import EarningsStatistic from './components/earningsStatistic';
+  import BottomBox from '@/components/bottom-box';
 
   const router = useRouter();
   const totalStatisticConfig = reactive([
@@ -134,16 +134,6 @@
       .text{
         color: gray;
       }
-    }
-
-    .bottom{
-      height: 24px;
-      width: 100%;
-    }
-
-    .bg-box{
-      background-color: blue;
-      display: inline-block;
     }
 
   }

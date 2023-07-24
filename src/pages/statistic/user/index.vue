@@ -21,7 +21,7 @@
 
         <Source />
 
-        <div class="bottom bg-box"></div>
+        <BottomBox />
 
     </div>
 </template>
@@ -30,6 +30,7 @@
   import {onMounted, reactive, ref} from 'vue';
   import User from '../components/lineStatistic';
   import Source from './components/sourceStatistic'
+  import BottomBox from '@/components/bottom-box';
 
   const totalStatisticConfig = reactive([
     {label:'今日新增', prop:'todayNewUserCount'},
@@ -143,16 +144,6 @@
             .text{
 
             }
-        }
-
-        .bottom{
-            height: 24px;
-            width: 100%;
-        }
-
-        .bg-box{
-            background-color: blue;
-            display: inline-block;
         }
 
     }

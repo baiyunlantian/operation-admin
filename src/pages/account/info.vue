@@ -21,7 +21,7 @@
                 <el-button type="primary" @click="handleClickBtn('edit')">编辑</el-button>
             </div>
         </div>
-        <div class="bottom bg-box"></div>
+        <BottomBox />
     </div>
 
 </template>
@@ -29,6 +29,7 @@
 <script setup>
   import { reactive, ref, getCurrentInstance } from 'vue';
   import { useRouter } from 'vue-router';
+  import BottomBox from '@/components/bottom-box';
 
   const { proxy } = getCurrentInstance()
   const router = useRouter()
@@ -158,13 +159,5 @@
             }
         }
 
-        .bottom{
-            height: 24px;
-        }
-
-        .bg-box{
-            background-color: blue;
-            display: inline-block;
-        }
     }
 </style>

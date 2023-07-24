@@ -12,14 +12,14 @@ export default [
             {
                 path: '/member',
                 meta: {title: "会员用户列表"},
-                component: () => import('@/pages/user/member.vue'),
+                component: () => import('@/pages/user/member/index.vue'),
                 name: 'member',
                 permission: 1
             },
             {
                 path: '/operate',
                 meta: {title: "后台用户列表"},
-                component: () => import('@/pages/user/operate.vue'),
+                component: () => import('@/pages/user/operate/index.vue'),
                 name: 'operate',
                 permission: 1
             },
