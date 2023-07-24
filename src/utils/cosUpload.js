@@ -2,11 +2,39 @@ import config from "@/config/index.js";
 import COS from 'cos-js-sdk-v5';
 
 
+let headers = {
+    TmpSecretId: "",
+    TmpSecretKey: "",
+    SecurityToken: "",
+    StartTime: "",
+    ExpiredTime: "",
+};
+let TmpSecretId = "";
+let TmpSecretKey = "";
+let SecurityToken = "";
+let StartTime = "";
+let ExpiredTime = "";
+
+
 const cos = new COS({
-    SecretId: '',
-    SecretKey: '',
+    getAuthorization: (options, callback) => {
+        callback({
+            TmpSecretId: headers.TmpSecretId,
+            TmpSecretKey: headers.TmpSecretKey,
+            SecurityToken: headers.SecurityToken,
+            ExpiredTime: headers.ExpiredTime,
+        })
+
+    }
 });
 
+
+function getHeadersKeys(obj) {
+    let keyList = Object.keys(obj)
+    for (let key of keyList) {
+        headers[key] = obj[key];
+    }
+}
 
 
 
@@ -24,7 +52,9 @@ const cos = new COS({
  * @param {文件上传完的回调} onFileFinishCallBack 
  * @returns 
  */
-export function cosUploadImage(cosBucket, cosRegion, fileName, file, callBack, fileSize = "", onProgressCallBack = "", onFileFinishCallBack = "") {
+export function cosUploadImage(headers, cosBucket, cosRegion, fileName, file, callBack, fileSize = 0, onProgressCallBack = "", onFileFinishCallBack = "") {
+    getHeadersKeys(headers);
+
     return cos.uploadFile({
         Bucket: cosBucket,
         Region: cosRegion,
@@ -35,10 +65,13 @@ export function cosUploadImage(cosBucket, cosRegion, fileName, file, callBack, f
             onProgressCallBack(info)
         },
         onFileFinish: function (err, data, options) {
-            onFileFinishCallBack(err, data, options)
+            if (onFileFinishCallBack) {
+                onFileFinishCallBack(err, data, options)
+
+            }
         },
     }, (err, data) => {
-        callBack(err || data)
+        callBack(err, data)
     })
 }
 
@@ -51,7 +84,8 @@ export function cosUploadImage(cosBucket, cosRegion, fileName, file, callBack, f
  * @param {进度条的回调} onProgressCallBack 
  * @param {上传完的回调} onFileFinishCallBack 
 */
-export function cosBatchUploadImage(fileList, callBack, fileSize, onProgressCallBack, onFileFinishCallBack) {
+export function cosBatchUploadImage(headers, fileList, callBack, fileSize, onProgressCallBack, onFileFinishCallBack) {
+    getHeadersKeys(headers);
     return cos.uploadFiles({
         files: fileList,
         SliceSize: fileSize,    /* 设置大于10MB采用分块上传 */

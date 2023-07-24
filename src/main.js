@@ -13,7 +13,7 @@ import App from './App.vue'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 
 // import { cosUploadImage } from "./utils/cosUpload.js"
-// cosUploadImage("")
+// cosUploadImage()
 
 await store.dispatch('enumList/getEnum')
 
