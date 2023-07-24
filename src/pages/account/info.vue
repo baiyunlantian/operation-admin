@@ -1,5 +1,5 @@
 <template>
-    <div class="account-info-container">
+    <div class="account-info-container bg-fff">
         <div class="header bg-box">
             <span class="u-cursor" @click="goBack">&lt;</span>
             个人资料
@@ -102,16 +102,14 @@
 <style scoped lang="scss">
     .account-info-container{
         display: flex;
-        flex-direction: column;
+    flex-direction: column;
 
         .header{
-            height: 40px;
-            line-height: 40px;
             color: #ffffff;
-            font-size: 18px;
+            font-size: 24px;
             font-weight: bold;
-            padding-left: 15px;
-
+            padding: 10px 15px;
+            background: blue;
         }
 
         .content{

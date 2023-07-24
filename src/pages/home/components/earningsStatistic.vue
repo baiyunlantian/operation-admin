@@ -219,7 +219,7 @@
   function formatLineData(list) {
     let _xAxisData = [], _seriesData = [], total = 0;
     list.forEach((items, index)=>{
-      let seriesItem = {type:'line', name:items.name, data:[]};
+      let seriesItem = {type:'line', name:items.name, data:[], smooth: true};
 
       (items.series || []).forEach((item, itemIndex)=>{
         if (index === 0) {

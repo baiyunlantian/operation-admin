@@ -177,7 +177,7 @@
             flex: 1;
             display: flex;
             align-items: center;
-            justify-content: end;
+            justify-content: flex-end;
 
             ::v-deep .el-select{
                 width: 110px;

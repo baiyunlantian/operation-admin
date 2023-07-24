@@ -14,7 +14,7 @@ export default [
                 meta: {title: "会员用户列表"},
                 component: () => import('@/pages/user/member/index.vue'),
                 name: 'member',
-                permission: 1
+                permission: 1,
             },
             {
                 path: '/operate',

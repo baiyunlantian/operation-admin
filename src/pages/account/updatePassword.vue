@@ -1,5 +1,5 @@
 <template>
-    <div class="update-password-container">
+    <div class="update-password-container bg-fff">
         <div class="content">
             <div class="title">修改密码</div>
 
@@ -194,9 +194,11 @@
 
 <style scoped lang="scss">
     .update-password-container{
+        display: flex;
+        align-items: center;
+        justify-content: center;
 
         .content{
-            margin: 100px auto;
             border: 1px solid #d8d4d4;
             width: 450px;
             height: 400px;

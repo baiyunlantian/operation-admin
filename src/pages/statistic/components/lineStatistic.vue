@@ -202,6 +202,8 @@
       return true
     }
   }
+
+  // TODO  限制月份范围功能未完成
   function monthPickerChange ({ maxDate, minDate }) {
     console.log('maxDate', maxDate)
     console.log('minDate', minDate)
@@ -301,7 +303,7 @@
 
     list.forEach((items, index)=>{
       // 图表接受的数据格式
-      let seriesItem = {type:'line', name:items.name, data:[]};
+      let seriesItem = {type:'line', name:items.name, data:[], smooth: true};
       // 每个类型的总数量
       let categoryTotal = 0;
       // 构造table 每列数据
@@ -436,7 +438,7 @@
             flex: 1;
             display: flex;
             align-items: center;
-            justify-content: end;
+            justify-content: flex-end;
 
             ::v-deep .el-select{
                 width: 110px;

@@ -4,7 +4,6 @@
             title="添加用户"
             class="add-user-modal"
             width="500"
-            :modal="false"
             :close-on-click-modal="false"
             @close="handleClose"
     >

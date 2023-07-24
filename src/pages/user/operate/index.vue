@@ -100,7 +100,7 @@
 </template>
 
 <script setup>
-  import { ref, reactive, watch, getCurrentInstance } from 'vue';
+  import {ref, reactive, watch, getCurrentInstance, onMounted} from 'vue';
   import dayjs from 'dayjs';
   import BottomBox from '@/components/bottom-box';
   import Modal from './components/modal';
@@ -116,25 +116,7 @@
     pageSize:10,
     pageIndex:1
   })
-  const tableData = ref([
-    {
-      "userId": 921354756,
-      "account": "只集东方战",
-      "userName": "和进部也当",
-      "email": "会战四",
-      "createdTime": "常行教代划及把",
-      "status": 0
-    },
-    {
-      "userId": 13543747756,
-      "account": "只集东方战",
-      "userName": "和进部也当",
-      "email": "会战四",
-      "createdTime": "常行把",
-      "status": 1
-    },
-
-  ])
+  const tableData = ref([])
   const tableColumnConfig = ref([
     {label:'用户ID', prop:'userId'},
     {label:'用户账号', prop:'account'},
@@ -169,6 +151,26 @@
       delete params.createTime
     }
 
+    tableData.value = [
+      {
+        "userId": 921354756,
+        "account": "只集东方战",
+        "userName": "和进部也当",
+        "email": "会战四",
+        "createdTime": "常行教代划及把",
+        "status": false,
+        "isPay": 0,
+      },
+      {
+        "userId": 13543747756,
+        "account": "只集东方战",
+        "userName": "和进部也当",
+        "email": "会战四",
+        "createdTime": "常行把",
+        "status": true,
+        "isPay": 1,
+      },
+    ]
     console.log('params', params)
   }
 
@@ -234,6 +236,10 @@
     },
     {deep:true}
   )
+
+  onMounted(() => {
+    handleGetTableList()
+  })
 </script>
 
 <style scoped lang="scss">
