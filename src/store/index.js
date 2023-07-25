@@ -24,6 +24,7 @@ const store = new createStore({
 
     },
     actions: {
+        
     },
 
 })

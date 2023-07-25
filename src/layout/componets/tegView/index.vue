@@ -84,6 +84,7 @@ const goToPage = items => {
   background: #313c53;
   margin: 0 20px;
   padding: 10px 20px;
+  border-radius: 10px 10px 0 0;
   .tag_view_tags {
     display: flex;
     .tag_item {
