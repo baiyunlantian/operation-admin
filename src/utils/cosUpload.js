@@ -1,40 +1,33 @@
-import config from "@/config/index.js";
 import COS from 'cos-js-sdk-v5';
 
 
-let headers = {
-    TmpSecretId: "",
-    TmpSecretKey: "",
-    SecurityToken: "",
-    StartTime: "",
-    ExpiredTime: "",
-};
-let TmpSecretId = "";
-let TmpSecretKey = "";
-let SecurityToken = "";
-let StartTime = "";
-let ExpiredTime = "";
+// const cos = new COS({
+//     getAuthorization: (options, callback) => {
+//         callback({
+//             TmpSecretId: headers.TmpSecretId,
+//             TmpSecretKey: headers.TmpSecretKey,
+//             SecurityToken: headers.SecurityToken,
+//             ExpiredTime: headers.ExpiredTime,
+//         })
+
+//     }
+// });
 
 
-const cos = new COS({
-    getAuthorization: (options, callback) => {
-        callback({
-            TmpSecretId: headers.TmpSecretId,
-            TmpSecretKey: headers.TmpSecretKey,
-            SecurityToken: headers.SecurityToken,
-            ExpiredTime: headers.ExpiredTime,
-        })
+// let headers = {
+//     TmpSecretId: "",
+//     TmpSecretKey: "",
+//     SecurityToken: "",
+//     StartTime: "",
+//     ExpiredTime: "",
+// };
 
-    }
-});
-
-
-function getHeadersKeys(obj) {
-    let keyList = Object.keys(obj)
-    for (let key of keyList) {
-        headers[key] = obj[key];
-    }
-}
+// function getHeadersKeys(obj) {
+//     let keyList = Object.keys(obj)
+//     for (let key of keyList) {
+//         headers[key] = obj[key];
+//     }
+// }
 
 
 
@@ -53,7 +46,21 @@ function getHeadersKeys(obj) {
  * @returns 
  */
 export function cosUploadImage(headers, cosBucket, cosRegion, fileName, file, callBack, fileSize = 0, onProgressCallBack = "", onFileFinishCallBack = "") {
-    getHeadersKeys(headers);
+
+
+
+    const cos = new COS({
+        getAuthorization: (options, callback) => {
+            callback({
+                TmpSecretId: headers.TmpSecretId,
+                TmpSecretKey: headers.TmpSecretKey,
+                SecurityToken: headers.SecurityToken,
+                ExpiredTime: headers.ExpiredTime,
+            })
+
+        }
+    });
+
 
     return cos.uploadFile({
         Bucket: cosBucket,
@@ -85,7 +92,21 @@ export function cosUploadImage(headers, cosBucket, cosRegion, fileName, file, ca
  * @param {上传完的回调} onFileFinishCallBack 
 */
 export function cosBatchUploadImage(headers, fileList, callBack, fileSize, onProgressCallBack, onFileFinishCallBack) {
-    getHeadersKeys(headers);
+
+
+    const cos = new COS({
+        getAuthorization: (options, callback) => {
+            callback({
+                TmpSecretId: headers.TmpSecretId,
+                TmpSecretKey: headers.TmpSecretKey,
+                SecurityToken: headers.SecurityToken,
+                ExpiredTime: headers.ExpiredTime,
+            })
+
+        }
+    });
+
+    // getHeadersKeys(headers);
     return cos.uploadFiles({
         files: fileList,
         SliceSize: fileSize,    /* 设置大于10MB采用分块上传 */

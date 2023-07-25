@@ -23,7 +23,7 @@ service.interceptors.request.use(config => {
     //   text: 'Loading',
     //   background: 'rgba(0, 0, 0, 0.7)',
     // })
-    console.log(config,"=================")
+    console.log(config, "=================")
     return config
 }, error => {
     // Do something with request error
@@ -39,13 +39,12 @@ service.interceptors.response.use(response => {
 
     if (result.code == 4001) {
         window.localStorage.token = result.refsToken;
-    } else if (result.code !== 200) {
-
+    } else if (result.code !== 0) {
         switch (result.code) {
             case '401':
                 ElMessage.error('登录已过期，重新登录');
                 window.localStorage.removeItem("token");
-                window.localStorage.setItem('userInfo', '{}');
+                window.localStorage.removeItem('userInfo');
                 router.push({
                     name: 'login'
                 });
