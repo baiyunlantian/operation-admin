@@ -4,9 +4,11 @@
     <el-upload
       v-model:fileList="fileList"
       class="upload-demo"
+      :class="{hide: uploadHide}"
       action="#"
       :http-request="httpUploadCos"
       :list-type="listType"
+      :limit="limit"
       v-bind="$attrs"
     >
       <slot>
@@ -22,7 +24,7 @@
   </div>
 </template>
 <script setup>
-import { ref, defineProps, watch, reactive, defineEmits } from "vue";
+import { ref, defineProps, watch, computed, reactive, defineEmits } from "vue";
 import { getAuthorization } from "@/api/cosUpload.js";
 import { cosUploadImage } from "@/utils/cosUpload.js";
 import { ElLoading, ElMessage } from "element-plus";
@@ -39,6 +41,10 @@ const props = defineProps({
   fileList: {
     type: Array,
     default: () => []
+  },
+  limit: {
+    type: Number,
+    default: 2
   },
   listType: {
     type: String,
@@ -66,6 +72,13 @@ const uploadMessageTips = () => {
 };
 
 const fileList = ref(props.fileList);
+
+const uploadHide = computed(() => {
+  if (props.limit != 0) {
+    return fileList.value.length >= props.limit;
+  }
+  return false;
+});
 
 // 上传前的钩子
 const beforeUpload = file => {
@@ -177,3 +190,11 @@ const handleDownload = file => {
   console.log(file);
 };
 </script>
+
+<style lang="scss" scoped>
+.hide{
+  :deep .el-upload--picture-card{
+    display: none;
+  }
+}
+</style>
