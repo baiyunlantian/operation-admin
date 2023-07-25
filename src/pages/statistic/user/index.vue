@@ -1,7 +1,7 @@
 <template>
     <div class="user-statistic-container">
 
-        <div class="title">用户总览</div>
+        <div class="title title-box">用户总览</div>
         <div class="statistic-container bg-fff">
             <el-row class="w-100" :gutter="0">
                 <el-col v-for="(item, index) in totalStatisticConfig"  :span="5" :offset="1"  :key="index" class="item">
@@ -21,13 +21,14 @@
 
         <Source />
 
-        <BottomBox />
+<!--        <BottomBox />-->
 
     </div>
 </template>
 
 <script setup>
   import {onMounted, reactive, ref} from 'vue';
+  import API from './api';
   import User from '../components/lineStatistic';
   import Source from './components/sourceStatistic'
   import BottomBox from '@/components/bottom-box';
@@ -38,14 +39,14 @@
     {label:'本月新增', prop:'currentMonthNewUserCount'},
     {label:'用户总数', prop:'totalUserCount'},
   ])
-  const totalStatisticData = reactive({
+  let totalStatisticData = reactive({
     todayNewUserCount:200,
     yesterdayNewUserCount:200,
     currentMonthNewUserCount:400,
     totalUserCount:600,
   })
   const statisticData = ref([])
-  const leftData = reactive({
+  let leftData = reactive({
     currentMonth: 1000,
     monthRatio: '-10%',
     currentWeek: 251,
@@ -55,7 +56,7 @@
 
   // 获取用户增长情况统计数据
   function handleGetUserStatisticData(params) {
-    console.log('handleGetUserStatisticData', params)
+    // console.log('handleGetUserStatisticData', params)
     let responseData = [
       {
         name:'智文',
@@ -95,11 +96,34 @@
       },
     ];
 
+    // console.log('handleGetUserStatistic', params)
+    // API.getUserIncreaseStatistic(params).then(res=>{
+    //   if (res.code === '0') {
+    //     const { statisticData, ...other } = res.data
+    //     statisticData.value = statisticData
+    //     leftData = {
+    //       ...other,
+    //       currentMonth: other.currentMonthUserCount,
+    //       currentWeek: other.currentWeekUserCount,
+    //     }
+    //   }
+    // })
+
     statisticData.value = responseData;
   }
 
+  // 获取用户总览信息
+  function handleGetTotalUserNumber() {
+    API.getTotalUserNumber().then(res=>{
+      if (res.code === '0') {
+        totalStatisticData = res.data
+      }
+    })
+  }
+
   onMounted(() => {
-    handleGetUserStatisticData();
+    // handleGetTotalUserNumber()
+    handleGetUserStatisticData({productType:0});
   })
 </script>
 
@@ -131,18 +155,6 @@
                     font-size: 32px;
                     color: red;
                 }
-            }
-        }
-
-        .title{
-            position: relative;
-            background-color: blue;
-            padding: 15px;
-            border-radius: 5px;
-            color: #fff;
-
-            .text{
-
             }
         }
 

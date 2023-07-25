@@ -24,9 +24,11 @@
 </template>
 
 <script setup>
-  import {reactive, ref, defineEmits} from 'vue';
+  import {reactive, ref, defineEmits, getCurrentInstance} from 'vue';
+  import API from '../api';
 
   const emit = defineEmits(['close'])
+  const { proxy } = getCurrentInstance()
 
   const formConfig = ref([
     {label:'账号：', prop:'account', placeholder:'请输入手机号'},
@@ -65,15 +67,24 @@
   const dialogVisible = ref(true)
   const form = ref(null)
 
-  function handleClose() {
-    emit('close', false)
+  function handleClose(refreshTable = false) {
+    console.log('refreshTable', refreshTable)
+    emit('close', false, refreshTable)
   }
 
   function handleAdd() {
     form.value.validate(valid=>{
-      console.log('valid', valid)
       if (valid) {
-        handleClose()
+        console.log('formData', formData)
+        // API.addUser(formData).then(res=>{
+          // if (res.code === '0') {
+          //   proxy.$message({
+          //     type:'success',
+          //     message:'添加用户成功！'
+          //   })
+            // handleClose(true)
+          // }
+        // })
       }
     })
   }

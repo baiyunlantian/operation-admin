@@ -11,11 +11,8 @@
                             <el-input v-model="formData[item.key]" :placeholder="`请输入${item.placeholder}`"/>
 
                             <div class="code-content">
-                                <div v-if="IMG" class="img-container">
-                                    <img class="code-img" :src="IMG">
-                                </div>
-
-                                <el-button v-else type="default" @click="handleGetCode" :loading="loadingCode">获取验证码</el-button>
+                                <div v-if="isPending" class="countdown">倒计时{{countdown}}s</div>
+                                <el-button v-else type="default" @click="handleGetCode">获取验证码</el-button>
                             </div>
                         </div>
                     </template>
@@ -34,8 +31,14 @@
                 <div class="valid-text u-cursor" @click="handleClickBtn('validaType')">{{validPhone ? '手机号码校验' : '原密码校验'}}</div>
 
                 <div class="btn-container">
-                    <el-button type="default" @click="handleClickBtn('cancel')">取消</el-button>
-                    <el-button type="primary" @click="handleClickBtn('confirm')">确认修改</el-button>
+                    <el-button v-for="(btn, index) in btnsConfig" :key="index"
+                               :type="btn.btnType"
+                               @click="handleClickBtn(btn.value)"
+                               :loading="btnLoading"
+                               :disabled="btnLoading"
+                    >
+                        {{btn.label}}
+                    </el-button>
                 </div>
             </div>
 
@@ -45,19 +48,16 @@
 </template>
 
 <script setup>
-  import { reactive, ref, computed, getCurrentInstance, onMounted } from 'vue';
-  import IMGURL from '@/assets/images/logo.png';
+  import {reactive, ref, computed, getCurrentInstance, onMounted, onUnmounted} from 'vue';
   import { useRouter } from 'vue-router';
+  import API from "@/pages/login/api";
 
   const { proxy } = getCurrentInstance()
   const router = useRouter()
-  let formData = reactive({
-    account:'109803321',
-    email:'1820388',
-    name:'iwoj',
-  })
+
+  const formData = reactive({})
   const rules = reactive({
-    password: [{
+    oldPassword: [{
       required: true,
       message: '原密码不能为空!',
       trigger: 'blur'
@@ -69,13 +69,8 @@
         trigger: 'blur'
       },
       {
-        required: true,
-        message: '新密码不能为空!',
-        trigger: 'blur'
-      },
-      {
-        pattern: /^[a-zA-Z0-9]{6,16}$/,
-        message: '请输入不低于8位数的数字和字符!',
+            pattern: /^[a-zA-Z0-9]{6,16}$/,
+        message: '请输入不低于6位数的数字和字符!',
         trigger: 'blur'
       }
     ],
@@ -91,7 +86,7 @@
         trigger: 'blur'
       },
     ],
-    phone: [
+    account: [
       {
         required: true,
         message: '手机号码不能为空!',
@@ -111,23 +106,29 @@
   })
   const formRef = ref(null)
   const validPhone = ref(false)
-  const loadingCode = ref(false)
-  const IMG = ref(null)
+  const isPending = ref(false)
+  const countdown = ref(59)
+  const timer = ref(null)
+  const btnLoading = ref(false)
+  const btnsConfig = ref([
+    {label:'取消', value:'cancel', btnType:'default'},
+    {label:'确认修改', value:'confirm', btnType:'primary'},
+  ])
 
   const formConfig = computed(() => {
     let arr = []
-    if (validPhone.value) {
+    if (!validPhone.value) {
       arr = [
-        {label: '原密码:', key: 'password', placeholder: '原密码', compoentType:'password'},
-        {label: '新密码:', key: 'newPassword', placeholder: '新密码（不低于8位数的字符组合）', compoentType:'password'},
-        {label: '确认密码:', key: 'confirmPassword', placeholder: '新密码（不低于8位数的字符组合）', compoentType:'password'}
+        {label: '原密码:', key: 'oldPassword', placeholder: '原密码', compoentType:'password'},
+        {label: '新密码:', key: 'newPassword', placeholder: '新密码（不低于6位数的字符组合）', compoentType:'password'},
+        {label: '确认密码:', key: 'confirmPassword', placeholder: '新密码（不低于6位数的字符组合）', compoentType:'password'}
       ]
     }else {
       arr = [
-        {label: '手机号码:', key: 'phone', placeholder: '手机号码', compoentType:'text'},
+        {label: '手机号码:', key: 'account', placeholder: '手机号码', compoentType:'text'},
         {label: '验证码:', key: 'code', placeholder: '验证码', compoentType:'text'},
-        {label: '新密码:', key: 'newPassword', placeholder: '新密码（不低于8位数的字符组合）', compoentType:'password'},
-        {label: '确认密码:', key: 'confirmPassword', placeholder: '新密码（不低于8位数的字符组合）', compoentType:'password'}
+        {label: '新密码:', key: 'newPassword', placeholder: '新密码（不低于6位数的字符组合）', compoentType:'password'},
+        {label: '确认密码:', key: 'confirmPassword', placeholder: '新密码（不低于6位数的字符组合）', compoentType:'password'}
       ]
     }
 
@@ -139,33 +140,20 @@
     console.log('handleClickBtn', type)
     if (type === 'validaType') {
       validPhone.value = !validPhone.value
-      if (validPhone.value) {
-        formData = reactive({
-          password:'',
-          newPassword:'',
-          confirmPassword:'',
-        })
-      }else {
-        formData = reactive({
-          phone:'',
-          code:'',
-          newPassword:'',
-          confirmPassword:'',
-        })
-      }
+      formRef.value.resetFields()
     }
     else if (type === 'cancel') {
       router.back()
     }else {
       formRef.value.validate(valid=>{
         if (valid) {
-          proxy.$confirm('确认修改信息吗',  {
+          proxy.$confirm('确认修改密码吗',  {
             confirmButtonText: '确认',
             cancelButtonText: '取消',
             type: 'warning',
           }).then(res=>{
             if (res === 'confirm') {
-              console.log(res)
+              handleUpdatePassword()
             }
           }).catch(()=>{
             console.log('取消')
@@ -174,6 +162,37 @@
       })
     }
   }
+
+  // 修改密码接口
+  function handleUpdatePassword() {
+    let params = {
+      ...formData,
+      type: validPhone.value ? '1' : '2'
+    }
+
+    console.log('params', params)
+
+    btnLoading.value = true
+    setTimeout(() => {
+      proxy.$message({
+        type: 'success',
+        message: '修改密码成功'
+      })
+      router.back();
+    }, 3000)
+
+    // API.updatePassword(params).then(res=>{
+    //   if (res.code === '0') {
+    //     proxy.$message({
+    //       type: 'success',
+    //       msg: '修改密码成功'
+    //     })
+    //
+    //     router.back();
+    //   }
+    // })
+  }
+
   // 校验两次密码是否一致
   function validConfirmPassword(rule, value, callback) {
     if (value !== formData.newPassword) {
@@ -181,14 +200,45 @@
     }
     callback();
   }
+
   // 获取验证码
   function handleGetCode() {
-    loadingCode.value = true
-    setTimeout(() => {
-      IMG.value = IMGURL
-      loadingCode.value = false
-    }, 2000)
+    // 获取验证码中
+    if (isPending.value === true) {
+      return
+    }
+
+    formRef.value.validateField('account', (valid) => {
+      if (valid) {
+        let params = {
+          Mobile: formData.account,
+          codeType:'1'
+        }
+
+        isPending.value = true
+        API.SendCode(params).then(res=>{
+          if (res.code === '0') {
+            timer.value = setInterval(() => {
+              if (countdown.value > 0) {
+                countdown.value--;
+              }else {
+                countdown.value = 59
+                isPending.value = false
+                clearInterval(timer.value)
+              }
+            }, 1000)
+          }else {
+            isPending.value = false
+          }
+        })
+      }
+    })
   }
+
+  onUnmounted(() => {
+    clearInterval(timer.value)
+  })
+
 
 </script>
 
@@ -226,6 +276,20 @@
                         display: flex;
                         justify-content: space-between;
                         width: 100%;
+
+                        .code-content{
+                            position: relative;
+
+                            .countdown{
+                                position: relative;
+                                color: #3f99f7;
+                                border: 1px solid #dcdcdc;
+                                border-radius: 5px;
+                                text-align: center;
+                                padding: 1px 0;
+                                width: 100px;
+                            }
+                        }
 
                         .el-input{
                             width: 130px;

@@ -36,7 +36,7 @@ service.interceptors.response.use(response => {
     // 关闭加载动画
     // ElLoading.service().close();
 
-    if (result.code == 4001) {
+    if (result.code == 401) {
         window.localStorage.token = result.refsToken;
     } else if (result.code !== 200) {
 

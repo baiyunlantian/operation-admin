@@ -1,8 +1,9 @@
 <template>
-    <div class="header_container">
+    <div class="header_container theme-bg">
 
         <div class="logo-container">
-            <img class="logo" src="@/assets/images/logo.png">
+            <div class="logo-text">MLYK</div>
+<!--            <img class="logo" src="@/assets/images/logo.png">-->
         </div>
 
         <div class="menu-container">
@@ -40,7 +41,7 @@
                                 <template #title>
                                     <div class="user-box u-flex u-col-center">
                                         <div class="user-child">
-                                            <el-icon :size="36"><Avatar /></el-icon>
+                                            <img :src="userAvatar" style="height: 100%; width: 100%"/>
                                         </div>
                                     </div>
                                 </template>
@@ -61,8 +62,12 @@
 <script setup>
   import {reactive, ref, computed, watch} from 'vue';
   import { useRouter } from "vue-router";
+  import { useStore } from 'vuex';
+  import AutoAvatar from '@/assets/images/account.png';
 
   const router = useRouter();
+  const store = useStore();
+
   const _menuList = [
     {
       type: 'system',
@@ -170,6 +175,11 @@
     }
   }
 
+  const userAvatar = computed(() => {
+    const userInfo = store.getters["user/info"];
+    return userInfo.userImage || AutoAvatar
+  });
+
   watch(
     () => router.currentRoute.value.fullPath,
     value => {
@@ -184,7 +194,7 @@
 <style scoped lang='scss'>
     .el-menu--popup-container{
         .el-menu-item.is-active {
-            color: #FD681C !important;
+            color: #3164f5 !important;
         }
 
         .el-menu-item{
@@ -196,13 +206,24 @@
         position: relative;
         display: flex;
         align-content: center;
-        background: blue;
 
         .logo-container{
             position: relative;
             margin: 0 50px;
+            display: flex;
+            align-items: center;
+
             .logo{
                 margin-top: 10px;
+            }
+
+            .logo-text{
+                position: relative;
+                font-size: 22px;
+                font-weight: bold;
+                letter-spacing: 1px;
+                font-family: system-ui;
+                color: #fdfd0e;
             }
         }
 
@@ -213,16 +234,20 @@
             justify-content: space-between;
             flex: 1;
 
-            .el-menu-left{
+            ::v-deep .el-menu{
                 position: relative;
 
                 .el-sub-menu.is-active {
-                    ::v-deep .el-sub-menu__title{
-                        border-bottom: 2px solid #FD681C;
-                        color: #FD681C;
+                    .el-sub-menu__title{
+                        border-bottom: 2px solid #3164f5;
+                        color: #3164f5;
                     }
                 }
 
+                .el-menu-item.is-active{
+                    border-bottom: 2px solid #3164f5;
+                    color: #3164f5 !important;
+                }
             }
 
             .el-menu-right{

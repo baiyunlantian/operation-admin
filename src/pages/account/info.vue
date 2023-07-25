@@ -10,37 +10,44 @@
                 <div class="bg-pray"></div>
             </div>
 
-            <el-form class="account-form" ref="formRef" :rules="rules" :model="formData" label-width="70px">
+            <el-form class="account-form" ref="formRef" :rules="rules" :model="userInfo" label-width="70px">
 
                 <el-form-item v-for="(item, index) in formConfig" :label="item.label" :prop="item.key" :key="item.key">
-                    <div v-if="item.readOnly" class="content">{{ formData[item.key] }}</div>
-                    <el-input v-else v-model="formData[item.key]" />
+                    <div v-if="item.readOnly" class="content">{{ userInfo[item.key] }}</div>
+                    <el-input v-else v-model="userInfo[item.key]" />
                 </el-form-item>
             </el-form>
             <div class="btn-container">
                 <el-button type="default" @click="handleClickBtn('leftBtn')">{{isReadOnly ? '修改密码' : '取消'}}</el-button>
-                <el-button type="primary" @click="handleClickBtn('rightBtn')">{{isReadOnly ? '编辑' : '确认修改'}}</el-button>
+                <el-button type="primary"
+                           @click="handleClickBtn('rightBtn')"
+                           :loading="btnLoading"
+                           :disabled="btnLoading"
+                >
+                    {{isReadOnly ? '编辑' : '确认修改'}}
+                </el-button>
             </div>
         </div>
-        <BottomBox />
+<!--        <BottomBox />-->
     </div>
 
 </template>
 
 <script setup>
-  import { reactive, ref, getCurrentInstance, computed } from 'vue';
+  import { reactive, ref, getCurrentInstance, computed, watch } from 'vue';
   import { useRouter } from 'vue-router';
+  import { useStore } from 'vuex';
+  import API from './api';
   import BottomBox from '@/components/bottom-box';
+  import AutoAvatar from "@/assets/images/account.png";
 
   const { proxy } = getCurrentInstance()
   const router = useRouter()
+  const store = useStore();
 
+  const btnLoading = ref(false)
   const isReadOnly = ref(true)
-  const formData = reactive({
-    account:'109803321',
-    email:'1820388',
-    name:'iwoj',
-  })
+  let userInfo = reactive({})
   const formRef = ref(null)
   const rules = reactive({
     account: [{
@@ -90,7 +97,7 @@
             type: 'warning',
           }).then(res=>{
             if (res === 'confirm') {
-              console.log(res)
+              handleUpdateUserInfo()
             }
           }).catch(()=>{
             console.log('取消')
@@ -99,7 +106,6 @@
       })
     }
   }
-
 
   const formConfig = computed(() => {
     return [
@@ -112,6 +118,46 @@
   function goBack() {
     router.back()
   }
+
+  // 更新用户资料
+  function handleUpdateUserInfo() {
+    let params = {
+      email: userInfo.email,
+      userName: userInfo.name
+    }
+
+    console.log('params', params)
+
+    btnLoading.value = true
+    setTimeout(() => {
+      proxy.$message({
+        type: 'success',
+        message:'修改成功'
+      })
+      isReadOnly.value = true
+      btnLoading.value = false
+      handleClickBtn('cancel')
+    }, 3000)
+
+
+    // API.updateUserInfo(userInfo).then(res=>{
+    //   if (res.code === '0') {
+    //     proxy.$message({
+    //       type: 'success',
+    //       message: res.msg || '修改成功'
+    //     })
+    //     isReadOnly.value = true
+    //     handleClickBtn('cancel')
+    //   }
+    // }).finally(() => {
+    //   btnLoading.value = false
+    // })
+  }
+
+  watch(() => store.getters["user/info"], (newVal, oldVal) => {
+    // console.log('watch', newVal)
+    userInfo = reactive({...newVal})
+  }, {deep: true, immediate: true})
 
 </script>
 

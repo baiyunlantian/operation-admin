@@ -1,6 +1,6 @@
 <template>
     <div class="source-container u-m-t-20 u-p-b-20">
-        <div class="title">
+        <div class="title title-box">
             <div class="text">用户来源</div>
 
             <div class="btns">
@@ -21,9 +21,9 @@
                     <el-date-picker
                             class="picker-month"
                             v-model="month"
-                            :type="dateScopeType === '1' ? 'date' : 'month'"
-                            :format="dateScopeType === '1' ? 'YYYY-MM-DD' : 'YYYY-MM'"
-                            :value-format="dateScopeType === '1' ? 'YYYY-MM-DD' : 'YYYY-MM'"
+                            :type="dateScopeType === 1 ? 'date' : 'month'"
+                            :format="dateScopeType === 1 ? 'YYYY-MM-DD' : 'YYYY-MM'"
+                            :value-format="dateScopeType === 1 ? 'YYYY-MM-DD' : 'YYYY-MM'"
                             @change="dateChange"
                     />
                 </div>
@@ -45,6 +45,7 @@
 
 <script setup>
   import { reactive, ref, onMounted, computed, watch, getCurrentInstance } from 'vue';
+  import API from '../api';
   import dayjs from 'dayjs';
   import * as echarts from 'echarts';
 
@@ -53,12 +54,11 @@
   const month = ref('')
   const echartsRef = ref(null)
   const echartsData = ref([])
-  const dateScopeType = ref('1')
+  const dateScopeType = ref(1)
   const selectOptions = ref([
-    {label:'按天统计', value:'1'},
-    {label:'按月统计', value:'2'},
+    {label:'按天统计', value:1},
+    {label:'按月统计', value:2},
   ])
-  const tableData = ref([])
 
   // 选择按日/月统计
   function handleSelectChange(value) {
@@ -86,7 +86,7 @@
       dateScopeType: dateScopeType.value,
       startDate: month.value
     };
-    console.log('handleGetUserStatistic', params)
+    // console.log('handleGetUserStatistic', params)
     const response = [
       {
         name: '智文',
@@ -106,7 +106,14 @@
       }
     ]
 
-    tableData.value = response;
+    // API.getUserSourceStatistic(params).then(res=>{
+    //   if (res.code === '0') {
+    //     echartsData.value = (res.data || []).map(item=>{
+    //       return {name:item.name, value: item.ratio.slice(0, item.ratio.length - 1)}
+    //     })
+    //   }
+    // })
+
     echartsData.value = response.map(item=>{
       return {name:item.name, value: item.ratio.slice(0, item.ratio.length - 1)}
     })
@@ -163,11 +170,6 @@
 <style scoped lang="scss">
     .source-container{
         .title{
-            position: relative;
-            background-color: blue;
-            border-radius: 5px;
-            color: #fff;
-            padding: 10px 15px;
             display: flex;
             align-items: center;
 

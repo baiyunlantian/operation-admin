@@ -2,7 +2,7 @@
     <div class="operate-container bg-fff">
         <div class="title">筛选</div>
 
-        <div class="search-container u-m-t-10">
+        <div class="search-container u-m-t-15 u-m-b-10">
             <el-form class="search-form" ref="formRef" :inline="true" :model="searchTableParams">
 
                 <el-form-item v-for="(item, index) in searchFormConfig" :prop="item.prop" :label="item.label" :key="item.prop" label-position="left">
@@ -34,7 +34,7 @@
         </div>
 
         <div class="table-main u-m-t-10">
-            <div class="header-operate">
+            <div class="header-operate theme-bg title-box">
                 <div class="left-text">用户列表</div>
                 <div class="right-sort">
                     <el-select v-model="searchTableParams.pageSize" class="m-2" placeholder="显示条数">
@@ -73,7 +73,7 @@
                 >
                     <template #default="{ row, column, $index }">
                         <div v-if="item.insertSlot && item.prop === 'status'" class="insert-cell-container">
-                            <el-switch v-model="row[item.prop]" :before-change="beforeChange"/>
+                            <el-switch v-model="row[item.prop]" :before-change="beforeChange" @change="val=>handleSwitchChange(val, row.userId)"/>
                         </div>
 
                         <div v-else-if="item.insertSlot && item.prop === 'operate'" class="insert-cell-container">
@@ -97,7 +97,7 @@
             </div>
         </div>
 
-        <BottomBox />
+<!--        <BottomBox />-->
 
         <Transition name="fade" mode="out-in">
             <Detail v-if="detailVisible" :user-id="detailUserId" @goBack="handleGoBack"/>
@@ -110,6 +110,7 @@
   import { ref, reactive, watch, getCurrentInstance, onMounted } from 'vue';
   import dayjs from 'dayjs';
   import { useRouter } from 'vue-router';
+  import API from './api';
   import BottomBox from '@/components/bottom-box';
   import Detail from './detail'
 
@@ -141,15 +142,15 @@
   const timer = ref(null)
   const pageSizeOptions = ref([10, 20, 30, 50])
   const timeSortOptions = ref([
-    {label:'创建时间从晚到早', value:'0'},
-    {label:'创建时间从早到晚', value:'1'},
+    {label:'创建时间从晚到早', value:'desc'},
+    {label:'创建时间从早到晚', value:'asc'},
   ])
   const sourceTypeOptions = ref([
-    {label:'运营后台', value:'0'},
-    {label:'智文', value:'1'},
-    {label:'智绘', value:'2'},
-    {label:'智像', value:'3'},
-    {label:'AI ERP', value:'4'},
+    {label:'运营后台', value:0},
+    {label:'智文', value:1},
+    {label:'智绘', value:2},
+    {label:'智像', value:3},
+    {label:'AI ERP', value:4},
   ])
   const selectedRows = ref([])
   const detailVisible = ref(false)
@@ -179,6 +180,13 @@
 
       delete params.registerTime
     }
+
+    console.log('params', params)
+    // API.getMemberTableList(params).then(res=>{
+    //   if (res.code === '0') {
+    //     tableData.value = res.data
+    //   }
+    // })
 
     tableData.value = [
       {
@@ -221,6 +229,26 @@
 
   }
 
+  function handleSwitchChange(val, userId) {
+    let params = {
+      status: Number(val),
+      userId
+    }
+
+    console.log('params', params)
+
+    // API.updateStatus(params).then(res=>{
+    //   if (res.code === '0') {
+    //     proxy.$message({
+    //       type: 'success',
+    //       message: '修改状态成功'
+    //     })
+    //
+    //     handleGetTableList()
+    //   }
+    // })
+  }
+
   function handleGoBack() {
     detailVisible.value = false
     detailUserId.value = ''
@@ -257,7 +285,7 @@
         flex-direction: column;
 
         .title{
-            padding: 5px 10px;
+            padding: 10px;
             font-size: 26px;
             font-weight: bold;
             border-bottom: 1px dashed #3f99f7;
@@ -276,10 +304,6 @@
 
             .header-operate{
                 position: relative;
-                background-color: blue;
-                border-radius: 5px;
-                color: #fff;
-                padding: 5px 15px;
                 display: flex;
                 align-items: center;
                 justify-content: space-between;

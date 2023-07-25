@@ -1,20 +1,19 @@
 <template>
     <div class="earnings-container u-m-t-20">
-        <div class="title">
+        <div class="title title-box">
             <div class="text">用户收益分布</div>
 
             <div class="btns">
                 <el-button type="default">导出数据</el-button>
-                <el-button :type="selectValue === '2' ? 'default' : 'warning'" @click="handleClickMonth('1')">本月</el-button>
-                <el-button :type="selectValue === '1' ? 'default' : 'warning'" @click="handleClickMonth('2')">上月</el-button>
+                <el-button :type="dateScopeType === 2 ? 'default' : 'warning'" @click="dateScopeType = 1">本月</el-button>
+                <el-button :type="dateScopeType === 1 ? 'default' : 'warning'" @click="dateScopeType = 2">上月</el-button>
                 <div class="select-month u-m-l-10">
                     <el-date-picker
                             class="picker-month"
-                            v-model="month"
+                            v-model="startDate"
                             type="month"
                             format="YYYY-MM"
                             value-format="YYYY-MM"
-                            @change="dateChange"
                     />
                 </div>
             </div>
@@ -37,32 +36,23 @@
 
 <script setup>
   import { reactive, ref, onMounted, computed, watch } from 'vue';
+  import API from '../api';
   import dayjs from 'dayjs';
   import * as echarts from 'echarts';
 
-  const month = ref('')
+  const startDate = ref('')
   const echartsRef = ref(null)
   const echartsData = ref([])
   const xAxisData = ref([])
-  const selectValue = ref('1')
+  const dateScopeType = ref(1)
 
-  function handleClickMonth(value) {
-    // console.log('value', value)
-    selectValue.value = value
-    handleGetEarningStatistic()
-  }
-  function dateChange(value) {
-    console.log('dateChange', value)
-    month.value = value;
-    handleGetEarningStatistic()
-  }
 
   // 获取用户收益分布数据
   function handleGetEarningStatistic() {
-    // console.log('userEchartsCategory', userEchartsCategory.value)
-    // console.log('timeRangeTagActive', timeRangeTagActive.value)
-    // console.log('timeRangeTagActive', timeRange.data)
-
+    let params = {
+      dateScopeType: dateScopeType.value,
+      startDate: startDate.value
+    }
     const responseData = [
       {xAxis:'0-100', yAxis: 160},
       {xAxis:'100-200', yAxis: 243},
@@ -73,6 +63,23 @@
     ];
 
     let _xAxisData = [], _echartsData = [];
+
+    // API.getDistributionStatistic(params).then(res=>{
+    //   if (res.code === '0') {
+    //     (res.data || []).forEach(({xAxis, yAxis})=>{
+    //       _xAxisData.push(xAxis)
+    //       _echartsData.push(yAxis)
+    //     })
+    //
+    //     xAxisData.value = _xAxisData
+    //     echartsData.value = _echartsData
+    //
+    //     setTimeout(()=>{
+    //       echartsInit()
+    //     },100)
+    //   }
+    // })
+
 
     responseData.forEach(({xAxis, yAxis})=>{
       _xAxisData.push(xAxis)
@@ -125,9 +132,12 @@
     })
   }
 
+  watch([dateScopeType, startDate], ([newDateScopeType, newStartDate]) => {
+    handleGetEarningStatistic()
+  })
+
   onMounted(() => {
-    month.value = dayjs(new Date()).format('YYYY-MM')
-    handleGetEarningStatistic();
+    startDate.value = dayjs(new Date()).format('YYYY-MM')
   })
 
 </script>
@@ -135,11 +145,6 @@
 <style scoped lang="scss">
     .earnings-container{
         .title{
-            position: relative;
-            background-color: blue;
-            border-radius: 5px;
-            color: #fff;
-            padding: 10px 15px;
             display: flex;
             align-items: center;
 

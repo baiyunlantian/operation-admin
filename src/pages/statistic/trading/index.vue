@@ -1,7 +1,7 @@
 <template>
     <div class="trading-container">
 
-        <div class="title">收益总览</div>
+        <div class="title title-box">收益总览</div>
         <div class="statistic-container bg-fff">
             <el-row class="w-100" :gutter="0">
                 <el-col v-for="(item, index) in totalStatisticConfig"  :span="5" :offset="1"  :key="index" class="item">
@@ -22,13 +22,14 @@
         <Earnings />
         <Source />
 
-        <BottomBox />
+<!--        <BottomBox />-->
 
     </div>
 </template>
 
 <script setup>
   import {onMounted, reactive, ref} from 'vue';
+  import API from './api';
   import Trading from '../components/lineStatistic';
   import Client from './components/clientStatistic';
   import Earnings from './components/earningsStatistic';
@@ -36,16 +37,16 @@
   import BottomBox from '@/components/bottom-box';
 
   const totalStatisticConfig = reactive([
-    {label: '今日收益', prop: 'todayNewUserCount'},
-    {label: '本周收益', prop: 'yesterdayNewUserCount'},
-    {label: '本月收益', prop: 'currentMonthNewUserCount'},
-    {label: '总收益', prop: 'totalUserCount'},
+    {label: '今日收益', prop: 'todayIncomeAmount'},
+    {label: '本周收益', prop: 'yesterdayIncomeAmount'},
+    {label: '本月收益', prop: 'currentMonthIncomeAmount'},
+    {label: '总收益', prop: 'totalIncomeAmount'},
   ])
   const totalStatisticData = reactive({
-    todayNewUserCount:240,
-    yesterdayNewUserCount:324,
-    currentMonthNewUserCount:400,
-    totalUserCount:600,
+    todayIncomeAmount:240,
+    yesterdayIncomeAmount:324,
+    currentMonthIncomeAmount:400,
+    totalIncomeAmount:600,
   })
   const statisticData = ref([])
   const leftData = reactive({
@@ -58,7 +59,7 @@
 
   // 获取交易收益金额统计数据
   function handleGetTradingStatisticData(params) {
-    console.log('handleGetTradingStatisticData', params)
+    // console.log('handleGetTradingStatisticData', params)
     let responseData = [
       {
         name: '智文',
@@ -98,12 +99,34 @@
       },
     ];
 
+    // API.getUserIncomeStatistic(params).then(res=>{
+    //   if (res.code === '0') {
+    //     const { statisticData, ...other } = res.data
+    //     statisticData.value = statisticData
+    //     leftData = {
+    //       ...other,
+    //       currentMonth: other.currentMonthIncomeAmount,
+    //       currentWeek: other.currentWeekIncomeAmount,
+    //     }
+    //   }
+    // })
+
     statisticData.value = responseData;
+  }
+
+  // 获取收益总览信息
+  function handleGetTotalUserIncome() {
+    API.getTotalUserIncome().then(res=>{
+      if (res.code === '0') {
+        totalStatisticData = res.data
+      }
+    })
   }
 
 
   onMounted(() => {
-    handleGetTradingStatisticData();
+    // handleGetTotalUserIncome();
+    handleGetTradingStatisticData({productType:0});
   })
 </script>
 
@@ -135,18 +158,6 @@
                     font-size: 28px;
                     color: red;
                 }
-            }
-        }
-
-        .title{
-            position: relative;
-            background-color: blue;
-            padding: 15px;
-            border-radius: 5px;
-            color: #fff;
-
-            .text{
-
             }
         }
 

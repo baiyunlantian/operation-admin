@@ -42,6 +42,7 @@
 
 <script setup>
     import { ref, reactive, defineProps, defineEmits } from 'vue';
+    import API from '../api';
 
     const emit = defineEmits(['close'])
     const props = defineProps({
@@ -52,6 +53,12 @@
       columnConfig:{
         required: true,
         type: Array
+      },
+      userId: {
+        required: true,
+      },
+      sourceType: {
+        required: true,
       }
     })
     const tableList = ref([{
@@ -65,7 +72,19 @@
     })
 
     function handleGetTableList() {
+      let params = {
+        userId: props.userId,
+        sourceType: props.sourceName,
+        ...pageParams
+      }
 
+      console.log('params', params)
+      return
+      API.getRechargeRecordTableList(params).then(res=>{
+        if (res.code === '0') {
+          tableList.value = res.data.list
+        }
+      })
     }
     
     function handleClose() {

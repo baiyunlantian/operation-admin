@@ -50,7 +50,7 @@
             </div>
         </div>
 
-        <div class="total-statistic">共收益￥{{ totalStatistic }}</div>
+        <div class="total-statistic">共收益￥{{ leftData.total }}</div>
 
         <el-row :gutter="0"  justify="center" class="echarts-container">
             <el-col :span="20">
@@ -71,43 +71,38 @@
 <script setup>
   import { reactive, ref, onMounted, computed, watch } from 'vue';
   import dayjs from 'dayjs';
-  import * as echarts from 'echarts';
-  import UserImg from '@/assets/images/home-user.png';
-  import MoneyImg from '@/assets/images/home-money.png';
-  import IncreaseImg from '@/assets/images/home-increase.png';
+  import API from '../api';
   import MutiLine from '@/components/Echarts/muti-line';
 
   const timeRange = ref([])
   const startDate = ref(null)
-  const echartsRef = ref(null)
-  const productType = ref('0')
-  const dateScopeType = ref('1')
+  const productType = ref(0)
+  const dateScopeType = ref(1)
   const leftStatisticConfig = reactive([
-    {title:'本月用户总数', subText:'同比上月', countProp:'currentMonthUserCount', ratioProp:'monthRatio'},
-    {title:'本周用户数量', subText:'同比上周', countProp:'currentWeekUserCount', ratioProp:'weekRatio'}
+    {title:'本月用户总数', subText:'同比上月', countProp:'currentMonthIncomeAmount', ratioProp:'monthRatio'},
+    {title:'本周用户数量', subText:'同比上周', countProp:'currentWeekIncomeAmount', ratioProp:'weekRatio'}
   ])
-  const leftData = reactive({
-    currentMonthUserCount: 1000,
+  let leftData = reactive({
+    currentMonthIncomeAmount: 1000,
     monthRatio: '-10%',
-    currentWeekUserCount: 251,
+    currentWeekIncomeAmount: 251,
     weekRatio: '+10%',
     total: 256,
   })
   const productTypeList = reactive([
-    {label:'全部', key:'0'},
-    {label:'智文', key:'1'},
-    {label:'智绘', key:'2'},
-    {label:'智像', key:'3'},
-    {label:'AI ERP', key:'4'},
+    {label:'全部', key:0},
+    {label:'智文', key:1},
+    {label:'智绘', key:2},
+    {label:'智像', key:3},
+    {label:'AI ERP', key:4},
   ])
   const userEchartsDataList = ref([])
   const lineData = ref([])
   const xAxisData = ref([])
-  const totalStatistic = ref(0)
   const timeRangeTags = reactive([
-    {label:'今日', key:'1'},
-    {label:'最近7天', key:'2'},
-    {label:'最近一个月', key:'3'},
+    {label:'今日', key:1},
+    {label:'最近7天', key:2},
+    {label:'最近一个月', key:3},
   ])
 
   // 判断增长还是下降
@@ -210,14 +205,23 @@
       startDate: timeRange.value[0],
       endDate: timeRange.value[1],
     }
-    console.log('handleGetEarningsStatistic', params)
+
+    // API.getIncomeStatistics(params).then(res=>{
+    //   if (res.code === '0') {
+    //     const { statisticData, ...other } = res.data
+    //     userEchartsDataList.value = statisticData
+    //     leftData = other
+    //   }
+    // })
+
+    // console.log('handleGetEarningsStatistic', params)
     formatLineData(responseData)
     userEchartsDataList.value = responseData
   }
 
   // 格式化数据
   function formatLineData(list) {
-    let _xAxisData = [], _seriesData = [], total = 0;
+    let _xAxisData = [], _seriesData = [];
     list.forEach((items, index)=>{
       let seriesItem = {type:'line', name:items.name, data:[], smooth: true};
 
@@ -225,7 +229,6 @@
         if (index === 0) {
           _xAxisData.push(item.xAxia)
         }
-        total += item.yAxia
         seriesItem['data'].push(item.yAxia)
       })
 
@@ -233,7 +236,6 @@
     })
 
 
-    totalStatistic.value = total
     xAxisData.value = _xAxisData
     lineData.value = _seriesData
   }

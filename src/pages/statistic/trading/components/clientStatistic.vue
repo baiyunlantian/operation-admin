@@ -1,20 +1,19 @@
 <template>
     <div class="client-container u-m-t-20">
-        <div class="title">
+        <div class="title title-box">
             <div class="text">新老客户交易构成</div>
 
             <div class="btns">
                 <el-button type="default">导出数据</el-button>
-                <el-button :type="selectValue === '2' ? 'default' : 'warning'" @click="handleClickMonth('1')">本月</el-button>
-                <el-button :type="selectValue === '1' ? 'default' : 'warning'" @click="handleClickMonth('2')">上月</el-button>
+                <el-button :type="dateScopeType === 2 ? 'default' : 'warning'" @click="dateScopeType = 1">本月</el-button>
+                <el-button :type="dateScopeType === 1 ? 'default' : 'warning'" @click="dateScopeType = 2">上月</el-button>
                 <div class="select-month u-m-l-10">
                     <el-date-picker
                             class="picker-month"
-                            v-model="month"
+                            v-model="startDate"
                             type="month"
                             format="YYYY-MM"
                             value-format="YYYY-MM"
-                            @change="dateChange"
                     />
                 </div>
             </div>
@@ -67,15 +66,16 @@
 
 <script setup>
   import {reactive, ref, onMounted, computed, watch, defineEmits} from 'vue';
+  import API from '../api';
   import dayjs from 'dayjs';
   import * as echarts from 'echarts';
 
   const emit = defineEmits(['update'])
 
-  const month = ref('')
+  const startDate = ref('')
   const echartsRef = ref(null)
   const echartsData = ref([])
-  const selectValue = ref('1')
+  const dateScopeType = ref(1)
   const colors = ref(['#91cc75', '#5470c6'])
   const tableData = ref([])
   const tableColumnConfig = ref([
@@ -87,15 +87,7 @@
   ])
 
   function handleClickMonth(value) {
-    // console.log('value', value)
-    selectValue.value = value
-    handleGetClientStatistic()
-  }
-  function dateChange(value) {
-    console.log('dateChange', value)
-    month.value = value;
-
-    handleGetClientStatistic()
+    dateScopeType.value = value
   }
   function formatTableCell(row, prop) {
     // console.log('row', row)
@@ -114,9 +106,19 @@
 
   // 获取新老客户交易构成数据
   function handleGetClientStatistic() {
-    // console.log('userEchartsCategory', userEchartsCategory.value)
-    // console.log('timeRangeTagActive', timeRangeTagActive.value)
-    // console.log('timeRangeTagActive', timeRange.data)
+    let params = {
+      dateScopeType: dateScopeType.value,
+      startDate: startDate.value
+    }
+
+    // console.log('handleGetClientStatistic', params)
+
+    // API.getNewAndOldStatistic(params).then(res=>{
+    //   if (res.code === '0') {
+    //     tableData.value = res.data
+    //   }
+    // })
+
 
     tableData.value = [{
       incomeAmount: '1238779',
@@ -124,7 +126,7 @@
       lastMonthIncome: '-10%',
       number: '12',
       lastMonthNumber: '+27%',
-    },];
+    }];
   }
 
   function echartsInit() {
@@ -172,9 +174,12 @@
     {deep: true}
   )
 
+  watch([dateScopeType, startDate], ([newDateScopeType, newStartDate]) => {
+    handleGetClientStatistic()
+  })
+
   onMounted(() => {
-    month.value = dayjs(new Date()).format('YYYY-MM')
-    handleGetClientStatistic();
+    startDate.value = dayjs(new Date()).format('YYYY-MM')
   })
 
 </script>
@@ -182,11 +187,6 @@
 <style scoped lang="scss">
     .client-container{
         .title{
-            position: relative;
-            background-color: blue;
-            border-radius: 5px;
-            color: #fff;
-            padding: 10px 15px;
             display: flex;
             align-items: center;
 

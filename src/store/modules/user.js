@@ -7,7 +7,12 @@ const user = {
         return {
             token: "",
             permission: [],
-            filterRouter: []
+            filterRouter: [],
+            info: {
+                account:'5464',
+                email:'23464',
+                name:'wovovo',
+            }
         }
     },
     mutations: {
@@ -24,8 +29,10 @@ const user = {
         },
         SET_PERMISSION_LIST(state, val) {
             state.permission = val
+        },
+        SET_USER_INFO(state, val) {
+            state.info = val
         }
-
     },
     actions: {
         getPermissionList({ commit }) {
@@ -38,7 +45,8 @@ const user = {
         }
     },
     getters: {
-        permissionList: state => state.permission
+        permissionList: state => state.permission,
+        info: state => state.info,
     }
 }
 

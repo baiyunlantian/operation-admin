@@ -57,7 +57,7 @@
         </el-row>
 
 
-        <el-row :gutter="0" justify="center">
+        <el-row v-if="checkAllBtnVisible" :gutter="0" justify="center">
             <el-col :span="23">
                 <div class="check-more">
                     <span class="u-cursor" @click="handleCheckAll(true)">查看全部</span>
@@ -66,12 +66,19 @@
         </el-row>
 
 
-        <Dialog :visible="dialogVisible" :column-config="recordTableColumnConfig" @close="handleCheckAll"/>
+        <Dialog
+                :visible="dialogVisible"
+                :column-config="recordTableColumnConfig"
+                :user-id="userInfo.userId"
+                :source-type="userInfo.sourceType"
+                @close="handleCheckAll"
+        />
     </div>
 </template>
 
 <script setup>
   import { reactive, ref, defineProps, onMounted, defineEmits } from 'vue';
+  import API from './api';
   import ImgUrl from '@/assets/images/account.png';
   import Dialog from './components/dialog'
 
@@ -79,9 +86,9 @@
   const emits = defineEmits(['goBack'])
 
   const dialogVisible = ref(false)
-  const checkAll = ref(true)
+  const checkAllBtnVisible = ref(false)
   const userAvatar = ref(ImgUrl)
-  const userInfo = reactive({
+  let userInfo = reactive({
     "userId": 12313,
     "userName": "名称",
     "account": "账号",
@@ -137,8 +144,40 @@
     emits('goBack')
   }
 
+  function handleGetRechargeRecord() {
+    let params = {
+      userId: userInfo.userId,
+      sourceType: userInfo.sourceName,
+      pageIndex: 1,
+      pageSize: 5,
+    }
+
+    API.getRechargeRecordTableList(params).then(res=>{
+      if (res.code === '0') {
+        recordTableList.value = res.data.list
+
+        checkAllBtnVisible.value = res.data.total > 5
+      }
+    })
+  }
+
+  function handleGetUserInfo() {
+    if (props.userId) {
+      API.getUserInfoById(props.userId).then(res=>{
+        if (res.code === '0') {
+          const { userInfo: USERINFO, statistics } = res.data
+          userInfo = USERINFO
+          statisticInfo.value = statistics
+
+          handleGetRechargeRecord()
+        }
+      })
+    }
+
+  }
+
   onMounted(() => {
-    // console.log('prop', props.userId)
+    // handleGetUserInfo()
   })
 </script>
 

@@ -10,19 +10,19 @@
 
           <div class="text-container">
             <div class="desc">{{item.text}}</div>
-            <div class="value">{{index === 0 ? item.value : `￥${item.value}`}}</div>
+            <div class="value">{{index === 0 ? totalStatisticData[item.prop] : `￥${totalStatisticData[item.prop]}`}}</div>
           </div>
         </el-col>
       </el-row>
     </div>
 
-    <div class="title u-m-t-20">用户统计</div>
+    <div class="title-box u-m-t-20">用户统计</div>
     <UserStatistic />
 
-    <div class="title u-m-t-20">收益统计</div>
+    <div class="title-box u-m-t-20">收益统计</div>
     <EarningsStatistic />
 
-    <div class="title u-m-t-20">运营快捷入口</div>
+    <div class="title-box u-m-t-20">运营快捷入口</div>
     <div class="fast-container bg-fff">
       <el-row class="w-100" :gutter="0">
         <el-col v-for="(item,index) in fastRouteConfig"  :span="1" :offset="1" :key="index" class="item u-cursor" @click="handleClickFast(item)">
@@ -32,13 +32,15 @@
       </el-row>
     </div>
 
-    <BottomBox />
+<!--    <BottomBox />-->
   </div>
 </template>
   
 <script setup>
-  import { reactive, ref } from 'vue';
+  import { reactive, ref, onMounted } from 'vue';
   import { useRouter } from 'vue-router';
+  import { useStore } from "vuex";
+  import API from './api';
   import UserImg from '@/assets/images/home-user.png';
   import MoneyImg from '@/assets/images/home-money.png';
   import IncreaseImg from '@/assets/images/home-increase.png';
@@ -49,11 +51,18 @@
   import BottomBox from '@/components/bottom-box';
 
   const router = useRouter();
+  const store = useStore();
+
   const totalStatisticConfig = reactive([
-    {text:'今日新增用户', value:'200', imgUrl:UserImg},
-    {text:'今日收益总额', value:'200.00', imgUrl:MoneyImg},
-    {text:'近7天收益总额', value:'200279873.00', imgUrl:IncreaseImg},
+    {text:'今日新增用户', prop:'todayNewUserCount', imgUrl:UserImg},
+    {text:'今日收益总额', prop:'todayIncomeAmount', imgUrl:MoneyImg},
+    {text:'近7天收益总额', prop:'weekIncomeAmount', imgUrl:IncreaseImg},
   ])
+  const totalStatisticData = reactive({
+    todayNewUserCount:200,
+    todayIncomeAmount:200,
+    weekIncomeAmount:200273,
+  })
   const fastRouteConfig = ref([
     {label:'用户管理', path:'/member', img:FastUser},
     {label:'交易统计', path:'/trading', img:FastIncrease},
@@ -62,6 +71,28 @@
   function handleClickFast(item) {
     router.push({path:item.path})
   }
+
+  function handleGetUserInfo() {
+    API.getUserInfo().then(res=>{
+      if (res.code === '0') {
+        store.commit('user/SET_USER_INFO', res.data)
+      }
+    })
+  }
+
+  function handleGetBoardInfo() {
+    API.getBoardInfo().then(res=>{
+      if (res.code === '0') {
+        totalStatisticData = res.data
+      }
+    })
+  }
+
+  onMounted(() => {
+    // handleGetUserInfo()
+    // handleGetBoardInfo()
+
+  })
 
 </script>
   
@@ -112,14 +143,6 @@
           }
         }
       }
-    }
-
-    .title{
-      position: relative;
-      background-color: blue;
-      color: #fff;
-      padding: 15px;
-      border-radius: 5px;
     }
 
     .fast-container{

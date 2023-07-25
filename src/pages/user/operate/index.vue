@@ -2,7 +2,7 @@
     <div class="operate-container bg-fff">
         <div class="title">筛选</div>
 
-        <div class="search-container u-m-t-10">
+        <div class="search-container u-m-t-15 u-m-b-10">
             <el-form class="search-form" ref="formRef" :inline="true" :model="searchTableParams">
 
                 <el-form-item v-for="(item, index) in searchFormConfig" :prop="item.prop" :label="item.label" :key="item.prop" label-position="left">
@@ -29,7 +29,7 @@
         </div>
 
         <div class="table-main u-m-t-10">
-            <div class="header-operate">
+            <div class="header-operate theme-bg title-box">
                 <div class="left-text">用户列表</div>
                 <div class="right-sort">
                     <el-select v-model="searchTableParams.pageSize" class="m-2" placeholder="显示条数">
@@ -68,12 +68,12 @@
                 >
                     <template #default="{ row, column, $index }">
                         <div v-if="item.insertSlot && item.prop === 'status'" class="insert-cell-container">
-                            <el-switch v-model="row[item.prop]" :before-change="beforeChange"/>
+                            <el-switch v-model="row[item.prop]" :before-change="beforeChange" @change="val=>handleSwitchChange(val, row.userId)"/>
                         </div>
 
                         <div v-else-if="item.insertSlot && item.prop === 'operate'" class="insert-cell-container">
-                            <span class="u-cursor blue u-m-r-20" @click="handleClickCellBtn('reset', row)">重置密码</span>
-                            <span class="u-cursor blue" @click="handleClickCellBtn('del', row)">删除</span>
+                            <span class="u-cursor blue u-m-r-20" @click="handleOperateTable('reset', row)">重置密码</span>
+                            <span class="u-cursor blue" @click="handleOperateTable('del', row)">删除</span>
                         </div>
 
                         <div v-else class="custom-cell">{{ row[item.prop] }}</div>
@@ -93,7 +93,7 @@
             </div>
         </div>
 
-        <BottomBox />
+<!--        <BottomBox />-->
 
         <Modal v-if="modalVisible" @close="handleToggleModal"/>
     </div>
@@ -101,6 +101,7 @@
 
 <script setup>
   import {ref, reactive, watch, getCurrentInstance, onMounted} from 'vue';
+  import API from './api';
   import dayjs from 'dayjs';
   import BottomBox from '@/components/bottom-box';
   import Modal from './components/modal';
@@ -129,8 +130,8 @@
   const timer = ref(null)
   const pageSizeOptions = ref([10, 20, 30, 50])
   const timeSortOptions = ref([
-    {label:'创建时间从晚到早', value:'0'},
-    {label:'创建时间从早到晚', value:'1'},
+    {label:'创建时间从晚到早', value:'desc'},
+    {label:'创建时间从早到晚', value:'asc'},
   ])
   const selectedRows = ref([])
   const modalVisible = ref(false)
@@ -150,6 +151,12 @@
 
       delete params.createTime
     }
+
+    // API.getOperateTableList(params).then(res=>{
+    //   if (res.code === '0') {
+    //     tableData.value = res.data
+    //   }
+    // })
 
     tableData.value = [
       {
@@ -189,40 +196,89 @@
         return reject(false)
       })
     })
-
   }
 
-  function handleClickCellBtn(eventType, row) {
-    if (eventType === 'del') {
-      proxy.$confirm('确认删除该账号吗',  {
-        confirmButtonText: '确认',
-        cancelButtonText: '取消',
-        type: 'warning',
-      }).then(res=>{
-        if (res === 'confirm') {
-          console.log('row', row)
-        }
-      }).catch(()=>{
-        console.log('取消')
-      })
+  function handleSwitchChange(val, userId) {
+    let params = {
+      status: Number(!val),
+      userId
     }
+
+    console.log('params', params)
+
+    // API.updateStatus(params).then(res=>{
+    //   if (res.code === '0') {
+    //     proxy.$message({
+    //       type: 'success',
+    //       message: '修改状态成功'
+    //     })
+    //
+    //     handleGetTableList()
+    //   }
+    // })
+  }
+
+  // 删除，重置密码，批量删除，改变状态
+  function handleOperateTable(eventType, row) {
+    let confirmText = '', params = {}, fn = new Function();
+    if (eventType === 'del') {
+      confirmText = '确认删除该账号吗'
+      params.userId = [row.userId]
+      params.status = 2
+      fn = API.batchDelete
+    }
+    else if (eventType === 'batchDel') {
+      confirmText = '确认删除所选账号吗'
+      params.userId = row.map(item=>item.userId)
+      params.status = 2
+      fn = API.batchDelete
+    }
+    else {
+      confirmText = '确认重置该账号密码吗'
+      params.userId = row.userId
+      fn = API.resetPassword
+    }
+
+    console.log('params', params)
+    proxy.$confirm(confirmText,  {
+      confirmButtonText: '确认',
+      cancelButtonText: '取消',
+      type: 'warning',
+    }).then(res=>{
+      if (res === 'confirm') {
+        // fn(params).then(res=>{
+        //   if (res.code === '0') {
+        //     proxy.$message({
+        //       type: 'success',
+        //       message: '操作成功'
+        //     })
+        //
+        //     handleGetTableList()
+        //   }
+        // })
+      }
+    }).catch(()=>{
+      console.log('取消')
+    })
   }
   function handleClickBtn(eventType) {
-    console.log('eventType', eventType)
     if (eventType === 'del') {
       if (selectedRows.value.length === 0) {
         proxy.$message({
           type:'error',
           message:'请选择需要删除的数据！'
         })
+      }else {
+        handleOperateTable('batchDel', selectedRows.value)
       }
     }else {
       handleToggleModal(true)
     }
   }
 
-  function handleToggleModal(visible) {
+  function handleToggleModal(visible, refreshTable) {
     modalVisible.value = visible
+    refreshTable && handleGetTableList()
   }
 
   watch(searchTableParams, (newVal, oldVal) => {
@@ -249,7 +305,7 @@
         flex-direction: column;
 
         .title{
-            padding: 5px 10px;
+            padding: 10px;
             font-size: 26px;
             font-weight: bold;
             border-bottom: 1px dashed #3f99f7;
@@ -278,10 +334,6 @@
 
             .header-operate{
                 position: relative;
-                background-color: blue;
-                border-radius: 5px;
-                color: #fff;
-                padding: 5px 15px;
                 display: flex;
                 align-items: center;
                 justify-content: space-between;

@@ -1,6 +1,6 @@
 <template>
     <div class="trading-container u-m-t-20">
-        <div class="title">
+        <div class="title title-box">
             <div class="text">{{ statisticType === 'user' ? '用户增长情况' : '交易收益金额'}}</div>
 
             <div class="btns">
@@ -160,23 +160,23 @@
 
   const timeRange = ref([])
   const startDate = ref(null)
-  const productType = ref('0')
+  const productType = ref(0)
   const productTypeList = reactive([
-    {label:'全部', key:'0'},
-    {label:'智文', key:'1'},
-    {label:'智绘', key:'2'},
-    {label:'智像', key:'3'},
-    {label:'AI ERP', key:'4'},
+    {label:'全部', key:0},
+    {label:'智文', key:1},
+    {label:'智绘', key:2},
+    {label:'智像', key:3},
+    {label:'AI ERP', key:4},
   ])
   const lineData = ref([])
   const tableData = ref([])
   const tableColumnConfig = ref([])
   const xAxisData = ref([])
   const selectOptions = ref([
-    {label:'按天统计', value:'1'},
-    {label:'按月统计', value:'2'},
+    {label:'按天统计', value:1},
+    {label:'按月统计', value:2},
   ])
-  const dateScopeType = ref('1')
+  const dateScopeType = ref(1)
   const tableShow = ref(false)
   const monthPickerOptions = reactive({
     onPick: monthPickerChange,
@@ -424,14 +424,8 @@
 <style scoped lang="scss">
     .trading-container{
         .title{
-            position: relative;
-            background-color: blue;
-            border-radius: 5px;
-            color: #fff;
-            padding: 10px 15px;
             display: flex;
             align-items: center;
-
         }
 
         .btns{

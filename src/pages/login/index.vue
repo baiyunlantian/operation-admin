@@ -11,11 +11,8 @@
               <el-input v-model="formData[item.key]" :placeholder="`请输入${item.label}`"/>
 
               <div class="code-content">
-                <div v-if="IMG" class="img-container">
-                  <img class="code-img" :src="IMG">
-                </div>
-
-                <el-button v-else type="default" @click="handleGetCode" :loading="loadingCode">获取验证码</el-button>
+                <div v-if="isPending" class="countdown">倒计时{{countdown}}s</div>
+                <el-button v-else type="default" @click="handleGetCode">获取验证码</el-button>
               </div>
             </div>
           </template>
@@ -30,7 +27,13 @@
         </el-form-item>
 
         <el-form-item>
-          <el-button type="primary" @click="handleClickBtn('submit')">{{formType === 'forget' ? '重置密码' : '登录'}}</el-button>
+          <el-button type="primary"
+                     @click="handleClickBtn('submit')"
+                     :loading="btnLoading"
+                     :disabled="btnLoading"
+          >
+            {{formType === 'forget' ? '重置密码' : '登录'}}
+          </el-button>
         </el-form-item>
 
         <el-form-item v-if="formType !== 'forget'">
@@ -53,26 +56,19 @@
 </template>
 
 <script setup>
-  import { reactive, ref, computed, getCurrentInstance, onMounted } from 'vue';
-  import IMGURL from '@/assets/images/logo.png';
+  import { reactive, ref, getCurrentInstance, onUnmounted } from 'vue';
+  import { useRouter } from 'vue-router';
+  import API from './api';
 
   const { proxy } = getCurrentInstance()
+  const router = useRouter()
+
   let formData = reactive({})
   const rules = reactive({
-    password: [{
-      required: true,
-      message: '原密码不能为空!',
-      trigger: 'blur'
-    }],
-    newPassword: [
+    password: [
       {
         required: true,
-        message: '新密码不能为空!',
-        trigger: 'blur'
-      },
-      {
-        required: true,
-        message: '新密码不能为空!',
+        message: '密码不能为空!',
         trigger: 'blur'
       },
       {
@@ -93,7 +89,7 @@
         trigger: 'blur'
       },
     ],
-    phone: [
+    account: [
       {
         required: true,
         message: '手机号码不能为空!',
@@ -112,30 +108,32 @@
     }]
   })
   const formRef = ref(null)
-  const loadingCode = ref(false)
-  const IMG = ref(null)
   const autoLogin = ref(false)
+  const isPending = ref(false)
+  const countdown = ref(59)
+  const timer = ref(null)
+  const btnLoading = ref(false)
   const formType = ref('code')
   // 表单类型  code:验证码登录    password:密码登录    forget:忘记密码
   const formConfig = reactive({
     'code':{
       tip:'密码登录',
       form:[
-        {label: '手机号码', key: 'phone', placeholder: '手机号码', compoentType:'text'},
+        {label: '手机号码', key: 'account', placeholder: '手机号码', compoentType:'text'},
         {label: '验证码', key: 'code', placeholder: '验证码', compoentType:'text'},
       ]
     },
     'password':{
       tip:'验证码登录',
       form:[
-        {label: '手机号码', key: 'phone', placeholder: '手机号码', compoentType:'text'},
+        {label: '手机号码', key: 'account', placeholder: '手机号码', compoentType:'text'},
         {label: '密码', key: 'password', placeholder: '密码', compoentType:'password'},
       ]
     },
     'forget':{
       tip:'立即登录',
       form:[
-        {label: '手机号码', key: 'phone', placeholder: '手机号码', compoentType:'text'},
+        {label: '手机号码', key: 'account', placeholder: '手机号码', compoentType:'text'},
         {label: '验证码', key: 'code', placeholder: '验证码', compoentType:'text'},
         {label: '密码', key: 'password', placeholder: '密码', compoentType:'password'},
         {label: '确认密码', key: 'confirmPassword', placeholder: '密码（不低于8位数的字符组合）', compoentType:'password'}
@@ -144,45 +142,110 @@
   })
 
   function handleSwitchForm(type) {
-    if (type === 'code') {
+    if (type === 'code' || type === 'forget') {
       formType.value = 'password'
-    }else if (type === 'password' || type === 'forget') {
+    }else if (type === 'password') {
       formType.value = 'code'
     }else if (type === 'forgetPassword'){
       formType.value = 'forget'
     }
 
-    formRef.value.resetFields()
+    formData = {account: formData.account}
+    countdown.value = 59
+    isPending.value = false
+    clearInterval(timer.value)
   }
 
   function handleClickBtn(type) {
+    // console.log('type', type)
+    // console.log('formType', formType.value)
 
     formRef.value.validate(valid=>{
       if (valid) {
+        let params = {
+          ...formData,
+          type: formType.value === 'code' ? '1' : '2'
+        }
+        // console.log('params', params)
         if (type === 'forget') {
           // 重置密码
+          // btnLoading.value = true
+          // API.forgetPassword(params).then(res=>{
+          //   console.log('res', res)
+          //   if (res.code === '0') {
+          //     proxy.$message({
+          //       type:'success',
+          //       message:'重置密码成功'
+          //     })
+          //     handleSwitchForm('password')
+          //   }
+          // }).finally(() => {
+          //   btnLoading.value = false
+          // })
         }else {
           // 登录
+          localStorage.setItem('token', '18300183000')
+          localStorage.setItem('account', '18300183000')
+          router.push({path:'/home'})
+          // btnLoading.value = true
+          // API.login(formData).then(res=>{
+          //   if (res.code === '0') {
+          //     localStorage.setItem('token', res.data.token)
+          //     localStorage.setItem('account', res.data.account)
+          //     router.push({path:'/home'})
+          //   }
+          // }).finally(() => {
+          //   btnLoading.value = false
+          // })
         }
-        console.log('ok', formData)
       }
     })
   }
   // 校验两次密码是否一致
   function validConfirmPassword(rule, value, callback) {
-    if (value !== formData.newPassword) {
+    if (value !== formData.password) {
       callback(false);
     }
     callback();
   }
+
   // 获取验证码
   function handleGetCode() {
-    loadingCode.value = true
-    setTimeout(() => {
-      IMG.value = IMGURL
-      loadingCode.value = false
-    }, 2000)
+    // 获取验证码中
+    if (isPending.value === true) {
+      return
+    }
+
+    formRef.value.validateField('account', (valid) => {
+      if (valid) {
+        let params = {
+          Mobile: formData.account,
+          codeType: formType.value === 'code' ? '1' : '2'
+        }
+
+        isPending.value = true
+        API.SendCode(params).then(res=>{
+          if (res.code === '0') {
+            timer.value = setInterval(() => {
+              if (countdown.value > 0) {
+                countdown.value--;
+              }else {
+                countdown.value = 59
+                isPending.value = false
+                clearInterval(timer.value)
+              }
+            }, 1000)
+          }else {
+            isPending.value = false
+          }
+        })
+      }
+    })
   }
+
+  onUnmounted(() => {
+    clearInterval(timer.value)
+  })
 
 </script>
 
@@ -230,18 +293,22 @@
             justify-content: space-between;
             width: 100%;
 
-            .el-input{
-              width: 220px;
+            .code-content{
+              position: relative;
+
+              .countdown{
+                position: relative;
+                color: #3f99f7;
+                border: 1px solid #dcdcdc;
+                border-radius: 5px;
+                text-align: center;
+                padding: 1px 0;
+                width: 100px;
+              }
             }
 
-            .img-container{
-              height: 35px;
-              border: 1px solid #dadada;
-              border-radius: 2px;
-
-              .code-img{
-                height: 100%;
-              }
+            .el-input{
+              width: 220px;
             }
 
           }
