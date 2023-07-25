@@ -5,26 +5,20 @@
       v-model:fileList="fileList"
       class="upload-demo"
       action="#"
-      :on-preview="handlePictureCardPreview"
       :http-request="httpUploadCos"
-      :before-upload="beforeUpload"
-      :on-remove="handleRemove"
       :list-type="listType"
-      :limit="limit"
-      multiple
+      v-bind="$attrs"
     >
-      <el-icon>
-        <Plus />
-      </el-icon>
+      <slot>
+        <el-icon>
+          <Plus />
+        </el-icon>
+      </slot>
       <!-- 文件操作 -->
       <template #file="{ file }">
         <slot name="file" :file="file"></slot>
       </template>
     </el-upload>
-
-    <el-dialog v-model="dialogVisible">
-      <img w-full :src="dialogImageUrl" alt="Preview Image" />
-    </el-dialog>
   </div>
 </template>
 <script setup>
@@ -46,24 +40,9 @@ const props = defineProps({
     type: Array,
     default: () => []
   },
-  // 图片提交数量
-  limit: {
-    type: Number,
-    default: 0
-  },
   listType: {
     type: String,
     default: "picture-card"
-  },
-  // 删除钩子
-  handleRemove: {
-    type: Function,
-    default: () => {}
-  },
-  // 上传前的钩子
-  beforeUpload: {
-    type: Function,
-    default: () => {}
   },
   onSuccess: {
     type: Function,
@@ -183,11 +162,6 @@ const httpUploadCos = async file => {
       }
     }
   );
-};
-
-// element内置方法
-const handleRemove = file => {
-  props.handleRemove(file);
 };
 
 // 图片放大

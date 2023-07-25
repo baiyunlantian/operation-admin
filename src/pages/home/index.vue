@@ -9,7 +9,7 @@
         </el-row>
       </div>
       <div>
-        <upload v-model:fileList="fileList">
+        <upload v-model:fileList="fileList" :on-preview="test">
           <!-- <template #file="{ file }">{{file}}</template> -->
         </upload>
         <div class="del" @click="del">{{fileList}}</div>
@@ -39,6 +39,10 @@ const fileList = ref([
 
 const del = () => {
   fileList.value.splice(0, 1);
+};
+
+const test = file => {
+  console.log(file);
 };
 </script>
 
