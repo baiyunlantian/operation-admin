@@ -44,7 +44,7 @@ const props = defineProps({
   },
   limit: {
     type: Number,
-    default: 2
+    default: 0
   },
   listType: {
     type: String,
