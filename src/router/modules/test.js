@@ -18,5 +18,22 @@ export default [
 
             }
         ]
+    },
+    {
+        path: '/123',
+        meta: { title: "ccccs" },
+        component: () => import('@/pages/test/index.vue'),
+        name: '1112',
+        permission: 1,
+        children: [
+            {
+                path: "/333",
+                meta: { title: "ccccs" },
+                component: () => import('@/pages/test/index.vue'),
+                name: "123123",
+                permission: 1
+
+            }
+        ]
     }
 ]
