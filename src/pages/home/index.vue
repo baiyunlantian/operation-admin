@@ -1,4 +1,5 @@
 <template>
+<<<<<<< HEAD
   <div class="home-container">
 
     <div class="statistic-container u-m-t-10">

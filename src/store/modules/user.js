@@ -47,6 +47,7 @@ const user = {
     getters: {
         permissionList: state => state.permission,
         info: state => state.info,
+        filterRouter: state => state.filterRouter
     }
 }
 

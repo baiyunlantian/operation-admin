@@ -26,6 +26,7 @@ const router = createRouter({
       redirect: { path: '/home' },
       children: [{
         path: 'home',
+        meta: { title: "首页", tagsDisabled: true },
         name: 'home',
         permission: '1',
         component: () => import('@/pages/home/index.vue'),
@@ -67,7 +68,7 @@ const white = ['login', 'register', '404']
 
 
 router.beforeEach((to, from, next) => {
-  console.log('to ==== ', to)
+  // console.log('to ==== ', to)
   let token = window.localStorage.getItem('token') || '';
   if (token) {
     // 权限列表为空则调用 获取权限列表的方法
@@ -134,14 +135,17 @@ function addRouterList(permissionList) {
 }
 
 
-function filterRouter(routerList, permissionList) {
+
+function filterRouter(routerList, permissionList, fullPath = "") {
   let filterRouterList = routerList.filter(item => {
+    item.fullPath = fullPath + item.path
     if (!permissionList.includes(item.permission)) {
       return false
     }
     if (item.children) {
       let children = []
-      children = filterRouter(item.children, permissionList)
+
+      children = filterRouter(item.children, permissionList, item.path)
       item.children = children
       return children.length > 0
     } else {
@@ -156,7 +160,7 @@ function routerPackag(routerList, parentPath, pathName = '') {
 
   routerList.forEach(item => {
     // path格式为 [父/子]
-    var path = !!parentPath ? (parentPath + '/' + item.path) : item.path;
+    var path = !!parentPath ? (parentPath + item.path) : item.path;
 
     let list = {
       path: path,
@@ -168,9 +172,9 @@ function routerPackag(routerList, parentPath, pathName = '') {
     // 设置重定向 兼容动态路由
     if (item.children && !item.redirect) {
       if (item.children[0]['default']) {
-        list.redirect = { path: `${path}/${item.children[0]['default']}` }
-      }else{
-        list.redirect = { path: `${path}/${item.children[0]['path']}` }
+        list.redirect = { path: `${path}${item.children[0]['default']}` }
+      } else {
+        list.redirect = { path: `${path}${item.children[0]['path']}` }
       }
 
     }
