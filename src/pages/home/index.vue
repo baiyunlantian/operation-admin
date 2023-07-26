@@ -1,5 +1,4 @@
 <template>
-<<<<<<< HEAD
   <div class="home-container">
 
     <div class="statistic-container u-m-t-10">
@@ -38,7 +37,7 @@
 </template>
   
 <script setup>
-  import { reactive, ref, onMounted } from 'vue';
+  import { reactive, ref, onMounted, watch } from 'vue';
   import { useRouter } from 'vue-router';
   import { useStore } from "vuex";
   import API from './api';
@@ -54,20 +53,20 @@
   const router = useRouter();
   const store = useStore();
 
-  const totalStatisticConfig = reactive([
+  const totalStatisticConfig = ref([
     {text:'今日新增用户', prop:'todayNewUserCount', imgUrl:UserImg},
     {text:'今日收益总额', prop:'todayIncomeAmount', imgUrl:MoneyImg},
     {text:'近7天收益总额', prop:'weekIncomeAmount', imgUrl:IncreaseImg},
   ])
-  const totalStatisticData = reactive({
-    todayNewUserCount:200,
-    todayIncomeAmount:200,
-    weekIncomeAmount:200273,
-  })
   const fastRouteConfig = ref([
     {label:'用户管理', path:'/member', img:FastUser},
     {label:'交易统计', path:'/trading', img:FastIncrease},
   ])
+  const totalStatisticData = reactive({
+    todayNewUserCount: 0,
+    todayIncomeAmount: 0,
+    weekIncomeAmount: 0
+  })
 
   function handleClickFast(item) {
     router.push({path:item.path})
@@ -75,7 +74,7 @@
 
   function handleGetUserInfo() {
     API.getUserInfo().then(res=>{
-      if (res.code === '0') {
+      if (res.code == '0') {
         store.commit('user/SET_USER_INFO', res.data)
       }
     })
@@ -83,15 +82,15 @@
 
   function handleGetBoardInfo() {
     API.getBoardInfo().then(res=>{
-      if (res.code === '0') {
-        totalStatisticData = res.data
+      if (res.code == '0') {
+        Object.assign(totalStatisticData, res.data)
       }
     })
   }
 
   onMounted(() => {
     // handleGetUserInfo()
-    // handleGetBoardInfo()
+    handleGetBoardInfo()
 
   })
 

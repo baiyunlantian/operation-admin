@@ -43,89 +43,44 @@
     {label: '总收益', prop: 'totalIncomeAmount'},
   ])
   const totalStatisticData = reactive({
-    todayIncomeAmount:240,
-    yesterdayIncomeAmount:324,
-    currentMonthIncomeAmount:400,
-    totalIncomeAmount:600,
+    todayIncomeAmount: 0,
+    yesterdayIncomeAmount: 0,
+    currentMonthIncomeAmount: 0,
+    totalIncomeAmount: 0,
   })
   const statisticData = ref([])
   const leftData = reactive({
-    currentMonth: 1000,
-    monthRatio: '-10%',
-    currentWeek: 251,
-    weekRatio: '+10%',
-    total: 1251,
+    currentMonth: 0,
+    monthRatio: '0',
+    currentWeek: 0,
+    weekRatio: '0',
+    total: 0,
   })
 
   // 获取交易收益金额统计数据
   function handleGetTradingStatisticData(params) {
     // console.log('handleGetTradingStatisticData', params)
-    let responseData = [
-      {
-        name: '智文',
-        series: [
-          {xAxia: '7-21', yAxia: 34},
-          {xAxia: '7-23', yAxia: 64},
-          {xAxia: '7-25', yAxia: 55},
-          {xAxia: '7-27', yAxia: 44},
-        ],
-      },
-      {
-        name: '智绘',
-        series: [
-          {xAxia: '7-21', yAxia: 75},
-          {xAxia: '7-23', yAxia: 34},
-          {xAxia: '7-25', yAxia: 45},
-          {xAxia: '7-27', yAxia: 12},
-        ],
-      },
-      {
-        name: '智像',
-        series: [
-          {xAxia: '7-21', yAxia: 12},
-          {xAxia: '7-23', yAxia: 76},
-          {xAxia: '7-25', yAxia: 34},
-          {xAxia: '7-27', yAxia: 55},
-        ],
-      },
-      {
-        name: 'AI ERP',
-        series: [
-          {xAxia: '7-21', yAxia: 76},
-          {xAxia: '7-23', yAxia: 34},
-          {xAxia: '7-25', yAxia: 32},
-          {xAxia: '7-27', yAxia: 51},
-        ],
-      },
-    ];
-
-    // API.getUserIncomeStatistic(params).then(res=>{
-    //   if (res.code === '0') {
-    //     const { statisticData, ...other } = res.data
-    //     statisticData.value = statisticData
-    //     leftData = {
-    //       ...other,
-    //       currentMonth: other.currentMonthIncomeAmount,
-    //       currentWeek: other.currentWeekIncomeAmount,
-    //     }
-    //   }
-    // })
-
-    statisticData.value = responseData;
+    API.getUserIncomeStatistic(params).then(res=>{
+      if (res.code == '0' && Object.keys(res.data).length != 0) {
+        const { statisticData, ...other } = res.data
+        statisticData.value = statisticData
+        Object.assign(leftData, {...other, currentMonth: other.currentMonthIncomeAmount, currentWeek: other.currentWeekIncomeAmount})
+      }
+    })
   }
 
   // 获取收益总览信息
   function handleGetTotalUserIncome() {
     API.getTotalUserIncome().then(res=>{
-      if (res.code === '0') {
-        totalStatisticData = res.data
+      if (res.code == '0') {
+        Object.assign(totalStatisticData, res.data)
       }
     })
   }
 
 
   onMounted(() => {
-    // handleGetTotalUserIncome();
+    handleGetTotalUserIncome();
     handleGetTradingStatisticData({productType:0});
   })
 </script>

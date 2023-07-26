@@ -98,36 +98,12 @@
       startDate: startDate.value
     }
 
-    // console.log('收益来源构成统计', params)
+    console.log('收益来源构成统计', params)
     // API.getDataSourcesStatistic(params).then(res=>{
-    //   if (res.code === '0') {
+    //   if (res.code == '0') {
     //     tableData.value = res.data;
     //   }
     // })
-
-    tableData.value = [
-      {
-        incomeAmount: '1238779',
-        name: '智文',
-        lastMonthIncome: '-10%',
-        number: '12',
-        lastMonthNumber: '+27%',
-      },
-      {
-        incomeAmount: '1238779',
-        name: '智绘',
-        lastMonthIncome: '-10%',
-        number: '23',
-        lastMonthNumber: '+27%',
-      },
-      {
-        incomeAmount: '1238779',
-        name: '智像',
-        lastMonthIncome: '-10%',
-        number: '62',
-        lastMonthNumber: '+27%',
-      }
-    ];
   }
 
   function echartsInit() {

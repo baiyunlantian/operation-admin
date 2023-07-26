@@ -53,19 +53,10 @@
       dateScopeType: dateScopeType.value,
       startDate: startDate.value
     }
-    const responseData = [
-      {xAxis:'0-100', yAxis: 160},
-      {xAxis:'100-200', yAxis: 243},
-      {xAxis:'200-300', yAxis: 655},
-      {xAxis:'300-400', yAxis: 355},
-      {xAxis:'400-500', yAxis: 555},
-      {xAxis:'500-600', yAxis: 344},
-    ];
-
     let _xAxisData = [], _echartsData = [];
 
     // API.getDistributionStatistic(params).then(res=>{
-    //   if (res.code === '0') {
+    //   if (res.code == '0') {
     //     (res.data || []).forEach(({xAxis, yAxis})=>{
     //       _xAxisData.push(xAxis)
     //       _echartsData.push(yAxis)
@@ -79,19 +70,6 @@
     //     },100)
     //   }
     // })
-
-
-    responseData.forEach(({xAxis, yAxis})=>{
-      _xAxisData.push(xAxis)
-      _echartsData.push(yAxis)
-    })
-
-    xAxisData.value = _xAxisData
-    echartsData.value = _echartsData
-
-    setTimeout(()=>{
-      echartsInit()
-    },100)
   }
 
   function echartsInit() {

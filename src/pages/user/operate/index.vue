@@ -3,7 +3,7 @@
         <div class="title">筛选</div>
 
         <div class="search-container u-m-t-15 u-m-b-10">
-            <el-form class="search-form" ref="formRef" :inline="true" :model="searchTableParams">
+            <el-form class="search-form" ref="formRef" :inline="true" :model="searchTableParams" :rules="rules">
 
                 <el-form-item v-for="(item, index) in searchFormConfig" :prop="item.prop" :label="item.label" :key="item.prop" label-position="left">
 
@@ -17,6 +17,8 @@
                             format="YYYY-MM-DD HH:mm"
                             start-placeholder="开始时间"
                             end-placeholder="结束时间"
+                            :disabled-date="handleDisabledDate"
+                            @calendar-change="datePickerChange"
                     />
                 </el-form-item>
             </el-form>
@@ -41,7 +43,7 @@
                         />
                     </el-select>
 
-                    <el-select v-model="searchTableParams.sortField" class="m-2" placeholder="排序方式">
+                    <el-select v-model="searchTableParams.sort" class="m-2" placeholder="排序方式">
                         <el-option
                                 v-for="item in timeSortOptions"
                                 :key="item.value"
@@ -86,7 +88,7 @@
                         v-model:current-page="searchTableParams.pageIndex"
                         v-model:page-size="searchTableParams.pageSize"
                         layout="total, prev, pager, next, jumper"
-                        :total="16"
+                        :total="tableTotal"
                         background
                         @current-change="handleGetTableList"
                 />
@@ -109,10 +111,19 @@
   const { proxy } = getCurrentInstance()
 
   const searchFormConfig = ref([
-    {label:'用户账户：', prop:'account', type:'input', placeholder:'用户ID/账号'},
-    {label:'用户昵称：', prop:'userName', type:'input'},
+    {label:'ID/账号：', prop:'account', type:'input', placeholder:'用户ID/账号'},
+    {label:'用户名：', prop:'userName', type:'input'},
     {label:'创建时间：', prop:'createTime', type:'datetimerange'},
   ])
+  const rules = reactive({
+    account:[
+      {
+        pattern: /^[0-9_]{1,15}$/,
+        trigger: 'blur',
+        message: '请输入1~15位的数字'
+      }
+    ]
+  })
   const searchTableParams = reactive({
     pageSize:10,
     pageIndex:1
@@ -121,7 +132,7 @@
   const tableColumnConfig = ref([
     {label:'用户ID', prop:'userId'},
     {label:'用户账号', prop:'account'},
-    {label:'用户昵称', prop:'userName'},
+    {label:'用户名', prop:'userName'},
     {label:'邮箱', prop:'email'},
     {label:'创建时间', prop:'createdTime'},
     {label:'账户启用状态', prop:'status', insertSlot:'status'},
@@ -135,6 +146,27 @@
   ])
   const selectedRows = ref([])
   const modalVisible = ref(false)
+  const startDate = ref(null)
+  const tableTotal = ref(0)
+  const formRef = ref(null)
+
+  function datePickerChange(dates) {
+    // 记录选择的起始日期
+    let hasSelectDate = dates !== null && dates.length > 0
+    startDate.value = hasSelectDate ? dates[0] : null
+  }
+
+  // 限定时间选择范围
+  function handleDisabledDate(time) {
+    const day = 24 * 60 * 60 * 1000;
+    const timestamp = time.getTime()
+    if (startDate.value !== null) {
+      return (
+        timestamp < startDate.value.getTime() - 30 * day ||
+        timestamp > startDate.value.getTime() + 30 * day
+      )
+    }
+  }
 
   function handleSelectionChange(value) {
     selectedRows.value = value
@@ -152,33 +184,12 @@
       delete params.createTime
     }
 
-    // API.getOperateTableList(params).then(res=>{
-    //   if (res.code === '0') {
-    //     tableData.value = res.data
-    //   }
-    // })
-
-    tableData.value = [
-      {
-        "userId": 921354756,
-        "account": "只集东方战",
-        "userName": "和进部也当",
-        "email": "会战四",
-        "createdTime": "常行教代划及把",
-        "status": false,
-        "isPay": 0,
-      },
-      {
-        "userId": 13543747756,
-        "account": "只集东方战",
-        "userName": "和进部也当",
-        "email": "会战四",
-        "createdTime": "常行把",
-        "status": true,
-        "isPay": 1,
-      },
-    ]
-    console.log('params', params)
+    API.getOperateTableList(params).then(res=>{
+      if (res.code == '0') {
+        tableData.value = res.data.list
+        // tableTotal.value = res.data.total
+      }
+    })
   }
 
   function beforeChange() {
@@ -206,16 +217,16 @@
 
     console.log('params', params)
 
-    // API.updateStatus(params).then(res=>{
-    //   if (res.code === '0') {
-    //     proxy.$message({
-    //       type: 'success',
-    //       message: '修改状态成功'
-    //     })
-    //
-    //     handleGetTableList()
-    //   }
-    // })
+    API.updateStatus(params).then(res=>{
+      if (res.code == '0') {
+        proxy.$message({
+          type: 'success',
+          message: '修改状态成功'
+        })
+
+        handleGetTableList()
+      }
+    })
   }
 
   // 删除，重置密码，批量删除，改变状态
@@ -246,16 +257,16 @@
       type: 'warning',
     }).then(res=>{
       if (res === 'confirm') {
-        // fn(params).then(res=>{
-        //   if (res.code === '0') {
-        //     proxy.$message({
-        //       type: 'success',
-        //       message: '操作成功'
-        //     })
-        //
-        //     handleGetTableList()
-        //   }
-        // })
+        fn(params).then(res=>{
+          if (res.code == '0') {
+            proxy.$message({
+              type: 'success',
+              message: '操作成功'
+            })
+
+            handleGetTableList()
+          }
+        })
       }
     }).catch(()=>{
       console.log('取消')
@@ -282,13 +293,17 @@
   }
 
   watch(searchTableParams, (newVal, oldVal) => {
-      if (timer.value !== null) {
-        clearTimeout(timer.value);
-      }
-      timer.value = setTimeout(() => {
-        handleGetTableList()
-        timer.value = null;
-      }, 1500)
+      formRef.value.validate(valid => {
+        if (valid) {
+          if (timer.value !== null) {
+            clearTimeout(timer.value);
+          }
+          timer.value = setTimeout(() => {
+            handleGetTableList()
+            timer.value = null;
+          }, 1500)
+        }
+      })
     },
     {deep:true}
   )

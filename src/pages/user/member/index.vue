@@ -3,7 +3,7 @@
         <div class="title">筛选</div>
 
         <div class="search-container u-m-t-15 u-m-b-10">
-            <el-form class="search-form" ref="formRef" :inline="true" :model="searchTableParams">
+            <el-form class="search-form" ref="formRef" :inline="true" :model="searchTableParams" :rules="rules">
 
                 <el-form-item v-for="(item, index) in searchFormConfig" :prop="item.prop" :label="item.label" :key="item.prop" label-position="left">
 
@@ -26,10 +26,17 @@
                             format="YYYY-MM-DD"
                             start-placeholder="开始时间"
                             end-placeholder="结束时间"
+                            :disabled-date="handleDisabledDate"
+                            @calendar-change="datePickerChange"
                     />
 
                 </el-form-item>
             </el-form>
+
+            <!--暂时屏蔽      -->
+            <!--      <div class="btns">-->
+            <!--          <el-button type="primary" class="btn" @click="handleClickBtn">批量删除</el-button>-->
+            <!--      </div>-->
 
         </div>
 
@@ -46,7 +53,7 @@
                         />
                     </el-select>
 
-                    <el-select v-model="searchTableParams.sortField" class="m-2" placeholder="排序方式">
+                    <el-select v-model="searchTableParams.sort" class="m-2" placeholder="排序方式">
                         <el-option
                                 v-for="item in timeSortOptions"
                                 :key="item.value"
@@ -90,7 +97,7 @@
                         v-model:current-page="searchTableParams.pageIndex"
                         v-model:page-size="searchTableParams.pageSize"
                         layout="total, prev, pager, next, jumper"
-                        :total="16"
+                        :total="tableListTotal"
                         background
                         @current-change="handleGetTableList"
                 />
@@ -117,11 +124,20 @@
   const { proxy } = getCurrentInstance()
 
   const searchFormConfig = ref([
-    {label:'用户账户：', prop:'account', type:'input', placeholder:'用户ID/账号'},
+    {label:'ID/账号：', prop:'account', type:'input', placeholder:'用户ID/账号'},
     {label:'用户昵称：', prop:'userName', type:'input'},
     {label:'注册时间：', prop:'registerTime', type:'datetimerange'},
     {label:'', prop:'sourceType', type:'select'},
   ])
+  const rules = reactive({
+    account:[
+      {
+        pattern: /^[0-9_]{1,15}$/,
+        trigger: 'blur',
+        message: '请输入1~15位的数字'
+      }
+    ]
+  })
   const searchTableParams = reactive({
     pageSize:10,
     pageIndex:1
@@ -136,6 +152,7 @@
     {label:'总消费金额', prop:'consumedAmount'},
     {label:'账号来源', prop:'source'},
     {label:'账号余额', prop:'balance'},
+    {label:'注册时间', prop:'registerTime'},
     {label:'账户启用状态', prop:'status', insertSlot:'status'},
     {label:'操作', prop:'operate', insertSlot:'operate'},
   ])
@@ -155,6 +172,27 @@
   const selectedRows = ref([])
   const detailVisible = ref(false)
   const detailUserId = ref('')
+  const tableListTotal = ref(0)
+  const startDate = ref(null)
+  const formRef = ref(null)
+
+  function datePickerChange(dates) {
+    // 记录选择的起始日期
+    let hasSelectDate = dates !== null && dates.length > 0
+    startDate.value = hasSelectDate ? dates[0] : null
+  }
+
+  // 限定时间选择范围
+  function handleDisabledDate(time) {
+    const day = 24 * 60 * 60 * 1000;
+    const timestamp = time.getTime()
+    if (startDate.value !== null) {
+      return (
+        timestamp < startDate.value.getTime() - 30 * day ||
+        timestamp > startDate.value.getTime() + 30 * day
+      )
+    }
+  }
 
   function handleFormatTableCell(row, prop) {
     let text = row[prop]
@@ -164,6 +202,16 @@
 
     return text
   }
+
+  // 暂时屏蔽
+  // function // 暂时屏蔽() {
+  //   if (selectedRows.value.length === 0) {
+  //     proxy.$message({
+  //       type:'error',
+  //       message:'请选择需要删除的数据！'
+  //     })
+  //   }
+  // }
 
   function handleSelectionChange(value) {
     selectedRows.value = value
@@ -182,33 +230,12 @@
     }
 
     console.log('params', params)
-    // API.getMemberTableList(params).then(res=>{
-    //   if (res.code === '0') {
-    //     tableData.value = res.data
-    //   }
-    // })
-
-    tableData.value = [
-      {
-        "userId": 921354756,
-        "account": "只集东方战",
-        "userName": "和进部也当",
-        "email": "会战四",
-        "createdTime": "常行教代划及把",
-        "status": false,
-        "isPay": 0,
-      },
-      {
-        "userId": 13543747756,
-        "account": "只集东方战",
-        "userName": "和进部也当",
-        "email": "会战四",
-        "createdTime": "常行把",
-        "status": true,
-        "isPay": 1,
-      },
-    ]
-    // console.log('params', params)
+    API.getMemberTableList(params).then(res=>{
+      if (res.code == '0') {
+        tableData.value = res.data.list
+        // tableListTotal.value = res.data.total
+      }
+    })
   }
 
   function beforeChange() {
@@ -237,16 +264,16 @@
 
     console.log('params', params)
 
-    // API.updateStatus(params).then(res=>{
-    //   if (res.code === '0') {
-    //     proxy.$message({
-    //       type: 'success',
-    //       message: '修改状态成功'
-    //     })
-    //
-    //     handleGetTableList()
-    //   }
-    // })
+    API.updateStatus(params).then(res=>{
+      if (res.code == '0') {
+        proxy.$message({
+          type: 'success',
+          message: '修改状态成功'
+        })
+
+        handleGetTableList()
+      }
+    })
   }
 
   function handleGoBack() {
@@ -255,20 +282,22 @@
   }
 
   function handleClickCellBtn(eventType, row) {
-    // console.log('row', row)
     detailVisible.value = true
     detailUserId.value = row.userId
-    // router.push({path:`/member/detail/${row.userId}`})
   }
 
   watch(searchTableParams, (newVal, oldVal) => {
-      if (timer.value !== null) {
-        clearTimeout(timer.value);
-      }
-      timer.value = setTimeout(() => {
-        handleGetTableList()
-        timer.value = null;
-      }, 1500)
+      formRef.value.validate(valid => {
+        if (valid) {
+          if (timer.value !== null) {
+            clearTimeout(timer.value);
+          }
+          timer.value = setTimeout(() => {
+            handleGetTableList()
+            timer.value = null;
+          }, 1500)
+        }
+      })
     },
     {deep:true}
   )

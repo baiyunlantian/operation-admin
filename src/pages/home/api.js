@@ -14,11 +14,11 @@ export default {
 
   // 用户统计数据
   getUserStatistic(params) {
-    return HTTP.get("/User/Page", params );
+    return HTTP.get("/Home/UserStatistics", params );
   },
 
   // 收益统计数据
   getIncomeStatistics(params) {
-    return HTTP.get("/User/IncomeStatistics", params );
+    return HTTP.get("/Home/IncomeStatistics", params );
   },
 }

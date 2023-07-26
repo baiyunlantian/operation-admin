@@ -1,5 +1,5 @@
 <template>
-  <div class="header_container">
+  <div>
     <sidebar />
     <tegView />
   </div>
@@ -40,10 +40,6 @@ export default {
     }
   }
 
-  .header_container {
-    background-color: #242d3f;
-    height: 102px;
-  }
   .list-enter-active,
   .list-leave-active {
     transition: all 0.5s ease;

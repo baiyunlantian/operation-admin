@@ -32,7 +32,7 @@
                     v-model:current-page="pageParams.pageIndex"
                     v-model:page-size="pageParams.pageSize"
                     layout="total, prev, pager, next, jumper"
-                    :total="16"
+                    :total="tableTotal"
                     background
                     @current-change="handleGetTableList"
             />
@@ -61,15 +61,13 @@
         required: true,
       }
     })
-    const tableList = ref([{
-      "rechargeAmount": 100,
-      "payWay": "支付宝",
-      "rechargeTime": "2023-7-21"
-    }])
+
+    const tableList = ref([])
     const pageParams = reactive({
       pageSize:10,
       pageIndex:1
     })
+    const tableTotal = ref(0)
 
     function handleGetTableList() {
       let params = {
@@ -78,11 +76,10 @@
         ...pageParams
       }
 
-      console.log('params', params)
-      return
       API.getRechargeRecordTableList(params).then(res=>{
-        if (res.code === '0') {
+        if (res.code == '0') {
           tableList.value = res.data.list
+          tableTotal.value = res.data.total
         }
       })
     }

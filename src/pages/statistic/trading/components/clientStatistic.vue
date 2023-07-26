@@ -90,8 +90,6 @@
     dateScopeType.value = value
   }
   function formatTableCell(row, prop) {
-    // console.log('row', row)
-    // console.log('prop', prop)
     let text = '', val = row[prop]
     switch (prop) {
       case 'incomeAmount':
@@ -113,20 +111,11 @@
 
     // console.log('handleGetClientStatistic', params)
 
-    // API.getNewAndOldStatistic(params).then(res=>{
-    //   if (res.code === '0') {
-    //     tableData.value = res.data
-    //   }
-    // })
-
-
-    tableData.value = [{
-      incomeAmount: '1238779',
-      name: '新客户',
-      lastMonthIncome: '-10%',
-      number: '12',
-      lastMonthNumber: '+27%',
-    }];
+    API.getNewAndOldStatistic(params).then(res=>{
+      if (res.code == '0') {
+        tableData.value = res.data
+      }
+    })
   }
 
   function echartsInit() {

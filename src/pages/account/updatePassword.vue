@@ -51,6 +51,7 @@
   import {reactive, ref, computed, getCurrentInstance, onMounted, onUnmounted} from 'vue';
   import { useRouter } from 'vue-router';
   import API from "@/pages/login/api";
+  import cryptojs from "@/assets/js/cryptojs";
 
   const { proxy } = getCurrentInstance()
   const router = useRouter()
@@ -137,7 +138,6 @@
 
 
   function handleClickBtn(type) {
-    console.log('handleClickBtn', type)
     if (type === 'validaType') {
       validPhone.value = !validPhone.value
       formRef.value.resetFields()
@@ -167,7 +167,10 @@
   function handleUpdatePassword() {
     let params = {
       ...formData,
-      type: validPhone.value ? '1' : '2'
+      type: validPhone.value ? '1' : '2',
+      oldPassword: formData.oldPassword ? cryptojs.encrypt(formData.oldPassword) : null,
+      newPassword: formData.newPassword ? cryptojs.encrypt(formData.newPassword) : null,
+      confirmPassword: formData.confirmPassword ? cryptojs.encrypt(formData.confirmPassword) : null,
     }
 
     console.log('params', params)
@@ -182,7 +185,7 @@
     }, 3000)
 
     // API.updatePassword(params).then(res=>{
-    //   if (res.code === '0') {
+    //   if (res.code == '0') {
     //     proxy.$message({
     //       type: 'success',
     //       msg: '修改密码成功'
@@ -217,7 +220,7 @@
 
         isPending.value = true
         API.SendCode(params).then(res=>{
-          if (res.code === '0') {
+          if (res.code == '0') {
             timer.value = setInterval(() => {
               if (countdown.value > 0) {
                 countdown.value--;

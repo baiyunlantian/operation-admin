@@ -5,7 +5,7 @@
 
             <div class="btns">
                 <div class="btn-item">
-                    <el-button type="default">导出数据</el-button>
+                    <el-button type="default" @click="handleExport">导出数据</el-button>
                 </div>
                 <div class="btn-item u-m-l-10">
                     <el-select v-model="dateScopeType" @change="handleSelectChange" class="m-2">
@@ -126,6 +126,8 @@
 <script setup>
   import {reactive, ref, onMounted, computed, watch, defineProps, defineEmits, getCurrentInstance} from 'vue';
   import dayjs from 'dayjs';
+  import ExportExcel from '@/utils/exportExcel';
+  import { setTimeEscalation } from '@/assets/js/utils';
   import MutiLine from '@/components/Echarts/muti-line';
 
   const emit = defineEmits(['update'])
@@ -157,6 +159,7 @@
     }
   })
   const { proxy } = getCurrentInstance()
+  const setTimeEscalationClone = setTimeEscalation();
 
   const timeRange = ref([])
   const startDate = ref(null)
@@ -178,6 +181,14 @@
   ])
   const dateScopeType = ref(1)
   const tableShow = ref(false)
+
+  function handleExport() {
+    const fileName = props.statisticType === 'user' ? '用户增长情况' : '交易收益金额'
+
+    setTimeEscalationClone(() => {ExportExcel(tableData.value, tableColumnConfig.value, fileName)},
+      () => {proxy.$message.warning('操作过于频繁！')})
+  }
+
   const monthPickerOptions = reactive({
     onPick: monthPickerChange,
     disabledDate: disabledMonth

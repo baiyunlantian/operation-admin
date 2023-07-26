@@ -65,10 +65,19 @@
         trigger: 'blur'
       }
     ],
-    name: [{
-      message: '用户名不能为空!',
-      trigger: 'blur'
-    }]
+    name: [
+      {
+        required: true,
+        message: '用户名不能为空!',
+        trigger: 'blur',
+      },
+      {
+        message: '请输入1-7位数用户名!',
+        trigger: 'blur',
+        max: 7,
+        min: 1
+      }
+    ]
   })
 
   function handleClickBtn(btnType) {
@@ -126,36 +135,23 @@
       userName: userInfo.name
     }
 
-    console.log('params', params)
-
     btnLoading.value = true
-    setTimeout(() => {
-      proxy.$message({
-        type: 'success',
-        message:'修改成功'
-      })
-      isReadOnly.value = true
+    API.updateUserInfo(params).then(res=>{
+      if (res.code == '0') {
+        proxy.$message({
+          type: 'success',
+          message: '修改成功'
+        })
+        isReadOnly.value = true
+        handleClickBtn('cancel')
+        store.commit('user/SET_USER_INFO', {...store.getters["user/info"], ...params, name: params.userName})
+      }
+    }).finally(() => {
       btnLoading.value = false
-      handleClickBtn('cancel')
-    }, 3000)
-
-
-    // API.updateUserInfo(userInfo).then(res=>{
-    //   if (res.code === '0') {
-    //     proxy.$message({
-    //       type: 'success',
-    //       message: res.msg || '修改成功'
-    //     })
-    //     isReadOnly.value = true
-    //     handleClickBtn('cancel')
-    //   }
-    // }).finally(() => {
-    //   btnLoading.value = false
-    // })
+    })
   }
 
   watch(() => store.getters["user/info"], (newVal, oldVal) => {
-    // console.log('watch', newVal)
     userInfo = reactive({...newVal})
   }, {deep: true, immediate: true})
 

@@ -16,7 +16,6 @@
         </TransitionGroup>
       </div>
     </el-scrollbar>
-    <div>{{test}}</div>
   </div>
 </template>
 

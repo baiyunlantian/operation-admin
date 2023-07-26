@@ -28,7 +28,7 @@
 
         <el-form-item>
           <el-button type="primary"
-                     @click="handleClickBtn('submit')"
+                     @click="handleClickBtn()"
                      :loading="btnLoading"
                      :disabled="btnLoading"
           >
@@ -58,6 +58,7 @@
 <script setup>
   import { reactive, ref, getCurrentInstance, onUnmounted } from 'vue';
   import { useRouter } from 'vue-router';
+  import cryptojs from "@/assets/js/cryptojs.js";
   import API from './api';
 
   const { proxy } = getCurrentInstance()
@@ -150,53 +151,49 @@
       formType.value = 'forget'
     }
 
-    formData = {account: formData.account}
+    formData = reactive({})
     countdown.value = 59
     isPending.value = false
     clearInterval(timer.value)
   }
 
-  function handleClickBtn(type) {
-    // console.log('type', type)
-    // console.log('formType', formType.value)
-
+  function handleClickBtn() {
     formRef.value.validate(valid=>{
       if (valid) {
         let params = {
           ...formData,
-          type: formType.value === 'code' ? '1' : '2'
+          type: formType.value === 'code' ? '1' : '2',
+          password: formData.password ? cryptojs.encrypt(formData.password) : null,
+          confirmPassword: formData.confirmPassword ? cryptojs.encrypt(formData.confirmPassword) : null,
         }
-        // console.log('params', params)
-        if (type === 'forget') {
+
+        if (formType.value === 'forget') {
           // 重置密码
-          // btnLoading.value = true
-          // API.forgetPassword(params).then(res=>{
-          //   console.log('res', res)
-          //   if (res.code === '0') {
-          //     proxy.$message({
-          //       type:'success',
-          //       message:'重置密码成功'
-          //     })
-          //     handleSwitchForm('password')
-          //   }
-          // }).finally(() => {
-          //   btnLoading.value = false
-          // })
+          btnLoading.value = true
+          API.forgetPassword(params).then(res=>{
+            console.log('res', res)
+            if (res.code == '0') {
+              proxy.$message({
+                type:'success',
+                message:'重置密码成功'
+              })
+              handleSwitchForm('password')
+            }
+          }).finally(() => {
+            btnLoading.value = false
+          })
         }else {
           // 登录
-          localStorage.setItem('token', '18300183000')
-          localStorage.setItem('account', '18300183000')
-          router.push({path:'/home'})
-          // btnLoading.value = true
-          // API.login(formData).then(res=>{
-          //   if (res.code === '0') {
-          //     localStorage.setItem('token', res.data.token)
-          //     localStorage.setItem('account', res.data.account)
-          //     router.push({path:'/home'})
-          //   }
-          // }).finally(() => {
-          //   btnLoading.value = false
-          // })
+          btnLoading.value = true
+          API.login(formData).then(res=>{
+            if (res.code == '0') {
+              localStorage.setItem('token', res.data.token)
+              localStorage.setItem('account', res.data.account)
+              router.push({path:'/home'})
+            }
+          }).finally(() => {
+            btnLoading.value = false
+          })
         }
       }
     })
@@ -225,7 +222,7 @@
 
         isPending.value = true
         API.SendCode(params).then(res=>{
-          if (res.code === '0') {
+          if (res.code == '0') {
             timer.value = setInterval(() => {
               if (countdown.value > 0) {
                 countdown.value--;

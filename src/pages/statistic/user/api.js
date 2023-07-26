@@ -13,6 +13,6 @@ export default {
 
   // 用户来源统计
   getUserSourceStatistic(params) {
-    return HTTP.get("/Statistics/UserNumber/DataSource", params );
+    return HTTP.get("/Statistics/UserNumber/DataSources", params );
   },
 }

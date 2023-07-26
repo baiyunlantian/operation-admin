@@ -9,5 +9,15 @@ module.exports = defineConfig({
   lintOnSave: false,
   // 禁止生成map文件
   productionSourceMap: false,
-
+  devServer: {
+    proxy: {
+      '/api': {
+        target: `https://console-mock.apipost.cn/mock/282b3afe-ba75-4580-8814-729fca7d1050`,
+        changeOrigin: true,
+        pathRewrite: {
+          '^/api': '/'
+        }
+      }
+    }
+  }
 })

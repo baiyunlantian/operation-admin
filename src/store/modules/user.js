@@ -9,9 +9,12 @@ const user = {
             permission: [],
             filterRouter: [],
             info: {
-                account:'5464',
+                account:'13765756753',
                 email:'23464',
-                name:'wovovo',
+                userName:'wovovo',
+                createdTime: "须确方界",
+                lastLoginTime: "",
+                userImage: ""
             }
         }
     },

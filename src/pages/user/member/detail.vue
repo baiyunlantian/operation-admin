@@ -125,11 +125,7 @@
     {label:'使用次数', prop:'useNumber'},
     {label:'账号余额', prop:'balance'},
   ])
-  const recordTableList = ref([{
-    "rechargeAmount": 100,
-    "payWay": "支付宝",
-    "rechargeTime": "2023-7-21"
-  }])
+  const recordTableList = ref([])
   const recordTableColumnConfig = ref([
     {label:'充值金额', prop:'rechargeAmount'},
     {label:'付款方式', prop:'payWay'},
@@ -153,7 +149,7 @@
     }
 
     API.getRechargeRecordTableList(params).then(res=>{
-      if (res.code === '0') {
+      if (res.code == '0') {
         recordTableList.value = res.data.list
 
         checkAllBtnVisible.value = res.data.total > 5
@@ -164,7 +160,7 @@
   function handleGetUserInfo() {
     if (props.userId) {
       API.getUserInfoById(props.userId).then(res=>{
-        if (res.code === '0') {
+        if (res.code == '0') {
           const { userInfo: USERINFO, statistics } = res.data
           userInfo = USERINFO
           statisticInfo.value = statistics
@@ -177,7 +173,7 @@
   }
 
   onMounted(() => {
-    // handleGetUserInfo()
+    handleGetUserInfo()
   })
 </script>
 

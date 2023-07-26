@@ -5,7 +5,7 @@ import router from '../router';
 
 // 创建axios默认请求
 const service = axios.create({
-    baseURL: process.env.VUE_APP_BASE_API,
+    baseURL: '/api',
     // token认证
     headers: {
         // 'token': window.localStorage.getItem("authorization") || ""

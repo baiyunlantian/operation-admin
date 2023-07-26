@@ -74,7 +74,7 @@
   import API from '../api';
   import MutiLine from '@/components/Echarts/muti-line';
 
-  const timeRange = ref([])
+  const timeRange = ref([dayjs(new Date()).format('YYYY-MM-DD'), ''])
   const startDate = ref(null)
   const productType = ref(0)
   const dateScopeType = ref(1)
@@ -82,13 +82,7 @@
     {title:'本月用户总数', subText:'同比上月', countProp:'currentMonthUserCount', ratioProp:'monthRatio'},
     {title:'本周用户数量', subText:'同比上周', countProp:'currentWeekUserCount', ratioProp:'weekRatio'}
   ])
-  let leftData = reactive({
-    currentMonthUserCount: 1000,
-    monthRatio: '-10%',
-    currentWeekUserCount: 251,
-    weekRatio: '+10%',
-    total: 256,
-  })
+  const leftData = reactive({})
   const productTypeList = reactive([
     {label:'全部', key:0},
     {label:'智文', key:1},
@@ -157,9 +151,6 @@
   }
   // 获取用户统计图表数据
   function handleGetUserStatistic() {
-    // console.log('productType', productType.value)
-    // console.log('dateScopeType', dateScopeType.value)
-    // console.log('dateScopeType', timeRange.data)
     let params = {
       productType: productType.value,
       dateScopeType: dateScopeType.value,
@@ -167,54 +158,15 @@
       endDate: timeRange.value[1],
     }
     // console.log('handleGetUserStatistic', params)
-    // API.getUserStatistic(params).then(res=>{
-    //   if (res.code === '0') {
-    //     const { statisticData, ...other } = res.data
-    //     userEchartsDataList.value = statisticData
-    //     leftData = other
-    //   }
-    // })
-    let responseData = [
-      {
-        name:'智文',
-        series:[
-          {xAxia:'7-21', yAxia:50},
-          {xAxia:'7-23', yAxia:88},
-          {xAxia:'7-25', yAxia:45},
-          {xAxia:'7-27', yAxia:15},
-        ],
-      },
-      {
-        name:'智绘',
-        series:[
-          {xAxia:'7-21', yAxia:14},
-          {xAxia:'7-23', yAxia:64},
-          {xAxia:'7-25', yAxia:54},
-          {xAxia:'7-27', yAxia:33},
-        ],
-      },
-      {
-        name:'智像',
-        series:[
-          {xAxia:'7-21', yAxia:54},
-          {xAxia:'7-23', yAxia:87},
-          {xAxia:'7-25', yAxia:43},
-          {xAxia:'7-27', yAxia:21},
-        ],
-      },
-      {
-        name:'AI ERP',
-        series:[
-          {xAxia:'7-21', yAxia:12},
-          {xAxia:'7-23', yAxia:34},
-          {xAxia:'7-25', yAxia:77},
-          {xAxia:'7-27', yAxia:54},
-        ],
-      },
-    ];
+    API.getUserStatistic(params).then(res=>{
+      if (res.code == '0') {
+        const { statisticData, ...other } = res.data
+        userEchartsDataList.value = statisticData
+        Object.assign(leftData, other)
+      }
+    })
 
-    formatLineData(responseData)
-    userEchartsDataList.value = responseData
+    // formatLineData(responseData)
   }
 
   // 格式化数据

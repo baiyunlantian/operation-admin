@@ -39,90 +39,44 @@
     {label:'本月新增', prop:'currentMonthNewUserCount'},
     {label:'用户总数', prop:'totalUserCount'},
   ])
-  let totalStatisticData = reactive({
-    todayNewUserCount:200,
-    yesterdayNewUserCount:200,
-    currentMonthNewUserCount:400,
-    totalUserCount:600,
+  const totalStatisticData = reactive({
+    todayNewUserCount: 0,
+    yesterdayNewUserCount: 0,
+    currentMonthNewUserCount: 0,
+    totalUserCount: 0,
   })
   const statisticData = ref([])
-  let leftData = reactive({
-    currentMonth: 1000,
-    monthRatio: '-10%',
-    currentWeek: 251,
-    weekRatio: '+10%',
-    total: 256,
+  const leftData = reactive({
+    currentMonth: 0,
+    monthRatio: '0',
+    currentWeek: 0,
+    weekRatio: '0',
+    total: 0,
   })
 
   // 获取用户增长情况统计数据
   function handleGetUserStatisticData(params) {
-    // console.log('handleGetUserStatisticData', params)
-    let responseData = [
-      {
-        name:'智文',
-        series:[
-          {xAxia:'7-21', yAxia:50},
-          {xAxia:'7-23', yAxia:88},
-          {xAxia:'7-25', yAxia:45},
-          {xAxia:'7-27', yAxia:15},
-        ],
-      },
-      {
-        name:'智绘',
-        series:[
-          {xAxia:'7-21', yAxia:14},
-          {xAxia:'7-23', yAxia:64},
-          {xAxia:'7-25', yAxia:54},
-          {xAxia:'7-27', yAxia:33},
-        ],
-      },
-      {
-        name:'智像',
-        series:[
-          {xAxia:'7-21', yAxia:54},
-          {xAxia:'7-23', yAxia:87},
-          {xAxia:'7-25', yAxia:43},
-          {xAxia:'7-27', yAxia:21},
-        ],
-      },
-      {
-        name:'AI ERP',
-        series:[
-          {xAxia:'7-21', yAxia:12},
-          {xAxia:'7-23', yAxia:34},
-          {xAxia:'7-25', yAxia:77},
-          {xAxia:'7-27', yAxia:54},
-        ],
-      },
-    ];
-
     // console.log('handleGetUserStatistic', params)
-    // API.getUserIncreaseStatistic(params).then(res=>{
-    //   if (res.code === '0') {
-    //     const { statisticData, ...other } = res.data
-    //     statisticData.value = statisticData
-    //     leftData = {
-    //       ...other,
-    //       currentMonth: other.currentMonthUserCount,
-    //       currentWeek: other.currentWeekUserCount,
-    //     }
-    //   }
-    // })
-
-    statisticData.value = responseData;
+    API.getUserIncreaseStatistic(params).then(res=>{
+      if (res.code == '0' && Object.keys(res.data).length != 0) {
+        const { statisticData, ...other } = res.data
+        statisticData.value = statisticData
+        Object.assign(leftData, {...other, currentMonth: other.currentMonthUserCount, currentWeek: other.currentWeekUserCount})
+      }
+    })
   }
 
   // 获取用户总览信息
   function handleGetTotalUserNumber() {
     API.getTotalUserNumber().then(res=>{
-      if (res.code === '0') {
-        totalStatisticData = res.data
+      if (res.code == '0') {
+        Object.assign(totalStatisticData, res.data)
       }
     })
   }
 
   onMounted(() => {
-    // handleGetTotalUserNumber()
+    handleGetTotalUserNumber()
     handleGetUserStatisticData({productType:0});
   })
 </script>

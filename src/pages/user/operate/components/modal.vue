@@ -58,11 +58,19 @@
         message: '邮箱不合法!',
         trigger: 'blur'
     }],
-    userName: [{
-      required: true,
-      message: '用户名不能为空!',
-      trigger: 'blur'
-    }]
+    userName: [
+      {
+        required: true,
+        message: '用户名不能为空!',
+        trigger: 'blur'
+      },
+      {
+        message: '请输入1-7位数用户名!',
+        trigger: 'blur',
+        max:7,
+        min:1
+      }
+    ]
   }
   const dialogVisible = ref(true)
   const form = ref(null)
@@ -76,15 +84,15 @@
     form.value.validate(valid=>{
       if (valid) {
         console.log('formData', formData)
-        // API.addUser(formData).then(res=>{
-          // if (res.code === '0') {
-          //   proxy.$message({
-          //     type:'success',
-          //     message:'添加用户成功！'
-          //   })
-            // handleClose(true)
-          // }
-        // })
+        API.addUser(formData).then(res=>{
+          if (res.code == '0') {
+            proxy.$message({
+              type:'success',
+              message:'添加用户成功！'
+            })
+            handleClose(true)
+          }
+        })
       }
     })
   }

@@ -79,46 +79,21 @@
 
   // 获取用户来源统计数据
   function handleGetUserStatistic() {
-    // console.log('userEchartsCategory', userEchartsCategory.value)
-    // console.log('timeRangeTagActive', timeRangeTagActive.value)
-    // console.log('timeRangeTagActive', timeRange.data)
     let params = {
       dateScopeType: dateScopeType.value,
       startDate: month.value
     };
     // console.log('handleGetUserStatistic', params)
-    const response = [
-      {
-        name: '智文',
-        ratio: '38%',
-      },
-      {
-        name: '智像',
-        ratio: '20%',
-      },
-      {
-        name: 'AI ERP',
-        ratio: '18%',
-      },
-      {
-        name: '智绘',
-        ratio: '24%',
+
+    API.getUserSourceStatistic(params).then(res=>{
+      if (res.code == '0') {
+        echartsData.value = (res.data || []).map(item=>{
+          return {name:item.name, value: item.ratio.slice(0, item.ratio.length - 1)}
+        })
+
+        setTimeout(() => {echartsInit()}, 100)
       }
-    ]
-
-    // API.getUserSourceStatistic(params).then(res=>{
-    //   if (res.code === '0') {
-    //     echartsData.value = (res.data || []).map(item=>{
-    //       return {name:item.name, value: item.ratio.slice(0, item.ratio.length - 1)}
-    //     })
-    //   }
-    // })
-
-    echartsData.value = response.map(item=>{
-      return {name:item.name, value: item.ratio.slice(0, item.ratio.length - 1)}
     })
-
-    setTimeout(() => {echartsInit()}, 100)
   }
 
   function echartsInit() {
