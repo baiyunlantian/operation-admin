@@ -19,7 +19,7 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      name: '首页',
+      name: 'index',
       meta: { title: "首页" },
       permission: '1',
       component: layout,
@@ -178,7 +178,8 @@ function routerPackag(routerList, parentPath, pathName = '') {
     if (pathName) {
       router.addRoute(pathName, list)
     } else {
-      router.addRoute(list)
+
+      router.addRoute(item.top ? "index" : "", list)
     }
     if (item.children && item.children.length > 0) {
       routerPackag(item.children, path, item.name);
