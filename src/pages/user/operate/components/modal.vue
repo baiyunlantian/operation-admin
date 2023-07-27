@@ -76,14 +76,12 @@
   const form = ref(null)
 
   function handleClose(refreshTable = false) {
-    console.log('refreshTable', refreshTable)
     emit('close', false, refreshTable)
   }
 
   function handleAdd() {
     form.value.validate(valid=>{
       if (valid) {
-        console.log('formData', formData)
         API.addUser(formData).then(res=>{
           if (res.code == '0') {
             proxy.$message({

@@ -59,8 +59,8 @@
     // console.log('handleGetUserStatistic', params)
     API.getUserIncreaseStatistic(params).then(res=>{
       if (res.code == '0' && Object.keys(res.data).length != 0) {
-        const { statisticData, ...other } = res.data
-        statisticData.value = statisticData
+        const { statisticsData, ...other } = res.data
+        statisticData.value = statisticsData
         Object.assign(leftData, {...other, currentMonth: other.currentMonthUserCount, currentWeek: other.currentWeekUserCount})
       }
     })

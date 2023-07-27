@@ -279,21 +279,21 @@
 
       (items.series || []).forEach((item, itemIndex)=>{
         if (index === 0) {
-          _xAxisData.push(item.xAxia)
-          _tableColumnConfig.push({label:item.xAxia, prop:item.xAxia})
+          _xAxisData.push(item.xAxis)
+          _tableColumnConfig.push({label:item.xAxis, prop:item.xAxis})
         }
 
-        categoryTotal += item.yAxia
-        seriesItem['data'].push(item.yAxia)
+        categoryTotal += item.yAxis
+        seriesItem['data'].push(item.yAxis)
         // 取 xAxia 字段作为column的prop
-        columnDataObj[item.xAxia] = item.yAxia
+        columnDataObj[item.xAxis] = item.yAxis
 
         /**
          * 同时间的所有类型总量
          * 用日期做为key
          * 同一天的所有类型的总数量作为value
          * */
-        tableLastRowData.set(item.xAxia, (tableLastRowData.get(item.xAxia) || 0) + item.yAxia)
+        tableLastRowData.set(item.xAxis, (tableLastRowData.get(item.xAxis) || 0) + item.yAxis)
       })
 
       // table列表 汇总列 字段

@@ -5,7 +5,7 @@ import router from '../router';
 
 // 创建axios默认请求
 const service = axios.create({
-    baseURL: '/api',
+    baseURL: process.env.VUE_APP_BASE_API,
     // token认证
     headers: {
         // 'token': window.localStorage.getItem("authorization") || ""
@@ -51,7 +51,7 @@ service.interceptors.response.use(response => {
             default:
                 ElMessage.error(result.msg);
         }
-        return Promise.reject({ msg: result.msg })
+        // return Promise.reject({ msg: result.msg })
     }
     return result;
 }, error => {

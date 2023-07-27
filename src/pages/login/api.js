@@ -16,4 +16,14 @@ export default {
   SendCode(params) {
     return HTTP.post("/User/SendCode", params );
   },
+
+  // 修改用户个人资料
+  updateUserInfo(params) {
+    return HTTP.post("/User/Edit", params );
+  },
+
+  // 修改密码
+  editPassword(params) {
+    return HTTP.post("/User/EditPwd", params );
+  },
 }

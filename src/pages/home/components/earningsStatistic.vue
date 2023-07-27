@@ -42,103 +42,14 @@
 
   // 获取收益统计图表数据
   function handleGetEarningsStatistic(params) {
-    // console.log('获取收益统计图表数据', params)
-    let responseData = [
-      {
-        name: '智文',
-        series: [
-          {xAxia: '7-11', yAxia: 34},
-          {xAxia: '7-12', yAxia: 64},
-          {xAxia: '7-13', yAxia: 55},
-          {xAxia: '7-14', yAxia: 44},
-          {xAxia: '7-15', yAxia: 34},
-          {xAxia: '7-16', yAxia: 64},
-          {xAxia: '7-17', yAxia: 55},
-          {xAxia: '7-18', yAxia: 44},
-          {xAxia: '7-19', yAxia: 34},
-          {xAxia: '7-20', yAxia: 64},
-          {xAxia: '7-21', yAxia: 55},
-          {xAxia: '7-22', yAxia: 44},
-          {xAxia: '7-23', yAxia: 34},
-          {xAxia: '7-24', yAxia: 64},
-          {xAxia: '7-25', yAxia: 55},
-          {xAxia: '7-26', yAxia: 44},
-        ],
-      },
-      {
-        name: '智绘',
-        series: [
-          {xAxia: '7-11', yAxia: 75},
-          {xAxia: '7-12', yAxia: 34},
-          {xAxia: '7-13', yAxia: 45},
-          {xAxia: '7-14', yAxia: 12},
-          {xAxia: '7-15', yAxia: 75},
-          {xAxia: '7-16', yAxia: 34},
-          {xAxia: '7-17', yAxia: 45},
-          {xAxia: '7-18', yAxia: 12},
-          {xAxia: '7-19', yAxia: 75},
-          {xAxia: '7-20', yAxia: 34},
-          {xAxia: '7-21', yAxia: 45},
-          {xAxia: '7-22', yAxia: 12},
-          {xAxia: '7-23', yAxia: 75},
-          {xAxia: '7-24', yAxia: 34},
-          {xAxia: '7-25', yAxia: 45},
-          {xAxia: '7-26', yAxia: 12},
-        ],
-      },
-      {
-        name: '智像',
-        series: [
-          {xAxia: '7-11', yAxia: 12},
-          {xAxia: '7-12', yAxia: 76},
-          {xAxia: '7-13', yAxia: 34},
-          {xAxia: '7-14', yAxia: 55},
-          {xAxia: '7-15', yAxia: 12},
-          {xAxia: '7-16', yAxia: 76},
-          {xAxia: '7-17', yAxia: 34},
-          {xAxia: '7-18', yAxia: 55},
-          {xAxia: '7-19', yAxia: 12},
-          {xAxia: '7-20', yAxia: 76},
-          {xAxia: '7-21', yAxia: 34},
-          {xAxia: '7-22', yAxia: 55},
-          {xAxia: '7-23', yAxia: 12},
-          {xAxia: '7-24', yAxia: 76},
-          {xAxia: '7-25', yAxia: 34},
-          {xAxia: '7-26', yAxia: 55},
-        ],
-      },
-      {
-        name: 'AI ERP',
-        series: [
-          {xAxia: '7-11', yAxia: 76},
-          {xAxia: '7-12', yAxia: 34},
-          {xAxia: '7-13', yAxia: 32},
-          {xAxia: '7-14', yAxia: 51},
-          {xAxia: '7-15', yAxia: 76},
-          {xAxia: '7-16', yAxia: 34},
-          {xAxia: '7-17', yAxia: 32},
-          {xAxia: '7-18', yAxia: 51},
-          {xAxia: '7-19', yAxia: 76},
-          {xAxia: '7-20', yAxia: 34},
-          {xAxia: '7-21', yAxia: 32},
-          {xAxia: '7-22', yAxia: 51},
-          {xAxia: '7-23', yAxia: 76},
-          {xAxia: '7-24', yAxia: 34},
-          {xAxia: '7-25', yAxia: 32},
-          {xAxia: '7-26', yAxia: 51},
-        ],
-      },
-    ];
-
-    // API.getIncomeStatistics(params).then(res=>{
-    //   if (res.code == '0') {
-    //     const { statisticData, ...other } = res.data
-    //     userEchartsDataList.value = statisticData
-    //     Object.assign(leftData, other)
-    //   }
-    // })
-
-    // formatLineData(responseData)
+    API.getIncomeStatistics(params).then(res=>{
+      if (res.code == '0') {
+        const { statisticsData, ...other } = res.data
+        userEchartsDataList.value = statisticsData
+        Object.assign(leftData, other)
+        formatLineData(statisticsData)
+      }
+    })
   }
 
   // 格式化数据
@@ -149,9 +60,9 @@
 
       (items.series || []).forEach((item, itemIndex)=>{
         if (index === 0) {
-          _xAxisData.push(item.xAxia)
+          _xAxisData.push(item.xAxis)
         }
-        seriesItem['data'].push(item.yAxia)
+        seriesItem['data'].push(item.yAxis)
       })
 
       _seriesData.push(seriesItem)

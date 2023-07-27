@@ -37,7 +37,7 @@
   import { reactive, ref, getCurrentInstance, computed, watch } from 'vue';
   import { useRouter } from 'vue-router';
   import { useStore } from 'vuex';
-  import API from './api';
+  import API from "@/pages/login/api";
   import BottomBox from '@/components/bottom-box';
   import AutoAvatar from "@/assets/images/account.png";
 
@@ -152,7 +152,7 @@
   }
 
   watch(() => store.getters["user/info"], (newVal, oldVal) => {
-    userInfo = reactive({...newVal})
+    userInfo = reactive({...newVal, name: newVal.userName})
   }, {deep: true, immediate: true})
 
 </script>

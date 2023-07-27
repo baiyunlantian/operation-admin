@@ -10,7 +10,6 @@ export default {
     let age = reactive({ value: 18 });
     function Fn() {
       age.value = 666;
-      console.log(age);
     }
 
     const debounce = (fn, delay) => {

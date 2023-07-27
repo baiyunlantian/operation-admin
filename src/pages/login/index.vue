@@ -171,7 +171,6 @@
           // 重置密码
           btnLoading.value = true
           API.forgetPassword(params).then(res=>{
-            console.log('res', res)
             if (res.code == '0') {
               proxy.$message({
                 type:'success',
@@ -187,7 +186,7 @@
           btnLoading.value = true
           API.login(params).then(res=>{
             if (res.code == '0') {
-              localStorage.setItem('token', res.data.token)
+              localStorage.setItem('token', 'Bearer ' + res.data.token)
               localStorage.setItem('account', res.data.account)
               router.push({path:'/home'})
             }
@@ -233,7 +232,6 @@
 
 
         API.SendCode(params).then(res=>{
-          console.log('res', res)
           if (res.code != '0') {
             countdown.value = 59
             isPending.value = false

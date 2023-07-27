@@ -88,18 +88,7 @@
   const dialogVisible = ref(false)
   const checkAllBtnVisible = ref(false)
   const userAvatar = ref(ImgUrl)
-  let userInfo = reactive({
-    "userId": 12313,
-    "userName": "名称",
-    "account": "账号",
-    "email": "邮箱",
-    "sex": "性别",
-    "birthday": "生日",
-    "sourceName": "账号类别",
-    "sign": "签名",
-    "city": "城市",
-    "registerTime": "2023-7-22"
-  })
+  let userInfo = reactive({})
   const userInfoFormConfig = ref([
     {label:'用户ID', prop:'userId'},
     {label:'昵称', prop:'userName'},
@@ -112,12 +101,7 @@
     {label:'城市', prop:'city'},
     {label:'注册时间', prop:'registerTime'},
   ])
-  const statisticInfo = ref([{
-    "isPay": "是",
-    "consumedAmount": 100,
-    "useNumber": 12,
-    "balance": 100
-  }])
+  const statisticInfo = ref([])
   const statisticTableColumnConfig = ref([
     {label:'是否付费', prop:'isPay'},
     {label:'总消费金额', prop:'consumedAmount'},
@@ -131,6 +115,12 @@
     {label:'付款方式', prop:'payWay'},
     {label:'充值时间', prop:'rechargeTime'}
   ])
+  const sourceTypeObj = reactive({
+    '智文': 1,
+    '智绘': 2,
+    '智像': 3,
+    'AI ERP': 4,
+  })
 
   function handleCheckAll(visible) {
     dialogVisible.value = visible
@@ -143,7 +133,7 @@
   function handleGetRechargeRecord() {
     let params = {
       userId: userInfo.userId,
-      sourceType: userInfo.sourceName,
+      sourceType: sourceTypeObj[userInfo.sourceName],
       pageIndex: 1,
       pageSize: 5,
     }
@@ -162,9 +152,9 @@
       API.getUserInfoById(props.userId).then(res=>{
         if (res.code == '0') {
           const { userInfo: USERINFO, statistics } = res.data
-          userInfo = USERINFO
-          statisticInfo.value = statistics
-
+          statistics.expend = (statistics.consumedAmount || 0) - (statistics.balance || 0)
+          Object.assign(userInfo, USERINFO)
+          statisticInfo.value = [{...statistics}]
           handleGetRechargeRecord()
         }
       })
@@ -180,9 +170,11 @@
 <style scoped lang="scss">
     .detail-container{
         position: absolute;
-        height: 100%;
+        min-height: 100%;
         width: 100%;
         z-index: 999;
+        height: auto;
+        padding-bottom: 5vh;
 
         .u-m-l-r-20 {
             margin: 0 20px;

@@ -39,7 +39,6 @@
 <script setup>
   import { reactive, ref, onMounted, watch } from 'vue';
   import { useRouter } from 'vue-router';
-  import { useStore } from "vuex";
   import API from './api';
   import UserImg from '@/assets/images/home-user.png';
   import MoneyImg from '@/assets/images/home-money.png';
@@ -51,7 +50,6 @@
   import BottomBox from '@/components/bottom-box';
 
   const router = useRouter();
-  const store = useStore();
 
   const totalStatisticConfig = ref([
     {text:'今日新增用户', prop:'todayNewUserCount', imgUrl:UserImg},
@@ -72,14 +70,6 @@
     router.push({path:item.path})
   }
 
-  function handleGetUserInfo() {
-    API.getUserInfo().then(res=>{
-      if (res.code == '0') {
-        store.commit('user/SET_USER_INFO', res.data)
-      }
-    })
-  }
-
   function handleGetBoardInfo() {
     API.getBoardInfo().then(res=>{
       if (res.code == '0') {
@@ -89,7 +79,6 @@
   }
 
   onMounted(() => {
-    // handleGetUserInfo()
     handleGetBoardInfo()
 
   })

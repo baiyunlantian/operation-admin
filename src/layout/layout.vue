@@ -13,16 +13,23 @@
 </template>
 
     
-<script>
-import sidebar from "./componets/sidebar";
-import tegView from "./componets/tegView";
-export default {
-  name: "layout",
-  components: {
-    sidebar,
-    tegView
-  }
-};
+<script setup>
+  import { onMounted } from 'vue';
+  import { useStore } from "vuex";
+  import sidebar from "./componets/sidebar";
+  import tegView from "./componets/tegView";
+  import API from "@/pages/home/api";
+
+  const store = useStore();
+
+  onMounted(() => {
+    API.getUserInfo().then(res=>{
+      if (res.code == '0') {
+        store.commit('user/SET_USER_INFO', res.data)
+      }
+    })
+  })
+
 </script>
 
 <style scoped lang="scss">

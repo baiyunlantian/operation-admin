@@ -8,14 +8,7 @@ const user = {
             token: "",
             permission: [],
             filterRouter: [],
-            info: {
-                account:'13765756753',
-                email:'23464',
-                userName:'wovovo',
-                createdTime: "须确方界",
-                lastLoginTime: "",
-                userImage: ""
-            }
+            info: {}
         }
     },
     mutations: {

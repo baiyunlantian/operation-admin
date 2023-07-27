@@ -155,8 +155,6 @@
             if (res === 'confirm') {
               handleUpdatePassword()
             }
-          }).catch(()=>{
-            console.log('取消')
           })
         }
       })
@@ -173,27 +171,17 @@
       confirmPassword: formData.confirmPassword ? cryptojs.encrypt(formData.confirmPassword) : null,
     }
 
-    console.log('params', params)
-
     btnLoading.value = true
-    setTimeout(() => {
-      proxy.$message({
-        type: 'success',
-        message: '修改密码成功'
-      })
-      router.back();
-    }, 3000)
+    API.editPassword(params).then(res=>{
+      if (res.code == '0') {
+        proxy.$message({
+          type: 'success',
+          message: '修改密码成功'
+        })
 
-    // API.updatePassword(params).then(res=>{
-    //   if (res.code == '0') {
-    //     proxy.$message({
-    //       type: 'success',
-    //       msg: '修改密码成功'
-    //     })
-    //
-    //     router.back();
-    //   }
-    // })
+        router.back();
+      }
+    })
   }
 
   // 校验两次密码是否一致
@@ -215,7 +203,7 @@
       if (valid) {
         let params = {
           Mobile: formData.account,
-          codeType:'1'
+          codeType:'3'
         }
 
         isPending.value = true

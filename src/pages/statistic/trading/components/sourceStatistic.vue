@@ -104,7 +104,6 @@
   // 获取收益来源构成统计数据
   function handleGetSourceStatistic(params) {
     startDate.value = params.startDate
-    console.log('收益来源构成统计', params)
     API.getDataSourcesStatistic(params).then(res=>{
       if (res.code == '0') {
         tableData.value = res.data;

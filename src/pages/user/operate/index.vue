@@ -43,7 +43,7 @@
                         />
                     </el-select>
 
-                    <el-select v-model="searchTableParams.sort" class="m-2" placeholder="排序方式">
+                    <el-select v-model="searchTableParams.sortType" class="m-2" placeholder="排序方式">
                         <el-option
                                 v-for="item in timeSortOptions"
                                 :key="item.value"
@@ -70,7 +70,13 @@
                 >
                     <template #default="{ row, column, $index }">
                         <div v-if="item.insertSlot && item.prop === 'status'" class="insert-cell-container">
-                            <el-switch v-model="row[item.prop]" :before-change="beforeChange" @change="val=>handleSwitchChange(val, row.userId)"/>
+                            <el-switch
+                                    v-model="row[item.prop]"
+                                    :before-change="beforeChange"
+                                    @change="val=>handleSwitchChange(val, row.userId)"
+                                    :inactive-value="1"
+                                    :active-value="0"
+                            />
                         </div>
 
                         <div v-else-if="item.insertSlot && item.prop === 'operate'" class="insert-cell-container">
@@ -118,15 +124,17 @@
   const rules = reactive({
     account:[
       {
-        pattern: /^[0-9_]{1,15}$/,
+        pattern: /^[0-9_]{1,16}$/,
         trigger: 'blur',
-        message: '请输入1~15位的数字'
+        message: '请输入1~16位的数字'
       }
     ]
   })
   const searchTableParams = reactive({
     pageSize:10,
-    pageIndex:1
+    pageIndex:1,
+    sortField: 'created_time',
+    sortType: 'ASC',
   })
   const tableData = ref([])
   const tableColumnConfig = ref([
@@ -141,8 +149,8 @@
   const timer = ref(null)
   const pageSizeOptions = ref([10, 20, 30, 50])
   const timeSortOptions = ref([
-    {label:'创建时间从晚到早', value:'desc'},
-    {label:'创建时间从早到晚', value:'asc'},
+    {label:'创建时间从晚到早', value:'DESC'},
+    {label:'创建时间从早到晚', value:'ASC'},
   ])
   const selectedRows = ref([])
   const modalVisible = ref(false)
@@ -187,7 +195,7 @@
     API.getOperateTableList(params).then(res=>{
       if (res.code == '0') {
         tableData.value = res.data.list
-        // tableTotal.value = res.data.total
+        tableTotal.value = res.data.total
       }
     })
   }
@@ -211,11 +219,9 @@
 
   function handleSwitchChange(val, userId) {
     let params = {
-      status: Number(!val),
+      status: Number(val),
       userId
     }
-
-    console.log('params', params)
 
     API.updateStatus(params).then(res=>{
       if (res.code == '0') {
@@ -250,7 +256,6 @@
       fn = API.resetPassword
     }
 
-    console.log('params', params)
     proxy.$confirm(confirmText,  {
       confirmButtonText: '确认',
       cancelButtonText: '取消',

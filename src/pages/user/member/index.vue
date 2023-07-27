@@ -40,7 +40,7 @@
 
         </div>
 
-        <div class="table-main u-m-t-10">
+        <div class="table-main u-m-t-10 bg-fff">
             <div class="header-operate theme-bg title-box">
                 <div class="left-text">用户列表</div>
                 <div class="right-sort">
@@ -53,7 +53,7 @@
                         />
                     </el-select>
 
-                    <el-select v-model="searchTableParams.sort" class="m-2" placeholder="排序方式">
+                    <el-select v-model="searchTableParams.sortType" class="m-2" placeholder="排序方式">
                         <el-option
                                 v-for="item in timeSortOptions"
                                 :key="item.value"
@@ -80,7 +80,13 @@
                 >
                     <template #default="{ row, column, $index }">
                         <div v-if="item.insertSlot && item.prop === 'status'" class="insert-cell-container">
-                            <el-switch v-model="row[item.prop]" :before-change="beforeChange" @change="val=>handleSwitchChange(val, row.userId)"/>
+                            <el-switch
+                                    v-model="row[item.prop]"
+                                    :before-change="beforeChange"
+                                    @change="val=>handleSwitchChange(val, row.userId)"
+                                    :inactive-value="0"
+                                    :active-value="1"
+                            />
                         </div>
 
                         <div v-else-if="item.insertSlot && item.prop === 'operate'" class="insert-cell-container">
@@ -132,15 +138,17 @@
   const rules = reactive({
     account:[
       {
-        pattern: /^[0-9_]{1,15}$/,
+        pattern: /^[0-9_]{1,16}$/,
         trigger: 'blur',
-        message: '请输入1~15位的数字'
+        message: '请输入1~16位的数字'
       }
     ]
   })
   const searchTableParams = reactive({
     pageSize:10,
-    pageIndex:1
+    pageIndex:1,
+    sortField: 'register_time',
+    sortType: 'ASC',
   })
   const tableData = ref([])
   const tableColumnConfig = ref([
@@ -159,8 +167,8 @@
   const timer = ref(null)
   const pageSizeOptions = ref([10, 20, 30, 50])
   const timeSortOptions = ref([
-    {label:'创建时间从晚到早', value:'desc'},
-    {label:'创建时间从早到晚', value:'asc'},
+    {label:'创建时间从晚到早', value:'DESC'},
+    {label:'创建时间从早到晚', value:'ASC'},
   ])
   const sourceTypeOptions = ref([
     {label:'运营后台', value:0},
@@ -197,7 +205,7 @@
   function handleFormatTableCell(row, prop) {
     let text = row[prop]
     if (prop === 'isPay') {
-      text = row[prop] ? '否' : '是'
+      text = row[prop] ? '是' : '否'
     }
 
     return text
@@ -233,7 +241,7 @@
     API.getMemberTableList(params).then(res=>{
       if (res.code == '0') {
         tableData.value = res.data.list
-        // tableListTotal.value = res.data.total
+        tableListTotal.value = res.data.total
       }
     })
   }
@@ -262,7 +270,6 @@
       userId
     }
 
-    console.log('params', params)
 
     API.updateStatus(params).then(res=>{
       if (res.code == '0') {
@@ -354,6 +361,11 @@
             .table-container {
                 position: relative;
                 flex: 1;
+
+                ::v-deep .el-scrollbar{
+                    height: 500px;
+                    overflow: auto;
+                }
 
                 ::v-deep .el-table__header-wrapper{
                     .el-table__cell{

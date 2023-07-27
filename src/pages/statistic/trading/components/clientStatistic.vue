@@ -93,7 +93,6 @@
 
   // 获取新老客户交易构成数据
   function handleGetClientStatistic(params) {
-    console.log('获取新老客户交易构成数据', params)
     startDate.value = params.startDate
 
     API.getNewAndOldStatistic(params).then(res=>{

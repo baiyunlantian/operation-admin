@@ -253,6 +253,7 @@
             .el-menu-right{
                 position: relative;
                 border-bottom: unset;
+                margin-right: 20px;
 
                 .sub-menu-item{
                     ::v-deep .el-sub-menu__icon-arrow{

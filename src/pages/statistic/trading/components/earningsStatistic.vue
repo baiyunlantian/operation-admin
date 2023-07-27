@@ -41,34 +41,12 @@
 
   // 获取用户收益分布数据
   function handleGetEarningStatistic(params) {
-    console.log('获取用户收益分布数据', params)
-
     let _xAxisData = [], _echartsData = [], _tableTitle = [{label:params.startDate, prop:'account'}];
-    let response = [
-      {"xAxis":"0-100", "yAxis":100},
-      {"xAxis":"100-200", "yAxis":160},
-      {"xAxis":"200-300", "yAxis":244},
-      {"xAxis":"300-400", "yAxis":322},
-      {"xAxis":"400-500", "yAxis":654},
-      {"xAxis":"500-600", "yAxis":254},
-      {"xAxis":"600-700", "yAxis":455},
-      {"xAxis":"700-800", "yAxis":130},
-      {"xAxis":"800-900", "yAxis":555},
-      {"xAxis":"900-1000", "yAxis":233},
-      {"xAxis":"1000-1100", "yAxis":277},
-      {"xAxis":"1100-1200", "yAxis":744},
-      {"xAxis":"1200-1300", "yAxis":433},
-      {"xAxis":"1300-1400", "yAxis":555},
-      {"xAxis":"1400-1500", "yAxis":233},
-      {"xAxis":"1500-1600", "yAxis":277},
-      {"xAxis":"1600-1700", "yAxis":744},
-      {"xAxis":"1700-1800", "yAxis":433},
-    ]
 
     API.getDistributionStatistic(params).then(res=>{
       if (res.code == '0') {
         let row = {};
-        (response || []).forEach(({xAxis, yAxis})=>{
+        (res.data || []).forEach(({xAxis, yAxis})=>{
           _xAxisData.push(xAxis)
           _echartsData.push(yAxis)
           row[xAxis] = yAxis

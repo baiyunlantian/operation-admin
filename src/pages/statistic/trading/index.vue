@@ -59,11 +59,10 @@
 
   // 获取交易收益金额统计数据
   function handleGetTradingStatisticData(params) {
-    console.log('handleGetTradingStatisticData', params)
     API.getUserIncomeStatistic(params).then(res=>{
       if (res.code == '0' && Object.keys(res.data).length != 0) {
-        const { statisticData, ...other } = res.data
-        statisticData.value = statisticData
+        const { statisticsData, ...other } = res.data
+        statisticData.value = statisticsData
         Object.assign(leftData, {...other, currentMonth: other.currentMonthIncomeAmount, currentWeek: other.currentWeekIncomeAmount})
       }
     })
