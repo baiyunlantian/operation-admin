@@ -1,6 +1,17 @@
 import ExportJSONExcel from 'js-export-excel';
 import { ElMessage } from 'element-plus'
 
+
+/**
+ * @param
+ * tableTitle
+ *    TYPE Array
+ *    FORMAT [{label:'', prop:''}]
+ *
+ * tableData
+ *    TYPE Array
+ *    常规的table数据格式
+ * */
 export default function (tableData, tableTitle, fileName = '导出数据') {
   if (Array.isArray(tableData) && Array.isArray(tableTitle)) {
 

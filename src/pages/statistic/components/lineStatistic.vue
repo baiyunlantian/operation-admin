@@ -21,6 +21,7 @@
                 <div class="btn-item u-m-l-10">
                     <div class="time-range">
                         <el-date-picker
+                                v-if="dateScopeType === 1"
                                 v-model="timeRange"
                                 type="daterange"
                                 range-separator="至"
@@ -33,18 +34,17 @@
                                 @change="dateChange"
                         />
 
-<!--                        <el-date-picker-->
-<!--                                v-model="timeRange"-->
-<!--                                type="monthrange"-->
-<!--                                range-separator="至"-->
-<!--                                format="YYYY-MM"-->
-<!--                                value-format="YYYY-MM"-->
-<!--                                start-placeholder="请选择起始时间"-->
-<!--                                end-placeholder="请选择结束时间"-->
-<!--                                :disabled-date="disabledMonth"-->
-<!--                                @onPick="monthPickerChange"-->
-<!--                                @change="dateChange"-->
-<!--                        />-->
+                        <el-date-picker
+                                v-else
+                                v-model="timeRange"
+                                type="monthrange"
+                                range-separator="至"
+                                format="YYYY-MM"
+                                value-format="YYYY-MM"
+                                start-placeholder="请选择起始时间"
+                                end-placeholder="请选择结束时间"
+                                @change="monthChange"
+                        />
                     </div>
                 </div>
 
@@ -189,41 +189,24 @@
       () => {proxy.$message.warning('操作过于频繁！')})
   }
 
-  const monthPickerOptions = reactive({
-    onPick: monthPickerChange,
-    disabledDate: disabledMonth
-  })
+  function monthChange(dates) {
+    if (dates.length === 0) return
+    // 2023-06   2027-03
+    let startDate = dates[0], endDate = dates[1];
+    let startYear = Number(startDate.split('-')[0]), startMonth = Number(startDate.split('-')[1]);
+    let endYear = Number(endDate.split('-')[0]), endMonth = Number(endDate.split('-')[1]);
+    const monthGap = (endYear - startYear) * 12 + endMonth - startMonth;
 
-  function disabledMonth (e) {
-    console.log('disabledMonth', e)
-    console.log('startDate', startDate.value)
-    let minMonth = '202302'
-    let maxMonth = '202308'
-    // 时间选择器月份信息
-    const timeyear = e.getFullYear()
-    let timemonth = e.getMonth() + 1
-    if (timemonth >= 1 && timemonth <= 9) {
-      timemonth = '0' + timemonth
-    }
-    const elTimeData = timeyear.toString() + timemonth.toString()
-    if (elTimeData > maxMonth) {
-      return true
-    }
-    if (elTimeData < minMonth) {
-      return true
+    if (monthGap >= 6 && monthGap <= 30) {
+      handleGetStatistic()
+    }else {
+      proxy.$message({
+        type: 'error',
+        message: '请选择6~30个月的区间范围'
+      })
     }
   }
 
-  // TODO  限制月份范围功能未完成
-  function monthPickerChange ({ maxDate, minDate }) {
-    console.log('maxDate', maxDate)
-    console.log('minDate', minDate)
-    // if (!maxDate) {
-    //   this.time = minDate
-    // } else {
-    //   this.time = ''
-    // }
-  }
   // 选择时间范围
   function datePickerChange(dates) {
     // 记录选择的起始日期
@@ -236,16 +219,10 @@
       const _end = dayjs(end).format('YYYY-MM-DD')
       timeRange.value = [_start, _end]
 
-
-      emit('update',
-          {
-            productType:productType.value,
-            dateScopeType:dateScopeType.value,
-            startDate:_start,
-            endDate:_end,
-          })
+      handleGetStatistic()
     }
   }
+
   function dateChange(dates) {
     timeRange.value = dates;
     if (dates === null || dates.length === 0) {
@@ -272,26 +249,6 @@
       const lessThan = timestamp < startDateTime - 7 * day && timestamp > startDateTime - 30 * day
       // 大于7-30天
       const moreThan = timestamp > startDateTime + 7 * day && timestamp < startDateTime + 30 * day
-      return (
-          !(lessThan || moreThan)
-      )
-    }
-  }
-
-  function handleDisabledMonth(time) {
-    // console.log('handleDisabledDate', time)
-    /**
-     * 按月筛选，则时间区间选择为（6~24）月
-     * */
-    const month = 30 * 24 * 60 * 60 * 1000;
-    // 当前选中的时间
-    const timestamp = time.getTime()
-    if (startDate.value !== null) {
-      const startDateTime = startDate.value.getTime();
-      // 小于6~24月
-      const lessThan = timestamp < startDateTime - 6 * month && timestamp > startDateTime - 24 * month
-      // 大于6~24月
-      const moreThan = timestamp > startDateTime + 6 * month && timestamp < startDateTime + 24 * month
       return (
           !(lessThan || moreThan)
       )
@@ -377,6 +334,17 @@
     })
   }
 
+  // 获取统计数据
+  function handleGetStatistic() {
+    emit('update',
+      {
+        productType:productType.value,
+        dateScopeType:dateScopeType.value,
+        startDate:timeRange.value[0],
+        endDate:timeRange.value[1],
+      })
+  }
+
   const leftStatisticConfig = computed(() => {
     if (props.statisticType === 'user') {
       return [
@@ -402,23 +370,16 @@
   watch(
     () => productType.value,
     Category => {
-      let data = [];
-      // 过滤数据
-      if (productTypeText.value !== '全部') {
-        data = props.statisticData.filter(item=>item.name ===  productTypeText.value)
-      }else {
-        data = props.statisticData
-      }
+      // let data = [];
+      // // 过滤数据
+      // if (productTypeText.value !== '全部') {
+      //   data = props.statisticData.filter(item=>item.name ===  productTypeText.value)
+      // }else {
+      //   data = props.statisticData
+      // }
 
-      formatLineData(data)
-
-      emit('update',
-          {
-            productType:productType.value,
-            dateScopeType:dateScopeType.value,
-            startDate:timeRange.value[0],
-            endDate:timeRange.value[1],
-          })
+      // formatLineData(data)
+      handleGetStatistic()
     }
   )
 

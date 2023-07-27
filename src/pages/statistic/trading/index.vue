@@ -59,7 +59,7 @@
 
   // 获取交易收益金额统计数据
   function handleGetTradingStatisticData(params) {
-    // console.log('handleGetTradingStatisticData', params)
+    console.log('handleGetTradingStatisticData', params)
     API.getUserIncomeStatistic(params).then(res=>{
       if (res.code == '0' && Object.keys(res.data).length != 0) {
         const { statisticData, ...other } = res.data

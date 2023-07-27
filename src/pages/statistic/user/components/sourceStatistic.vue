@@ -4,7 +4,7 @@
             <div class="text">用户来源</div>
 
             <div class="btns">
-                <el-button type="default">导出数据</el-button>
+                <el-button type="default" @click="handleExport">导出数据</el-button>
 
                 <div class="btn-item u-m-l-10">
                     <el-select v-model="dateScopeType" @change="handleSelectChange" class="m-2">
@@ -20,7 +20,7 @@
                 <div class="select-month u-m-l-10">
                     <el-date-picker
                             class="picker-month"
-                            v-model="month"
+                            v-model="startDate"
                             :type="dateScopeType === 1 ? 'date' : 'month'"
                             :format="dateScopeType === 1 ? 'YYYY-MM-DD' : 'YYYY-MM'"
                             :value-format="dateScopeType === 1 ? 'YYYY-MM-DD' : 'YYYY-MM'"
@@ -48,23 +48,32 @@
   import API from '../api';
   import dayjs from 'dayjs';
   import * as echarts from 'echarts';
+  import ExportExcel from "@/utils/exportExcel";
+  import {setTimeEscalation} from "@/assets/js/utils";
 
   const { proxy } = getCurrentInstance()
+  const setTimeEscalationClone = setTimeEscalation();
 
-  const month = ref('')
+  const startDate = ref('')
   const echartsRef = ref(null)
-  const echartsData = ref([])
+  const tableData = ref([])
   const dateScopeType = ref(1)
   const selectOptions = ref([
     {label:'按天统计', value:1},
     {label:'按月统计', value:2},
   ])
 
+  function handleExport() {
+    let tableTitle = [{label: startDate.value, prop: 'name'}, {label: '占比', prop: 'ratio'}]
+    let _tableData = tableData.value.concat([{name: '汇总', ratio: '100%'}])
+    setTimeEscalationClone(() => {ExportExcel(_tableData, tableTitle, '用户来源')},
+      () => {proxy.$message.warning('操作过于频繁！')})
+  }
+
   // 选择按日/月统计
   function handleSelectChange(value) {
-    console.log('value', value)
     dateScopeType.value = value
-    month.value = ''
+    startDate.value = ''
     proxy.$message({
       type:'info',
       message:'请选择具体时间！'
@@ -72,8 +81,7 @@
   }
 
   function dateChange(value) {
-    console.log('dateChange', value)
-    month.value = value;
+    startDate.value = value;
     handleGetUserStatistic()
   }
 
@@ -81,15 +89,13 @@
   function handleGetUserStatistic() {
     let params = {
       dateScopeType: dateScopeType.value,
-      startDate: month.value
+      startDate: startDate.value
     };
     // console.log('handleGetUserStatistic', params)
 
     API.getUserSourceStatistic(params).then(res=>{
       if (res.code == '0') {
-        echartsData.value = (res.data || []).map(item=>{
-          return {name:item.name, value: item.ratio.slice(0, item.ratio.length - 1)}
-        })
+        tableData.value = res.data
 
         setTimeout(() => {echartsInit()}, 100)
       }
@@ -134,9 +140,14 @@
     })
   }
 
+  const echartsData = computed(() => {
+    return tableData.value.map(item=>{
+      return {name:item.name, value: item.ratio.slice(0, item.ratio.length - 1)}
+    })
+  })
 
   onMounted(() => {
-    month.value = dayjs(new Date()).format('YYYY-MM-DD')
+    startDate.value = dayjs(new Date()).format('YYYY-MM-DD')
     handleGetUserStatistic();
   })
 

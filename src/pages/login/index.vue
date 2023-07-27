@@ -185,7 +185,7 @@
         }else {
           // 登录
           btnLoading.value = true
-          API.login(formData).then(res=>{
+          API.login(params).then(res=>{
             if (res.code == '0') {
               localStorage.setItem('token', res.data.token)
               localStorage.setItem('account', res.data.account)
@@ -217,23 +217,27 @@
       if (valid) {
         let params = {
           Mobile: formData.account,
-          codeType: formType.value === 'code' ? '1' : '2'
+          codeType: formType.value === 'code' ? 1 : 2
         }
 
         isPending.value = true
-        API.SendCode(params).then(res=>{
-          if (res.code == '0') {
-            timer.value = setInterval(() => {
-              if (countdown.value > 0) {
-                countdown.value--;
-              }else {
-                countdown.value = 59
-                isPending.value = false
-                clearInterval(timer.value)
-              }
-            }, 1000)
+        timer.value = setInterval(() => {
+          if (countdown.value > 0) {
+            countdown.value--;
           }else {
+            countdown.value = 59
             isPending.value = false
+            clearInterval(timer.value)
+          }
+        }, 1000)
+
+
+        API.SendCode(params).then(res=>{
+          console.log('res', res)
+          if (res.code != '0') {
+            countdown.value = 59
+            isPending.value = false
+            clearInterval(timer.value)
           }
         })
       }

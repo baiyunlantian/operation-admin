@@ -42,6 +42,13 @@
     const myChars = echarts.init(echartsRef.value)
     myChars.clear(); // 清除画布内容
     myChars.setOption({
+      dataZoom: {
+        type: 'inside',
+        start: 0,
+        end: 10,
+        minValueSpan: 10,
+        maxValueSpan: 20,
+      },
       legend: {
         show: true
       },

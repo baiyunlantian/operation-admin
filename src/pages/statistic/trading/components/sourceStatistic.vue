@@ -1,23 +1,6 @@
 <template>
     <div class="source-container u-m-t-20 u-p-b-20">
-        <div class="title title-box">
-            <div class="text">收益来源构成</div>
-
-            <div class="btns">
-                <el-button type="default">导出数据</el-button>
-                <el-button :type="dateScopeType === 2 ? 'default' : 'warning'" @click="dateScopeType = 1">本月</el-button>
-                <el-button :type="dateScopeType === 1 ? 'default' : 'warning'" @click="dateScopeType = 2">上月</el-button>
-                <div class="select-month u-m-l-10">
-                    <el-date-picker
-                            class="picker-month"
-                            v-model="startDate"
-                            type="month"
-                            format="YYYY-MM"
-                            value-format="YYYY-MM"
-                    />
-                </div>
-            </div>
-        </div>
+        <TitleBox title="收益来源构成" @getData="handleGetSourceStatistic" @export="handleExport"/>
 
         <div class="chart-container bg-fff u-p-b-20">
 
@@ -57,10 +40,15 @@
 </template>
 
 <script setup>
-  import { reactive, ref, onMounted, computed, watch } from 'vue';
+  import {reactive, ref, onMounted, computed, watch, getCurrentInstance} from 'vue';
   import API from '../api';
-  import dayjs from 'dayjs';
   import * as echarts from 'echarts';
+  import TitleBox from './titleBox';
+  import ExportExcel from "@/utils/exportExcel";
+  import { setTimeEscalation } from "@/assets/js/utils";
+
+  const setTimeEscalationClone = setTimeEscalation();
+  const { proxy } = getCurrentInstance()
 
   const startDate = ref('')
   const echartsRef = ref(null)
@@ -77,8 +65,6 @@
   ])
 
   function formatTableCell(row, prop) {
-    // console.log('row', row)
-    // console.log('prop', prop)
     let text = '', val = row[prop]
     switch (prop) {
       case 'incomeAmount':
@@ -91,19 +77,39 @@
     return text;
   }
 
-  // 获取收益来源构成统计数据
-  function handleGetSourceStatistic() {
-    let params = {
-      dateScopeType: dateScopeType.value,
-      startDate: startDate.value
-    }
+  function handleExport() {
+    let _tableColumnConfig = [...tableColumnConfig.value], _tableData = [...tableData.value], totalNumber = 0, totalIncomeAmount = 0;
+    _tableColumnConfig[0] = {label: startDate.value, prop: 'name'}
+    _tableColumnConfig.splice(1, 0, {label: '占比', prop: 'ratio'})
 
+    _tableData.forEach(item=>{
+      totalNumber += item.number
+      totalIncomeAmount += item.incomeAmount
+    })
+
+    _tableData.push({
+      name: '汇总',
+      ratio: '100%',
+      number: totalNumber,
+      incomeAmount: totalIncomeAmount,
+      lastMonthNumber: '/',
+      lastMonthIncome: '/',
+    })
+
+    setTimeEscalationClone(() => {ExportExcel(_tableData, _tableColumnConfig, '收益来源构成')},
+      () => {proxy.$message.warning('操作过于频繁！')})
+  }
+
+
+  // 获取收益来源构成统计数据
+  function handleGetSourceStatistic(params) {
+    startDate.value = params.startDate
     console.log('收益来源构成统计', params)
-    // API.getDataSourcesStatistic(params).then(res=>{
-    //   if (res.code == '0') {
-    //     tableData.value = res.data;
-    //   }
-    // })
+    API.getDataSourcesStatistic(params).then(res=>{
+      if (res.code == '0') {
+        tableData.value = res.data;
+      }
+    })
   }
 
   function echartsInit() {
@@ -156,14 +162,6 @@
     },
     {deep: true}
   )
-
-  watch([dateScopeType, startDate], ([newDateScopeType, newStartDate]) => {
-    handleGetSourceStatistic()
-  })
-
-  onMounted(() => {
-    startDate.value = dayjs(new Date()).format('YYYY-MM')
-  })
 
 </script>
 

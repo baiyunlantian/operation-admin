@@ -12,7 +12,8 @@ module.exports = defineConfig({
   devServer: {
     proxy: {
       '/api': {
-        target: `https://console-mock.apipost.cn/mock/282b3afe-ba75-4580-8814-729fca7d1050`,
+        // target: `https://console-mock.apipost.cn/mock/282b3afe-ba75-4580-8814-729fca7d1050`,
+        target: `https://admin.oneboerp.com`,
         changeOrigin: true,
         pathRewrite: {
           '^/api': '/'

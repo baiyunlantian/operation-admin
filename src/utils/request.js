@@ -10,7 +10,7 @@ const service = axios.create({
     headers: {
         // 'token': window.localStorage.getItem("authorization") || ""
     },
-    timeout: 5000 // request timeout
+    timeout: 60 * 1000 // request timeout
 
 })
 // 请求拦截

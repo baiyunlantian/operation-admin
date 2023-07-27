@@ -1,23 +1,6 @@
 <template>
     <div class="client-container u-m-t-20">
-        <div class="title title-box">
-            <div class="text">新老客户交易构成</div>
-
-            <div class="btns">
-                <el-button type="default">导出数据</el-button>
-                <el-button :type="dateScopeType === 2 ? 'default' : 'warning'" @click="dateScopeType = 1">本月</el-button>
-                <el-button :type="dateScopeType === 1 ? 'default' : 'warning'" @click="dateScopeType = 2">上月</el-button>
-                <div class="select-month u-m-l-10">
-                    <el-date-picker
-                            class="picker-month"
-                            v-model="startDate"
-                            type="month"
-                            format="YYYY-MM"
-                            value-format="YYYY-MM"
-                    />
-                </div>
-            </div>
-        </div>
+        <TitleBox title="新老客户交易构成" @getData="handleGetClientStatistic" @export="handleExport"/>
 
         <div class="chart-container bg-fff">
 
@@ -65,17 +48,18 @@
 </template>
 
 <script setup>
-  import {reactive, ref, onMounted, computed, watch, defineEmits} from 'vue';
+  import { ref, watch, getCurrentInstance } from 'vue';
   import API from '../api';
-  import dayjs from 'dayjs';
   import * as echarts from 'echarts';
+  import TitleBox from './titleBox';
+  import ExportExcel from "@/utils/exportExcel";
+  import { setTimeEscalation } from "@/assets/js/utils";
 
-  const emit = defineEmits(['update'])
+  const setTimeEscalationClone = setTimeEscalation();
+  const { proxy } = getCurrentInstance()
 
-  const startDate = ref('')
   const echartsRef = ref(null)
   const echartsData = ref([])
-  const dateScopeType = ref(1)
   const colors = ref(['#91cc75', '#5470c6'])
   const tableData = ref([])
   const tableColumnConfig = ref([
@@ -85,10 +69,15 @@
     {label:'付款人数', prop:'number'},
     {label:'较前一月', prop:'lastMonthNumber'},
   ])
+  const startDate = ref(null)
 
-  function handleClickMonth(value) {
-    dateScopeType.value = value
+  function handleExport() {
+    let _tableColumnConfig = [...tableColumnConfig.value]
+    _tableColumnConfig[0] = {label: startDate.value, prop: 'name'}
+    setTimeEscalationClone(() => {ExportExcel(tableData.value, _tableColumnConfig, '新老客户交易构成')},
+      () => {proxy.$message.warning('操作过于频繁！')})
   }
+
   function formatTableCell(row, prop) {
     let text = '', val = row[prop]
     switch (prop) {
@@ -103,13 +92,9 @@
   }
 
   // 获取新老客户交易构成数据
-  function handleGetClientStatistic() {
-    let params = {
-      dateScopeType: dateScopeType.value,
-      startDate: startDate.value
-    }
-
-    // console.log('handleGetClientStatistic', params)
+  function handleGetClientStatistic(params) {
+    console.log('获取新老客户交易构成数据', params)
+    startDate.value = params.startDate
 
     API.getNewAndOldStatistic(params).then(res=>{
       if (res.code == '0') {
@@ -162,14 +147,6 @@
   },
     {deep: true}
   )
-
-  watch([dateScopeType, startDate], ([newDateScopeType, newStartDate]) => {
-    handleGetClientStatistic()
-  })
-
-  onMounted(() => {
-    startDate.value = dayjs(new Date()).format('YYYY-MM')
-  })
 
 </script>
 

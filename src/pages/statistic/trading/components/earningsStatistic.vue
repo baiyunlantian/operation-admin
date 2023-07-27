@@ -1,30 +1,13 @@
 <template>
     <div class="earnings-container u-m-t-20">
-        <div class="title title-box">
-            <div class="text">用户收益分布</div>
-
-            <div class="btns">
-                <el-button type="default">导出数据</el-button>
-                <el-button :type="dateScopeType === 2 ? 'default' : 'warning'" @click="dateScopeType = 1">本月</el-button>
-                <el-button :type="dateScopeType === 1 ? 'default' : 'warning'" @click="dateScopeType = 2">上月</el-button>
-                <div class="select-month u-m-l-10">
-                    <el-date-picker
-                            class="picker-month"
-                            v-model="startDate"
-                            type="month"
-                            format="YYYY-MM"
-                            value-format="YYYY-MM"
-                    />
-                </div>
-            </div>
-        </div>
+        <TitleBox title="用户收益分布" @getData="handleGetEarningStatistic" @export="handleExport"/>
 
         <div class="chart-container bg-fff">
             <div class="search-container">
             </div>
 
             <el-row :gutter="0" class="echarts-container">
-                <el-col :span="18" :offset="2">
+                <el-col :span="20" :offset="2">
                     <div class="echarts-ref" ref="echartsRef"></div>
                 </el-col>
             </el-row>
@@ -35,48 +18,88 @@
 </template>
 
 <script setup>
-  import { reactive, ref, onMounted, computed, watch } from 'vue';
+  import {getCurrentInstance, ref,} from 'vue';
   import API from '../api';
-  import dayjs from 'dayjs';
+  import TitleBox from './titleBox';
+  import ExportExcel from "@/utils/exportExcel";
+  import { setTimeEscalation } from "@/assets/js/utils";
+  const setTimeEscalationClone = setTimeEscalation();
   import * as echarts from 'echarts';
 
-  const startDate = ref('')
+  const { proxy } = getCurrentInstance()
+
   const echartsRef = ref(null)
   const echartsData = ref([])
   const xAxisData = ref([])
-  const dateScopeType = ref(1)
+  const tableTitle = ref([])
+  const tableData = ref([])
 
+  function handleExport() {
+    setTimeEscalationClone(() => {ExportExcel(tableData.value, tableTitle.value, '用户收益分布')},
+      () => {proxy.$message.warning('操作过于频繁！')})
+  }
 
   // 获取用户收益分布数据
-  function handleGetEarningStatistic() {
-    let params = {
-      dateScopeType: dateScopeType.value,
-      startDate: startDate.value
-    }
-    let _xAxisData = [], _echartsData = [];
+  function handleGetEarningStatistic(params) {
+    console.log('获取用户收益分布数据', params)
 
-    // API.getDistributionStatistic(params).then(res=>{
-    //   if (res.code == '0') {
-    //     (res.data || []).forEach(({xAxis, yAxis})=>{
-    //       _xAxisData.push(xAxis)
-    //       _echartsData.push(yAxis)
-    //     })
-    //
-    //     xAxisData.value = _xAxisData
-    //     echartsData.value = _echartsData
-    //
-    //     setTimeout(()=>{
-    //       echartsInit()
-    //     },100)
-    //   }
-    // })
+    let _xAxisData = [], _echartsData = [], _tableTitle = [{label:params.startDate, prop:'account'}];
+    let response = [
+      {"xAxis":"0-100", "yAxis":100},
+      {"xAxis":"100-200", "yAxis":160},
+      {"xAxis":"200-300", "yAxis":244},
+      {"xAxis":"300-400", "yAxis":322},
+      {"xAxis":"400-500", "yAxis":654},
+      {"xAxis":"500-600", "yAxis":254},
+      {"xAxis":"600-700", "yAxis":455},
+      {"xAxis":"700-800", "yAxis":130},
+      {"xAxis":"800-900", "yAxis":555},
+      {"xAxis":"900-1000", "yAxis":233},
+      {"xAxis":"1000-1100", "yAxis":277},
+      {"xAxis":"1100-1200", "yAxis":744},
+      {"xAxis":"1200-1300", "yAxis":433},
+      {"xAxis":"1300-1400", "yAxis":555},
+      {"xAxis":"1400-1500", "yAxis":233},
+      {"xAxis":"1500-1600", "yAxis":277},
+      {"xAxis":"1600-1700", "yAxis":744},
+      {"xAxis":"1700-1800", "yAxis":433},
+    ]
+
+    API.getDistributionStatistic(params).then(res=>{
+      if (res.code == '0') {
+        let row = {};
+        (response || []).forEach(({xAxis, yAxis})=>{
+          _xAxisData.push(xAxis)
+          _echartsData.push(yAxis)
+          row[xAxis] = yAxis
+          _tableTitle.push({label: xAxis, prop: xAxis})
+        })
+
+        tableTitle.value = _tableTitle
+        tableData.value = [Object.assign({account: '用户人数'}, row)]
+        xAxisData.value = _xAxisData
+        echartsData.value = _echartsData
+
+        setTimeout(()=>{
+          echartsInit()
+        },100)
+      }
+    })
   }
 
   function echartsInit() {
     const myChars = echarts.init(echartsRef.value)
     myChars.clear(); // 清除画布内容
     myChars.setOption({
-      color:['#165dff'],
+      dataZoom: [
+        {
+          type: 'inside',
+          start: 0,
+          end: 10,
+          minValueSpan: 10,
+          maxValueSpan: 20,
+        }
+      ],
       xAxis: {
         type: 'category',
         axisTick:{
@@ -99,24 +122,30 @@
         backgroundStyle: {
           color: 'rgba(180, 180, 180, 0.2)'
         },
+        itemStyle: {
+          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+            { offset: 0, color: '#83bff6' },
+            { offset: 0.5, color: '#188df0' },
+            { offset: 1, color: '#188df0' }
+          ])
+        },
         emphasis:{
           label:{
             show:true,
             formatter:'{b}/{c}人',
             position:'top'
+          },
+          itemStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              { offset: 0, color: '#2378f7' },
+              { offset: 0.7, color: '#2378f7' },
+              { offset: 1, color: '#83bff6' }
+            ])
           }
         }
       }]
     })
   }
-
-  watch([dateScopeType, startDate], ([newDateScopeType, newStartDate]) => {
-    handleGetEarningStatistic()
-  })
-
-  onMounted(() => {
-    startDate.value = dayjs(new Date()).format('YYYY-MM')
-  })
 
 </script>
 
