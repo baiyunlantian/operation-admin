@@ -256,6 +256,7 @@
     flex-direction: column;
     width: 100vw;
     height: 100vh;
+    background-image: url("@/assets/images/loginbg01.png");
 
     .content{
       border: 1px solid #d8d4d4;
