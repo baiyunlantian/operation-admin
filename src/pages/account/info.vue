@@ -167,7 +167,7 @@
             font-size: 24px;
             font-weight: bold;
             padding: 10px 15px;
-            background: blue;
+            background: #6ea3ff;
         }
 
         .content{
