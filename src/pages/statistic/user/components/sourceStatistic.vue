@@ -60,7 +60,7 @@
   const dateScopeType = ref(1)
   const selectOptions = ref([
     {label:'按天统计', value:1},
-    {label:'按月统计', value:2},
+    {label:'按月统计', value:3},
   ])
 
   function handleExport() {
