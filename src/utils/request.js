@@ -48,6 +48,24 @@ service.interceptors.response.use(response => {
                     name: 'login'
                 });
                 break;
+            case '101':
+                ElMessage.error('接口错误ParamError');
+                break;
+            case '201':
+                ElMessage.error('操作失败OperateFail');
+                break;
+            case '301':
+                ElMessage.error('数据错误DataNotExist');
+                break;
+            case '501':
+                ElMessage.error('权限错误，请联系管理员');
+                break;
+            case '601':
+                ElMessage.error('会员权限错误');
+                break;
+            case '999':
+                ElMessage.error('系统错误，请稍后再试');
+                break;
             default:
                 ElMessage.error(result.msg);
         }

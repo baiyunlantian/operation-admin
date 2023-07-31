@@ -37,6 +37,11 @@ const router = createRouter({
       name: 'login',
       meta: {title: "登录页"},
       component: Login
+    },
+    {
+      path: '/404',
+      meta: { title: "登录页" },
+      component: layout
     }
   ]
 })
@@ -67,13 +72,20 @@ const asyncRouterMap = modulesFiles.keys().reduce((modules, modulePath) => {
 const white = ['login', 'register', '404']
 
 
-router.beforeEach((to, from, next) => {
-  // console.log('to ==== ', to)
+
+
+router.beforeResolve((to, from, next) => {
+  next()
+  return false
+})
+
+router.beforeEach(async (to, from, next) => {
+  console.log("beforeEach")
   let token = window.localStorage.getItem('token') || '';
   if (token) {
     // 权限列表为空则调用 获取权限列表的方法
     if (store.getters['user/permissionList'].length === 0) {
-      store.dispatch('user/getPermissionList').then(res => {
+      await store.dispatch('user/getPermissionList').then(res => {
 
         addRouterList(store.state.user.permission);
         // router.addRoutes之后的next()可能会失效，因为可能next()的时候路由并没有完全add完成，使用 next(to) 重新走一遍router.beforeEach这个钩子
@@ -128,7 +140,7 @@ function addRouterList(permissionList) {
 
   store.commit('user/SET_FILTERROUTER_LIST', routerList);
   router.addRoute('404', {
-    path: '/:w+',
+    path: '/:pathMatch(.*)',
     redirect: '/404',
     component: layout
   })
@@ -182,7 +194,8 @@ function routerPackag(routerList, parentPath, pathName = '') {
     if (pathName) {
       router.addRoute(pathName, list)
     } else {
-      router.addRoute(list)
+
+      router.addRoute(item.top ? "" : "index", list)
     }
     if (item.children && item.children.length > 0) {
       routerPackag(item.children, path, item.name);
