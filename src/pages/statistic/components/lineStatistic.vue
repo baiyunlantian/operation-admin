@@ -126,10 +126,12 @@
 <script setup>
   import {reactive, ref, onMounted, computed, watch, defineProps, defineEmits, getCurrentInstance} from 'vue';
   import dayjs from 'dayjs';
+  import { useStore } from 'vuex';
   import ExportExcel from '@/utils/exportExcel';
   import { setTimeEscalation } from '@/assets/js/utils';
   import MutiLine from '@/components/Echarts/muti-line';
 
+  const store = useStore()
   const emit = defineEmits(['update'])
   const props = defineProps({
     statisticType: {
@@ -164,12 +166,8 @@
   const timeRange = ref([])
   const startDate = ref(null)
   const productType = ref(0)
-  const productTypeList = reactive([
+  const productTypeList = ref([
     {label:'全部', key:0},
-    {label:'智文', key:1},
-    {label:'智绘', key:2},
-    {label:'智像', key:3},
-    {label:'AI ERP', key:4},
   ])
   const lineData = ref([])
   const tableData = ref([])
@@ -362,7 +360,7 @@
       return props.statisticType === 'user' ? '用户/人' : '金额/元'
   })
   const productTypeText = computed(()=>{
-    const obj = productTypeList.find(item=>item.key === productType.value)
+    const obj = productTypeList.value.find(item=>item.key === productType.value)
     return obj ? obj['label'] : '';
   })
 
@@ -381,6 +379,15 @@
       // formatLineData(data)
       handleGetStatistic()
     }
+  )
+
+  watch(
+    () => store.getters['platformType/list'],
+    platformTypeList => {
+      if (Array.isArray(platformTypeList)) {
+        productTypeList.value = productTypeList.value.concat(platformTypeList)
+      }
+    }, {immediate: true}
   )
 
   watch(

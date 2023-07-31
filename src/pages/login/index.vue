@@ -74,7 +74,7 @@
       },
       {
         pattern: /^[0-9A-Za-z]{8,16}$/,
-        message: '请输入8-16位数的数字和字符!',
+        message: '请输入8-16位的数字和字母!',
         trigger: 'blur'
       },
     ],
@@ -86,7 +86,7 @@
       },
       {
         pattern: /^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{8,16}$/,
-        message: '请输入8-16位数的数字和字符!',
+        message: '请输入8-16位的数字和字母!',
         trigger: ['blur', 'change']
       }
     ],
@@ -148,8 +148,8 @@
       form:[
         {label: '手机号码', key: 'account', placeholder: '手机号码', compoentType:'text'},
         {label: '验证码', key: 'code', placeholder: '验证码', compoentType:'text'},
-        {label: '密码', key: 'resetPassword', placeholder: '密码', compoentType:'password'},
-        {label: '确认密码', key: 'confirmPassword', placeholder: '密码（不低于8位数的字符组合）', compoentType:'password'}
+        {label: '密码', key: 'resetPassword', placeholder: '密码（8-16位的数字和字母）', compoentType:'password'},
+        {label: '确认密码', key: 'confirmPassword', placeholder: '密码（8-16位的数字和字母）', compoentType:'password'}
       ]
     }
   })

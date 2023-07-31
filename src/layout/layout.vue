@@ -23,11 +23,8 @@
   const store = useStore();
 
   onMounted(() => {
-    API.getUserInfo().then(res=>{
-      if (res.code == '0') {
-        store.commit('user/SET_USER_INFO', res.data)
-      }
-    })
+    store.dispatch('user/getUserInfo')
+    store.dispatch('platformType/getPlatformTypeList')
   })
 
 </script>

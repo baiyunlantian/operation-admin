@@ -38,9 +38,11 @@
 
 <script setup>
   import {reactive, ref, onMounted, computed, watch, defineEmits} from 'vue';
+  import { useStore } from 'vuex';
   import dayjs from "dayjs";
 
   const emit = defineEmits(['getData'])
+  const store = useStore()
 
   const productType = ref(0)
   const dateScopeType = ref(1)
@@ -51,12 +53,8 @@
     {label:'最近一个月', key:3},
   ])
   const timeRange = ref([dayjs(new Date()).format('YYYY-MM-DD'), ''])
-  const productTypeList = reactive([
-    {label:'全部', key:0},
-    {label:'智文', key:1},
-    {label:'智绘', key:2},
-    {label:'智像', key:3},
-    {label:'AI ERP', key:4},
+  const productTypeList = ref([
+    {key:0, label:'全部'}
   ])
 
   function getData() {
@@ -114,7 +112,7 @@
   }
 
   const productTypeText = computed(()=>{
-    const obj = productTypeList.find(item=>item.key === productType.value)
+    const obj = productTypeList.value.find(item=>item.key === productType.value)
     return obj ? obj['label'] : '';
   })
 
@@ -125,6 +123,15 @@
 
       getData()
     }
+  )
+
+  watch(
+    () => store.getters['platformType/list'],
+    platformTypeList => {
+      if (Array.isArray(platformTypeList)) {
+        productTypeList.value = productTypeList.value.concat(platformTypeList)
+      }
+    }, {immediate: true}
   )
 
   onMounted(() => {

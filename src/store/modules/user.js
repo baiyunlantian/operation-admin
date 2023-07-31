@@ -1,5 +1,5 @@
 // import mutations from './mutations'
-
+import HOME from "@/pages/home/api";
 
 const user = {
     namespaced: true,
@@ -38,6 +38,15 @@ const user = {
             // return new Promise((resolve, reject) => {
 
             // });
+        },
+        getUserInfo({ commit }) {
+            HOME.getUserInfo().then(res=>{
+                if (res.code == '0') {
+                    commit('SET_USER_INFO', res.data);
+                }else {
+                    commit('SET_USER_INFO', {});
+                }
+            })
         }
     },
     getters: {
