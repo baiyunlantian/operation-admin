@@ -79,7 +79,7 @@ router.beforeResolve((to, from, next) => {
 })
 
 router.beforeEach(async (to, from, next) => {
-  console.log("beforeEach")
+  
   let token = window.localStorage.getItem('token') || '';
   if (token) {
     // 权限列表为空则调用 获取权限列表的方法
@@ -91,10 +91,15 @@ router.beforeEach(async (to, from, next) => {
         next(to);
       });
     } else if (white.indexOf(to.name) > -1) {          // 跳转的页面是登录页时跳转到主页
+      
       next({
         path: "/"
       });
     } else {
+      // 添加title
+      if(to.meta.title){
+        document.title = to.meta.title
+      }
       next();
     }
     // 已登录

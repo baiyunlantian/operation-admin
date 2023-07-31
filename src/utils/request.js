@@ -16,6 +16,7 @@ const service = axios.create({
 // 请求拦截
 service.interceptors.request.use(config => {
     // token认证
+    console.log(config)
     config.headers['authorization'] = window.localStorage.getItem("token") || "";
     // // 显示加载动画
     // ElLoading.service({
@@ -23,7 +24,6 @@ service.interceptors.request.use(config => {
     //   text: 'Loading',
     //   background: 'rgba(0, 0, 0, 0.7)',
     // })
-    console.log(config, "=================")
     return config
 }, error => {
     // Do something with request error
@@ -41,30 +41,30 @@ service.interceptors.response.use(response => {
         window.localStorage.token = result.refsToken;
     } else if (result.code !== 0) {
         switch (result.code) {
-            case '401':
+            case 401:
                 ElMessage.error('登录已过期，重新登录');
                 window.localStorage.removeItem("token");
                 window.localStorage.removeItem('userInfo');
                 router.push({
-                    name: 'login'
+                    path: 'login'
                 });
                 break;
-            case '101':
+            case 101:
                 ElMessage.error('接口错误ParamError');
                 break;
-            case '201':
+            case 201:
                 ElMessage.error('操作失败OperateFail');
                 break;
-            case '301':
+            case 301:
                 ElMessage.error('数据错误DataNotExist');
                 break;
-            case '501':
+            case 501:
                 ElMessage.error('权限错误，请联系管理员');
                 break;
-            case '601':
+            case 601:
                 ElMessage.error('会员权限错误');
                 break;
-            case '999':
+            case 999:
                 ElMessage.error('系统错误，请稍后再试');
                 break;
             default:
@@ -95,17 +95,12 @@ export default {
         })
     },
     //post请求
-    post(url, param) {
-        return new Promise((resolve, reject) => {
-            service.post(
-                url,
-                param,
-            ).then(res => {
-                resolve(res)
-            }).catch(error => {
-                reject(error)
-            })
-        })
+    post(url, param, headers = "", onDownloadProgress = () => { }) {
+        return service.post(
+            url,
+            param,
+            { headers, onDownloadProgress }
+        )
     },
     // PUT
     put(url, param) {
