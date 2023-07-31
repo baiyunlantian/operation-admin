@@ -12,9 +12,9 @@
                     <el-select v-else-if="item.type === 'select' " v-model="searchTableParams[item.prop]" class="m-2" placeholder="账号来源">
                         <el-option
                                 v-for="item in sourceTypeOptions"
-                                :key="item.value"
+                                :key="item.key"
                                 :label="item.label"
-                                :value="item.value"
+                                :value="item.key"
                         />
                     </el-select>
 
@@ -120,14 +120,15 @@
 </template>
 
 <script setup>
-  import { ref, reactive, watch, getCurrentInstance, onMounted } from 'vue';
+  import {ref, reactive, watch, getCurrentInstance, onMounted, computed} from 'vue';
   import dayjs from 'dayjs';
-  import { useRouter } from 'vue-router';
+  import { useStore } from 'vuex';
   import API from './api';
   import BottomBox from '@/components/bottom-box';
   import Detail from './detail'
 
   const { proxy } = getCurrentInstance()
+  const store = useStore()
 
   const searchFormConfig = ref([
     {label:'ID/账号：', prop:'account', type:'input', placeholder:'用户ID/账号'},
@@ -169,13 +170,6 @@
   const timeSortOptions = ref([
     {label:'创建时间从晚到早', value:'DESC'},
     {label:'创建时间从早到晚', value:'ASC'},
-  ])
-  const sourceTypeOptions = ref([
-    {label:'运营后台', value:0},
-    {label:'智文', value:1},
-    {label:'智绘', value:2},
-    {label:'智像', value:3},
-    {label:'AI ERP', value:4},
   ])
   const selectedRows = ref([])
   const detailVisible = ref(false)
@@ -292,6 +286,16 @@
     detailVisible.value = true
     detailUserId.value = row.userId
   }
+
+  const sourceTypeOptions = computed(() => {
+    let res = [{label:'运营后台', key:0}], list = store.getters['platformType/list']
+
+    if (Array.isArray(list)) {
+      res = res.concat(list)
+    }
+
+    return res
+  })
 
   watch(searchTableParams, (newVal, oldVal) => {
       formRef.value.validate(valid => {

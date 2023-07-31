@@ -166,9 +166,6 @@
   const timeRange = ref([])
   const startDate = ref(null)
   const productType = ref(0)
-  const productTypeList = ref([
-    {label:'全部', key:0},
-  ])
   const lineData = ref([])
   const tableData = ref([])
   const tableColumnConfig = ref([])
@@ -364,6 +361,16 @@
     return obj ? obj['label'] : '';
   })
 
+  const productTypeList = computed(() => {
+    let res = [{label:'全部', key:0}], list = store.getters['platformType/list']
+
+    if (Array.isArray(list)) {
+      res = res.concat(list)
+    }
+
+    return res
+  })
+
   // 统计图表切换类型
   watch(
     () => productType.value,
@@ -379,15 +386,6 @@
       // formatLineData(data)
       handleGetStatistic()
     }
-  )
-
-  watch(
-    () => store.getters['platformType/list'],
-    platformTypeList => {
-      if (Array.isArray(platformTypeList)) {
-        productTypeList.value = productTypeList.value.concat(platformTypeList)
-      }
-    }, {immediate: true}
   )
 
   watch(

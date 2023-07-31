@@ -77,13 +77,15 @@
 </template>
 
 <script setup>
-  import { reactive, ref, defineProps, onMounted, defineEmits } from 'vue';
+  import { reactive, ref, defineProps, onMounted, computed, defineEmits } from 'vue';
+  import { useStore } from 'vuex';
   import API from './api';
   import ImgUrl from '@/assets/images/account.png';
   import Dialog from './components/dialog'
 
   const props = defineProps(['userId'])
   const emits = defineEmits(['goBack'])
+  const store = useStore()
 
   const dialogVisible = ref(false)
   const checkAllBtnVisible = ref(false)
@@ -115,12 +117,6 @@
     {label:'付款方式', prop:'payWay'},
     {label:'充值时间', prop:'rechargeTime'}
   ])
-  const sourceTypeObj = reactive({
-    '智文': 1,
-    '智绘': 2,
-    '智像': 3,
-    'AI ERP': 4,
-  })
 
   function handleCheckAll(visible) {
     dialogVisible.value = visible
@@ -133,7 +129,7 @@
   function handleGetRechargeRecord() {
     let params = {
       userId: userInfo.userId,
-      sourceType: sourceTypeObj[userInfo.sourceName],
+      sourceType: sourceTypeObj.value[userInfo.sourceName],
       pageIndex: 1,
       pageSize: 5,
     }
@@ -161,6 +157,18 @@
     }
 
   }
+
+  const sourceTypeObj = computed(() => {
+    let obj = {}, list = store.getters['platformType/list']
+
+    if (Array.isArray(list)) {
+      list.forEach(item=>{
+        obj[item.platformName] = item.platformType
+      })
+    }
+
+    return obj
+  })
 
   onMounted(() => {
     handleGetUserInfo()

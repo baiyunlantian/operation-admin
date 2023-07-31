@@ -45,7 +45,7 @@
   const store = useStore()
 
   const productType = ref(0)
-  const dateScopeType = ref(1)
+  const dateScopeType = ref(2)
   const startDate = ref(null)
   const timeRangeTags = reactive([
     {label:'今日', key:1},
@@ -53,9 +53,6 @@
     {label:'最近一个月', key:3},
   ])
   const timeRange = ref([dayjs(new Date()).format('YYYY-MM-DD'), ''])
-  const productTypeList = ref([
-    {key:0, label:'全部'}
-  ])
 
   function getData() {
     let params = {
@@ -116,6 +113,16 @@
     return obj ? obj['label'] : '';
   })
 
+  const productTypeList = computed(() => {
+    let res = [{label:'全部', key:0}], list = store.getters['platformType/list']
+
+    if (Array.isArray(list)) {
+      res = res.concat(list)
+    }
+
+    return res
+  })
+
   // 用户统计图表切换
   watch(
     () => productType.value,
@@ -123,15 +130,6 @@
 
       getData()
     }
-  )
-
-  watch(
-    () => store.getters['platformType/list'],
-    platformTypeList => {
-      if (Array.isArray(platformTypeList)) {
-        productTypeList.value = productTypeList.value.concat(platformTypeList)
-      }
-    }, {immediate: true}
   )
 
   onMounted(() => {

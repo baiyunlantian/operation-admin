@@ -14,7 +14,6 @@
                         height="500px"
                         width="100%"
                         x-axis-end-text="日期/天"
-                        y-axis-end-text="用户/人"
                         :x-axis-data="xAxisData"
                         :line-data="lineData"
                 />
@@ -32,8 +31,8 @@
   import LeftStatistic from './leftStatistic';
 
   const leftStatisticConfig = reactive([
-    {title:'本月用户总数', subText:'同比上月', countProp:'currentMonthIncomeAmount', ratioProp:'monthRatio'},
-    {title:'本周用户数量', subText:'同比上周', countProp:'currentWeekIncomeAmount', ratioProp:'weekRatio'}
+    {title:'本月收益总额', subText:'同比上月', countProp:'currentMonthIncomeAmount', ratioProp:'monthRatio'},
+    {title:'本周收益总额', subText:'同比上周', countProp:'currentWeekIncomeAmount', ratioProp:'weekRatio'}
   ])
   const leftData = reactive({})
   const userEchartsDataList = ref([])
