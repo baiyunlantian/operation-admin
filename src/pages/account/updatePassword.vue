@@ -28,7 +28,7 @@
             </el-form>
 
             <div class="bottom">
-                <div class="valid-text u-cursor" @click="handleClickBtn('validaType')">{{validPhone ? '手机号码校验' : '原密码校验'}}</div>
+                <div class="valid-text u-cursor" @click="handleClickBtn('validaType')">{{!validPhone ? '手机号码校验' : '原密码校验'}}</div>
 
                 <div class="btn-container">
                     <el-button v-for="(btn, index) in btnsConfig" :key="index"
@@ -58,11 +58,18 @@
 
   const formData = reactive({})
   const rules = reactive({
-    oldPassword: [{
-      required: true,
-      message: '原密码不能为空!',
-      trigger: 'blur'
-    }],
+    oldPassword: [
+      {
+        required: true,
+        message: '原密码不能为空!',
+        trigger: 'blur'
+      },
+      {
+        pattern: /^[0-9A-Za-z]{8,16}$/,
+        message: '请输入8-16位数的数字和字符!',
+        trigger: ['blur', 'change']
+      },
+    ],
     newPassword: [
       {
         required: true,
@@ -70,8 +77,8 @@
         trigger: 'blur'
       },
       {
-            pattern: /^[a-zA-Z0-9]{6,16}$/,
-        message: '请输入不低于6位数的数字和字符!',
+        pattern: /^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{8,16}$/,
+        message: '请输入8-16位数的数字和字符!',
         trigger: 'blur'
       }
     ],
@@ -121,15 +128,15 @@
     if (!validPhone.value) {
       arr = [
         {label: '原密码:', key: 'oldPassword', placeholder: '原密码', compoentType:'password'},
-        {label: '新密码:', key: 'newPassword', placeholder: '新密码（不低于6位数的字符组合）', compoentType:'password'},
-        {label: '确认密码:', key: 'confirmPassword', placeholder: '新密码（不低于6位数的字符组合）', compoentType:'password'}
+        {label: '新密码:', key: 'newPassword', placeholder: '新密码（8-16位数的数字和字符）', compoentType:'password'},
+        {label: '确认密码:', key: 'confirmPassword', placeholder: '新密码（8-16位数的数字和字符）', compoentType:'password'}
       ]
     }else {
       arr = [
         {label: '手机号码:', key: 'account', placeholder: '手机号码', compoentType:'text'},
         {label: '验证码:', key: 'code', placeholder: '验证码', compoentType:'text'},
-        {label: '新密码:', key: 'newPassword', placeholder: '新密码（不低于6位数的字符组合）', compoentType:'password'},
-        {label: '确认密码:', key: 'confirmPassword', placeholder: '新密码（不低于6位数的字符组合）', compoentType:'password'}
+        {label: '新密码:', key: 'newPassword', placeholder: '新密码（8-16位数的数字和字符）', compoentType:'password'},
+        {label: '确认密码:', key: 'confirmPassword', placeholder: '新密码（8-16位数的数字和字符）', compoentType:'password'}
       ]
     }
 
@@ -179,8 +186,13 @@
           message: '修改密码成功'
         })
 
-        router.back();
+        setTimeout(() => {
+          localStorage.removeItem('token')
+          router.push({path:'/login'})
+        }, 1000)
       }
+    }).finally(() => {
+      btnLoading.value = false
     })
   }
 

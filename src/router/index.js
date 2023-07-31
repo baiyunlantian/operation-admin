@@ -80,7 +80,7 @@ router.beforeResolve((to, from, next) => {
 })
 
 router.beforeEach(async (to, from, next) => {
-  console.log("beforeEach")
+  // console.log("beforeEach")
   let token = window.localStorage.getItem('token') || '';
   if (token) {
     // 权限列表为空则调用 获取权限列表的方法

@@ -73,9 +73,21 @@
         trigger: 'blur'
       },
       {
-        pattern: /^[a-zA-Z0-9]{6,16}$/,
-        message: '请输入不低于8位数的数字和字符!',
+        pattern: /^[0-9A-Za-z]{8,16}$/,
+        message: '请输入8-16位数的数字和字符!',
         trigger: 'blur'
+      },
+    ],
+    resetPassword: [
+      {
+        required: true,
+        message: '密码不能为空!',
+        trigger: 'blur'
+      },
+      {
+        pattern: /^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{8,16}$/,
+        message: '请输入8-16位数的数字和字符!',
+        trigger: ['blur', 'change']
       }
     ],
     confirmPassword: [
@@ -136,7 +148,7 @@
       form:[
         {label: '手机号码', key: 'account', placeholder: '手机号码', compoentType:'text'},
         {label: '验证码', key: 'code', placeholder: '验证码', compoentType:'text'},
-        {label: '密码', key: 'password', placeholder: '密码', compoentType:'password'},
+        {label: '密码', key: 'resetPassword', placeholder: '密码', compoentType:'password'},
         {label: '确认密码', key: 'confirmPassword', placeholder: '密码（不低于8位数的字符组合）', compoentType:'password'}
       ]
     }
@@ -168,6 +180,8 @@
         }
 
         if (formType.value === 'forget') {
+          params.password = cryptojs.encrypt(formData.resetPassword)
+          delete params.resetPassword
           // 重置密码
           btnLoading.value = true
           API.forgetPassword(params).then(res=>{
@@ -199,7 +213,7 @@
   }
   // 校验两次密码是否一致
   function validConfirmPassword(rule, value, callback) {
-    if (value !== formData.password) {
+    if (value !== formData.resetPassword) {
       callback(false);
     }
     callback();

@@ -10,6 +10,7 @@ module.exports = defineConfig({
   // 禁止生成map文件
   productionSourceMap: false,
   devServer: {
+    open: true,
     proxy: {
       '/api': {
         // target: `https://console-mock.apipost.cn/mock/282b3afe-ba75-4580-8814-729fca7d1050`,
