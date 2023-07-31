@@ -215,7 +215,7 @@
       if (valid) {
         let params = {
           Mobile: formData.account,
-          codeType:'3'
+          codeType:3
         }
 
         isPending.value = true
