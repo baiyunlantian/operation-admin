@@ -107,8 +107,8 @@
     const timestamp = time.getTime()
     if (startDate.value !== null) {
       return (
-        timestamp < startDate.value.getTime() - 7 * day ||
-        timestamp > startDate.value.getTime() + 7 * day
+        timestamp < startDate.value.getTime() - 14 * day ||
+        timestamp > startDate.value.getTime() + 14 * day
       )
     }
   }
