@@ -3,7 +3,7 @@
     <div class="content">
       <div class="title">吗哩呀咔AI ERP运营后台</div>
 
-      <el-form class="account-form" ref="formRef" :rules="rules" :model="formData" label-width="90px">
+      <el-form class="account-form" ref="formRef" :rules="rules" :model="formData" label-width="90px" @keydown.enter="handleClickBtn">
 
         <el-form-item v-for="(item, index) in formConfig[formType]['form']" :prop="item.key" :key="item.key">
           <template v-if="item.key === 'code'">
@@ -28,7 +28,7 @@
 
         <el-form-item>
           <el-button type="primary"
-                     @click="handleClickBtn()"
+                     @click="handleClickBtn"
                      :loading="btnLoading"
                      :disabled="btnLoading"
           >

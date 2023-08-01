@@ -5,18 +5,18 @@
         <div class="chart-container bg-fff">
 
             <el-row :gutter="0" class="echarts-container">
-                <el-col :span="8" :offset="1">
+                <el-col :span="12" :offset="1">
                     <div class="echarts-ref" ref="echartsRef"></div>
                 </el-col>
 
-                <el-col :span="12" :offset="1">
+                <el-col :span="8" :offset="1">
                     <div class="right">
-                        <el-row :gutter="0" class="header-box u-m-b-50" justify="center">
-                            <el-col :span="3" :offset="1" class="item">
+                        <el-row :gutter="0" class="header-box" justify="center">
+                            <el-col :span="10" :offset="1" class="item">
                                 <span class="point" :style="{backgroundColor: colors[0]}"></span>
                                 <span class="text">新客户</span>
                             </el-col>
-                            <el-col :span="3" :offset="1" class="item">
+                            <el-col :span="10" :offset="1" class="item">
                                 <span class="point" :style="{backgroundColor: colors[1]}"></span>
                                 <span class="text">老客户</span>
                             </el-col>
@@ -65,9 +65,9 @@
   const tableColumnConfig = ref([
     {label:'', prop:'name'},
     {label:'消费金额', prop:'incomeAmount'},
-    {label:'较前一月', prop:'lastMonthIncome'},
+    {label:'较前一月', prop:'lastMonthIncomeRatio'},
     {label:'付款人数', prop:'number'},
-    {label:'较前一月', prop:'lastMonthNumber'},
+    {label:'较前一月', prop:'lastMonthNumberRatio'},
   ])
   const startDate = ref(null)
 
@@ -79,7 +79,7 @@
   }
 
   function formatTableCell(row, prop) {
-    let text = '', val = row[prop]
+    let text = '', val = row[prop] ? row[prop] : '/'
     switch (prop) {
       case 'incomeAmount':
         text = `￥${val}`;
@@ -133,6 +133,10 @@
         }
       ]
     })
+
+    window.addEventListener('resize', function () {
+      myChars.resize()
+    })
   }
 
   watch(tableData, (newVal, oldVal) => {
@@ -151,6 +155,8 @@
 
 <style scoped lang="scss">
     .client-container{
+        height: 55%;
+
         .title{
             display: flex;
             align-items: center;
@@ -173,16 +179,16 @@
 
         .chart-container{
             position: relative;
+            height: 92%;
 
             .echarts-container{
-                height: 600px;
+                height: 100%;
                 width: 100%;
-                margin: 0 auto;
                 display: flex;
                 align-items: center;
 
                 .el-col{
-                    height: 100%;
+                    height: 84%;
 
                     .echarts-ref{
                         height: 100%;
@@ -201,6 +207,8 @@
                         .item{
                             display: flex;
                             align-items: center;
+                            justify-content: center;
+                            margin-bottom: 10%;
 
                             .point{
                                 display: inline-block;

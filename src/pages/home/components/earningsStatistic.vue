@@ -11,8 +11,6 @@
         <el-row :gutter="0"  justify="center" class="echarts-container">
             <el-col :span="20">
                 <MutiLine
-                        height="500px"
-                        width="100%"
                         x-axis-end-text="日期/天"
                         :x-axis-data="xAxisData"
                         :line-data="lineData"
@@ -77,6 +75,7 @@
 <style scoped lang="scss">
     .chart-container{
         position: relative;
+        height: 51%;
 
         .search-container{
             position: absolute;
@@ -96,16 +95,13 @@
         }
 
         .echarts-container{
-            height: 600px;
+            height: 100%;
+            width: 100%;
+            display: flex;
+            align-items: center;
 
-            .el-col{
-                display: flex;
-                align-items: center;
-            }
-
-            .echarts-ref{
-                height: 500px;
-                width: 100%;
+            .el-col {
+                height: 83%;
             }
         }
     }

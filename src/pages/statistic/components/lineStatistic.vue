@@ -1,5 +1,5 @@
 <template>
-    <div class="trading-container u-m-t-20">
+    <div class="line-container u-m-t-20">
         <div class="title title-box">
             <div class="text">{{ statisticType === 'user' ? '用户增长情况' : '交易收益金额'}}</div>
 
@@ -66,10 +66,10 @@
                 </div>
 
                 <div class="right">
-                    <el-popover placement="right" :width="150" trigger="click" :disabled="tableShow">
+                    <el-popover placement="right" :width="150" trigger="click">
                         <template #reference>
                             <div class="popover-text">
-                                <span class="point" :style="{backgroundColor:tableShow ? '#fff' : 'blue'}"></span>
+                                <span class="point"></span>
                                 <span class="blue u-m-l-10">{{productTypeText}}</span>
                             </div>
                         </template>
@@ -94,7 +94,7 @@
             </div>
 
             <el-row :gutter="0" justify="center" class="echarts-container">
-                <el-col :span="20">
+                <el-col :span="20" :class="tableShow ? 'col-top' : ''">
 
                     <el-table v-show="tableShow" class="table-container" :data="tableData" border style="width: 100%">
                         <el-table-column v-for="(item, index) in tableColumnConfig" :key="index"
@@ -107,8 +107,6 @@
 
                     <MutiLine
                             v-show="!tableShow"
-                            height="500px"
-                            width="100%"
                             x-axis-end-text="日期/月份"
                             :y-axis-end-text="yAxixEndText"
                             :x-axis-data="xAxisData"
@@ -192,12 +190,12 @@
     let endYear = Number(endDate.split('-')[0]), endMonth = Number(endDate.split('-')[1]);
     const monthGap = (endYear - startYear) * 12 + endMonth - startMonth;
 
-    if (monthGap >= 6 && monthGap <= 30) {
+    if (monthGap >= 6 && monthGap <= 24) {
       handleGetStatistic()
     }else {
       proxy.$message({
         type: 'error',
-        message: '请选择6~30个月的区间范围'
+        message: '请选择6~24个月的区间范围'
       })
     }
   }
@@ -253,14 +251,13 @@
   // 格式化数据
   function formatLineData(list) {
     /**
-     * 类型-- 智文，智绘，智像，AI ERP
      *
      * tableColumnConfig说明
      *  首列 prop:name    label:''
      *  末尾列 prop:total      label:汇总
      *  其余列 prop:xAxia字段的值  label:xAxia字段的值
      * */
-    let _xAxisData = [], _seriesData = [], _tableData = [], _tableColumnConfig = [{label:'', prop:'name'}];
+    let _xAxisData = [], _seriesData = [], _tableData = [], _tableColumnConfig = [{label:'', prop:'name'}], statisticTotal = 0;
     // 存放 table 汇总行数据
     let tableLastRowData = new Map();
 
@@ -278,6 +275,7 @@
           _tableColumnConfig.push({label:item.xAxis, prop:item.xAxis})
         }
 
+        statisticTotal += item.yAxis
         categoryTotal += item.yAxis
         seriesItem['data'].push(item.yAxis)
         // 取 xAxia 字段作为column的prop
@@ -298,7 +296,7 @@
     })
 
     // 构造table 最后一行数据
-    let tableLastRowObj = {name:'汇总', total: props.totalStatistic };
+    let tableLastRowObj = {name:'汇总', total: statisticTotal };
     tableLastRowData.forEach((value, prop) => {
       tableLastRowObj[prop] = value
     })
@@ -375,16 +373,16 @@
   watch(
     () => productType.value,
     Category => {
-      // let data = [];
-      // // 过滤数据
-      // if (productTypeText.value !== '全部') {
-      //   data = props.statisticData.filter(item=>item.name ===  productTypeText.value)
-      // }else {
-      //   data = props.statisticData
-      // }
+      let data = [];
+      // 过滤数据
+      if (productTypeText.value !== '全部') {
+        data = props.statisticData.filter(item=>item.name ===  productTypeText.value)
+      }else {
+        data = props.statisticData
+      }
 
-      // formatLineData(data)
-      handleGetStatistic()
+      formatLineData(data)
+      // handleGetStatistic()
     }
   )
 
@@ -399,7 +397,9 @@
 </script>
 
 <style scoped lang="scss">
-    .trading-container{
+    .line-container{
+        height: 55%;
+
         .title{
             display: flex;
             align-items: center;
@@ -422,6 +422,7 @@
 
         .chart-container{
             position: relative;
+            height: 92%;
 
             .search-container{
                 position: absolute;
@@ -430,7 +431,7 @@
                 width: 100%;
                 padding: 20px 0 20px 20px;
                 box-sizing: border-box;
-                z-index: 999;
+
 
                 .left{
                     position: relative;
@@ -504,6 +505,7 @@
                     display: flex;
                     justify-content: space-between;
                     padding: 0 50px;
+                    z-index: 999;
 
                     .time-range{
                         display: flex;
@@ -540,10 +542,18 @@
             }
 
             .echarts-container{
-                height: 600px;
-                margin: 0 auto;
+                height: 100%;
                 display: flex;
                 align-items: center;
+
+                .el-col {
+                    height: 84%;
+                }
+
+                .col-top {
+                    position: relative;
+                    top: 10%;
+                }
 
                 .table-container{
                     position: relative;
@@ -555,13 +565,7 @@
                         }
                     }
                 }
-
-                .echarts-ref{
-                    height: 500px;
-                    width: 100%;
-                }
             }
-
 
         }
     }

@@ -149,7 +149,7 @@
           name:'交易统计',
           descType:'text',
           menuId:'4-2',
-          path:'/trading',
+          path:'/tradingStatistic',
           children:[],
         },
       ]
@@ -169,6 +169,7 @@
     if (!index) {
       // 退出登录
       localStorage.removeItem('token')
+      store.commit('tagsView/DEL_ALL_VISITED_VIEWS')
       router.push({path:'/login'})
     }else {
       router.push({path:index})

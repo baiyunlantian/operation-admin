@@ -1,5 +1,5 @@
 <template>
-    <div class="source-container u-m-t-20 u-p-b-20">
+    <div class="source-container u-m-t-20 u-m-b-20 u-p-b-20">
         <div class="title title-box">
             <div class="text">用户来源</div>
 
@@ -57,7 +57,7 @@
   const startDate = ref('')
   const echartsRef = ref(null)
   const tableData = ref([])
-  const dateScopeType = ref(1)
+  const dateScopeType = ref(3)
   const selectOptions = ref([
     {label:'按天统计', value:1},
     {label:'按月统计', value:3},
@@ -138,6 +138,10 @@
         }
       ]
     })
+
+    window.addEventListener('resize', function () {
+      myChars.resize()
+    })
   }
 
   const echartsData = computed(() => {
@@ -147,7 +151,7 @@
   })
 
   onMounted(() => {
-    startDate.value = dayjs(new Date()).format('YYYY-MM-DD')
+    startDate.value = dayjs(new Date()).format('YYYY-MM')
     handleGetUserStatistic();
   })
 
@@ -155,6 +159,8 @@
 
 <style scoped lang="scss">
     .source-container{
+        height: 55%;
+
         .title{
             display: flex;
             align-items: center;
@@ -186,15 +192,16 @@
 
         .chart-container{
             position: relative;
+            height: 92%;
 
             .echarts-container{
-                height: 600px;
+                height: 100%;
 
                 .el-col{
-                    height: 100%;
+                    height: inherit;
 
                     .echarts-ref{
-                        height: 100%;
+                        height: inherit;
                     }
                 }
 

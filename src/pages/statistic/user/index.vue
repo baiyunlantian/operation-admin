@@ -77,7 +77,7 @@
 
   onMounted(() => {
     handleGetTotalUserNumber()
-    handleGetUserStatisticData({productType:0});
+    handleGetUserStatisticData({productType:0, dateScopeType:1});
   })
 </script>
 

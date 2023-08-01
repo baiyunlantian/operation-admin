@@ -17,7 +17,7 @@ export default [
                 permission: 1
             },
             {
-                path: '/trading',
+                path: '/tradingStatistic',
                 meta: {title: "交易统计"},
                 component: () => import('@/pages/statistic/trading/index.vue'),
                 name: 'trading',

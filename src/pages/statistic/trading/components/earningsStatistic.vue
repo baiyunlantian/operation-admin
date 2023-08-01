@@ -123,12 +123,18 @@
         }
       }]
     })
+
+    window.addEventListener('resize', function () {
+      myChars.resize()
+    })
   }
 
 </script>
 
 <style scoped lang="scss">
     .earnings-container{
+        height: 55%;
+
         .title{
             display: flex;
             align-items: center;
@@ -151,6 +157,7 @@
 
         .chart-container{
             position: relative;
+            height: 92%;
 
             .search-container{
                 position: absolute;
@@ -162,14 +169,13 @@
             }
 
             .echarts-container{
-                height: 600px;
+                height: 100%;
                 width: 100%;
-                margin: 0 auto;
                 display: flex;
                 align-items: center;
 
                 .el-col{
-                    height: 100%;
+                    height: 84%;
 
                     .echarts-ref{
                         height: 100%;

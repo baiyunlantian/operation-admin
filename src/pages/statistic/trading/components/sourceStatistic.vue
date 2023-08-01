@@ -59,9 +59,9 @@
   const tableColumnConfig = ref([
     {label:'', prop:'name'},
     {label:'付款人数', prop:'number'},
-    {label:'较前一月', prop:'lastMonthIncome'},
+    {label:'较前一月', prop:'lastMonthIncomeRatio'},
     {label:'付款金额', prop:'incomeAmount'},
-    {label:'较前一月', prop:'lastMonthNumber'},
+    {label:'较前一月', prop:'lastMonthNumberRatio'},
   ])
 
   function formatTableCell(row, prop) {
@@ -148,6 +148,10 @@
         }
       ]
     })
+
+    window.addEventListener('resize', function () {
+      myChars.resize()
+    })
   }
 
   watch(tableData, (newVal, oldVal) => {
@@ -166,6 +170,7 @@
 
 <style scoped lang="scss">
     .source-container{
+        height: 70%;
         .title{
             display: flex;
             align-items: center;
@@ -188,12 +193,13 @@
 
         .chart-container{
             position: relative;
+            height: 100%;
 
             .echarts-container{
-                height: 600px;
+                height: 73%;
 
                 .el-col{
-                    height: 100%;
+                    height: 84%;
 
                     .echarts-ref{
                         height: 100%;

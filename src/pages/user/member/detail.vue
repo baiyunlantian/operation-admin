@@ -7,7 +7,7 @@
 
         <div class="base-info">
             <div class="left-avatar">
-                <img class="avatar" :src="userAvatar" />
+                <img class="avatar" :src="userInfo.avatarUrl || userAvatar" />
             </div>
 
             <div class="right-form">
@@ -193,7 +193,7 @@
             font-size: 24px;
             font-weight: bold;
             padding: 10px 15px;
-            background: blue;
+            background: #6ea3ff;
         }
 
         .base-info{

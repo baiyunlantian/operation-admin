@@ -9,11 +9,11 @@
   const props = defineProps({
     height: {
       type: String,
-      required: true,
+      default: '100%'
     },
     width: {
       type: String,
-      required: true,
+      default: '100%'
     },
     // x轴末端显示的文字
     xAxisEndText: String,
@@ -72,6 +72,11 @@
         name: props.yAxisEndText || ''
       },
       series: props.lineData || []
+    })
+
+
+    window.addEventListener('resize', function () {
+      myChars.resize()
     })
   }
 

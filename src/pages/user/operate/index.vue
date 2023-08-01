@@ -7,7 +7,7 @@
 
                 <el-form-item v-for="(item, index) in searchFormConfig" :prop="item.prop" :label="item.label" :key="item.prop" label-position="left">
 
-                    <el-input v-if="item.type === 'input'" v-model="searchTableParams[item.prop]" :placeholder="item.placeholder || item.label"/>
+                    <el-input v-if="item.type === 'input'" v-model="searchTableParams[item.prop]" :placeholder="item.placeholder || item.label" clearable/>
 
                     <el-date-picker
                             v-else
@@ -72,8 +72,7 @@
                         <div v-if="item.insertSlot && item.prop === 'status'" class="insert-cell-container">
                             <el-switch
                                     v-model="row[item.prop]"
-                                    :before-change="beforeChange"
-                                    @change="val=>handleSwitchChange(val, row.userId)"
+                                    :before-change="()=>beforeChange(row[item.prop], row.userId)"
                                     :inactive-value="1"
                                     :active-value="0"
                             />
@@ -118,7 +117,7 @@
 
   const searchFormConfig = ref([
     {label:'ID/账号：', prop:'account', type:'input', placeholder:'用户ID/账号'},
-    {label:'用户名：', prop:'userName', type:'input'},
+    {label:'用户名：', prop:'userName', type:'input', placeholder:'用户名'},
     {label:'创建时间：', prop:'createTime', type:'datetimerange'},
   ])
   const rules = reactive({
@@ -149,8 +148,8 @@
   const timer = ref(null)
   const pageSizeOptions = ref([10, 20, 30, 50])
   const timeSortOptions = ref([
-    {label:'创建时间从晚到早', value:'DESC'},
     {label:'创建时间从早到晚', value:'ASC'},
+    {label:'创建时间从晚到早', value:'DESC'},
   ])
   const selectedRows = ref([])
   const modalVisible = ref(false)
@@ -170,8 +169,8 @@
     const timestamp = time.getTime()
     if (startDate.value !== null) {
       return (
-        timestamp < startDate.value.getTime() - 30 * day ||
-        timestamp > startDate.value.getTime() + 30 * day
+        timestamp < startDate.value.getTime() - 29 * day ||
+        timestamp > startDate.value.getTime() + 29 * day
       )
     }
   }
@@ -200,7 +199,11 @@
     })
   }
 
-  function beforeChange() {
+  function beforeChange(status, userId) {
+    let params = {
+      status: 1^status,
+      userId
+    }
     return new Promise((resolve, reject) => {
       proxy.$confirm('确认修改账号状态吗',  {
         confirmButtonText: '确认',
@@ -208,30 +211,23 @@
         type: 'warning',
       }).then(res=>{
         if (res === 'confirm') {
-          return resolve(true)
+          API.updateStatus(params).then(res=>{
+            if (res.code == '0') {
+              proxy.$message({
+                type: 'success',
+                message: '修改状态成功'
+              })
+              handleGetTableList()
+              return resolve(true)
+            }else {
+              return reject(false)
+            }
+          })
         }
       }).catch(()=>{
         console.log('取消')
         return reject(false)
       })
-    })
-  }
-
-  function handleSwitchChange(val, userId) {
-    let params = {
-      status: Number(val),
-      userId
-    }
-
-    API.updateStatus(params).then(res=>{
-      if (res.code == '0') {
-        proxy.$message({
-          type: 'success',
-          message: '修改状态成功'
-        })
-
-        handleGetTableList()
-      }
     })
   }
 
@@ -306,7 +302,7 @@
           timer.value = setTimeout(() => {
             handleGetTableList()
             timer.value = null;
-          }, 1500)
+          }, 1000)
         }
       })
     },

@@ -7,9 +7,9 @@
 
                 <el-form-item v-for="(item, index) in searchFormConfig" :prop="item.prop" :label="item.label" :key="item.prop" label-position="left">
 
-                    <el-input v-if="item.type === 'input'" v-model="searchTableParams[item.prop]" :placeholder="item.placeholder || item.label"/>
+                    <el-input v-if="item.type === 'input'" v-model="searchTableParams[item.prop]" :placeholder="item.placeholder || item.label" clearable/>
 
-                    <el-select v-else-if="item.type === 'select' " v-model="searchTableParams[item.prop]" class="m-2" placeholder="账号来源">
+                    <el-select v-else-if="item.type === 'select' " v-model="searchTableParams[item.prop]" class="m-2" placeholder="账号来源" clearable>
                         <el-option
                                 v-for="item in sourceTypeOptions"
                                 :key="item.key"
@@ -21,9 +21,9 @@
                     <el-date-picker
                             v-else
                             v-model="searchTableParams[item.prop]"
-                            type="daterange"
+                            type="datetimerange"
                             range-separator="-"
-                            format="YYYY-MM-DD"
+                            format="YYYY-MM-DD HH:mm"
                             start-placeholder="开始时间"
                             end-placeholder="结束时间"
                             :disabled-date="handleDisabledDate"
@@ -53,7 +53,7 @@
                         />
                     </el-select>
 
-                    <el-select v-model="searchTableParams.sortType" class="m-2" placeholder="排序方式">
+                    <el-select v-model="searchTableParams.sort" class="m-2" placeholder="排序方式">
                         <el-option
                                 v-for="item in timeSortOptions"
                                 :key="item.value"
@@ -82,10 +82,9 @@
                         <div v-if="item.insertSlot && item.prop === 'status'" class="insert-cell-container">
                             <el-switch
                                     v-model="row[item.prop]"
-                                    :before-change="beforeChange"
-                                    @change="val=>handleSwitchChange(val, row.userId)"
-                                    :inactive-value="0"
-                                    :active-value="1"
+                                    :before-change="()=>beforeChange(row[item.prop], row.userId)"
+                                    :inactive-value="1"
+                                    :active-value="0"
                             />
                         </div>
 
@@ -132,7 +131,7 @@
 
   const searchFormConfig = ref([
     {label:'ID/账号：', prop:'account', type:'input', placeholder:'用户ID/账号'},
-    {label:'用户昵称：', prop:'userName', type:'input'},
+    {label:'用户昵称：', prop:'userName', type:'input', placeholder:'用户昵称'},
     {label:'注册时间：', prop:'registerTime', type:'datetimerange'},
     {label:'', prop:'sourceType', type:'select'},
   ])
@@ -149,7 +148,7 @@
     pageSize:10,
     pageIndex:1,
     sortField: 'register_time',
-    sortType: 'ASC',
+    sort: 'asc',
   })
   const tableData = ref([])
   const tableColumnConfig = ref([
@@ -168,8 +167,8 @@
   const timer = ref(null)
   const pageSizeOptions = ref([10, 20, 30, 50])
   const timeSortOptions = ref([
-    {label:'创建时间从晚到早', value:'DESC'},
-    {label:'创建时间从早到晚', value:'ASC'},
+    {label:'注册时间从早到晚', value:'asc'},
+    {label:'注册时间从晚到早', value:'desc'},
   ])
   const selectedRows = ref([])
   const detailVisible = ref(false)
@@ -190,8 +189,8 @@
     const timestamp = time.getTime()
     if (startDate.value !== null) {
       return (
-        timestamp < startDate.value.getTime() - 30 * day ||
-        timestamp > startDate.value.getTime() + 30 * day
+        timestamp < startDate.value.getTime() - 29 * day ||
+        timestamp > startDate.value.getTime() + 29 * day
       )
     }
   }
@@ -225,13 +224,12 @@
     }
 
     if (params.registerTime) {
-      params.startTime = dayjs(params.registerTime[0]).format('YYYY-MM-DD')
-      params.endTime = dayjs(params.registerTime[1]).format('YYYY-MM-DD')
+      params.startTime = dayjs(params.registerTime[0]).format('YYYY-MM-DD HH:mm')
+      params.endTime = dayjs(params.registerTime[1]).format('YYYY-MM-DD HH:mm')
 
       delete params.registerTime
     }
 
-    console.log('params', params)
     API.getMemberTableList(params).then(res=>{
       if (res.code == '0') {
         tableData.value = res.data.list
@@ -240,7 +238,12 @@
     })
   }
 
-  function beforeChange() {
+  function beforeChange(status, userId) {
+    let params = {
+      status: 1^status,
+      userId
+    }
+    console.log('params', params)
     return new Promise((resolve, reject) => {
       proxy.$confirm('确认修改账号状态吗',  {
         confirmButtonText: '确认',
@@ -248,7 +251,18 @@
         type: 'warning',
       }).then(res=>{
         if (res === 'confirm') {
-          return resolve(true)
+          API.updateStatus(params).then(res=>{
+            if (res.code == '0') {
+              proxy.$message({
+                type: 'success',
+                message: '修改状态成功'
+              })
+              handleGetTableList()
+              return resolve(true)
+            }else {
+              return reject(false)
+            }
+          })
         }
       }).catch(()=>{
         console.log('取消')
@@ -256,25 +270,6 @@
       })
     })
 
-  }
-
-  function handleSwitchChange(val, userId) {
-    let params = {
-      status: Number(val),
-      userId
-    }
-
-
-    API.updateStatus(params).then(res=>{
-      if (res.code == '0') {
-        proxy.$message({
-          type: 'success',
-          message: '修改状态成功'
-        })
-
-        handleGetTableList()
-      }
-    })
   }
 
   function handleGoBack() {
@@ -288,7 +283,7 @@
   }
 
   const sourceTypeOptions = computed(() => {
-    let res = [{label:'运营后台', key:0}], list = store.getters['platformType/list']
+    let res = [{label:'运营后台', key:''}], list = store.getters['platformType/list']
 
     if (Array.isArray(list)) {
       res = res.concat(list)
@@ -306,7 +301,7 @@
           timer.value = setTimeout(() => {
             handleGetTableList()
             timer.value = null;
-          }, 1500)
+          }, 1000)
         }
       })
     },
