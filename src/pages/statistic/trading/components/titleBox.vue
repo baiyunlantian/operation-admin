@@ -4,8 +4,8 @@
 
         <div class="btns">
             <el-button type="default" @click="handleExport">导出数据</el-button>
-            <el-button :type="dateScopeType === 2 ? 'default' : 'warning'" @click="dateScopeType = 1">本月</el-button>
-            <el-button :type="dateScopeType === 1 ? 'default' : 'warning'" @click="dateScopeType = 2">上月</el-button>
+            <el-button :type="dateScopeType === 1 ? 'warning' : 'default'" @click="handleSwitch(1)">本月</el-button>
+            <el-button :type="dateScopeType === 2 ? 'warning' : 'default'" @click="handleSwitch(2)">上月</el-button>
             <div class="select-month u-m-l-10">
                 <el-date-picker
                         class="picker-month"
@@ -13,6 +13,8 @@
                         type="month"
                         format="YYYY-MM"
                         value-format="YYYY-MM"
+                        placeholder="选择月份"
+                        @change="handleChangeMonth"
                 />
             </div>
         </div>
@@ -33,16 +35,32 @@
     emit('export')
   }
 
-  watch([dateScopeType, startDate], ([newDateScopeType, newStartDate]) => {
+  function handleSwitch(month) {
+    dateScopeType.value = month
+    startDate.value = null
+
+    getData()
+  }
+
+  function handleChangeMonth(value) {
+    startDate.value = value
+    dateScopeType.value = value ? null : 1
+
+    getData()
+  }
+
+  function getData() {
     let params = {
-      dateScopeType: newDateScopeType,
-      startDate: newStartDate
+      dateScopeType: dateScopeType.value,
+      startDate: startDate.value,
     }
+
     emit('getData', params)
-  })
+  }
+
 
   onMounted(() => {
-    startDate.value = dayjs(new Date()).format('YYYY-MM')
+    getData()
   })
 </script>
 

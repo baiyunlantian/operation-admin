@@ -41,7 +41,7 @@
 </template>
 
 <script setup>
-    import { ref, reactive, defineProps, defineEmits } from 'vue';
+    import { ref, reactive, defineProps, defineEmits, watch } from 'vue';
     import API from '../api';
 
     const emit = defineEmits(['close'])
@@ -57,9 +57,6 @@
       userId: {
         required: true,
       },
-      sourceType: {
-        required: true,
-      }
     })
 
     const tableList = ref([])
@@ -72,7 +69,6 @@
     function handleGetTableList() {
       let params = {
         userId: props.userId,
-        sourceType: props.sourceName,
         ...pageParams
       }
 
@@ -87,6 +83,13 @@
     function handleClose() {
       emit('close', false)
     }
+
+    watch(
+      () => props.visible,
+      (newVal) => {
+        newVal && handleGetTableList()
+      }
+    )
 </script>
 
 <style scoped lang="scss">

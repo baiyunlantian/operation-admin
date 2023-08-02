@@ -70,7 +70,6 @@
                 :visible="dialogVisible"
                 :column-config="recordTableColumnConfig"
                 :user-id="userInfo.userId"
-                :source-type="userInfo.sourceType"
                 @close="handleCheckAll"
         />
     </div>
@@ -129,11 +128,12 @@
   function handleGetRechargeRecord() {
     let params = {
       userId: userInfo.userId,
-      sourceType: sourceTypeObj.value[userInfo.sourceName],
+      sourceType: userInfo.sourceType,
       pageIndex: 1,
       pageSize: 5,
     }
 
+    console.log('userInfo', userInfo)
     API.getRechargeRecordTableList(params).then(res=>{
       if (res.code == '0') {
         recordTableList.value = res.data.list
@@ -157,18 +157,6 @@
     }
 
   }
-
-  const sourceTypeObj = computed(() => {
-    let obj = {}, list = store.getters['platformType/list']
-
-    if (Array.isArray(list)) {
-      list.forEach(item=>{
-        obj[item.platformName] = item.platformType
-      })
-    }
-
-    return obj
-  })
 
   onMounted(() => {
     handleGetUserInfo()
@@ -210,6 +198,10 @@
                 display: flex;
                 align-items: center;
                 justify-content: center;
+
+                .avatar{
+                    width: 100%;
+                }
             }
 
             .right-form{

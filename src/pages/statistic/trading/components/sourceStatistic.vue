@@ -53,7 +53,6 @@
   const startDate = ref('')
   const echartsRef = ref(null)
   const echartsData = ref([])
-  const dateScopeType = ref(1)
   const colors = ref(['#91cc75', '#5470c6'])
   const tableData = ref([])
   const tableColumnConfig = ref([
@@ -65,7 +64,7 @@
   ])
 
   function formatTableCell(row, prop) {
-    let text = '', val = row[prop]
+    let text = '', val = row[prop] ? row[prop] : '/'
     switch (prop) {
       case 'incomeAmount':
         text = `￥${val}`;

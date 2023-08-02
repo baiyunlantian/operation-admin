@@ -27,11 +27,14 @@
 </template>
 
 <script setup>
-  import {onMounted, reactive, ref} from 'vue';
+  import {onMounted, reactive, ref, getCurrentInstance} from 'vue';
   import API from './api';
   import User from '../components/lineStatistic';
   import Source from './components/sourceStatistic'
   import BottomBox from '@/components/bottom-box';
+  import dayjs from 'dayjs';
+
+  const { proxy } = getCurrentInstance()
 
   const totalStatisticConfig = reactive([
     {label:'今日新增', prop:'todayNewUserCount'},
@@ -77,7 +80,6 @@
 
   onMounted(() => {
     handleGetTotalUserNumber()
-    handleGetUserStatisticData({productType:0, dateScopeType:1});
   })
 </script>
 

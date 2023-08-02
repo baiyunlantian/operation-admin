@@ -38,7 +38,7 @@
 
   const totalStatisticConfig = reactive([
     {label: '今日收益', prop: 'todayIncomeAmount'},
-    {label: '本周收益', prop: 'yesterdayIncomeAmount'},
+    {label: '本周收益', prop: 'currentWeekIncomeAmount'},
     {label: '本月收益', prop: 'currentMonthIncomeAmount'},
     {label: '总收益', prop: 'totalIncomeAmount'},
   ])

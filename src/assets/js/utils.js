@@ -559,9 +559,42 @@ const utils = {
           }
         }
         return arr;
+    },
+
+    // 获取目标日期前多少天的具体日期
+    getDateBeforeDays(beforeDays = 1, targetDate) {
+        let current = targetDate || new Date()
+        let currentYear = current.getFullYear(), currentMonth = current.getMonth() + 1, currentDate = current.getDate()
+        let beforeYear = currentYear, beforeMonth = currentMonth, beforeDate = currentDate - beforeDays
+
+        // 月份倒退上一月
+        if (beforeDate < 1) {
+            beforeMonth -= 1
+
+            // 年份倒退上一年，月份倒退到12月份
+            if (beforeMonth < 1) {
+                beforeYear -= 1
+                beforeMonth = 12
+            }
+
+            let _date = new Date(`${beforeYear}-${beforeMonth}`)
+            _date.setMonth(_date.getMonth() + 1)
+            _date.setDate(0)
+            // 获取上个月份的天数
+            let days = _date.getDate()
+            beforeDate = days + currentDate - beforeDays
+        }
+
+        if (beforeMonth < 10) {
+            beforeMonth = '0' + beforeMonth
+        }
+
+        if (beforeDate < 10) {
+            beforeDate = '0' + beforeDate
+        }
+
+        return `${beforeYear}-${beforeMonth}-${beforeDate}`
     }
-  
-  
 }
 export default utils
   

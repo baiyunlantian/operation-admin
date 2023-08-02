@@ -122,7 +122,7 @@
 </template>
 
 <script setup>
-  import {reactive, ref, onMounted, computed, watch, defineProps, defineEmits, getCurrentInstance} from 'vue';
+  import {reactive, ref, onMounted, computed, watch, defineProps, defineEmits, getCurrentInstance, nextTick} from 'vue';
   import dayjs from 'dayjs';
   import { useStore } from 'vuex';
   import ExportExcel from '@/utils/exportExcel';
@@ -183,14 +183,18 @@
   }
 
   function monthChange(dates) {
-    if (dates.length === 0) return
+    console.log('monthChange', dates)
+    if (dates === null || dates.length === 0) {
+      handleSelectChange()
+      return
+    }
     // 2023-06   2027-03
     let startDate = dates[0], endDate = dates[1];
     let startYear = Number(startDate.split('-')[0]), startMonth = Number(startDate.split('-')[1]);
     let endYear = Number(endDate.split('-')[0]), endMonth = Number(endDate.split('-')[1]);
     const monthGap = (endYear - startYear) * 12 + endMonth - startMonth;
 
-    if (monthGap >= 6 && monthGap <= 24) {
+    if (monthGap >= 5 && monthGap <= 23) {
       handleGetStatistic()
     }else {
       proxy.$message({
@@ -217,9 +221,14 @@
   }
 
   function dateChange(dates) {
-    timeRange.value = dates;
+
     if (dates === null || dates.length === 0) {
-      startDate.value = null
+      nextTick(()=>{
+        timeRange.value = [proxy.$utils.getDateBeforeDays(14), dayjs(new Date()).format('YYYY-MM-DD')]
+        handleGetStatistic()
+      })
+    }else {
+      timeRange.value = dates;
     }
   }
   function handleSwitch() {
@@ -394,6 +403,10 @@
       {deep: true}
   )
 
+  onMounted(() => {
+    timeRange.value = [proxy.$utils.getDateBeforeDays(14), dayjs(new Date()).format('YYYY-MM-DD')]
+    handleGetStatistic()
+  })
 </script>
 
 <style scoped lang="scss">

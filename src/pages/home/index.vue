@@ -57,8 +57,8 @@
     {text:'近7天收益总额', prop:'weekIncomeAmount', imgUrl:IncreaseImg},
   ])
   const fastRouteConfig = ref([
-    {label:'用户管理', path:'/memberManagement', img:FastUser},
-    {label:'交易统计', path:'/trading', img:FastIncrease},
+    {label:'用户管理', path:'/member', img:FastUser},
+    {label:'交易统计', path:'/tradingStatistic', img:FastIncrease},
   ])
   const totalStatisticData = reactive({
     todayNewUserCount: 0,

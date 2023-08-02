@@ -142,6 +142,13 @@
         trigger: 'blur',
         message: '请输入1~16位的数字'
       }
+    ],
+    userName:[
+      {
+        max: 15,
+        trigger: 'blur',
+        message: '请输入不超过15位数的昵称'
+      }
     ]
   })
   const searchTableParams = reactive({
@@ -185,13 +192,18 @@
 
   // 限定时间选择范围
   function handleDisabledDate(time) {
+    // 不能超过当前系统时间且不能往前大于30天
     const day = 24 * 60 * 60 * 1000;
     const timestamp = time.getTime()
+    const nowTimestamp = new Date().getTime()
     if (startDate.value !== null) {
       return (
         timestamp < startDate.value.getTime() - 29 * day ||
-        timestamp > startDate.value.getTime() + 29 * day
+        timestamp > startDate.value.getTime() + 29 * day ||
+        timestamp > nowTimestamp
       )
+    }else {
+      return timestamp > nowTimestamp
     }
   }
 
@@ -228,6 +240,10 @@
       params.endTime = dayjs(params.registerTime[1]).format('YYYY-MM-DD HH:mm')
 
       delete params.registerTime
+    }
+
+    if (params.sourceType === 'null') {
+      params.sourceType = ''
     }
 
     API.getMemberTableList(params).then(res=>{
@@ -283,7 +299,7 @@
   }
 
   const sourceTypeOptions = computed(() => {
-    let res = [{label:'运营后台', key:''}], list = store.getters['platformType/list']
+    let res = [{label:'运营后台', key:'null'}], list = store.getters['platformType/list']
 
     if (Array.isArray(list)) {
       res = res.concat(list)
