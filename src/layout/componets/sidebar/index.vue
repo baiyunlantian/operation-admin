@@ -248,6 +248,7 @@
                 .el-menu-item.is-active{
                     border-bottom: 2px solid #3164f5;
                     color: #3164f5 !important;
+                    background-color: transparent;
                 }
             }
 

@@ -309,17 +309,17 @@
   })
 
   watch(searchTableParams, (newVal, oldVal) => {
-      formRef.value.validate(valid => {
-        if (valid) {
-          if (timer.value !== null) {
-            clearTimeout(timer.value);
-          }
-          timer.value = setTimeout(() => {
+      if (timer.value !== null) {
+        clearTimeout(timer.value);
+      }
+      timer.value = setTimeout(() => {
+        formRef.value.validate(valid => {
+          if (valid) {
             handleGetTableList()
             timer.value = null;
-          }, 1000)
-        }
-      })
+          }
+        })
+      }, 1000)
     },
     {deep:true}
   )

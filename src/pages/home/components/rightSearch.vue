@@ -16,7 +16,7 @@
         <div class="time-range">
             <div v-for="(item, index) in timeRangeTags" :key="index"
                  :class="[dateScopeType === item.key ? 'active' : '', 'u-cursor u-m-r-10']"
-                 @click="handleClickTimeTag('user', item.key)"
+                 @click="handleClickTimeTag(item.key)"
             >
                 {{ item.label }}
             </div>
@@ -86,11 +86,12 @@
     timeRange.value = dates;
     if (dates === null || dates.length === 0) {
       startDate.value = null
+      handleClickTimeTag(2)
     }
   }
 
   // 点击图表上的日期tag
-  function handleClickTimeTag(type, tagValue) {
+  function handleClickTimeTag(tagValue) {
     dateScopeType.value = tagValue
     timeRange.value = []
     getData()
@@ -139,12 +140,8 @@
 
 <style scoped lang="scss">
     .right{
-        position: relative;
-        flex: 1;
         display: flex;
         justify-content: space-between;
-        padding: 0 20px;
-        z-index: 999;
 
         .time-range{
             display: flex;

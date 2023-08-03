@@ -51,20 +51,22 @@
             </div>
         </div>
 
-        <div class="chart-container bg-fff">
-            <div class="search-container">
+        <el-row class="chart-container bg-fff" :gutter="0">
+            <el-col :span="3" class="search-container">
                 <div class="left u-m-l-20 u-m-r-20">
                     <div v-for="(item, index) in leftStatisticConfig" :key="index" class="desc-item">
                         <div class="desc-text">{{item.title}}</div>
                         <div class="value">{{ leftData[item.countProp] }}</div>
                         <div :class="[handleJudgeIsIncrease(leftData[item.ratioProp]), 'bottom']">
                             <div class="icon"></div>
-                            <div class="ratio">{{ leftData[item.ratioProp] }}</div>
+                            <div class="ratio">{{ format(leftData[item.ratioProp]) }}</div>
                             <div class="ratio-text">{{item.subText}}</div>
                         </div>
                     </div>
                 </div>
+            </el-col>
 
+            <el-col :span="20" class="echarts-container">
                 <div class="right">
                     <el-popover placement="right" :width="150" trigger="click">
                         <template #reference>
@@ -81,42 +83,37 @@
 
                     <div class="switch-card-text blue u-cursor" @click="handleSwitch">{{tableShow ? '统计图显示' : '表格显示'}}</div>
                 </div>
-            </div>
 
-            <div v-show="!tableShow" class="total-statistic">
-                <template v-if="props.statisticType === 'user'">
-                    <span class="u-m-r-10">新增用户数</span>
-                    <span>共计{{ totalStatistic }}人</span>
-                </template>
-
-                <template v-else>共收益￥{{ totalStatistic }}</template>
-
-            </div>
-
-            <el-row :gutter="0" justify="center" class="echarts-container">
-                <el-col :span="20" :class="tableShow ? 'col-top' : ''">
-
-                    <el-table v-show="tableShow" class="table-container" :data="tableData" border style="width: 100%">
-                        <el-table-column v-for="(item, index) in tableColumnConfig" :key="index"
-                                         :prop="item.prop"
-                                         :label="item.label"
-                                         :width="item.width"
-                                         align="center"
-                         />
-                    </el-table>
-
-                    <MutiLine
-                            v-show="!tableShow"
-                            x-axis-end-text="日期/月份"
-                            :y-axis-end-text="yAxixEndText"
-                            :x-axis-data="xAxisData"
-                            :line-data="lineData"
+                <el-table v-show="tableShow" class="table-container" :data="tableData" border style="width: 100%">
+                    <el-table-column v-for="(item, index) in tableColumnConfig" :key="index"
+                                     :prop="item.prop"
+                                     :label="item.label"
+                                     :width="item.width"
+                                     align="center"
                     />
+                </el-table>
 
-                </el-col>
-            </el-row>
+                <MutiLine
+                        v-show="!tableShow && lineData.length > 0"
+                        :x-axis-end-text="dateScopeType === 1 ? '日期/天' : '日期/月份'"
+                        :y-axis-end-text="yAxixEndText"
+                        :x-axis-data="xAxisData"
+                        :line-data="lineData"
+                />
+                <div v-show="!tableShow && lineData.length === 0" class="empty-text">暂无数据</div>
 
-        </div>
+                <div v-show="!tableShow" class="total-statistic">
+                    <template v-if="props.statisticType === 'user'">
+                        <span class="u-m-r-10">新增用户数</span>
+                        <span>共计{{ totalStatistic }}人</span>
+                    </template>
+
+                    <template v-else>共收益￥{{ totalStatistic }}</template>
+
+                </div>
+            </el-col>
+        </el-row>
+
     </div>
 
 </template>
@@ -183,9 +180,10 @@
   }
 
   function monthChange(dates) {
-    console.log('monthChange', dates)
     if (dates === null || dates.length === 0) {
-      handleSelectChange()
+      dateScopeType.value = 1
+      timeRange.value = [proxy.$utils.getDateBeforeDays(14), dayjs(new Date()).format('YYYY-MM-DD')]
+      handleGetStatistic()
       return
     }
     // 2023-06   2027-03
@@ -300,8 +298,10 @@
 
       // table列表 汇总列 字段
       columnDataObj['total'] = categoryTotal;
-      _tableData.push(columnDataObj)
-      _seriesData.push(seriesItem)
+      if (categoryTotal > 0) {
+        _tableData.push(columnDataObj)
+        _seriesData.push(seriesItem)
+      }
     })
 
     // 构造table 最后一行数据
@@ -309,12 +309,26 @@
     tableLastRowData.forEach((value, prop) => {
       tableLastRowObj[prop] = value
     })
-    _tableData.push(tableLastRowObj)
+    if (statisticTotal > 0) {
+      _tableData.push(tableLastRowObj)
+    }
+
 
     xAxisData.value = _xAxisData
     lineData.value = _seriesData
     tableData.value = _tableData
     tableColumnConfig.value = _tableColumnConfig.concat([{label:'汇总', prop:'total'}])
+  }
+
+  // 去除-号
+  function format(value) {
+    let text = value
+
+    if (value && value.indexOf('-') === 0) {
+      text = value.substr(1)
+    }
+
+    return text
   }
 
   // 判断增长还是下降
@@ -438,12 +452,9 @@
             height: 92%;
 
             .search-container{
-                position: absolute;
                 display: flex;
-                align-items: flex-start;
                 width: 100%;
-                padding: 20px 0 20px 20px;
-                box-sizing: border-box;
+                padding: 1% 0 1% 1%;
 
 
                 .left{
@@ -511,14 +522,25 @@
                         }
                     }
                 }
+            }
+
+            .total-statistic{
+                font-size: 16px;
+                text-align: center;
+            }
+
+            .echarts-container{
+                display: flex;
+                flex-direction: column;
+                margin: 1% 0;
+
+                .echarts-ref{
+                    flex: 1;
+                }
 
                 .right{
-                    position: relative;
-                    flex: 1;
                     display: flex;
                     justify-content: space-between;
-                    padding: 0 50px;
-                    z-index: 999;
 
                     .time-range{
                         display: flex;
@@ -545,31 +567,23 @@
                         }
                     }
                 }
-            }
-
-            .total-statistic{
-                position: absolute;
-                bottom: 30px;
-                right: 20%;
-                font-size: 16px;
-            }
-
-            .echarts-container{
-                height: 100%;
-                display: flex;
-                align-items: center;
 
                 .el-col {
                     height: 84%;
                 }
 
-                .col-top {
-                    position: relative;
-                    top: 10%;
+                .empty-text{
+                    height: 100%;
+                    display: grid;
+                    place-items: center;
+                    font-size: 16px;
                 }
 
                 .table-container{
                     position: relative;
+                    top: 10%;
+                    height: auto;
+                    max-height: 60%;
 
                     ::v-deep .el-table__header-wrapper{
                         .el-table__cell{

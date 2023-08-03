@@ -6,7 +6,7 @@
           <el-tag
             v-for="(items,index) in dynamicTags"
             :key="items.fullPath"
-            class="tag_item"
+            class="tag_item u-cursor"
             :closable="items.closable"
             :type="active != items.fullPath?'info':''"
             :disable-transitions="false"

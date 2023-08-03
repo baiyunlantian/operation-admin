@@ -127,6 +127,13 @@
         trigger: 'blur',
         message: '请输入1~16位的数字'
       }
+    ],
+    userName:[
+      {
+        max: 10,
+        trigger: 'blur',
+        message: '请输入不超过10位数的用户名'
+      }
     ]
   })
   const searchTableParams = reactive({
@@ -294,17 +301,17 @@
   }
 
   watch(searchTableParams, (newVal, oldVal) => {
-      formRef.value.validate(valid => {
-        if (valid) {
-          if (timer.value !== null) {
-            clearTimeout(timer.value);
-          }
-          timer.value = setTimeout(() => {
+      if (timer.value !== null) {
+        clearTimeout(timer.value);
+      }
+      timer.value = setTimeout(() => {
+        formRef.value.validate(valid => {
+          if (valid) {
             handleGetTableList()
             timer.value = null;
-          }, 1000)
-        }
-      })
+          }
+        })
+      }, 1000)
     },
     {deep:true}
   )

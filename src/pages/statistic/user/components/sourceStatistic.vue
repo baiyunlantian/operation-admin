@@ -24,6 +24,7 @@
                             :type="dateScopeType === 1 ? 'date' : 'month'"
                             :format="dateScopeType === 1 ? 'YYYY-MM-DD' : 'YYYY-MM'"
                             :value-format="dateScopeType === 1 ? 'YYYY-MM-DD' : 'YYYY-MM'"
+                            :clearable="false"
                             @change="dateChange"
                     />
                 </div>
@@ -34,7 +35,8 @@
 
             <el-row :gutter="0" justify="center" class="echarts-container">
                 <el-col :span="20">
-                    <div class="echarts-ref" ref="echartsRef"></div>
+                    <div v-show="echartsData.length > 0" class="echarts-ref" ref="echartsRef"></div>
+                    <div v-show="echartsData.length === 0" class="empty-text">暂无数据</div>
                 </el-col>
             </el-row>
 
@@ -44,7 +46,7 @@
 </template>
 
 <script setup>
-  import { reactive, ref, onMounted, computed, watch, getCurrentInstance } from 'vue';
+  import {reactive, ref, onMounted, computed, watch, getCurrentInstance, onBeforeUnmount} from 'vue';
   import API from '../api';
   import dayjs from 'dayjs';
   import * as echarts from 'echarts';
@@ -73,11 +75,8 @@
   // 选择按日/月统计
   function handleSelectChange(value) {
     dateScopeType.value = value
-    startDate.value = ''
-    proxy.$message({
-      type:'info',
-      message:'请选择具体时间！'
-    })
+    startDate.value = dayjs(new Date()).format(`YYYY-MM${value === 1 ? '-DD' : ''}`)
+    handleGetUserStatistic()
   }
 
   function dateChange(value) {
@@ -145,9 +144,15 @@
   }
 
   const echartsData = computed(() => {
-    return tableData.value.map(item=>{
-      return {name:item.name, value: item.ratio.slice(0, item.ratio.length - 1)}
+    let list = []
+    tableData.value.forEach(({name, ratio})=>{
+      let value = ratio.slice(0, ratio.length - 1)
+      if (value != '0') {
+        list.push({name, value})
+      }
     })
+
+    return list
   })
 
   onMounted(() => {
@@ -202,6 +207,13 @@
 
                     .echarts-ref{
                         height: inherit;
+                    }
+
+                    .empty-text{
+                        height: inherit;
+                        display: grid;
+                        place-items: center;
+                        font-size: 16px;
                     }
                 }
 

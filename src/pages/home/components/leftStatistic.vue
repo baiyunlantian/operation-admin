@@ -5,7 +5,7 @@
             <div class="value">{{ leftData[item.countProp] }}</div>
             <div :class="[handleJudgeIsIncrease(leftData[item.ratioProp]), 'bottom']">
                 <div class="icon"></div>
-                <div class="ratio">{{ leftData[item.ratioProp] }}</div>
+                <div class="ratio">{{ format(leftData[item.ratioProp]) }}</div>
                 <div class="ratio-text">{{item.subText}}</div>
             </div>
         </div>
@@ -16,6 +16,17 @@
   import { defineProps } from 'vue';
 
   const props = defineProps(['statisticConfig', 'leftData'])
+
+  // 去除-号
+  function format(value) {
+    let text = value
+
+    if (value && value.indexOf('-') === 0) {
+      text = value.substr(1)
+    }
+
+    return text
+  }
 
   // 判断增长还是下降
   function handleJudgeIsIncrease(value) {

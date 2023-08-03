@@ -1,24 +1,24 @@
 <template>
-    <div class="chart-container bg-fff">
-        <div class="search-container">
+    <el-row class="chart-container bg-fff" :gutter="0">
+        <el-col :span="3"  class="search-container">
             <LeftStatistic :statistic-config="leftStatisticConfig" :left-data="leftData"/>
+        </el-col>
 
+        <el-col :span="20" class="echarts-container">
             <RightSearch @getData="handleGetEarningsStatistic"/>
-        </div>
 
-        <div class="total-statistic">共收益￥{{ leftData.total }}</div>
+            <MutiLine
+                    v-show="lineData.length > 0"
+                    x-axis-end-text="日期/天"
+                    :x-axis-data="xAxisData"
+                    :line-data="lineData"
+            />
+            <div v-show="lineData.length === 0" class="empty-text">暂无数据</div>
 
-        <el-row :gutter="0"  justify="center" class="echarts-container">
-            <el-col :span="20">
-                <MutiLine
-                        x-axis-end-text="日期/天"
-                        :x-axis-data="xAxisData"
-                        :line-data="lineData"
-                />
-            </el-col>
-        </el-row>
+            <div class="total-statistic">共收益￥{{ leftData.total }}</div>
+        </el-col>
 
-    </div>
+    </el-row>
 </template>
 
 <script setup>
@@ -78,30 +78,30 @@
         height: 51%;
 
         .search-container{
-            position: absolute;
             display: flex;
-            align-items: flex-start;
             width: 100%;
-            padding: 20px 0 20px 20px;
-            box-sizing: border-box;
-
+            padding: 1% 0 1% 1%;
         }
 
         .total-statistic{
-            position: absolute;
-            bottom: 30px;
-            right: 20%;
             font-size: 16px;
+            text-align: center;
         }
 
         .echarts-container{
-            height: 100%;
-            width: 100%;
             display: flex;
-            align-items: center;
+            flex-direction: column;
+            margin: 1% 0;
 
             .el-col {
                 height: 83%;
+            }
+
+            .empty-text{
+                height: 100%;
+                display: grid;
+                place-items: center;
+                font-size: 16px;
             }
         }
     }

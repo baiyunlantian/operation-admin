@@ -3,7 +3,7 @@
 </template>
 
 <script setup>
-  import { reactive, ref, onMounted, computed, watch, defineProps } from 'vue';
+  import { reactive, ref, onMounted, computed, watch, defineProps, onBeforeUnmount } from 'vue';
   import * as echarts from 'echarts';
 
   const props = defineProps({
@@ -69,7 +69,8 @@
         splitLine : {
           show:false
         },
-        name: props.yAxisEndText || ''
+        name: props.yAxisEndText || '',
+        minInterval: 1,
       },
       series: props.lineData || []
     })
@@ -79,10 +80,6 @@
       myChars.resize()
     })
   }
-
-  // onMounted(() => {
-  //   echartsInit()
-  // });
 
   watch(() => props.lineData, (newVal, oldVal) => {
       setTimeout(() => {

@@ -8,7 +8,8 @@
 
             <el-row :gutter="0" class="echarts-container">
                 <el-col :span="20" :offset="2">
-                    <div class="echarts-ref" ref="echartsRef"></div>
+                    <div v-show="total > 0" class="echarts-ref" ref="echartsRef"></div>
+                    <div v-show="total === 0" class="empty-text">暂无数据</div>
                 </el-col>
             </el-row>
 
@@ -18,7 +19,7 @@
 </template>
 
 <script setup>
-  import {getCurrentInstance, ref,} from 'vue';
+  import {getCurrentInstance, onBeforeUnmount, ref,} from 'vue';
   import API from '../api';
   import TitleBox from './titleBox';
   import ExportExcel from "@/utils/exportExcel";
@@ -33,6 +34,7 @@
   const xAxisData = ref([])
   const tableTitle = ref([])
   const tableData = ref([])
+  const total = ref(0)
 
   function handleExport() {
     setTimeEscalationClone(() => {ExportExcel(tableData.value, tableTitle.value, '用户收益分布')},
@@ -41,7 +43,7 @@
 
   // 获取用户收益分布数据
   function handleGetEarningStatistic(params) {
-    let _xAxisData = [], _echartsData = [], _tableTitle = [{label:params.startDate, prop:'account'}];
+    let _xAxisData = [], _echartsData = [], _tableTitle = [{label:params.startDate, prop:'account'}], totalStatistic = 0;
 
     API.getDistributionStatistic(params).then(res=>{
       if (res.code == '0') {
@@ -51,12 +53,14 @@
           _echartsData.push(yAxis)
           row[xAxis] = yAxis
           _tableTitle.push({label: xAxis, prop: xAxis})
+          totalStatistic += yAxis
         })
 
         tableTitle.value = _tableTitle
         tableData.value = [Object.assign({account: '用户人数'}, row)]
         xAxisData.value = _xAxisData
         echartsData.value = _echartsData
+        total.value = totalStatistic
 
         setTimeout(()=>{
           echartsInit()
@@ -91,7 +95,8 @@
         splitLine : {
           show:false
         },
-        name: '用户/人'
+        name: '用户/人',
+        minInterval: 1,
       },
       series: [{
         data: echartsData.value,
@@ -179,6 +184,13 @@
 
                     .echarts-ref{
                         height: 100%;
+                    }
+
+                    .empty-text{
+                        height: 100%;
+                        display: grid;
+                        place-items: center;
+                        font-size: 16px;
                     }
                 }
 

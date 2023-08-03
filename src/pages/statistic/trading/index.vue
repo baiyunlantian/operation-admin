@@ -80,7 +80,6 @@
 
   onMounted(() => {
     handleGetTotalUserIncome();
-    handleGetTradingStatisticData({productType:0});
   })
 </script>
 

@@ -6,7 +6,8 @@
 
             <el-row :gutter="0" class="echarts-container">
                 <el-col :span="12" :offset="1">
-                    <div class="echarts-ref" ref="echartsRef"></div>
+                    <div v-show="echartsData.length > 0" class="echarts-ref" ref="echartsRef"></div>
+                    <div v-show="echartsData.length === 0" class="empty-text">暂无数据</div>
                 </el-col>
 
                 <el-col :span="8" :offset="1">
@@ -48,7 +49,7 @@
 </template>
 
 <script setup>
-  import { ref, watch, getCurrentInstance } from 'vue';
+  import {ref, watch, getCurrentInstance, onBeforeUnmount} from 'vue';
   import API from '../api';
   import * as echarts from 'echarts';
   import TitleBox from './titleBox';
@@ -79,13 +80,16 @@
   }
 
   function formatTableCell(row, prop) {
-    let text = '', val = row[prop] ? row[prop] : '/'
+    let text = '';
     switch (prop) {
       case 'incomeAmount':
-        text = `￥${val}`;
+        text = row[prop] > 0 ? `￥${row[prop]}` : 0;
+        break;
+      case 'number':
+        text = row[prop] || 0;
         break;
        default:
-         text = val;
+         text = row[prop] ? row[prop] : '/';
     }
 
     return text;
@@ -97,7 +101,25 @@
 
     API.getNewAndOldStatistic(params).then(res=>{
       if (res.code == '0') {
-        tableData.value = res.data
+        let list = [], echarts = []
+
+        res.data.forEach(item=>{
+          const {number, name, incomeAmount, lastMonthIncomeRatio, lastMonthNumberRatio} = item
+          if (incomeAmount > 0 || number > 0 || lastMonthIncomeRatio || lastMonthNumberRatio) {
+            list.push(item)
+          }
+
+          if (number > 0) {
+            echarts.push({value: incomeAmount, name: name})
+          }
+        })
+
+        tableData.value = list
+        echartsData.value = echarts
+
+        setTimeout(() => {
+          echartsInit()
+        }, 100)
       }
     })
   }
@@ -138,18 +160,6 @@
       myChars.resize()
     })
   }
-
-  watch(tableData, (newVal, oldVal) => {
-    echartsData.value = newVal.map(item=>{
-      return {value:item.number, name:item.name}
-    })
-
-    setTimeout(() => {
-      echartsInit()
-    }, 100)
-  },
-    {deep: true}
-  )
 
 </script>
 
@@ -192,6 +202,13 @@
 
                     .echarts-ref{
                         height: 100%;
+                    }
+
+                    .empty-text{
+                        height: 100%;
+                        display: grid;
+                        place-items: center;
+                        font-size: 16px;
                     }
                 }
 
