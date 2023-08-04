@@ -23,21 +23,17 @@
                             </el-col>
                         </el-row>
 
-                        <el-row  :gutter="0" class="table-container" justify="center">
-                            <el-col :span="20" :offset="1">
-                                <el-table class="table" :data="tableData" border style="width: 100%">
-                                    <el-table-column v-for="(item, index) in tableColumnConfig" :key="index"
-                                            :prop="item.prop"
-                                            :label="item.label"
-                                            :width="item.width"
-                                    >
-                                        <template #default="{ row, column, $index }">
-                                            <div class="custom-cell">{{ formatTableCell(row, item.prop) }}</div>
-                                        </template>
-                                    </el-table-column>
-                                </el-table>
-                            </el-col>
-                        </el-row>
+                        <el-table class="table" :data="tableData" border style="width: 100%">
+                            <el-table-column v-for="(item, index) in tableColumnConfig" :key="index"
+                                             :prop="item.prop"
+                                             :label="item.label"
+                                             :width="item.width"
+                            >
+                                <template #default="{ row, column, $index }">
+                                    <div class="custom-cell">{{ formatTableCell(row, item.prop) }}</div>
+                                </template>
+                            </el-table-column>
+                        </el-table>
 
                     </div>
                 </el-col>
@@ -104,13 +100,13 @@
         let list = [], echarts = []
 
         res.data.forEach(item=>{
-          const {number, name, incomeAmount, lastMonthIncomeRatio, lastMonthNumberRatio} = item
+          const {number, name, incomeAmount, lastMonthIncomeRatio, lastMonthNumberRatio, ratio} = item
           if (incomeAmount > 0 || number > 0 || lastMonthIncomeRatio || lastMonthNumberRatio) {
             list.push(item)
           }
 
           if (number > 0) {
-            echarts.push({value: incomeAmount, name: name})
+            echarts.push({value: incomeAmount, name, ratio})
           }
         })
 
@@ -124,8 +120,11 @@
     })
   }
 
+  let myChars = null
   function echartsInit() {
-    const myChars = echarts.init(echartsRef.value)
+    if (myChars === null) {
+      myChars = echarts.init(echartsRef.value)
+    }
     myChars.clear(); // 清除画布内容
     myChars.setOption({
       color:colors.value,
@@ -150,22 +149,30 @@
           label:{
             position: 'inside',
             fontSize: 14,
-            formatter:'{d}%'
+            formatter:(obj=>{
+              return obj.data.ratio
+            })
           }
         }
       ]
     })
 
-    window.addEventListener('resize', function () {
-      myChars.resize()
-    })
+    window.addEventListener('resize', call)
   }
+  function call() {
+    myChars.resize()
+  }
+
+  onBeforeUnmount(() => {
+    window.removeEventListener('resize', call)
+  })
 
 </script>
 
 <style scoped lang="scss">
     .client-container{
         height: 55%;
+        min-height: 300px;
 
         .title{
             display: flex;
@@ -213,10 +220,12 @@
                 }
 
                 .right{
+                    overflow: auto;
+                    max-height: 100%;
                     height: 100%;
                     display: flex;
                     flex-direction: column;
-                    justify-content: center;
+                    justify-content: space-evenly;
 
                     .header-box{
                         position: relative;

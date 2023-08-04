@@ -51,9 +51,9 @@
             </div>
         </div>
 
-        <el-row class="chart-container bg-fff" :gutter="0">
-            <el-col :span="3" class="search-container">
-                <div class="left u-m-l-20 u-m-r-20">
+        <div class="chart-container bg-fff">
+            <div class="search-container">
+                <div class="left">
                     <div v-for="(item, index) in leftStatisticConfig" :key="index" class="desc-item">
                         <div class="desc-text">{{item.title}}</div>
                         <div class="value">{{ leftData[item.countProp] }}</div>
@@ -64,9 +64,9 @@
                         </div>
                     </div>
                 </div>
-            </el-col>
+            </div>
 
-            <el-col :span="20" class="echarts-container">
+            <div class="content">
                 <div class="right">
                     <el-popover placement="right" :width="150" trigger="click">
                         <template #reference>
@@ -84,35 +84,42 @@
                     <div class="switch-card-text blue u-cursor" @click="handleSwitch">{{tableShow ? '统计图显示' : '表格显示'}}</div>
                 </div>
 
-                <el-table v-show="tableShow" class="table-container" :data="tableData" border style="width: 100%">
-                    <el-table-column v-for="(item, index) in tableColumnConfig" :key="index"
-                                     :prop="item.prop"
-                                     :label="item.label"
-                                     :width="item.width"
-                                     align="center"
-                    />
-                </el-table>
+                <div class="content-item">
+                    <div class="table-container" :style="{opacity: tableShow === true ? 1 : 0}">
+                        <el-table :data="tableData" border>
+                            <el-table-column v-for="(item, index) in tableColumnConfig" :key="index"
+                                             :prop="item.prop"
+                                             :label="item.label"
+                                             :width="item.width"
+                                             align="center"
+                            />
+                        </el-table>
+                    </div>
 
-                <MutiLine
-                        v-show="!tableShow && lineData.length > 0"
-                        :x-axis-end-text="dateScopeType === 1 ? '日期/天' : '日期/月份'"
-                        :y-axis-end-text="yAxixEndText"
-                        :x-axis-data="xAxisData"
-                        :line-data="lineData"
-                />
-                <div v-show="!tableShow && lineData.length === 0" class="empty-text">暂无数据</div>
+                    <div class="echarts-container" :style="{opacity: tableShow === true ? 0 : 1}">
+                        <MutiLine
+                                v-show="lineData.length > 0"
+                                :x-axis-end-text="dateScopeType === 1 ? '日期/天' : '日期/月份'"
+                                :y-axis-end-text="yAxixEndText"
+                                :x-axis-data="xAxisData"
+                                :line-data="lineData"
+                        />
+                        <div v-show="!tableShow && lineData.length === 0" class="empty-text">暂无数据</div>
 
-                <div v-show="!tableShow" class="total-statistic">
-                    <template v-if="props.statisticType === 'user'">
-                        <span class="u-m-r-10">新增用户数</span>
-                        <span>共计{{ totalStatistic }}人</span>
-                    </template>
+                        <div v-show="!tableShow" class="total-statistic">
+                            <template v-if="props.statisticType === 'user'">
+                                <span class="u-m-r-10">新增用户数</span>
+                                <span>共计{{ totalStatistic }}人</span>
+                            </template>
 
-                    <template v-else>共收益￥{{ totalStatistic }}</template>
+                            <template v-else>共收益￥{{ totalStatistic }}</template>
 
+                        </div>
+                    </div>
                 </div>
-            </el-col>
-        </el-row>
+
+            </div>
+        </div>
 
     </div>
 
@@ -180,6 +187,9 @@
   }
 
   function monthChange(dates) {
+    /**
+     * 按月筛选，则时间区间选择为（6~24）月
+     * */
     if (dates === null || dates.length === 0) {
       dateScopeType.value = 1
       timeRange.value = [proxy.$utils.getDateBeforeDays(14), dayjs(new Date()).format('YYYY-MM-DD')]
@@ -238,7 +248,6 @@
     // console.log('handleDisabledDate', time)
     /**
      * 按日筛选，时间区间选择为（7~30）天
-     * 按月筛选，则时间区间选择为（6~24）月
      * */
     const day = 24 * 60 * 60 * 1000;
     // 当前选中的时间
@@ -246,9 +255,9 @@
     if (startDate.value !== null) {
       const startDateTime = startDate.value.getTime();
       // 小于7-30天
-      const lessThan = timestamp < startDateTime - 7 * day && timestamp > startDateTime - 30 * day
+      const lessThan = timestamp < startDateTime - 5 * day && timestamp > startDateTime - 30 * day
       // 大于7-30天
-      const moreThan = timestamp > startDateTime + 7 * day && timestamp < startDateTime + 30 * day
+      const moreThan = timestamp > startDateTime + 5 * day && timestamp < startDateTime + 30 * day
       return (
           !(lessThan || moreThan)
       )
@@ -396,16 +405,7 @@
   watch(
     () => productType.value,
     Category => {
-      let data = [];
-      // 过滤数据
-      if (productTypeText.value !== '全部') {
-        data = props.statisticData.filter(item=>item.name ===  productTypeText.value)
-      }else {
-        data = props.statisticData
-      }
-
-      formatLineData(data)
-      // handleGetStatistic()
+      handleGetStatistic()
     }
   )
 
@@ -426,6 +426,7 @@
 <style scoped lang="scss">
     .line-container{
         height: 55%;
+        min-height: 300px;
 
         .title{
             display: flex;
@@ -450,15 +451,17 @@
         .chart-container{
             position: relative;
             height: 92%;
+            display: flex;
 
             .search-container{
                 display: flex;
-                width: 100%;
                 padding: 1% 0 1% 1%;
 
 
                 .left{
                     position: relative;
+                    max-height: 90%;
+                    overflow: auto;
 
                     .desc-item{
                         position: relative;
@@ -529,18 +532,17 @@
                 text-align: center;
             }
 
-            .echarts-container{
+            .content {
+                position: relative;
                 display: flex;
                 flex-direction: column;
-                margin: 1% 0;
-
-                .echarts-ref{
-                    flex: 1;
-                }
+                width: 80%;
+                margin: 1% auto;
 
                 .right{
                     display: flex;
                     justify-content: space-between;
+                    padding: 0 5%;
 
                     .time-range{
                         display: flex;
@@ -568,29 +570,39 @@
                     }
                 }
 
-                .el-col {
-                    height: 84%;
-                }
-
-                .empty-text{
-                    height: 100%;
-                    display: grid;
-                    place-items: center;
-                    font-size: 16px;
-                }
-
-                .table-container{
+                .content-item{
                     position: relative;
-                    top: 10%;
-                    height: auto;
-                    max-height: 60%;
+                    flex: 1;
+                }
 
-                    ::v-deep .el-table__header-wrapper{
-                        .el-table__cell{
-                            background-color: #f7f7f7;
-                            text-align: center;
-                        }
+
+                .echarts-container{
+                    position: relative;
+                    height: 90%;
+
+                    .echarts-ref{
+                        flex: 1;
                     }
+
+                    .empty-text{
+                        height: 100%;
+                        display: grid;
+                        place-items: center;
+                        font-size: 16px;
+                    }
+                }
+
+                .table-container {
+                    position: absolute;
+                    display: flex;
+                    flex-direction: column;
+                    left: 0;
+                    top: 5%;
+                    opacity: 0;
+                    z-index: 2;
+                    width: 100%;
+                    height: 90%;
+                    background-color: #fff;
                 }
             }
 

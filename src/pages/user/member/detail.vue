@@ -133,7 +133,6 @@
       pageSize: 5,
     }
 
-    console.log('userInfo', userInfo)
     API.getRechargeRecordTableList(params).then(res=>{
       if (res.code == '0') {
         recordTableList.value = res.data.list

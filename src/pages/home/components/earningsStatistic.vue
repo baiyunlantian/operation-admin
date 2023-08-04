@@ -81,6 +81,8 @@
             display: flex;
             width: 100%;
             padding: 1% 0 1% 1%;
+            max-height: 90%;
+            overflow: auto;
         }
 
         .total-statistic{

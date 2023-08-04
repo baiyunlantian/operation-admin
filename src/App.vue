@@ -23,14 +23,14 @@ export default {
         }, delay);
       }
     }
-    const _ResizeObserver = window.ResizeObserver;
-    window.ResizeObserver = class ResizeObserver extends _ResizeObserver{
+    const RESIZEOBSERVER = window.ResizeObserver;
+    window.ResizeObserver = class ResizeObserver extends RESIZEOBSERVER{
       constructor(callback) {
         callback = debounce(callback, 16);
         super(callback);
       }
     }
-    return { age, Fn, debounce, _ResizeObserver };
+    return { age, Fn, debounce, RESIZEOBSERVER };
   },
   created() {}
 };

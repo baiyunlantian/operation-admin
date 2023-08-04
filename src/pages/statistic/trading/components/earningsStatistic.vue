@@ -69,8 +69,11 @@
     })
   }
 
+  let myChars = null
   function echartsInit() {
-    const myChars = echarts.init(echartsRef.value)
+    if (myChars === null) {
+      myChars = echarts.init(echartsRef.value)
+    }
     myChars.clear(); // 清除画布内容
     myChars.setOption({
       dataZoom: [
@@ -129,16 +132,22 @@
       }]
     })
 
-    window.addEventListener('resize', function () {
-      myChars.resize()
-    })
+    window.addEventListener('resize', call)
   }
+  function call() {
+    myChars.resize()
+  }
+
+  onBeforeUnmount(() => {
+    window.removeEventListener('resize', call)
+  })
 
 </script>
 
 <style scoped lang="scss">
     .earnings-container{
         height: 55%;
+        min-height: 300px;
 
         .title{
             display: flex;

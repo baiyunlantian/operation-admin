@@ -37,9 +37,12 @@
   })
   const echartsRef = ref(null)
 
+  let myChars = null
   // 初始化
   function echartsInit() {
-    const myChars = echarts.init(echartsRef.value)
+    if (myChars === null) {
+      myChars = echarts.init(echartsRef.value)
+    }
     myChars.clear(); // 清除画布内容
     myChars.setOption({
       dataZoom: {
@@ -74,12 +77,17 @@
       },
       series: props.lineData || []
     })
-
-
-    window.addEventListener('resize', function () {
-      myChars.resize()
-    })
+    window.addEventListener('resize', call)
   }
+
+  function call() {
+    myChars.resize()
+  }
+
+  onBeforeUnmount(() => {
+    window.removeEventListener('resize', call)
+  })
+
 
   watch(() => props.lineData, (newVal, oldVal) => {
       setTimeout(() => {

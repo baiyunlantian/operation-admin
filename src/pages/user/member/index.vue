@@ -378,7 +378,6 @@
                 flex: 1;
 
                 ::v-deep .el-scrollbar{
-                    height: 500px;
                     overflow: auto;
                 }
 

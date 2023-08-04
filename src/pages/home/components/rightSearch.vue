@@ -103,8 +103,8 @@
     const timestamp = time.getTime()
     if (startDate.value !== null) {
       return (
-        timestamp < startDate.value.getTime() - 14 * day ||
-        timestamp > startDate.value.getTime() + 14 * day
+        timestamp < startDate.value.getTime() - 13 * day ||
+        timestamp > startDate.value.getTime() + 13 * day
       )
     }
   }

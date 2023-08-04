@@ -101,13 +101,17 @@
     })
   }
 
+  let myChars = null
   function echartsInit() {
-    const myChars = echarts.init(echartsRef.value)
+    if (myChars === null) {
+      myChars = echarts.init(echartsRef.value)
+    }
     myChars.clear(); // 清除画布内容
     myChars.setOption({
       // 鼠标移动到数据项时显示
       tooltip: {
-        trigger: 'item'
+        trigger: 'item',
+        formatter: '{b}：{d}%'
       },
       legend: {
         orient: 'vertical',
@@ -132,15 +136,18 @@
           label:{
             position: 'inside',
             fontSize: 14,
-            formatter:'{d}%'
+            formatter:(obj)=>{
+              return obj.data.ratio
+            }
           }
         }
       ]
     })
 
-    window.addEventListener('resize', function () {
-      myChars.resize()
-    })
+    window.addEventListener('resize', call)
+  }
+  function call() {
+    myChars.resize()
   }
 
   const echartsData = computed(() => {
@@ -148,7 +155,7 @@
     tableData.value.forEach(({name, ratio})=>{
       let value = ratio.slice(0, ratio.length - 1)
       if (value != '0') {
-        list.push({name, value})
+        list.push({name, value, ratio})
       }
     })
 
@@ -158,6 +165,10 @@
   onMounted(() => {
     startDate.value = dayjs(new Date()).format('YYYY-MM')
     handleGetUserStatistic();
+  })
+
+  onBeforeUnmount(() => {
+    window.removeEventListener('resize', call)
   })
 
 </script>

@@ -4,36 +4,22 @@
 
         <div class="chart-container bg-fff u-p-b-20">
 
-            <el-row :gutter="0" justify="center" class="echarts-container">
-                <el-col :span="20">
-                    <div v-show="echartsData.length > 0" class="echarts-ref" ref="echartsRef"></div>
-                    <div v-show="echartsData.length === 0" class="empty-text">暂无数据</div>
-                </el-col>
-            </el-row>
+            <div  class="echarts-container">
+                <div v-show="echartsData.length > 0" class="echarts-ref" ref="echartsRef"></div>
+                <div v-show="echartsData.length === 0" class="empty-text">暂无数据</div>
+            </div>
 
-            <el-row :gutter="0" justify="center">
-                <el-col :span="20">
-                    <div class="right">
-
-                        <el-row  :gutter="0" class="table-container" justify="center">
-                            <el-col :span="20" :offset="1">
-                                <el-table class="table" :data="tableData" border style="width: 100%">
-                                    <el-table-column v-for="(item, index) in tableColumnConfig" :key="index"
-                                                     :prop="item.prop"
-                                                     :label="item.label"
-                                                     :width="item.width"
-                                    >
-                                        <template #default="{ row, column, $index }">
-                                            <div class="custom-cell">{{ formatTableCell(row, item.prop) }}</div>
-                                        </template>
-                                    </el-table-column>
-                                </el-table>
-                            </el-col>
-                        </el-row>
-
-                    </div>
-                </el-col>
-            </el-row>
+            <el-table class="table-container" :data="tableData" border>
+                <el-table-column v-for="(item, index) in tableColumnConfig" :key="index"
+                                 :prop="item.prop"
+                                 :label="item.label"
+                                 :width="item.width"
+                >
+                    <template #default="{ row, column, $index }">
+                        <div class="custom-cell">{{ formatTableCell(row, item.prop) }}</div>
+                    </template>
+                </el-table-column>
+            </el-table>
 
         </div>
     </div>
@@ -112,13 +98,13 @@
         let list = [], echarts = []
 
         res.data.forEach(item=>{
-          const {number, name, incomeAmount, lastMonthIncomeRatio, lastMonthNumberRatio} = item
+          const {number, name, incomeAmount, lastMonthIncomeRatio, lastMonthNumberRatio, ratio} = item
           if (incomeAmount > 0 || number > 0 || lastMonthIncomeRatio || lastMonthNumberRatio) {
             list.push(item)
           }
 
           if (number > 0) {
-            echarts.push({value: number, name: name})
+            echarts.push({value: incomeAmount, name, ratio})
           }
         })
 
@@ -132,8 +118,11 @@
     })
   }
 
+  let myChars = null
   function echartsInit() {
-    const myChars = echarts.init(echartsRef.value)
+    if (myChars === null) {
+      myChars = echarts.init(echartsRef.value)
+    }
     myChars.clear(); // 清除画布内容
     myChars.setOption({
       color:colors.value,
@@ -164,22 +153,31 @@
           label:{
             position: 'inside',
             fontSize: 14,
-            formatter:'{d}%'
+            formatter:(obj)=>{
+              return obj.data.ratio
+            }
           }
         }
       ]
     })
 
-    window.addEventListener('resize', function () {
-      myChars.resize()
-    })
+    window.addEventListener('resize', call)
   }
+  function call() {
+    myChars.resize()
+  }
+
+  onBeforeUnmount(() => {
+    window.removeEventListener('resize', call)
+  })
 
 </script>
 
 <style scoped lang="scss">
     .source-container{
-        height: 70%;
+        height: 55%;
+        min-height: 300px;
+
         .title{
             display: flex;
             align-items: center;
@@ -203,71 +201,42 @@
         .chart-container{
             position: relative;
             height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-evenly;
 
             .echarts-container{
-                height: 73%;
+                height: 60%;
 
-                .el-col{
-                    height: 84%;
+                .echarts-ref{
+                    height: 100%;
+                }
 
-                    .echarts-ref{
-                        height: 100%;
-                    }
-
-                    .empty-text{
-                        height: 100%;
-                        display: grid;
-                        place-items: center;
-                        font-size: 16px;
-                    }
+                .empty-text{
+                    height: 100%;
+                    display: grid;
+                    place-items: center;
+                    font-size: 16px;
                 }
 
             }
 
-            .right{
-                height: 100%;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
+            .table-container{
+                margin: 0 auto;
+                width: 80%;
 
-                .header-box{
+                ::v-deep .el-table{
                     position: relative;
 
-                    .item{
-                        display: flex;
-                        align-items: center;
-
-                        .point{
-                            display: inline-block;
-                            height: 20px;
-                            width: 20px;
-                            border-radius: 50%;
-                            border: 1px solid #b3afaf;
-                            margin-right: 15px;
-                        }
-
-                        .text{
-                            position: relative;
-                        }
-                    }
-                }
-
-                .table-container{
-                    position: relative;
-
-                    ::v-deep .el-table{
-                        position: relative;
-
-                        .el-table__header-wrapper{
-                            .el-table__cell{
-                                background-color: #f7f7f7;
-                                text-align: center;
-                            }
-                        }
-
-                        .custom-cell{
+                    .el-table__header-wrapper{
+                        .el-table__cell{
+                            background-color: #f7f7f7;
                             text-align: center;
                         }
+                    }
+
+                    .custom-cell{
+                        text-align: center;
                     }
                 }
             }
