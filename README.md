@@ -36,6 +36,7 @@ npm install -g mirror-config-china --registry=http://registry.npm.taobao.org
 在/router/modules/路由文件新建格式如下
 export default [
     {
+        top: top,           // 是否添加路由到一级路径 默认为 / 路径下
         path: '/test',      // 路由路径 必填
         component: layout,  // 路由组件 必填
         meta: {title: "测试"} //路由meta标签可以用于tags名称 必填
