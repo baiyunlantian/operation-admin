@@ -111,7 +111,9 @@
       // 鼠标移动到数据项时显示
       tooltip: {
         trigger: 'item',
-        formatter: '{b}：{d}%'
+        formatter:(obj)=>{
+          return `${obj.data.name}：${obj.data.ratio}`
+        }
       },
       legend: {
         orient: 'vertical',
