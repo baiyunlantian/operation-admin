@@ -579,6 +579,7 @@
                 .echarts-container{
                     position: relative;
                     height: 90%;
+                    z-index: 3;
 
                     .echarts-ref{
                         flex: 1;
