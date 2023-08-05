@@ -162,7 +162,7 @@
     {label:'用户ID', prop:'userId'},
     {label:'用户账号', prop:'account'},
     {label:'用户昵称', prop:'userName'},
-    {label:'邮箱', prop:'email'},
+    // {label:'邮箱', prop:'email'},
     {label:'是否付费', prop:'isPay', insertSlot:'isPay'},
     {label:'总消费金额', prop:'consumedAmount'},
     {label:'账号来源', prop:'source'},

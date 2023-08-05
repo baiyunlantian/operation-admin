@@ -35,5 +35,7 @@ app.use(router);
 app.config.globalProperties.$utils = Utils;
 app.config.globalProperties.$message = ElMessage;
 
+window.document.title = '运营后台';
+
 app.mount('#app')
 
