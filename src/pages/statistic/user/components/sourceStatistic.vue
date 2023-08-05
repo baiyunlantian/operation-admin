@@ -111,8 +111,9 @@
       // 鼠标移动到数据项时显示
       tooltip: {
         trigger: 'item',
-        formatter:(obj)=>{
-          return `${obj.data.name}：${obj.data.ratio}`
+        formatter: (obj) => {
+          const {value, name, ratio} = obj.data
+          return `${name}<br />占比：${ratio}`
         }
       },
       legend: {
@@ -129,18 +130,6 @@
           labelLine:{
             length:50,
             length2:70
-          }
-        },
-        {
-          type: 'pie',
-          radius: '50%',
-          data: echartsData.value,
-          label:{
-            position: 'inside',
-            fontSize: 14,
-            formatter:(obj)=>{
-              return obj.data.ratio
-            }
           }
         }
       ]

@@ -118,7 +118,7 @@
         emphasis:{
           label:{
             show:true,
-            formatter:'{b}/{c}人',
+            formatter:'{b}元/{c}人',
             position:'top'
           },
           itemStyle: {

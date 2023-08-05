@@ -62,9 +62,9 @@
   const tableColumnConfig = ref([
     {label:'', prop:'name'},
     {label:'消费金额', prop:'incomeAmount'},
-    {label:'较前一月', prop:'lastMonthIncomeRatio'},
+    {label:'较前一月', prop:'lastMonthIncomeRatio', insertSlot:true},
     {label:'付款人数', prop:'number'},
-    {label:'较前一月', prop:'lastMonthNumberRatio'},
+    {label:'较前一月', prop:'lastMonthNumberRatio', insertSlot:true},
   ])
   const startDate = ref(null)
 
@@ -130,7 +130,11 @@
       color:colors.value,
       // 鼠标移动到数据项时显示
       tooltip: {
-        trigger: 'item'
+        trigger: 'item',
+        formatter: (obj) => {
+          const {value, name, ratio} = obj.data
+          return `${name}<br />消费金额：${value}元<br />占比：${ratio}`
+        }
       },
       series: [
         {
@@ -141,18 +145,6 @@
             length:50,
             length2:70
           }
-        },
-        {
-          type: 'pie',
-          radius: '50%',
-          data: echartsData.value,
-          label:{
-            position: 'inside',
-            fontSize: 14,
-            formatter:(obj=>{
-              return obj.data.ratio
-            })
-          }
         }
       ]
     })
@@ -161,6 +153,16 @@
   }
   function call() {
     myChars.resize()
+  }
+
+  // 判断增长还是下降
+  function handleJudgeIsIncrease(value) {
+    let flag = true
+    if (value && value.indexOf('-') === 0) {
+      flag = false
+    }
+
+    return flag
   }
 
   onBeforeUnmount(() => {
