@@ -34,6 +34,12 @@
         return []
       }
     },
+    optionConfig: {
+      type: Object,
+      default() {
+        return {}
+      }
+    },
   })
   const echartsRef = ref(null)
 
@@ -44,7 +50,7 @@
       myChars = echarts.init(echartsRef.value)
     }
     myChars.clear(); // 清除画布内容
-    myChars.setOption({
+    let option = {
       dataZoom: {
         type: 'inside',
         start: 0,
@@ -76,7 +82,8 @@
         minInterval: 1,
       },
       series: props.lineData || []
-    })
+    };
+    myChars.setOption(Object.assign(option, props.optionConfig))
     window.addEventListener('resize', call)
   }
 

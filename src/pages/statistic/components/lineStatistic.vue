@@ -103,6 +103,7 @@
                                 :y-axis-end-text="yAxixEndText"
                                 :x-axis-data="xAxisData"
                                 :line-data="lineData"
+                                :option-config="echartsOptions"
                         />
                         <div v-show="!tableShow && lineData.length === 0" class="empty-text">暂无数据</div>
 
@@ -178,6 +179,9 @@
   ])
   const dateScopeType = ref(1)
   const tableShow = ref(false)
+  const echartsOptions = reactive({
+    tooltip:{}
+  })
 
   function handleExport() {
     const fileName = props.statisticType === 'user' ? '用户增长情况' : '交易收益金额'
@@ -229,7 +233,7 @@
   }
 
   function dateChange(dates) {
-
+    startDate.value = null
     if (dates === null || dates.length === 0) {
       nextTick(()=>{
         timeRange.value = [proxy.$utils.getDateBeforeDays(14), dayjs(new Date()).format('YYYY-MM-DD')]
@@ -276,6 +280,7 @@
     let _xAxisData = [], _seriesData = [], _tableData = [], _tableColumnConfig = [{label:'', prop:'name'}], statisticTotal = 0;
     // 存放 table 汇总行数据
     let tableLastRowData = new Map();
+    let tooltip = {trigger: 'axis', formatter:'{b}<br />'}, unit = props.statisticType === 'user' ? '人' : '元';
 
     list.forEach((items, index)=>{
       // 图表接受的数据格式
@@ -284,6 +289,7 @@
       let categoryTotal = 0;
       // 构造table 每列数据
       let columnDataObj = {name:items.name};
+      tooltip.formatter += `{a${index}}：{c${index}}${unit}<br />`;
 
       (items.series || []).forEach((item, itemIndex)=>{
         if (index === 0) {
@@ -323,6 +329,7 @@
     }
 
 
+    echartsOptions.tooltip = tooltip
     xAxisData.value = _xAxisData
     lineData.value = _seriesData
     tableData.value = _tableData

@@ -14,6 +14,7 @@
                     y-axis-end-text="用户/人"
                     :x-axis-data="xAxisData"
                     :line-data="lineData"
+                    :option-config="echartsOptions"
             />
             <div v-show="lineData.length === 0" class="empty-text">暂无数据</div>
 
@@ -38,6 +39,9 @@
   const userEchartsDataList = ref([])
   const lineData = ref([])
   const xAxisData = ref([])
+  const echartsOptions = reactive({
+    tooltip:{}
+  })
 
   // 获取用户统计图表数据
   function handleGetUserStatistic(params) {
@@ -54,8 +58,10 @@
   // 格式化数据
   function formatLineData(list) {
     let _xAxisData = [], _seriesData = [];
+    let tooltip = {trigger: 'axis', formatter:'{b}<br />'};
     list.forEach((items, index)=>{
       let seriesItem = {type:'line', name:items.name, data:[], smooth: true};
+      tooltip.formatter += `{a${index}}：{c${index}}人<br />`;
 
       (items.series || []).forEach((item, itemIndex)=>{
         if (index === 0) {
@@ -67,7 +73,7 @@
       _seriesData.push(seriesItem)
     })
 
-
+    echartsOptions.tooltip = tooltip;
     xAxisData.value = _xAxisData
     lineData.value = _seriesData
   }

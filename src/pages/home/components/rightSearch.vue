@@ -84,8 +84,8 @@
 
   function dateChange(dates) {
     timeRange.value = dates;
+    startDate.value = null
     if (dates === null || dates.length === 0) {
-      startDate.value = null
       handleClickTimeTag(2)
     }
   }
