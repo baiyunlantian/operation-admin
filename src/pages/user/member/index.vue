@@ -31,6 +31,11 @@
                     />
 
                 </el-form-item>
+
+                <el-form-item class="">
+                    <el-button type="primary" @click="handleGetTableList">搜索</el-button>
+                    <el-button type="primary" @click="handleResetSearch">重置</el-button>
+                </el-form-item>
             </el-form>
 
             <!--暂时屏蔽      -->
@@ -151,7 +156,7 @@
       }
     ]
   })
-  const searchTableParams = reactive({
+  const searchTableParams = ref({
     pageSize:10,
     pageIndex:1,
     sortField: 'register_time',
@@ -232,7 +237,7 @@
 
   function handleGetTableList() {
     let params = {
-      ...searchTableParams,
+      ...searchTableParams.value,
     }
 
     if (params.registerTime) {
@@ -246,10 +251,14 @@
       params.sourceType = ''
     }
 
-    API.getMemberTableList(params).then(res=>{
-      if (res.code == '0') {
-        tableData.value = res.data.list
-        tableListTotal.value = res.data.total
+    formRef.value.validate(valid => {
+      if (valid) {
+        API.getMemberTableList(params).then(res=>{
+          if (res.code == '0') {
+            tableData.value = res.data.list
+            tableListTotal.value = res.data.total
+          }
+        })
       }
     })
   }
@@ -298,31 +307,37 @@
     detailUserId.value = row.userId
   }
 
+  function handleResetSearch() {
+    formRef.value.resetFields()
+    searchTableParams.value = {pageSize:10, pageIndex:1, sortField: 'register_time', sort: 'asc'}
+    handleGetTableList()
+  }
+
   const sourceTypeOptions = computed(() => {
     let res = [{label:'运营后台', key:'null'}], list = store.getters['platformType/list']
 
-    if (Array.isArray(list)) {
-      res = res.concat(list)
-    }
+    // if (Array.isArray(list)) {
+    //   res = res.concat(list)
+    // }
 
-    return res
+    return list
   })
 
-  watch(searchTableParams, (newVal, oldVal) => {
-      if (timer.value !== null) {
-        clearTimeout(timer.value);
-      }
-      timer.value = setTimeout(() => {
-        formRef.value.validate(valid => {
-          if (valid) {
-            handleGetTableList()
-            timer.value = null;
-          }
-        })
-      }, 1000)
-    },
-    {deep:true}
-  )
+  // watch(searchTableParams, (newVal, oldVal) => {
+  //     if (timer.value !== null) {
+  //       clearTimeout(timer.value);
+  //     }
+  //     timer.value = setTimeout(() => {
+  //       formRef.value.validate(valid => {
+  //         if (valid) {
+  //           handleGetTableList()
+  //           timer.value = null;
+  //         }
+  //       })
+  //     }, 1000)
+  //   },
+  //   {deep:true}
+  // )
 
   onMounted(() => {
     handleGetTableList()

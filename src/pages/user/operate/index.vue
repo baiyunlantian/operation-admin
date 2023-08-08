@@ -21,6 +21,11 @@
                             @calendar-change="datePickerChange"
                     />
                 </el-form-item>
+
+                <el-form-item class="">
+                    <el-button type="primary" @click="handleGetTableList">搜索</el-button>
+                    <el-button type="primary" @click="handleResetSearch">重置</el-button>
+                </el-form-item>
             </el-form>
 
             <div class="btns">
@@ -198,10 +203,14 @@
       delete params.createTime
     }
 
-    API.getOperateTableList(params).then(res=>{
-      if (res.code == '0') {
-        tableData.value = res.data.list
-        tableTotal.value = res.data.total
+    formRef.value.validate(valid => {
+      if (valid) {
+        API.getOperateTableList(params).then(res=>{
+          if (res.code == '0') {
+            tableData.value = res.data.list
+            tableTotal.value = res.data.total
+          }
+        })
       }
     })
   }
@@ -280,6 +289,12 @@
       console.log('取消')
     })
   }
+
+  function handleResetSearch() {
+    formRef.value.resetFields()
+    searchTableParams.value = {pageSize:10, pageIndex:1, sortField: 'register_time', sort: 'asc'}
+    handleGetTableList()
+  }
   function handleClickBtn(eventType) {
     if (eventType === 'del') {
       if (selectedRows.value.length === 0) {
@@ -300,21 +315,21 @@
     refreshTable && handleGetTableList()
   }
 
-  watch(searchTableParams, (newVal, oldVal) => {
-      if (timer.value !== null) {
-        clearTimeout(timer.value);
-      }
-      timer.value = setTimeout(() => {
-        formRef.value.validate(valid => {
-          if (valid) {
-            handleGetTableList()
-            timer.value = null;
-          }
-        })
-      }, 1000)
-    },
-    {deep:true}
-  )
+  // watch(searchTableParams, (newVal, oldVal) => {
+  //     if (timer.value !== null) {
+  //       clearTimeout(timer.value);
+  //     }
+  //     timer.value = setTimeout(() => {
+  //       formRef.value.validate(valid => {
+  //         if (valid) {
+  //           handleGetTableList()
+  //           timer.value = null;
+  //         }
+  //       })
+  //     }, 1000)
+  //   },
+  //   {deep:true}
+  // )
 
   onMounted(() => {
     handleGetTableList()
