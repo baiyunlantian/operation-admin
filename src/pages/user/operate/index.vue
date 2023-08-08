@@ -23,7 +23,7 @@
                 </el-form-item>
 
                 <el-form-item class="">
-                    <el-button type="primary" @click="handleGetTableList">搜索</el-button>
+                    <el-button type="primary" @click="handleGetTableList('search')">搜索</el-button>
                     <el-button type="primary" @click="handleResetSearch">重置</el-button>
                 </el-form-item>
             </el-form>
@@ -191,9 +191,13 @@
     selectedRows.value = value
   }
 
-  function handleGetTableList() {
+  function handleGetTableList(type) {
     let params = {
       ...searchTableParams,
+    }
+
+    if (type == 'search') {
+      params.pageIndex = 1
     }
 
     if (params.createTime) {
