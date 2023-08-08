@@ -156,7 +156,7 @@
       }
     ]
   })
-  const searchTableParams = ref({
+  let searchTableParams = ref({
     pageSize:10,
     pageIndex:1,
     sortField: 'register_time',
@@ -242,6 +242,7 @@
 
     if (type == 'search') {
       params.pageIndex = 1
+      searchTableParams.value.pageIndex = 1
     }
 
     if (params.registerTime) {

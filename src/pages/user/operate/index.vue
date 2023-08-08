@@ -198,6 +198,7 @@
 
     if (type == 'search') {
       params.pageIndex = 1
+      searchTableParams.pageIndex = 1
     }
 
     if (params.createTime) {
