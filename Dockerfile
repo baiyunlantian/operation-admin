@@ -10,7 +10,7 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 RUN npm config set registry https://registry.npm.taobao.org
 RUN npm install && npm run build
 
-FROM nginx
+FROM nginx AS final
 RUN mkdir /app
 COPY --from=base /app/dist /app
 COPY default.conf /etc/nginx/conf.d/default.conf
