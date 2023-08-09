@@ -33,8 +33,8 @@
                 </el-form-item>
 
                 <el-form-item class="">
-                    <el-button type="primary" @click="handleGetTableList('search')">搜索</el-button>
-                    <el-button type="primary" @click="handleResetSearch">重置</el-button>
+                    <el-button type="primary" @click="handleSearchTable('search')">搜索</el-button>
+                    <el-button type="primary" @click="handleSearchTable('reset')">重置</el-button>
                 </el-form-item>
             </el-form>
 
@@ -49,7 +49,7 @@
             <div class="header-operate theme-bg title-box">
                 <div class="left-text">用户列表</div>
                 <div class="right-sort">
-                    <el-select v-model="searchTableParams.pageSize" class="m-2" placeholder="显示条数">
+                    <el-select v-model="searchTableParams.pageSize" class="m-2" placeholder="显示条数" @change="handleSearchTable('select')">
                         <el-option
                                 v-for="item in pageSizeOptions"
                                 :key="item"
@@ -58,7 +58,7 @@
                         />
                     </el-select>
 
-                    <el-select v-model="searchTableParams.sort" class="m-2" placeholder="排序方式">
+                    <el-select v-model="searchTableParams.sort" class="m-2" placeholder="排序方式" @change="handleSearchTable('select')">
                         <el-option
                                 v-for="item in timeSortOptions"
                                 :key="item.value"
@@ -156,7 +156,7 @@
       }
     ]
   })
-  let searchTableParams = ref({
+  const searchTableParams = ref({
     pageSize:10,
     pageIndex:1,
     sortField: 'register_time',
@@ -235,15 +235,11 @@
     selectedRows.value = value
   }
 
-  function handleGetTableList(type) {
+  function handleGetTableList() {
     let params = {
       ...searchTableParams.value,
     }
 
-    if (type == 'search') {
-      params.pageIndex = 1
-      searchTableParams.value.pageIndex = 1
-    }
 
     if (params.registerTime) {
       params.startTime = dayjs(params.registerTime[0]).format('YYYY-MM-DD HH:mm')
@@ -312,9 +308,18 @@
     detailUserId.value = row.userId
   }
 
-  function handleResetSearch() {
-    formRef.value.resetFields()
-    searchTableParams.value = {pageSize:10, pageIndex:1, sortField: 'register_time', sort: 'asc'}
+  function handleSearchTable(type) {
+    if (type === 'search') {
+      searchTableParams.value.pageIndex = 1
+    }else if (type === 'reset') {
+      searchTableParams.value = {
+        pageSize:10,
+        pageIndex:1,
+        sortField: 'created_time',
+        sortType: 'ASC',
+      }
+    }
+
     handleGetTableList()
   }
 

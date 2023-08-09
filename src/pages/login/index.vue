@@ -56,7 +56,7 @@
 </template>
 
 <script setup>
-  import { reactive, ref, getCurrentInstance, onUnmounted } from 'vue';
+  import { reactive, ref, getCurrentInstance, onUnmounted, watch } from 'vue';
   import { useRouter } from 'vue-router';
   import cryptojs from "@/assets/js/cryptojs.js";
   import API from './api';
@@ -163,10 +163,10 @@
       formType.value = 'forget'
     }
 
-    formData = reactive({})
-    countdown.value = 59
-    isPending.value = false
-    clearInterval(timer.value)
+    Object.keys(formData).forEach(key=>{
+      formData[key] = ''
+    })
+    resetCode()
   }
 
   function handleClickBtn() {
@@ -238,23 +238,35 @@
           if (countdown.value > 0) {
             countdown.value--;
           }else {
-            countdown.value = 59
-            isPending.value = false
-            clearInterval(timer.value)
+            resetCode()
           }
         }, 1000)
 
 
         API.SendCode(params).then(res=>{
           if (res.code != '0') {
-            countdown.value = 59
-            isPending.value = false
-            clearInterval(timer.value)
+            resetCode()
           }
         })
       }
     })
   }
+
+  // 重置验证码状态
+  function resetCode() {
+    countdown.value = 59
+    isPending.value = false
+    clearInterval(timer.value)
+  }
+
+  watch(
+          () => formData.account,
+          (newVal) => {
+            if (isPending.value === true) {
+              resetCode()
+            }
+          }
+  )
 
   onUnmounted(() => {
     clearInterval(timer.value)
@@ -316,13 +328,14 @@
                 border: 1px solid #dcdcdc;
                 border-radius: 5px;
                 text-align: center;
-                padding: 1px 0;
                 width: 100px;
+                height: 35px;
               }
             }
 
             .el-input{
               width: 220px;
+              height: 37px;
             }
 
           }
@@ -331,6 +344,7 @@
             margin-left: 0 !important;
 
             button{
+              height: 37px;
               width: 100%;
             }
           }
