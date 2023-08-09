@@ -49,17 +49,13 @@ service.interceptors.response.use(response => {
                     name: 'login'
                 });
                 break;
-            case '101':
             case 101:
-                ElMessage.error('接口错误ParamError');
-                break;
-            case '201':
             case 201:
-                ElMessage.error('操作失败OperateFail');
-                break;
-            case '301':
             case 301:
-                ElMessage.error('数据错误DataNotExist');
+            case '101':
+            case '201':
+            case '301':
+                ElMessage.error(result.msg);
                 break;
             case '501':
             case 501:

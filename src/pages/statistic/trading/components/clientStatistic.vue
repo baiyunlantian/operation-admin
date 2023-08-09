@@ -30,7 +30,10 @@
                                              :width="item.width"
                             >
                                 <template #default="{ row, column, $index }">
-                                    <div class="custom-cell" v-if="item.insertSlot">{{ handleJudgeIsIncrease(row[item.prop]) === true ? '&#8593;' : '&#8595;' }}{{ formatTableCell(row, item.prop) }}</div>
+                                    <div class="custom-cell" v-if="item.insertSlot">
+                                        {{ row[item.prop] ? handleJudgeIsIncrease(row[item.prop]) === true ? '&#8593;' : '&#8595;' : '' }}
+                                        {{ formatTableCell(row, item.prop) }}
+                                    </div>
                                     <div class="custom-cell" v-else>{{ formatTableCell(row, item.prop) }}</div>
                                 </template>
                             </el-table-column>
