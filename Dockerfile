@@ -14,4 +14,4 @@ WORKDIR /app
 COPY --from=base /app/dist .
 COPY default.conf /etc/nginx/conf.d/default.conf
 
-CMD find /app/static/js -type f -name "app.*.js" -exec sed -i "s/VUE_APP_BASE_API_ENV/https:\/\/$BASE_API/g" {} + && nginx -g 'daemon off;'
+CMD find /app/static/js -type f -name "*.js" -exec sed -i "s/VUE_APP_BASE_API_ENV/https:\/\/$BASE_API/g" {} + && nginx -g 'daemon off;'
