@@ -13,3 +13,5 @@ FROM nginx
 RUN mkdir /app
 COPY --from=0 /app/dist /app
 COPY default.conf /etc/nginx/conf.d/default.conf
+
+CMD find /app/static/js -type f -name "*.js" -exec sed -i "s/VUE_APP_BASE_API_ENV/$BASE_API/g" {} + && nginx -g 'daemon off;'
