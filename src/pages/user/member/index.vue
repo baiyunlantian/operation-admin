@@ -315,8 +315,8 @@
       searchTableParams.value = {
         pageSize:10,
         pageIndex:1,
-        sortField: 'created_time',
-        sortType: 'ASC',
+        sortField: 'register_time',
+        sort: 'asc',
       }
     }
 
