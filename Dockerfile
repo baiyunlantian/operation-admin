@@ -5,9 +5,8 @@ COPY . .
 ENV LANG C.UTF-8
 ENV TZ=Asia/Shanghai
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-
-RUN npm config set registry https://registry.npm.taobao.org
-RUN npm install && npm run build
+RUN npm install --registry http://private-npm.maliyaka.com 
+RUN npm run build
 
 FROM nginx AS final
 WORKDIR /app
