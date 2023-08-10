@@ -5,8 +5,9 @@ COPY . .
 ENV LANG C.UTF-8
 ENV TZ=Asia/Shanghai
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-RUN npm config set maxsockets 8 && npm install --registry http://172.16.0.16:4873
-RUN npm run build
+
+RUN npm config set registry https://registry.npm.taobao.org
+RUN npm install && npm run build
 
 FROM nginx AS final
 WORKDIR /app
