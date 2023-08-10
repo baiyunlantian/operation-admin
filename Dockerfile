@@ -5,7 +5,7 @@ COPY . .
 ENV LANG C.UTF-8
 ENV TZ=Asia/Shanghai
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-RUN npm install --registry http://172.16.0.16:4873
+RUN npm config set maxsockets 10 && npm install --registry http://172.16.0.16:4873
 RUN npm run build
 
 FROM nginx AS final
