@@ -251,9 +251,7 @@
     clearInterval(timer.value)
   }
 
-  watch(
-          () => formData.account,
-          (newVal) => {
+  watch(formData, (newVal) => {
             formRef.value.clearValidate()
             if (isPending.value === true) {
               resetCode()
