@@ -38,7 +38,7 @@ watch(
   value => {
     // 添加信息
     let { fullPath, meta, name, path } = router.currentRoute.value;
-    store.dispatch("tagsView/addView", {fullPath, meta, name, path, closable:true});
+    store.dispatch("tagsView/addView", {fullPath, meta, name, path, closable:path !== '/home'});
     active.value = value;
   },
   { immediate: true }
