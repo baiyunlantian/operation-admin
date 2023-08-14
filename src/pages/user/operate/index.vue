@@ -145,7 +145,7 @@
     pageSize:10,
     pageIndex:1,
     sortField: 'created_time',
-    sortType: 'ASC',
+    sortType: 'DESC',
   })
   const tableData = ref([])
   const tableColumnConfig = ref([

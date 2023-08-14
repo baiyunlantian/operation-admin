@@ -160,7 +160,7 @@
     pageSize:10,
     pageIndex:1,
     sortField: 'register_time',
-    sort: 'asc',
+    sort: 'desc',
   })
   const tableData = ref([])
   const tableColumnConfig = ref([

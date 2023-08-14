@@ -8,7 +8,7 @@
         <el-form-item v-for="(item, index) in formConfig[formType]['form']" :prop="item.key" :key="item.key">
           <template v-if="item.key === 'code'">
             <div class="inputFormCode">
-              <el-input v-model="formData[item.key]" :placeholder="`请输入${item.label}`"/>
+              <el-input v-model="formData[item.key]" :placeholder="`请输入${item.label}`" :validate-event="false"/>
 
               <div class="code-content">
                 <div v-if="isPending" class="countdown">倒计时{{countdown}}s</div>
@@ -23,6 +23,7 @@
                   :type="item.compoentType === 'password' ? 'password' : 'text'"
                   :placeholder="`请输入${item.label}`"
                   :show-password="item.compoentType === 'password'"
+                  :validate-event="false"
           />
         </el-form-item>
 
@@ -70,54 +71,45 @@
       {
         required: true,
         message: '密码不能为空!',
-        trigger: 'blur'
       },
       {
         pattern: /^[0-9A-Za-z]{8,16}$/,
         message: '请输入8-16位的数字和字母!',
-        trigger: 'blur'
       },
     ],
     resetPassword: [
       {
         required: true,
         message: '密码不能为空!',
-        trigger: 'blur'
       },
       {
         pattern: /^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{8,16}$/,
         message: '请输入8-16位的数字和字母!',
-        trigger: ['blur', 'change']
       }
     ],
     confirmPassword: [
       {
         required: true,
         message: '确认密码不能为空!',
-        trigger: 'blur'
       },
       {
         validator: validConfirmPassword,
         message: '新密码输入不一致!',
-        trigger: 'blur'
       },
     ],
     account: [
       {
         required: true,
         message: '手机号码不能为空!',
-        trigger: 'blur',
       },
       {
         pattern: /^1(3|4|5|6|7|8|9)\d{9}$/,
         message: '请输入正确的手机号!',
-        trigger: 'blur'
       }
     ],
     code: [{
       required: true,
       message: '验证码不能为空!',
-      trigger: 'blur'
     }]
   })
   const formRef = ref(null)
@@ -262,6 +254,7 @@
   watch(
           () => formData.account,
           (newVal) => {
+            formRef.value.clearValidate()
             if (isPending.value === true) {
               resetCode()
             }
