@@ -115,7 +115,6 @@
   import {ref, reactive, watch, getCurrentInstance, onMounted, computed, nextTick} from 'vue';
   import dayjs from 'dayjs';
   import API from '@/pages/user/member/api';
-  import XLSX from 'xlsx';
 
   const { proxy } = getCurrentInstance()
 

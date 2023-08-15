@@ -84,31 +84,31 @@ export default [
       },
     ]
   },
-  // {
-  //   type: 'system',
-  //   name: '分销',
-  //   descType: 'text',
-  //   menuId: '5',
-  //   path: '',
-  //   children: [
-  //     {
-  //       type:'system',
-  //       name:'我的邀新列表',
-  //       descType:'text',
-  //       menuId:'5-1',
-  //       path:'/invite',
-  //       children:[],
-  //     },
-  //     {
-  //       type:'system',
-  //       name:'分销管理',
-  //       descType:'text',
-  //       menuId:'5-2',
-  //       path:'/distribution',
-  //       children:[],
-  //     },
-  //   ]
-  // },
+  {
+    type: 'system',
+    name: '分销',
+    descType: 'text',
+    menuId: '5',
+    path: '',
+    children: [
+      {
+        type:'system',
+        name:'我的邀新列表',
+        descType:'text',
+        menuId:'5-1',
+        path:'/invite',
+        children:[],
+      },
+      {
+        type:'system',
+        name:'分销管理',
+        descType:'text',
+        menuId:'5-2',
+        path:'/distribution',
+        children:[],
+      },
+    ]
+  },
   {
     type: 'system',
     name: '课程用户',

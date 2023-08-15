@@ -88,6 +88,8 @@
                 />
             </div>
         </div>
+
+        <LINKDIALOG v-model="linkDialogVisible" :link-list="linkList"/>
     </div>
 </template>
 
@@ -96,6 +98,7 @@
   import dayjs from 'dayjs';
   import { useStore } from 'vuex';
   import API from '@/pages/user/member/api';
+  import LINKDIALOG from './components/link-dialog';
 
   const { proxy } = getCurrentInstance()
   const store = useStore()
@@ -144,6 +147,12 @@
     {label:'付费用户', key:'1'},
     {label:'未付费用户', key:'0'},
   ])
+  const linkList = ref([
+    {name:'AI个人助理', url: 'https://ai.maliyaka.com/login'},
+    {name:'AI个绘画', url: 'https://ai.maliyaka.com/login'},
+    {name:'AI营销写作', url: 'https://ai.maliyaka.com/login'},
+  ])
+  const linkDialogVisible = ref(false)
 
   function datePickerChange(dates) {
     // 记录选择的起始日期
@@ -152,7 +161,11 @@
   }
 
   function handleClickHeaderBtn(type) {
-
+    if (type === 'link') {
+      setTimeout(() => {
+        linkDialogVisible.value = true
+      }, 1000)
+    }
   }
 
   // 限定时间选择范围
