@@ -68,18 +68,7 @@
 
             <div class="content">
                 <div class="right">
-                    <el-popover placement="right" :width="150" trigger="click">
-                        <template #reference>
-                            <div class="popover-text">
-                                <span class="point"></span>
-                                <span class="blue u-m-l-10">{{productTypeText}}</span>
-                            </div>
-                        </template>
-                        <el-radio-group v-model="productType">
-                            <el-radio v-for="(item) in productTypeList" :key="item.key" :label="item.key">{{item.label}}
-                            </el-radio>
-                        </el-radio-group>
-                    </el-popover>
+                    <Popover v-model="productType" />
 
                     <div class="switch-card-text blue u-cursor" @click="handleSwitch">{{tableShow ? '统计图显示' : '表格显示'}}</div>
                 </div>
@@ -133,6 +122,7 @@
   import ExportExcel from '@/utils/exportExcel';
   import { setTimeEscalation } from '@/assets/js/utils';
   import MutiLine from '@/components/Echarts/muti-line';
+  import Popover from '@/components/productTypePopover';
 
   const store = useStore()
   const emit = defineEmits(['update'])
@@ -392,20 +382,6 @@
   })
   const yAxixEndText = computed(() => {
       return props.statisticType === 'user' ? '用户/人' : '金额/元'
-  })
-  const productTypeText = computed(()=>{
-    const obj = productTypeList.value.find(item=>item.key === productType.value)
-    return obj ? obj['label'] : '';
-  })
-
-  const productTypeList = computed(() => {
-    let res = [{label:'全部', key:0}], list = store.getters['platformType/list']
-
-    if (Array.isArray(list)) {
-      res = res.concat(list)
-    }
-
-    return res
   })
 
   // 统计图表切换类型

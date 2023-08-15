@@ -1,6 +1,17 @@
 <template>
     <div class="operate-container bg-fff">
-        <div class="title">筛选</div>
+        <div class="title header-btns">
+            <el-button type="primary" @click="handleClickHeaderBtn('invite')">邀请奖励规则</el-button>
+            <el-button type="primary" @click="handleClickHeaderBtn('link')">生成邀请链接</el-button>
+        </div>
+
+        <div class="my-invite">
+            <div class="desc">我的邀请列表</div>
+            <div class="content">
+                <div class="item">推广付费人员：<span>0</span>人</div>
+                <div class="item">推广佣金额度：<span>￥0.00</span>元</div>
+            </div>
+        </div>
 
         <div class="search-container u-m-t-15 u-m-b-10">
             <el-form class="search-form" ref="formRef" :inline="true" :model="searchTableParams" :rules="rules">
@@ -11,7 +22,7 @@
 
                     <el-select v-else-if="item.type === 'select' " v-model="searchTableParams[item.prop]" class="m-2" :placeholder="item.placeholder" clearable>
                         <el-option
-                                v-for="item in sourceTypeOptions"
+                                v-for="item in handleDynamicOptions(item.prop)"
                                 :key="item.key"
                                 :label="item.label"
                                 :value="item.key"
@@ -46,37 +57,12 @@
         </div>
 
         <div class="table-main u-m-t-10 bg-fff">
-            <div class="header-operate theme-bg title-box">
-                <div class="left-text">用户列表</div>
-                <div class="right-sort">
-                    <el-select v-model="searchTableParams.pageSize" class="m-2" placeholder="显示条数" @change="handleSearchTable('select')">
-                        <el-option
-                                v-for="item in pageSizeOptions"
-                                :key="item"
-                                :label="`每页显示${item}条`"
-                                :value="item"
-                        />
-                    </el-select>
-
-                    <el-select v-model="searchTableParams.sort" class="m-2" placeholder="排序方式" @change="handleSearchTable('select')">
-                        <el-option
-                                v-for="item in timeSortOptions"
-                                :key="item.value"
-                                :label="item.label"
-                                :value="item.value"
-                        />
-                    </el-select>
-                </div>
-            </div>
-
             <el-table
                     class="table-container"
                     :data="tableData"
                     border
                     style="width: 100%"
-                    @selection-change="handleSelectionChange"
             >
-                <el-table-column type="selection" width="55" />
                 <el-table-column v-for="(item, index) in tableColumnConfig" :key="index"
                                  :prop="item.prop"
                                  :label="item.label"
@@ -84,20 +70,7 @@
                                  align="center"
                 >
                     <template #default="{ row, column, $index }">
-                        <div v-if="item.insertSlot && item.prop === 'status'" class="insert-cell-container">
-                            <el-switch
-                                    v-model="row[item.prop]"
-                                    :before-change="()=>beforeChange(row[item.prop], row.userId)"
-                                    :inactive-value="1"
-                                    :active-value="0"
-                            />
-                        </div>
-
-                        <div v-else-if="item.insertSlot && item.prop === 'operate'" class="insert-cell-container">
-                            <span class="u-cursor blue u-m-r-20" @click="handleClickCellBtn('detail', row)">查看</span>
-                        </div>
-
-                        <div v-else class="custom-cell">{{ handleFormatTableCell(row, item.prop) }}</div>
+                        <div class="custom-cell">{{ handleFormatTableCell(row, item.prop) }}</div>
                     </template>
                 </el-table-column>
             </el-table>
@@ -106,20 +79,15 @@
                 <el-pagination
                         v-model:current-page="searchTableParams.pageIndex"
                         v-model:page-size="searchTableParams.pageSize"
-                        layout="total, prev, pager, next, jumper"
+                        layout="total, sizes, prev, pager, next, jumper"
                         :total="tableListTotal"
+                        :page-sizes="[50, 100, 200]"
                         background
                         @current-change="handleGetTableList"
+                        @size-change="handleGetTableList"
                 />
             </div>
         </div>
-
-<!--        <BottomBox />-->
-
-        <Transition name="fade" mode="out-in">
-            <Detail v-if="detailVisible" :user-id="detailUserId" @goBack="handleGoBack"/>
-        </Transition>
-
     </div>
 </template>
 
@@ -127,9 +95,7 @@
   import {ref, reactive, watch, getCurrentInstance, onMounted, computed} from 'vue';
   import dayjs from 'dayjs';
   import { useStore } from 'vuex';
-  import API from './api';
-  import BottomBox from '@/components/bottom-box';
-  import Detail from './detail'
+  import API from '@/pages/user/member/api';
 
   const { proxy } = getCurrentInstance()
   const store = useStore()
@@ -138,8 +104,8 @@
     {label:'ID/账号：', prop:'account', type:'input', placeholder:'用户ID/账号'},
     {label:'用户昵称：', prop:'userName', type:'input', placeholder:'用户昵称'},
     {label:'注册时间：', prop:'registerTime', type:'datetimerange'},
+    {label:'', prop:'isPay', type:'select', placeholder:'是否付费'},
     {label:'', prop:'sourceType', type:'select', placeholder:'账号来源'},
-    {label:'', prop:'dynamicScope', type:'select', placeholder:'最近活跃'},
   ])
   const rules = reactive({
     account:[
@@ -158,49 +124,35 @@
     ]
   })
   const searchTableParams = ref({
-    pageSize:50,
+    pageSize:10,
     pageIndex:1,
-    sortField: 'register_time',
-    sort: 'desc',
-    sourceType: 'null'
   })
   const tableData = ref([])
   const tableColumnConfig = ref([
     {label:'用户ID', prop:'userId'},
-    {label:'手机号', prop:'account'},
+    {label:'用户账号', prop:'account'},
     {label:'用户昵称', prop:'userName'},
-    {label:'是否付费', prop:'isPay', insertSlot:'isPay'},
-    {label:'总消费金额', prop:'consumedAmount'},
-    {label:'账号来源', prop:'source'},
+    {label:'是否付费', prop:'isPay', insertSlot:true},
+    {label:'付费总金额', prop:'consumedAmount'},
     {label:'注册时间', prop:'registerTime'},
-    {label:'最近活跃时间', prop:'registerTime'},
-    {label:'账户启用状态', prop:'status', insertSlot:'status'},
-    {label:'操作', prop:'operate', insertSlot:'operate'},
+    {label:'账号来源', prop:'source'},
   ])
-  const timer = ref(null)
-  const pageSizeOptions = ref([50, 100, 200])
-  const timeSortOptions = ref([
-    {label:'注册时间从晚到早', value:'desc'},
-    {label:'注册时间从早到晚', value:'asc'},
-  ])
-  const selectedRows = ref([])
-  const detailVisible = ref(false)
-  const detailUserId = ref('')
   const tableListTotal = ref(0)
   const startDate = ref(null)
   const formRef = ref(null)
-  const dynamicScope = ref([
-    {label:'1天内', value:'1'},
-    {label:'3天内', value:'2'},
-    {label:'7天内', value:'3'},
-    {label:'30天内', value:'4'},
-    {label:'30天前', value:'5'},
+  const isPayOptions = ref([
+    {label:'付费用户', key:'1'},
+    {label:'未付费用户', key:'0'},
   ])
 
   function datePickerChange(dates) {
     // 记录选择的起始日期
     let hasSelectDate = dates !== null && dates.length > 0
     startDate.value = hasSelectDate ? dates[0] : null
+  }
+
+  function handleClickHeaderBtn(type) {
+
   }
 
   // 限定时间选择范围
@@ -220,27 +172,21 @@
     }
   }
 
-  function handleFormatTableCell(row, prop) {
-    let text = row[prop]
-    if (prop === 'isPay') {
-      text = row[prop] ? '是' : '否'
+  function handleDynamicOptions(prop) {
+    let list = []
+    switch (prop) {
+      case 'isPay':
+        list = isPayOptions.value;
+        break;
+      case 'sourceType':
+        list = sourceTypeOptions.value;
+        break;
+      default:
+        list = [];
+        break;
     }
 
-    return text
-  }
-
-  // 暂时屏蔽
-  // function // 暂时屏蔽() {
-  //   if (selectedRows.value.length === 0) {
-  //     proxy.$message({
-  //       type:'error',
-  //       message:'请选择需要删除的数据！'
-  //     })
-  //   }
-  // }
-
-  function handleSelectionChange(value) {
-    selectedRows.value = value
+    return list
   }
 
   function handleGetTableList() {
@@ -272,47 +218,13 @@
     })
   }
 
-  function beforeChange(status, userId) {
-    let params = {
-      status: 1^status,
-      userId
+  function handleFormatTableCell(row, prop) {
+    let text = row[prop]
+    if (prop === 'isPay') {
+      text = row[prop] ? '是' : '否'
     }
-    return new Promise((resolve, reject) => {
-      proxy.$confirm('确认修改账号状态吗',  {
-        confirmButtonText: '确认',
-        cancelButtonText: '取消',
-        type: 'warning',
-      }).then(res=>{
-        if (res === 'confirm') {
-          API.updateStatus(params).then(res=>{
-            if (res.code == '0') {
-              proxy.$message({
-                type: 'success',
-                message: '修改状态成功'
-              })
-              handleGetTableList()
-              return resolve(true)
-            }else {
-              return reject(false)
-            }
-          })
-        }
-      }).catch(()=>{
-        console.log('取消')
-        return reject(false)
-      })
-    })
 
-  }
-
-  function handleGoBack() {
-    detailVisible.value = false
-    detailUserId.value = ''
-  }
-
-  function handleClickCellBtn(eventType, row) {
-    detailVisible.value = true
-    detailUserId.value = row.userId
+    return text
   }
 
   function handleSearchTable(type) {
@@ -320,11 +232,8 @@
       searchTableParams.value.pageIndex = 1
     }else if (type === 'reset') {
       searchTableParams.value = {
-        pageSize:50,
-        pageIndex:1,
-        sortField: 'register_time',
-        sort: 'desc',
-        sourceType: 'null'
+        pageSize:10,
+        pageIndex:1
       }
     }
 
@@ -332,13 +241,13 @@
   }
 
   const sourceTypeOptions = computed(() => {
-    let res = [{label:'全部', key:'null'}], list = store.getters['platformType/list']
+    let res = [{label:'运营后台', key:'null'}], list = store.getters['platformType/list']
 
-    if (Array.isArray(list)) {
-      res = res.concat(list)
-    }
+    // if (Array.isArray(list)) {
+    //   res = res.concat(list)
+    // }
 
-    return res
+    return list
   })
 
   onMounted(() => {
@@ -357,6 +266,31 @@
             font-size: 26px;
             font-weight: bold;
             border-bottom: 1px dashed #3f99f7;
+        }
+
+        .my-invite{
+            padding: 10px;
+            position: relative;
+
+            .desc{
+                position: relative;
+                font-size: 16px;
+                font-weight: bold;
+                color: #212121;
+            }
+
+            .content{
+                display: flex;
+                margin-top: 10px;
+                font-size: 15px;
+
+                .item{
+                    width: 200px;
+                    span{
+                        margin: 0 5%;
+                    }
+                }
+            }
         }
 
         .search-container{

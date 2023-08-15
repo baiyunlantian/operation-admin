@@ -32,7 +32,12 @@
                                      :label="item.label"
                                      :width="item.width"
                                      align="center"
-                    />
+                    >
+                        <template  #default="{ row, column, $index }">
+                            <div class="custom-cell" v-if="item.insertSlot">{{ row[item.prop] }}（会员&lt;无线次数&gt;）</div>
+                            <div class="custom-cell" v-else>{{ row[item.prop] }}</div>
+                        </template>
+                    </el-table-column>
                 </el-table>
             </el-col>
         </el-row>
@@ -93,23 +98,36 @@
   const userInfoFormConfig = ref([
     {label:'用户ID', prop:'userId'},
     {label:'昵称', prop:'userName'},
-    {label:'用户账号', prop:'account'},
-    {label:'邮箱', prop:'email'},
-    {label:'性别', prop:'sex'},
-    {label:'生日', prop:'birthday'},
-    {label:'账号类别', prop:'sourceName'},
+    {label:'手机号', prop:'account'},
     {label:'个性签名', prop:'sign'},
-    {label:'城市', prop:'city'},
     {label:'注册时间', prop:'registerTime'},
+    {label:'最近活跃时间', prop:'registerTime'},
+    {label:'账号类别', prop:'sourceName'},
   ])
   const statisticInfo = ref([])
-  const statisticTableColumnConfig = ref([
-    {label:'是否付费', prop:'isPay'},
-    {label:'总消费金额', prop:'consumedAmount'},
-    {label:'总消耗金额', prop:'expend'},
-    {label:'使用次数', prop:'useNumber'},
-    {label:'账号余额', prop:'balance'},
-  ])
+  const statisticTableColumnConfig = computed(()=>{
+    console.log('userInfo', userInfo)
+    let list = [
+      {label:'是否付费', prop:'isPay'},
+      {label:'总付费金额', prop:'consumedAmount'},
+    ]
+
+    if (userInfo.sourceName !== 'AI 绘画') {
+      list = list.concat([
+        {label:'已使用免费token（个）', prop:'expend'},
+        {label:'已使用付费token（个）', prop:'useNumber'},
+        {label:'剩余付费token（个）', prop:'balance', insertSlot: true},
+      ])
+    }else {
+      list = list.concat([
+        {label:'已使用免费次数（次）', prop:'expend'},
+        {label:'已使用付费次数（次）', prop:'useNumber'},
+        {label:'剩余付费次数（次）', prop:'balance', insertSlot: true},
+      ])
+    }
+
+    return list
+  })
   const recordTableList = ref([])
   const recordTableColumnConfig = ref([
     {label:'充值金额', prop:'rechargeAmount'},
@@ -208,7 +226,7 @@
                 display: grid;
                 flex: 1;
                 grid-template-columns: 50% 1fr;
-                grid-template-rows: repeat(5, 1fr);
+                grid-template-rows: repeat(4, 1fr);
 
                 .info-item{
                     height: 100%;

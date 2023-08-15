@@ -3,6 +3,10 @@
 
         <div class="title title-box">收益总览</div>
         <div class="statistic-container bg-fff">
+            <div class="popover-container">
+                <Popover v-model="productType" />
+            </div>
+
             <el-row class="w-100" :gutter="0">
                 <el-col v-for="(item, index) in totalStatisticConfig"  :span="5" :offset="1"  :key="index" class="item">
                     <div class="value">{{`￥${totalStatisticData[item.prop]}`}}</div>
@@ -22,19 +26,20 @@
         <Earnings />
         <Source />
 
-<!--        <BottomBox />-->
-
     </div>
 </template>
 
 <script setup>
-  import {onMounted, reactive, ref} from 'vue';
+  import {computed, onMounted, reactive, ref} from 'vue';
   import API from './api';
   import Trading from '../components/lineStatistic';
   import Client from './components/clientStatistic';
   import Earnings from './components/earningsStatistic';
   import Source from './components/sourceStatistic';
-  import BottomBox from '@/components/bottom-box';
+  import Popover from '@/components/productTypePopover';
+  import { useStore } from 'vuex';
+
+  const store = useStore()
 
   const totalStatisticConfig = reactive([
     {label: '今日收益', prop: 'todayIncomeAmount'},
@@ -77,6 +82,7 @@
     })
   }
 
+  const productType = ref(0)
 
   onMounted(() => {
     handleGetTotalUserIncome();
@@ -89,7 +95,14 @@
 
         .statistic-container{
             position: relative;
-            height: 125px;
+            height: auto;
+
+            .popover-container{
+                padding-left: 2%;
+                padding-top: 10px;
+                width: auto;
+                display: inline-block;
+            }
 
             .w-100{
                 width: 100%;
@@ -100,7 +113,7 @@
                 flex-direction: column;
                 align-items: center;
                 justify-content: center;
-                height: 120px;
+                padding: 20px 0;
 
                 .desc{
                     color: gray;

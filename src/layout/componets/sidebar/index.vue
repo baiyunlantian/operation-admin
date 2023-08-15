@@ -64,98 +64,12 @@
   import { useRouter } from "vue-router";
   import { useStore } from 'vuex';
   import AutoAvatar from '@/assets/images/account.png';
+  import MENULIST from './menuList';
 
   const router = useRouter();
   const store = useStore();
 
-  const _menuList = [
-    {
-      type: 'system',
-      name: '首页',
-      descType: 'text',
-      menuId: '1',
-      path: '/home',
-      menuData:'indexAdmin',
-      children: []
-    },
-    {
-      type:'user',
-      name:'个人中心',
-      descType:'img',
-      menuId:'2',
-      path:'',
-      children:[
-        {
-          type:'user',
-          name:'个人资料',
-          descType:'text',
-          menuId:'2-1',
-          path:'/info',
-          children:[],
-        },
-        {
-          type:'logout',
-          name:'退出登录',
-          descType:'text',
-          menuId:'2-2',
-          path:'',
-          children:[],
-        }
-      ]
-    },
-    {
-      type: 'system',
-      name: '用户管理',
-      descType: 'text',
-      menuId: '3',
-      path: '',
-      children: [
-        {
-          type:'system',
-          name:'会员用户列表',
-          descType:'text',
-          menuId:'3-1',
-          path:'/member',
-          children:[],
-          meta:{level:'用户中心'}
-        },
-        {
-          type:'system',
-          name:'后台用户列表',
-          descType:'text',
-          menuId:'3-2',
-          path:'/operate',
-          children:[],
-        },
-      ]
-    },
-    {
-      type: 'system',
-      name: '统计',
-      descType: 'text',
-      menuId: '4',
-      path: '',
-      children: [
-        {
-          type:'system',
-          name:'用户统计',
-          descType:'text',
-          menuId:'4-1',
-          path:'/userStatistic',
-          children:[],
-        },
-        {
-          type:'system',
-          name:'交易统计',
-          descType:'text',
-          menuId:'4-2',
-          path:'/tradingStatistic',
-          children:[],
-        },
-      ]
-    },
-  ]
-  const menuList = reactive(_menuList)
+  const menuList = reactive(MENULIST)
   const activeIndex = ref('/home')
 
   const leftMenuList = computed(() => {

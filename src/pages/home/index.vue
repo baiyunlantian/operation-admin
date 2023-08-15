@@ -22,6 +22,9 @@
     <div class="title-box u-m-t-20">收益统计</div>
     <EarningsStatistic />
 
+    <div class="title-box u-m-t-20">邀新排名</div>
+    <InviteStatistic />
+
     <div class="title-box u-m-t-20">运营快捷入口</div>
     <div class="fast-container bg-fff">
       <el-row class="w-100" :gutter="0">
@@ -47,6 +50,7 @@
   import FastIncrease from '@/assets/images/fast-increase.png';
   import UserStatistic from './components/userStatistic';
   import EarningsStatistic from './components/earningsStatistic';
+  import InviteStatistic from './components/inviteStatistic';
   import BottomBox from '@/components/bottom-box';
 
   const router = useRouter();

@@ -1,17 +1,6 @@
 <template>
     <div class="right">
-        <el-popover placement="right" :width="150" trigger="click">
-            <template #reference>
-                <div class="popover-text">
-                    <span class="point"></span>
-                    <span class="text u-m-l-10">{{productTypeText}}</span>
-                </div>
-            </template>
-            <el-radio-group v-model="productType">
-                <el-radio v-for="(item) in productTypeList" :key="item.key" :label="item.key">{{item.label}}
-                </el-radio>
-            </el-radio-group>
-        </el-popover>
+        <Popover v-model="productType" />
 
         <div class="time-range">
             <div v-for="(item, index) in timeRangeTags" :key="index"
@@ -40,6 +29,7 @@
   import {reactive, ref, onMounted, computed, watch, defineEmits} from 'vue';
   import { useStore } from 'vuex';
   import dayjs from "dayjs";
+  import Popover from '@/components/productTypePopover';
 
   const emit = defineEmits(['getData'])
   const store = useStore()
@@ -109,26 +99,10 @@
     }
   }
 
-  const productTypeText = computed(()=>{
-    const obj = productTypeList.value.find(item=>item.key === productType.value)
-    return obj ? obj['label'] : '';
-  })
-
-  const productTypeList = computed(() => {
-    let res = [{label:'全部', key:0}], list = store.getters['platformType/list']
-
-    if (Array.isArray(list)) {
-      res = res.concat(list)
-    }
-
-    return res
-  })
-
   // 用户统计图表切换
   watch(
     () => productType.value,
     Category => {
-
       getData()
     }
   )
@@ -152,22 +126,6 @@
                 background-color: #409EFF;
                 padding: 5px 10px;
                 border-radius: 5px;
-            }
-        }
-
-        .popover-text{
-            position: relative;
-
-            .point{
-                display: inline-block;
-                width: 10px;
-                height: 10px;
-                border-radius: 50%;
-                background-color: blue;
-            }
-
-            .text{
-                color: blue;
             }
         }
     }

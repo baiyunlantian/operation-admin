@@ -210,7 +210,7 @@
       callback(false);
     }
     callback();
-  }1
+  }
 
   // 获取验证码
   function handleGetCode() {

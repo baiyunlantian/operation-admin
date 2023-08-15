@@ -3,6 +3,10 @@
 
         <div class="title title-box">用户总览</div>
         <div class="statistic-container bg-fff">
+            <div class="popover-container">
+                <Popover v-model="productType" />
+            </div>
+
             <el-row class="w-100" :gutter="0">
                 <el-col v-for="(item, index) in totalStatisticConfig"  :span="5" :offset="1"  :key="index" class="item">
                     <div class="value">{{totalStatisticData[item.prop]}}</div>
@@ -27,14 +31,14 @@
 </template>
 
 <script setup>
-  import {onMounted, reactive, ref, getCurrentInstance} from 'vue';
+  import {onMounted, reactive, ref, computed} from 'vue';
   import API from './api';
   import User from '../components/lineStatistic';
   import Source from './components/sourceStatistic'
-  import BottomBox from '@/components/bottom-box';
-  import dayjs from 'dayjs';
+  import Popover from '@/components/productTypePopover';
+  import {useStore} from "vuex";
 
-  const { proxy } = getCurrentInstance()
+  const store = useStore()
 
   const totalStatisticConfig = reactive([
     {label:'今日新增', prop:'todayNewUserCount'},
@@ -78,6 +82,9 @@
     })
   }
 
+  const productType = ref(0)
+
+
   onMounted(() => {
     handleGetTotalUserNumber()
   })
@@ -89,7 +96,14 @@
 
         .statistic-container{
             position: relative;
-            height: 125px;
+            height: auto;
+
+            .popover-container{
+                padding-left: 2%;
+                padding-top: 10px;
+                width: auto;
+                display: inline-block;
+            }
 
             .w-100{
                 width: 100%;
@@ -100,7 +114,7 @@
                 flex-direction: column;
                 align-items: center;
                 justify-content: center;
-                height: 120px;
+                padding: 20px 0;
 
                 .desc{
                     color: gray;
