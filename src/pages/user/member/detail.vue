@@ -175,6 +175,8 @@
         z-index: 999;
         height: auto;
         padding-bottom: 5vh;
+        top: 0;
+        left: 0;
 
         .u-m-l-r-20 {
             margin: 0 20px;

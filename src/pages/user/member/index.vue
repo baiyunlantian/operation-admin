@@ -167,11 +167,12 @@
   const tableData = ref([])
   const tableColumnConfig = ref([
     {label:'用户ID', prop:'userId'},
-    {label:'手机号', prop:'account'},
+    {label:'用户账号', prop:'account'},
     {label:'用户昵称', prop:'userName'},
     {label:'是否付费', prop:'isPay', insertSlot:'isPay'},
     {label:'总消费金额', prop:'consumedAmount'},
     {label:'账号来源', prop:'source'},
+    {label:'账号余额', prop:'balance'},
     {label:'注册时间', prop:'registerTime'},
     // {label:'最近活跃时间', prop:'registerTime'},
     {label:'账户启用状态', prop:'status', insertSlot:'status'},
@@ -349,8 +350,6 @@
 <style scoped lang="scss">
     .operate-container{
         position: relative;
-        display: flex;
-        flex-direction: column;
 
         .title{
             padding: 10px;
@@ -366,9 +365,8 @@
 
         .table-main{
             position: relative;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
+            /* height 减去 .title  .search-container  高度 */
+            height: calc(100% - 130px);
 
             .header-operate{
                 position: relative;
@@ -392,7 +390,7 @@
 
             .table-container {
                 position: relative;
-                flex: 1;
+                height: calc(100% - 105px);
 
                 ::v-deep .el-scrollbar{
                     overflow: auto;
@@ -406,7 +404,7 @@
                 }
 
                 ::v-deep .el-table__body-wrapper{
-                    height: 52vh;
+                    height: calc(100% - 40px);
                     flex: unset !important;
                 }
 
