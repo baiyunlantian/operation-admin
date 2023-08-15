@@ -348,8 +348,6 @@
 <style scoped lang="scss">
     .operate-container{
         position: relative;
-        display: flex;
-        flex-direction: column;
 
         .title{
             padding: 10px;
@@ -375,9 +373,8 @@
 
         .table-main{
             position: relative;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
+            /* height 减去 .title  .search-container  高度 */
+            height: calc(100% - 160px);
 
             .header-operate{
                 position: relative;
@@ -401,7 +398,7 @@
 
             .table-container {
                 position: relative;
-                flex: 1;
+                height: calc(100% - 110px);
 
                 ::v-deep .el-table__header-wrapper{
                     .el-table__cell{
@@ -411,7 +408,7 @@
                 }
 
                 ::v-deep .el-table__body-wrapper{
-                    height: 65vh;
+                    height: calc(100% - 40px);
                     flex: unset !important;
                 }
 
