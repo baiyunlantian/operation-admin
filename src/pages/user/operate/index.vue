@@ -142,7 +142,7 @@
     ]
   })
   const searchTableParams = ref({
-    pageSize:10,
+    pageSize:50,
     pageIndex:1,
     sortField: 'created_time',
     sortType: 'DESC',
@@ -158,10 +158,10 @@
     {label:'操作', prop:'operate', insertSlot:'operate'},
   ])
   const timer = ref(null)
-  const pageSizeOptions = ref([10, 20, 30, 50])
+  const pageSizeOptions = ref([50, 100, 200])
   const timeSortOptions = ref([
-    {label:'创建时间从早到晚', value:'ASC'},
     {label:'创建时间从晚到早', value:'DESC'},
+    {label:'创建时间从早到晚', value:'ASC'},
   ])
   const selectedRows = ref([])
   const modalVisible = ref(false)
@@ -295,10 +295,10 @@
       searchTableParams.value.pageIndex = 1
     }else if (type === 'reset') {
       searchTableParams.value = {
-        pageSize:10,
+        pageSize:50,
         pageIndex:1,
         sortField: 'created_time',
-        sortType: 'ASC',
+        sortType: 'DESC',
       }
     }
 
@@ -408,6 +408,11 @@
                         background-color: #f7f7f7;
                         color: #000;
                     }
+                }
+
+                ::v-deep .el-table__body-wrapper{
+                    height: 65vh;
+                    flex: unset !important;
                 }
 
                 ::v-deep .el-table__cell{

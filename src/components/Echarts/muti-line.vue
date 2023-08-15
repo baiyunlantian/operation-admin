@@ -51,13 +51,9 @@
     }
     myChars.clear(); // 清除画布内容
     let option = {
-      dataZoom: {
-        type: 'inside',
-        start: 0,
-        end: 10,
-        minValueSpan: 10,
-        maxValueSpan: 20,
-      },
+      // dataZoom: {
+      //   type: 'slider',
+      // },
       legend: {
         show: true
       },

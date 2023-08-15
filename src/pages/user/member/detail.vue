@@ -185,13 +185,13 @@
 
         .base-info{
             position: relative;
-            height: 250px;
+            height: auto;
             display: flex;
             margin: 10px;
 
             .left-avatar{
                 position: relative;
-                height: 100%;
+                height: 250px;
                 width: 250px;
                 border: 1px solid #dadada;
                 display: flex;
@@ -199,21 +199,21 @@
                 justify-content: center;
 
                 .avatar{
-                    width: 100%;
+                    width: 200px;
+                    height: auto;
                 }
             }
 
             .right-form{
-                display: flex;
-                flex-wrap: wrap;
+                display: grid;
                 flex: 1;
+                grid-template-columns: 50% 1fr;
+                grid-template-rows: repeat(5, 1fr);
 
                 .info-item{
-                    height: 50px;
-                    line-height: 50px;
-                    width: 50%;
+                    height: 100%;
+                    width: 100%;
                     display: flex;
-                    align-items: center;
 
                     &:nth-last-child(-n + 2) {
                         border-bottom: 1px solid #dadada;
@@ -224,18 +224,22 @@
                         color: #000;
                         width: 30%;
                         height: inherit;
-                        text-align: end;
                         padding-right: 20px;
                         box-sizing: border-box;
+                        display: flex;
+                        align-items: center;
+                        justify-content: flex-end;
                     }
 
                     .content{
                         flex: 1;
                         color: #505050;
                         height: inherit;
-                        text-align: start;
                         padding-left: 20px;
                         box-sizing: border-box;
+                        display: flex;
+                        align-items: center;
+                        justify-content: flex-start;
                     }
 
                     .border-top{

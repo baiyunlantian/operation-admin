@@ -157,10 +157,11 @@
     ]
   })
   const searchTableParams = ref({
-    pageSize:10,
+    pageSize:50,
     pageIndex:1,
     sortField: 'register_time',
     sort: 'desc',
+    sourceType: 'null'
   })
   const tableData = ref([])
   const tableColumnConfig = ref([
@@ -177,10 +178,10 @@
     {label:'操作', prop:'operate', insertSlot:'operate'},
   ])
   const timer = ref(null)
-  const pageSizeOptions = ref([10, 20, 30, 50])
+  const pageSizeOptions = ref([50, 100, 200])
   const timeSortOptions = ref([
-    {label:'注册时间从早到晚', value:'asc'},
     {label:'注册时间从晚到早', value:'desc'},
+    {label:'注册时间从早到晚', value:'asc'},
   ])
   const selectedRows = ref([])
   const detailVisible = ref(false)
@@ -269,7 +270,6 @@
       status: 1^status,
       userId
     }
-    console.log('params', params)
     return new Promise((resolve, reject) => {
       proxy.$confirm('确认修改账号状态吗',  {
         confirmButtonText: '确认',
@@ -313,10 +313,11 @@
       searchTableParams.value.pageIndex = 1
     }else if (type === 'reset') {
       searchTableParams.value = {
-        pageSize:10,
+        pageSize:50,
         pageIndex:1,
         sortField: 'register_time',
-        sort: 'asc',
+        sort: 'desc',
+        sourceType: 'null'
       }
     }
 
@@ -324,13 +325,13 @@
   }
 
   const sourceTypeOptions = computed(() => {
-    let res = [{label:'运营后台', key:'null'}], list = store.getters['platformType/list']
+    let res = [{label:'全部', key:'null'}], list = store.getters['platformType/list']
 
-    // if (Array.isArray(list)) {
-    //   res = res.concat(list)
-    // }
+    if (Array.isArray(list)) {
+      res = res.concat(list)
+    }
 
-    return list
+    return res
   })
 
   // watch(searchTableParams, (newVal, oldVal) => {
@@ -411,6 +412,11 @@
                         background-color: #f7f7f7;
                         color: #000;
                     }
+                }
+
+                ::v-deep .el-table__body-wrapper{
+                    height: 67vh;
+                    flex: unset !important;
                 }
 
                 ::v-deep .el-table__cell{

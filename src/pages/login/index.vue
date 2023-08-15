@@ -1,7 +1,7 @@
 <template>
   <div class="login-container">
     <div class="content">
-      <div class="title">吗哩呀咔AI ERP运营后台</div>
+      <div class="title">吗哩呀咔-运营后台</div>
 
       <el-form class="account-form" ref="formRef" :rules="rules" :model="formData" label-width="90px" @keydown.enter="handleClickBtn">
 
@@ -158,6 +158,7 @@
     Object.keys(formData).forEach(key=>{
       formData[key] = ''
     })
+    formRef.value.resetFields()
     resetCode()
   }
 
