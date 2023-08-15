@@ -139,7 +139,7 @@
     {label:'用户昵称：', prop:'userName', type:'input', placeholder:'用户昵称'},
     {label:'注册时间：', prop:'registerTime', type:'datetimerange'},
     {label:'', prop:'sourceType', type:'select', placeholder:'账号来源'},
-    {label:'', prop:'dynamicScope', type:'select', placeholder:'最近活跃'},
+    // {label:'', prop:'dynamicScope', type:'select', placeholder:'最近活跃'},
   ])
   const rules = reactive({
     account:[
@@ -173,7 +173,7 @@
     {label:'总消费金额', prop:'consumedAmount'},
     {label:'账号来源', prop:'source'},
     {label:'注册时间', prop:'registerTime'},
-    {label:'最近活跃时间', prop:'registerTime'},
+    // {label:'最近活跃时间', prop:'registerTime'},
     {label:'账户启用状态', prop:'status', insertSlot:'status'},
     {label:'操作', prop:'operate', insertSlot:'operate'},
   ])
@@ -406,7 +406,7 @@
                 }
 
                 ::v-deep .el-table__body-wrapper{
-                    height: 67vh;
+                    height: 52vh;
                     flex: unset !important;
                 }
 

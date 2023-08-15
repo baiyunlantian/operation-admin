@@ -93,7 +93,7 @@
                 </el-table-column>
             </el-table>
 
-            <div class="pagination-container">
+            <div class="pagination-container bg-fff">
                 <el-pagination
                         v-model:current-page="searchTableParams.pageIndex"
                         v-model:page-size="searchTableParams.pageSize"
