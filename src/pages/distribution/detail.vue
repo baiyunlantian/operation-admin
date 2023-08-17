@@ -8,14 +8,16 @@
         <div class="search-container">
             <div class="user-info">
                 <div class="content">
-                    <div class="item"><span>用户名：winder</span></div>
+                    <div class="item"><span>用户名：{{ userInfo.userName }}</span></div>
                 </div>
                 <div class="content">
-                    <div class="item"><span>用户账号：18001800000</span></div>
+                    <div class="item"><span>用户账号：{{ userInfo.account }}</span></div>
                 </div>
                 <div class="content">
-                    <div class="item"><span>推广付费人员：</span><span class="u-m-l-10 u-m-r-10">0</span>人</div>
-                    <div class="item"><span>推广佣金额度：</span><span class="u-m-l-10 u-m-r-10">￥0.00</span>元</div>
+                    <div class="item" style="margin-right: 5%;">推广付费人员：<div class="value">{{ userInfo.promotionCommissionAmount || 0 }}</div>人</div>
+                    <div class="item">推广佣金额度：<div class="value">￥{{ userInfo.promotionPayers || 0 }}</div>元</div>
+<!--                    <div class="item"><span>推广付费人员：</span><span class="u-m-l-10 u-m-r-10">{{ userInfo.promotionCommissionAmount || 0 }}</span>人</div>-->
+<!--                    <div class="item"><span>推广佣金额度：</span><span class="u-m-l-10 u-m-r-10">￥{{ userInfo.promotionPayers || 0 }}</span>元</div>-->
                 </div>
             </div>
 
@@ -72,7 +74,7 @@
                         />
                     </el-select>
 
-                    <el-select v-model="searchTableParams.sort" class="m-2" placeholder="排序方式" @change="handleSearchTable('select')">
+                    <el-select v-model="searchTableParams.sortType" class="m-2" placeholder="排序方式" @change="handleSearchTable('select')">
                         <el-option
                                 v-for="item in sortOptions"
                                 :key="item.value"
@@ -121,7 +123,7 @@
 <script setup>
   import { reactive, ref, defineProps, onMounted, computed, defineEmits } from 'vue';
   import { useStore } from 'vuex';
-  import API from '@/pages/user/member/api';
+  import API from './api';
   import dayjs from "dayjs";
   import LINKDIALOG from './components/link-dialog';
 
@@ -156,7 +158,7 @@
     pageSize:50,
     pageIndex:1,
     sourceType: 'null',
-    sort: 'desc',
+    sortType: 'desc',
   })
   const tableData = ref([])
   const tableColumnConfig = ref([
@@ -164,9 +166,9 @@
     {label:'用户账号', prop:'account'},
     {label:'用户昵称', prop:'userName'},
     {label:'是否付费', prop:'isPay', insertSlot:true},
-    {label:'付费总金额', prop:'consumedAmount'},
-    {label:'注册时间', prop:'registerTime'},
-    {label:'账号来源', prop:'source'},
+    {label:'付费总金额', prop:'paymentAmount'},
+    {label:'注册时间', prop:'registrationDate'},
+    {label:'账号来源', prop:'platformName'},
   ])
   const pageSizeOptions = ref([50, 100, 200])
   const sortOptions = ref([
@@ -180,11 +182,7 @@
     {label:'付费用户', key:'1'},
     {label:'未付费用户', key:'0'},
   ])
-  const linkList = ref([
-    // {name:'AI个人助理', url: 'https://ai.maliyaka.com/login'},
-    // {name:'AI个绘画', url: 'https://ai.maliyaka.com/login'},
-    // {name:'AI营销写作', url: 'https://ai.maliyaka.com/login'},
-  ])
+  const linkList = ref([])
   const linkDialogVisible = ref(false)
   const userInfo = ref({})
 
@@ -248,6 +246,7 @@
 
   function handleGetTableList() {
     let params = {
+      inviterId: props.userId,
       ...searchTableParams.value,
     }
 
@@ -263,9 +262,15 @@
       params.sourceType = ''
     }
 
+    if (params.isPay === '1') {
+      params.isPay = true
+    }else if (params.isPay === '0'){
+      params.isPay = false
+    }
+
     formRef.value.validate(valid => {
       if (valid) {
-        API.getMemberTableList(params).then(res=>{
+        API.getInviteUserList(params).then(res=>{
           if (res.code == '0') {
             tableData.value = res.data.list
             tableListTotal.value = res.data.total
@@ -283,7 +288,7 @@
         pageSize:50,
         pageIndex:1,
         sourceType: 'null',
-        sort: 'desc',
+        sortType: 'desc',
       }
     }
 
@@ -292,13 +297,20 @@
 
   function handleGetUserInfo() {
     if (props.userId) {
-      API.getUserInfoById(props.userId).then(res=>{
+      API.getDetailByUserId({userId: props.userId}).then(res=>{
         if (res.code == '0') {
           userInfo.value = res.data
         }
       })
     }
+  }
 
+  function handleGetLinkList() {
+    API.getInvitationLink().then(res=>{
+      if (res.code == 0) {
+        linkList.value = res.data
+      }
+    })
   }
 
   const sourceTypeOptions = computed(() => {
@@ -312,7 +324,8 @@
   })
 
   onMounted(() => {
-    // handleGetUserInfo()
+    handleGetUserInfo()
+    // handleGetLinkList()
     handleGetTableList()
   })
 </script>
@@ -355,7 +368,13 @@
 
                     .item{
                         width: auto;
-                        margin-right: 5%;
+                        display: flex;
+                        align-items: center;
+
+                        .value {
+                            position: relative;
+                            margin: 0 10px;
+                        }
                     }
                 }
             }

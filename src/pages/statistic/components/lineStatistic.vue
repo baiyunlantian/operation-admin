@@ -74,7 +74,7 @@
                 </div>
 
                 <div class="content-item">
-                    <div class="table-container" :style="{opacity: tableShow === true ? 1 : 0}">
+                    <div class="table-container" :style="{opacity: tableShow === true ? 1 : 0, zIndex: tableShow === true ? 3 : 2}">
                         <el-table :data="tableData" border>
                             <el-table-column v-for="(item, index) in tableColumnConfig" :key="index"
                                              :prop="item.prop"
@@ -85,7 +85,7 @@
                         </el-table>
                     </div>
 
-                    <div class="echarts-container" :style="{opacity: tableShow === true ? 0 : 1}">
+                    <div class="echarts-container" :style="{opacity: tableShow === true ? 0 : 1, zIndex: tableShow === true ? 2 : 3}">
                         <MutiLine
                                 v-show="lineData.length > 0"
                                 :x-axis-end-text="dateScopeType === 1 ? '日期/天' : '日期/月份'"
@@ -302,7 +302,7 @@
       })
 
       // table列表 汇总列 字段
-      columnDataObj['total'] = categoryTotal;
+      columnDataObj['total'] = Number(categoryTotal.toFixed(2));
       if (categoryTotal > 0) {
         _tableData.push(columnDataObj)
         _seriesData.push(seriesItem)
@@ -310,9 +310,9 @@
     })
 
     // 构造table 最后一行数据
-    let tableLastRowObj = {name:'汇总', total: statisticTotal };
+    let tableLastRowObj = {name:'汇总', total: Number(statisticTotal.toFixed(2))};
     tableLastRowData.forEach((value, prop) => {
-      tableLastRowObj[prop] = value
+      tableLastRowObj[prop] = Number(value.toFixed(2))
     })
     if (statisticTotal > 0) {
       _tableData.push(tableLastRowObj)

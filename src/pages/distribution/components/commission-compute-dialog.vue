@@ -26,28 +26,29 @@
                 <div class="compute-text">
                     <span>该员工的推广付费用户付款一笔订单，员工可抽取</span>
                     <el-form class="search-form" ref="formRef" :inline="true" :model="computeData" :rules="rules" @submit.prevent>
-                        <el-form-item prop="number">
-                            <el-input class="compute-input" v-model="computeData.number" />
+                        <el-form-item prop="amount">
+                            <el-input class="compute-input" v-model="computeData.amount" />
                         </el-form-item>
                     </el-form>
 
 
-                    <span class="unit">{{ computeData.type === '0' ? '%' : '元' }}佣金。</span>
+                    <span class="unit">{{ computeData.type == 0 ? '%' : '元' }}佣金。</span>
                 </div>
             </div>
 
             <template #footer>
-                <el-button type="primary" class="btn" size="large" @click="handleSubmit">确认</el-button>
+                <el-button type="primary" class="btn" size="large" @click="handleSubmit" :loading="btnLoading" :disabled="btnLoading">确认</el-button>
             </template>
         </el-dialog>
     </div>
 </template>
 
 <script setup>
-  import { ref, reactive ,watch, defineProps, defineEmits, toValue, unref, getCurrentInstance } from 'vue';
+  import { ref, reactive ,watch, defineProps, defineEmits, getCurrentInstance } from 'vue';
+  import API from '../api';
 
   const { proxy } = getCurrentInstance()
-  const emits = defineEmits(['update:modelValue'])
+  const emits = defineEmits(['update:modelValue', 'refreshTable'])
   const props = defineProps({
     modelValue: {
       required: true,
@@ -67,33 +68,34 @@
   })
 
   const rules = reactive({
-    number:[{
+    amount:[{
       required: true,
       trigger: ['blur', 'change'],
       validator: validNumber
     }],
   })
   const computeData = ref({
-    type: '0',
-    number: '0',
+    type: 0,
+    amount: 0,
   })
   const commissionOptions = ref([
-    {label: '百分比抽取', value: '0'},
-    {label: '金额抽取', value: '1'},
+    {label: '百分比抽取', value: 0},
+    {label: '金额抽取', value: 1},
   ])
   const visible = ref(false)
+  const btnLoading = ref(false)
   const formRef = ref()
 
   function validNumber(rule, value, callback) {
-    if (!value) callback(new Error('请输入抽取额度'))
+    if (!value && value != 0) callback(new Error('请输入抽取额度'))
 
     const reg = /((^[1-9]\d*)|^0)(\.\d{0,2}){0,1}$/, _value = Number(value);
-    if (computeData.value.type === '0') {
-        if (!reg.test(_value) || _value < 0 || _value >= 100) {
+    if (computeData.value.type === 0) {
+        if (!reg.test(value) || _value < 0 || _value >= 100) {
           callback(new Error('抽取比例须大于0并小于100，且最多保留两位小数'))
         }
     }else {
-      if (!reg.test(_value) || _value < 0 || _value >= 10) {
+      if (!reg.test(value) || _value < 0 || _value >= 10) {
         callback(new Error('抽取比例须大于0并小于10元，且最多保留两位小数'))
       }
     }
@@ -101,7 +103,7 @@
   }
 
   function handleSelectChange() {
-    computeData.value.number = '0'
+    computeData.value.amount = 0
   }
 
   function handleSubmit() {
@@ -127,11 +129,23 @@
             let params = {
               userIds: [...props.userIds],
               type: computeData.value.type,
-              number: Number(Number(computeData.value.number).toFixed(2))
+              amount: Number(Number(computeData.value.amount).toFixed(2))
             }
 
-            console.log('params', params)
-            handleCloseDialog()
+            btnLoading.value = true
+            API.setCommission(params).then(res=>{
+              if (res.code == 0) {
+                proxy.$message({
+                  type: 'success',
+                  message: '设置成功'
+                })
+
+                emits('refreshTable', 'reset')
+                handleCloseDialog()
+              }
+            }).finally(()=>{
+              btnLoading.value = false
+            })
           }
         }).catch(()=>{
           console.log('取消')
@@ -144,8 +158,8 @@
     emits('update:modelValue', false)
 
     computeData.value = {
-      type: '0',
-      number: '0'
+      type: 0,
+      amount: 0
     }
   }
 

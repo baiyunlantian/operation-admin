@@ -8,8 +8,8 @@
         <div class="my-invite">
             <div class="desc">我的邀请列表</div>
             <div class="content">
-                <div class="item">推广付费人员：<span>0</span>人</div>
-                <div class="item">推广佣金额度：<span>￥0.00</span>元</div>
+                <div class="item" style="margin-right: 5%;">推广付费人员：<div class="value">{{ Payer || 0 }}</div>人</div>
+                <div class="item">推广佣金额度：<div class="value">￥{{ CommissionAmount || 0 }}</div>元</div>
             </div>
         </div>
 
@@ -117,6 +117,8 @@
                 <div class="dialog-title">您的邀请链接已生成！</div>
             </template>
         </LINKDIALOG>
+
+        <InviteContentDialog v-model="inviteContentDialogVisible" placeholder="暂无内容，敬请期待！" :can-edit="false"/>
     </div>
 </template>
 
@@ -124,8 +126,9 @@
   import {ref, reactive, watch, getCurrentInstance, onMounted, computed} from 'vue';
   import dayjs from 'dayjs';
   import { useStore } from 'vuex';
-  import API from '@/pages/user/member/api';
+  import API from './api';
   import LINKDIALOG from './components/link-dialog';
+  import InviteContentDialog from './components/invite-content-dialog';
 
   const { proxy } = getCurrentInstance()
   const store = useStore()
@@ -165,8 +168,8 @@
     {label:'用户账号', prop:'account'},
     {label:'用户昵称', prop:'userName'},
     {label:'是否付费', prop:'isPay', insertSlot:true},
-    {label:'付费总金额', prop:'consumedAmount'},
-    {label:'注册时间', prop:'registerTime'},
+    {label:'付费总金额', prop:'totalPaymentAmount'},
+    {label:'注册时间', prop:'createdTime'},
     {label:'账号来源', prop:'source'},
   ])
   const pageSizeOptions = ref([50, 100, 200])
@@ -175,18 +178,18 @@
     {label:'注册时间从早到晚', value:'asc'},
   ])
   const tableListTotal = ref(0)
+  const CommissionAmount = ref(0)
+  const Payer = ref(0)
   const startDate = ref(null)
   const formRef = ref(null)
   const isPayOptions = ref([
     {label:'付费用户', key:'1'},
     {label:'未付费用户', key:'0'},
   ])
-  const linkList = ref([
-    {name:'AI个人助理', url: 'https://ai.maliyaka.com/login'},
-    {name:'AI个绘画', url: 'https://ai.maliyaka.com/login'},
-    {name:'AI营销写作', url: 'https://ai.maliyaka.com/login'},
-  ])
+  const linkList = ref([])
   const linkDialogVisible = ref(false)
+  const inviteContentDialogVisible = ref(false)
+  const userId = ref('')
 
   function datePickerChange(dates) {
     // 记录选择的起始日期
@@ -197,6 +200,8 @@
   function handleClickHeaderBtn(type) {
     if (type === 'link') {
       linkDialogVisible.value = true
+    }else {
+      inviteContentDialogVisible.value = true
     }
   }
 
@@ -253,10 +258,13 @@
 
     formRef.value.validate(valid => {
       if (valid) {
-        API.getMemberTableList(params).then(res=>{
+        API.getNewMemberList(params).then(res=>{
           if (res.code == '0') {
-            tableData.value = res.data.list
-            tableListTotal.value = res.data.total
+            const { CommissionAmount:c, Payer:p, list, total } = res.data
+            tableData.value = list
+            tableListTotal.value = total
+            CommissionAmount.value = c
+            Payer.value = p
           }
         })
       }
@@ -270,6 +278,14 @@
     }
 
     return text
+  }
+
+  function handleGetLinkList() {
+    API.getInvitationLink().then(res=>{
+      if (res.code == 0) {
+        linkList.value = res.data
+      }
+    })
   }
 
   function handleSearchTable(type) {
@@ -298,7 +314,8 @@
   })
 
   onMounted(() => {
-    handleGetTableList()
+    // handleGetLinkList()
+    // handleGetTableList()
   })
 </script>
 
@@ -337,9 +354,13 @@
                 font-size: 15px;
 
                 .item{
-                    width: 200px;
-                    span{
-                        margin: 0 5%;
+                    width: auto;
+                    display: flex;
+                    align-items: center;
+
+                    .value {
+                        position: relative;
+                        margin: 0 10px;
                     }
                 }
             }

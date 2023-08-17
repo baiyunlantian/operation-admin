@@ -14,7 +14,7 @@
                 <template v-if="linkList.length > 0">
                     <div class="row">邀请链接：</div>
                     <div class="row" v-for="(link, index) in linkList" :key="index">
-                        <span class="copy-content">{{ link.name }}：{{ link.url }}</span>
+                        <span class="copy-content">{{ link.name }}：{{ link.inviteLink }}</span>
                         <el-icon class="u-cursor" style="font-size: 24px;" @click="handleCopy(link)"><CopyDocument /></el-icon>
                     </div>
                 </template>
@@ -56,10 +56,10 @@
       let copyText = ''
       if (copyObj === 'all') {
         props.linkList.forEach(link=>{
-          copyText += `${link.name}：${link.url}\n`
+          copyText += `${link.name}：${link.inviteLink}\n`
         })
       }else {
-        copyText = `${copyObj.name}：${copyObj.url}`
+        copyText = `${copyObj.name}：${copyObj.inviteLink}`
       }
 
       // 如果当前浏览器版本不兼容navigator.clipboard

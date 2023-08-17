@@ -21,4 +21,9 @@ export default {
   getIncomeStatistics(params) {
     return HTTP.get("/Home/IncomeStatistics", params );
   },
+
+  // 邀新排名统计
+  getInviteStatistics(params) {
+    return HTTP.get("/Home/InviteUserStat", params );
+  },
 }

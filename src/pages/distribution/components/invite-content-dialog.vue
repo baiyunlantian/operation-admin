@@ -9,52 +9,69 @@
         >
             <div class="dialog-body">
                 <Toolbar
+                        v-if="canEdit"
                         style="border-bottom: 1px solid #ccc"
                         :editor="editorRef"
                         :defaultConfig="toolbarConfig"
                         mode="simple"
                 />
                 <Editor
-                        style="height: 500px; overflow-y: hidden;"
+                        class="editor-container"
                         v-model="contentValue"
-                        :defaultConfig="editorConfig"
+                        :defaultConfig="{placeholder}"
                         mode="simple"
                         @onCreated="handleCreated"
-                        @change="onEditorChange($event)"
                 />
+
+                <div v-if="canEdit" class="tips content-length">{{ contentLength }}/1000字</div>
+                <div class="tips error-tips" v-show="contentLength > 1000">内容长度超出1000字限制！</div>
             </div>
 
-            <template #footer>
-                <el-button type="primary" class="btn" size="large" @click="handleSubmit">确认</el-button>
+            <template #footer v-if="canEdit">
+                <el-button v-if="contentLength > 0 && isEdit === false" type="primary" class="btn" size="large" @click="handleClickBtn('edit')">修改</el-button>
+
+                <div v-show="isEdit === true || contentLength === 0">
+                    <el-button type="primary" class="btn" size="large" @click="handleClickBtn('ok')" :loading="btnLoading" :disabled="btnLoading">确认</el-button>
+                    <el-button type="default" class="btn" size="large" @click="handleClickBtn('cancel')" :loading="btnLoading" :disabled="btnLoading">取消</el-button>
+                </div>
             </template>
         </el-dialog>
     </div>
 </template>
 
 <script setup>
-  import { ref, watch, defineProps, defineEmits, shallowRef, getCurrentInstance, onBeforeUnmount, onMounted } from 'vue';
+  import { ref, watch, reactive, computed, defineProps, defineEmits, shallowRef, nextTick, getCurrentInstance, onBeforeUnmount, onMounted } from 'vue';
   import '@wangeditor/editor/dist/css/style.css' // 引入 css
   import { Editor, Toolbar } from '@wangeditor/editor-for-vue';
+  import API from '../api';
 
   const { proxy } = getCurrentInstance()
-  const emits = defineEmits(['update:modelValue'])
+  const emits = defineEmits(['update:modelValue', 'refreshTable'])
   const props = defineProps({
     modelValue: {
       required: true,
       type: Boolean,
       default: false
     },
-    content: {
-      required: true,
-      type: String,
-      default: ''
+    canEdit: {
+      required: false,
+      type: Boolean,
+      default: true
     },
+    placeholder: {
+      required: false,
+      type: String,
+      default: '请输入内容...'
+    }
   })
 
 
   const editorRef = shallowRef()
   const contentValue = ref('')
+  const contentValueCopy = ref('')
   const visible = ref(false)
+  const btnLoading = ref(false)
+  const isEdit = ref(false)
   const toolbarConfig = {
     toolbarKeys:[
       "bold",
@@ -86,30 +103,14 @@
       "undo",
     ],
   }
-  const editorConfig = { placeholder: '请输入内容...' }
 
-  function onEditorChange(e) {
-    console.log(e, "e");
-    var reg = /<[^<>]+>/g; //去标签
+  const contentLength = computed(() => {
+    const reg = /<[^<>]+>/g; //去标签
     // var reg = /<(?!img).*?>/g //去除img以外的所有标签
-    var value = e.replace(reg, "");
+    let value = contentValue.value.replace(reg, "");
     value = value.replace(/&nbsp;/gi, ""); //将空格全部替换
-    let TiLength = value.length; //文字长度显示
-    console.log(TiLength, "  this.TiLength");
-    // if (TiLength <= 10) {
-    //   this.editorHtml = e;
-    //   console.log(this.editorHtml, "this.editorHtml");
-    // }
-    // if (this.TiLength > 10) {
-    //   //当长度大于10时,只截取10之前的内容并赋值
-    //   this.$nextTick(() => {
-    //     this.form.content = this.editorHtml;
-    //   });
-    //   this.warnShow = true;
-    //   // this.$message.error("文字最多输入10字!");
-    //   return false;
-    // }
-  }
+    return value.length; //文字长度显示
+  })
 
   const handleCreated = (editor) => {
     // 记录 editor 实例，重要！
@@ -117,12 +118,72 @@
     // console.log(editor.getAllMenuKeys())
   }
 
-  function handleSubmit() {
-    console.log('handleSubmit', contentValue.value)
+  function handleClickBtn(eventType) {
+    switch (eventType) {
+      case 'edit':
+        isEdit.value = true;
+        editorRef.value.enable()
+        break;
+      case 'cancel':
+        isEdit.value = false;
+        editorRef.value.disable()
+        contentValue.value = contentValueCopy.value
+        break;
+      case 'ok':
+        if (contentLength.value <= 1000) {
+          let params = { content: contentValue.value }
+
+          btnLoading.value = true
+          API.setInvitationRewardRules(params).then(res=>{
+            if (res.code == 0) {
+              proxy.$message({
+                type: 'success',
+                message: '修改成功'
+              })
+
+              emits('refreshTable', 'reset')
+              handleCloseDialog()
+            }
+          }).finally(() => {
+            btnLoading.value = false
+          })
+        }
+        break;
+    }
   }
 
   function handleCloseDialog() {
+    isEdit.value = false
+    editorRef.value.disable()
     emits('update:modelValue', false)
+  }
+
+  function handleGetRulesContent() {
+    API.getInvitationRewardRules().then(res=>{
+      if (res.code == 0) {
+        contentValue.value = res.data || ''
+        contentValueCopy.value = res.data || ''
+
+          /***
+           * 邀新列表进来 只读
+           * 分销列表进来 ：
+           *    无内容时处于编辑状态
+           *    有内容时处于禁用状态
+           *
+           */
+        nextTick(()=>{
+          if (props.canEdit === false) {
+            editorRef.value.disable()
+          }else {
+            if (contentLength.value > 0) {
+              editorRef.value.disable()
+            }else {
+              isEdit.value = true
+            }
+          }
+        })
+      }
+    })
   }
 
 
@@ -137,7 +198,9 @@
     () => props.modelValue,
     (newVal) => {
       visible.value = newVal
-      contentValue.value = props.content
+      if (newVal) {
+        handleGetRulesContent()
+      }
     }
   )
 
@@ -160,36 +223,35 @@
         .dialog-body{
             position: relative;
 
-            .compute-select {
-                position: relative;
-            }
+            .editor-container{
+                height: 500px !important;
 
-            .compute-text {
-                position: relative;
-                font-size: 16px;
-                margin-top: 15px;
-                display: flex;
-
-                :deep(.el-form) {
-                    width: 70px;
-                    margin: 0;
-
-                    .el-form-item__error{
-                        width: 300px;
+                :deep(.w-e-text-container) {
+                    .w-e-scroll::-webkit-scrollbar {
+                        width: 5px;
                     }
-                }
 
-                .compute-input {
-                    position: relative;
-                    width: 70px;
-                    border-bottom: 1px solid #acacac;
-                    :deep(.el-input__wrapper) {
-                        box-shadow: unset;
-                        font-size: 16px;
+                    .w-e-scroll::-webkit-scrollbar-track {
+                        background-color: #f5f5f5;
+                        border-radius: 10px;
+                    }
+
+                    .w-e-scroll::-webkit-scrollbar-thumb {
+                        background-color: #c1c1c1;
+                        border-radius: 10px;
                     }
                 }
             }
 
+
+            .tips{
+                font-size: 15px;
+                text-align: end;
+            }
+
+            .error-tips{
+                color: #f32f2f;
+            }
         }
 
         .dialog-header{

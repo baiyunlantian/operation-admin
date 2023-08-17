@@ -6,7 +6,7 @@
             <el-form class="search-form" ref="formRef" :inline="true" :model="searchTableParams" :rules="rules">
 
                 <el-form-item v-for="(item, index) in searchFormConfig" :prop="item.prop" :label="item.label" :key="item.prop" label-position="left">
-                    <el-input v-model="searchTableParams[item.prop]" :placeholder="item.placeholder || item.label" clearable/>
+                    <el-input v-model="searchTableParams[item.prop]" clearable/>
                 </el-form-item>
 
                 <el-form-item class="">
@@ -37,7 +37,7 @@
                         />
                     </el-select>
 
-                    <el-select v-model="searchTableParams.sort" class="m-2" placeholder="排序方式" @change="handleGetTableList">
+                    <el-select v-model="searchTableParams.sortType" class="m-2" placeholder="排序方式" @change="handleGetTableList">
                         <el-option
                                 v-for="item in timeSortOptions"
                                 :key="item.value"
@@ -114,15 +114,15 @@
 <script setup>
   import {ref, reactive, watch, getCurrentInstance, onMounted, computed, nextTick} from 'vue';
   import dayjs from 'dayjs';
-  import API from '@/pages/user/member/api';
+  import API from './api';
 
   const { proxy } = getCurrentInstance()
 
   const searchFormConfig = ref([
-    {label:'手机号：', prop:'account', type:'input', placeholder:'用户昵称'},
+    {label:'手机号：', prop:'number', type:'input'},
   ])
   const rules = reactive({
-    account:[
+    number:[
       {
         pattern: /^1(3|4|5|6|7|8|9)\d{9}$/,
         trigger: 'blur',
@@ -133,35 +133,39 @@
   const searchTableParams = ref({
     pageSize:50,
     pageIndex:1,
-    sortField: 'register_time',
-    sort: 'desc',
+    sortField: 'created_time',
+    sortType: 'DESC',
   })
   const tableData = ref([])
   const tableColumnConfig = ref([
-    {label:'手机号', prop:'account'},
-    {label:'录入时间', prop:'registerTime'},
-    {label:'注册状态', prop:'registerTime'},
-    {label:'赠送状态', prop:'registerTime'},
+    {label:'手机号', prop:'phoneNumber'},
+    {label:'录入时间', prop:'createdTime'},
+    {label:'注册状态', prop:'registrationStatus'},
+    {label:'赠送状态', prop:'giveStatus'},
     {label:'操作', prop:'operate', insertSlot:'operate'},
   ])
   const pageSizeOptions = ref([50, 100, 200])
   const timeSortOptions = ref([
-    {label:'注册时间从晚到早', value:'desc'},
-    {label:'注册时间从早到晚', value:'asc'},
+    {label:'注册时间从晚到早', value:'DESC'},
+    {label:'注册时间从早到晚', value:'ASC'},
   ])
-  const cacheSelectedRow = reactive(new Map())
+  const cacheSelectedRow = reactive(new Set())
   const tableListTotal = ref(0)
   const formRef = ref(null)
   const dialogVisible = ref(false)
   const phoneList = ref('')
   const tableRef = ref()
   const btnLoading = ref(false)
+  const giveStatusOptions = ref(['未赠送','部分赠送','已赠送'])
+  const registrationStatusOptions = ref(['未注册','部分注册','已注册'])
 
 
   function handleFormatTableCell(row, prop) {
     let text = row[prop]
-    if (prop === 'isPay') {
-      text = row[prop] ? '是' : '否'
+    if (prop === 'giveStatus') {
+      text = giveStatusOptions.value[row[prop]]
+    }else if (prop === 'registrationStatus') {
+      text = registrationStatusOptions.value[row[prop]]
     }
 
     return text
@@ -175,27 +179,34 @@
           message:'请勾选需要删除的数据！'
         })
       }else {
-        let ids = [];
-        cacheSelectedRow.forEach((row, id)=>ids.push(id));
+        let ids = Array.from(cacheSelectedRow);
         handleDelete(ids)
       }
     }else {
-      handleDelete([row.userId])
+      handleDelete([row.redemptionCodeId])
     }
   }
 
   function handleDelete(ids) {
-    // console.log('ids', ids)
-
-    proxy.$confirm('确认删除所选记录吗',  {
+    proxy.$confirm('请谨慎操作，确认删除之前所选记录吗',  {
       confirmButtonText: '确认',
       cancelButtonText: '取消',
       type: 'warning',
     }).then(res=>{
       if (res === 'confirm') {
-        console.log('删除成功')
-        ids.forEach(id=>cacheSelectedRow.delete(id))
-        handleGetTableList()
+        API.batchDeletePhone({redemptionCodeIds:ids}).then(res=>{
+          if (res.code == 0) {
+            proxy.$message({
+              type:'success',
+              message:'删除成功'
+            })
+
+            // 清空之前所勾选的数据
+            cacheSelectedRow.clear()
+            // ids.forEach(id=>cacheSelectedRow.delete(id))
+            handleReset()
+          }
+        })
       }
     }).catch(()=>{})
   }
@@ -225,21 +236,41 @@
       }
 
       btnLoading.value = true
-      setTimeout(()=>{
-        handleToggleDialog(false)
+      API.batchAddPhone({numbers: phoneArray}).then(res=>{
+        if (res.code == 0) {
+          proxy.$message({
+            type:'success',
+            message:'录入成功'
+          })
+
+          handleReset()
+          handleToggleDialog(false)
+        }
+      }).finally(() => {
         btnLoading.value = false
-      }, 1500)
+      })
     }else {
       handleToggleDialog(false)
     }
   }
 
+  function handleReset() {
+    searchTableParams.value = {
+      pageSize:50,
+      pageIndex:1,
+      sortField: 'created_time',
+      sortType: 'DESC',
+    }
+
+    handleGetTableList()
+  }
+
   function handleSelectRow(selection, row) {
     // 判断之前是否勾选过
-    if (cacheSelectedRow.has(row.userId)) {
-      cacheSelectedRow.delete(row.userId)
+    if (cacheSelectedRow.has(row.redemptionCodeId)) {
+      cacheSelectedRow.delete(row.redemptionCodeId)
     }else {
-      cacheSelectedRow.set(row.userId, true)
+      cacheSelectedRow.add(row.redemptionCodeId)
     }
   }
 
@@ -247,11 +278,11 @@
     // 判断是否勾选全选
     if (selection.length > 0) {
       selection.forEach(item=>{
-        cacheSelectedRow.set(item.userId, true)
+        cacheSelectedRow.add(item.redemptionCodeId)
       })
     }else {
       tableData.value.forEach(item=>{
-        cacheSelectedRow.delete(item.userId)
+        cacheSelectedRow.delete(item.redemptionCodeId)
       })
     }
   }
@@ -263,7 +294,7 @@
 
     formRef.value.validate(valid => {
       if (valid) {
-        API.getMemberTableList(params).then(res=>{
+        API.getCourseUserList(params).then(res=>{
           if (res.code == '0') {
             tableData.value = res.data.list
             tableListTotal.value = res.data.total
@@ -272,8 +303,8 @@
               if (cacheSelectedRow.size > 0) {
                 res.data.list.forEach((row, index)=>{
                   // 判断当前列表之前是否有勾选过的行
-                  if (cacheSelectedRow.has(row.userId)) {
-                    cacheSelectedRow.set(row.userId, true)
+                  if (cacheSelectedRow.has(row.redemptionCodeId)) {
+                    cacheSelectedRow.add(row.redemptionCodeId)
                     tableRef.value.toggleRowSelection(row, true)
                   }
                 })

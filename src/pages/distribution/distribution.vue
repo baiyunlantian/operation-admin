@@ -28,16 +28,16 @@
                 <div class="left-text">用户列表</div>
                 <div class="right-sort">
                     <div class="sort-container">
-                        <Popover v-model="searchTableParams.sort" :options="sortOptions">
+                        <Popover v-model="searchTableParams.sortType" :options="sortOptions">
                             <template v-slot:popover-icon>
                                 <el-icon class="u-cursor" style="font-size: 16px; color: #fff"><Sort /></el-icon>
                             </template>
                         </Popover>
                     </div>
 
-                    <el-select v-model="searchTableParams.promotion" class="m-2" placeholder="排序方式" @change="handleSearchTable('select')">
+                    <el-select v-model="searchTableParams.sortField" class="m-2" placeholder="排序方式" @change="handleSearchTable('select')">
                         <el-option
-                                v-for="item in timeSortOptions"
+                                v-for="item in promotionOptions"
                                 :key="item.value"
                                 :label="item.label"
                                 :value="item.value"
@@ -76,6 +76,10 @@
                             <span class="u-cursor blue u-m-r-20" @click="handleToggleDialog('commission', row)">设置佣金计算</span>
                         </div>
 
+                        <div v-else-if="item.prop === 'peopleNumber'" class="insert-cell-container">
+                            {{ row['promotionPayers'] || 0 }} / {{ row['promotionNumbers'] || 0 }}
+                        </div>
+
                         <div v-else class="custom-cell">{{ handleFormatTableCell(row, item.prop) }}</div>
                     </template>
                 </el-table-column>
@@ -98,23 +102,20 @@
             <Detail v-if="detailVisible" :user-id="detailUserId" @goBack="handleGoBack"/>
         </Transition>
 
-        <CommissionComputeDialog v-model="commissionDialogVisible" :user-ids="userIds" :user-commission="userCommission" />
-        <InviteContentDialog v-model="inviteContentDialogVisible" :content="inviteContent" />
+        <CommissionComputeDialog v-model="commissionDialogVisible" :user-ids="userIds" :user-commission="userCommission" @refreshTable="handleSearchTable"/>
+
+        <InviteContentDialog v-model="inviteContentDialogVisible" @refreshTable="handleSearchTable" />
     </div>
 </template>
 
 <script setup>
   import {ref, reactive, watch, getCurrentInstance, onMounted, computed} from 'vue';
   import dayjs from 'dayjs';
-  import { useStore } from 'vuex';
-  import API from '@/pages/user/member/api';
+  import API from './api';
   import Detail from './detail'
   import Popover from '@/components/productTypePopover';
   import CommissionComputeDialog from './components/commission-compute-dialog';
   import InviteContentDialog from './components/invite-content-dialog';
-
-  const { proxy } = getCurrentInstance()
-  const store = useStore()
 
   const searchFormConfig = ref([
     {label:'ID/账号：', prop:'account', type:'input', placeholder:'用户ID/账号'},
@@ -139,8 +140,8 @@
   const searchTableParams = ref({
     pageSize:50,
     pageIndex:1,
-    sort: 'desc',
-    promotion: '0',
+    sortType: 'desc',
+    sortField: 'paymentAmount',
   })
   const tableData = ref([])
   const tableColumnConfig = ref([
@@ -148,16 +149,16 @@
     {label:'用户名', prop:'userName'},
     {label:'用户账号', prop:'account'},
     {label:'用户ID', prop:'userId'},
-    {label:'推广付费人数/推广人数', prop:'consumedAmount'},
-    {label:'付费总金额', prop:'source'},
-    {label:'推广佣金', prop:'source'},
+    {label:'推广付费人数/推广人数', prop:'peopleNumber'},
+    {label:'付费总金额', prop:'paymentAmount'},
+    {label:'推广佣金', prop:'promotionCommissionAmount'},
     {label:'操作', prop:'operate'},
   ])
   const pageSizeOptions = ref([50, 100, 200])
-  const timeSortOptions = ref([
-    {label:'按推广付费金额', value:'0'},
-    {label:'按推广付费人数', value:'1'},
-    {label:'按推广人数', value:'2'},
+  const promotionOptions = ref([
+    {label:'按推广付费金额', value:'paymentAmount'},
+    {label:'按推广付费人数', value:'promotionPayers'},
+    {label:'按推广人数', value:'promotionNumbers'},
   ])
   const selectedRows = ref([])
   const userIds = ref([])
@@ -172,7 +173,6 @@
     {label: '升序', key: 'asc'},
   ])
   const userCommission = ref({})
-  const inviteContent = ref('')
 
   function handleGoBack() {
     detailVisible.value = false
@@ -181,9 +181,18 @@
 
   function handleToggleDialog(dialogType, param) {
     if (dialogType === 'commission') {
+      if (param) {
+        userIds.value = [param.userId]
+        API.getCommission({userId: param.userId}).then(res=>{
+          if (res.code == 0) {
+            userCommission.value = res.data
+          }
+        })
+      }else {
+        userIds.value = selectedRows.value
+        userCommission.value = {type:0, amount: 0}
+      }
       commissionDialogVisible.value = true
-      userIds.value = param ? [param.userId] : selectedRows.value
-      userCommission.value = {type:'0', number: 12.2}
     }else {
       inviteContentDialogVisible.value = true
     }
@@ -209,7 +218,7 @@
 
     formRef.value.validate(valid => {
       if (valid) {
-        API.getMemberTableList(params).then(res=>{
+        API.getDistributionManageList(params).then(res=>{
           if (res.code == '0') {
             tableData.value = res.data.list
             tableListTotal.value = res.data.total
@@ -231,8 +240,8 @@
       searchTableParams.value = {
         pageSize:50,
         pageIndex:1,
-        sort: 'desc',
-        promotion: '0',
+        sortType: 'desc',
+        sortField: 'paymentAmount',
       }
     }
 
@@ -240,7 +249,7 @@
   }
 
   watch(
-    () => searchTableParams.value.sort,
+    () => searchTableParams.value.sortType,
     (newVal) => {
       handleGetTableList()
     }
