@@ -285,7 +285,6 @@
     })
   }
 
-
   onMounted(() => {
     handleGetTableList()
   })
@@ -294,8 +293,6 @@
 <style scoped lang="scss">
     .operate-container{
         position: relative;
-        display: flex;
-        flex-direction: column;
 
         .title{
             padding: 10px;
@@ -325,9 +322,9 @@
 
         .table-main{
             position: relative;
-            flex: 1;
             display: flex;
             flex-direction: column;
+            height: calc(100% - 130px);
 
             .header-operate{
                 position: relative;
@@ -351,7 +348,7 @@
 
             .table-container {
                 position: relative;
-                flex: 1;
+                height: calc(100% - 105px);
 
                 ::v-deep .el-scrollbar{
                     overflow: auto;
@@ -365,7 +362,7 @@
                 }
 
                 ::v-deep .el-table__body-wrapper{
-                    height: 67vh;
+                    height: calc(100% - 40px);
                     flex: unset !important;
                 }
 

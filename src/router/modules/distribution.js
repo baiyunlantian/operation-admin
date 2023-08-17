@@ -18,7 +18,7 @@ export default [
       },
       {
         path: '/distribution',
-        meta: {title: "分销管理"},
+        meta: {title: "管理分销用户"},
         component: () => import('@/pages/distribution/distribution.vue'),
         name: 'distribution',
         permission: 1

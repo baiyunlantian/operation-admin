@@ -1,19 +1,26 @@
 <template>
-    <div class="operate-container bg-fff">
-        <div class="title header-btns">
-            <el-button type="primary" @click="handleClickHeaderBtn('invite')">邀请奖励规则</el-button>
-            <el-button type="primary" @click="handleClickHeaderBtn('link')">生成邀请链接</el-button>
+    <div class="detail-container bg-fff">
+        <div class="header bg-box">
+            <span class="u-cursor" @click="goBack">&lt;</span>
+            分销用户详情
         </div>
 
-        <div class="my-invite">
-            <div class="desc">我的邀请列表</div>
-            <div class="content">
-                <div class="item">推广付费人员：<span>0</span>人</div>
-                <div class="item">推广佣金额度：<span>￥0.00</span>元</div>
+        <div class="search-container">
+            <div class="user-info">
+                <div class="content">
+                    <div class="item"><span>用户名：winder</span></div>
+                </div>
+                <div class="content">
+                    <div class="item"><span>用户账号：18001800000</span></div>
+                </div>
+                <div class="content">
+                    <div class="item"><span>推广付费人员：</span><span class="u-m-l-10 u-m-r-10">0</span>人</div>
+                    <div class="item"><span>推广佣金额度：</span><span class="u-m-l-10 u-m-r-10">￥0.00</span>元</div>
+                </div>
             </div>
-        </div>
 
-        <div class="search-container u-m-t-15 u-m-b-10">
+            <el-button class="u-m-b-20" type="primary" @click="handleShowLink">查看邀请链接</el-button>
+
             <el-form class="search-form" ref="formRef" :inline="true" :model="searchTableParams" :rules="rules">
 
                 <el-form-item v-for="(item, index) in searchFormConfig" :prop="item.prop" :label="item.label" :key="item.prop" label-position="left">
@@ -49,14 +56,9 @@
                 </el-form-item>
             </el-form>
 
-            <!--暂时屏蔽      -->
-            <!--      <div class="btns">-->
-            <!--          <el-button type="primary" class="btn" @click="handleClickBtn">批量删除</el-button>-->
-            <!--      </div>-->
-
         </div>
 
-        <div class="table-main u-m-t-10 bg-fff">
+        <div class="table-main bg-fff">
             <div class="header-operate theme-bg title-box">
                 <div class="left-text">邀新列表</div>
                 <div class="right-sort">
@@ -112,22 +114,19 @@
             </div>
         </div>
 
-        <LINKDIALOG v-model="linkDialogVisible" :link-list="linkList">
-            <template v-slot:title>
-                <div class="dialog-title">您的邀请链接已生成！</div>
-            </template>
-        </LINKDIALOG>
+        <LINKDIALOG v-model="linkDialogVisible" :link-list="linkList"/>
     </div>
 </template>
 
 <script setup>
-  import {ref, reactive, watch, getCurrentInstance, onMounted, computed} from 'vue';
-  import dayjs from 'dayjs';
+  import { reactive, ref, defineProps, onMounted, computed, defineEmits } from 'vue';
   import { useStore } from 'vuex';
   import API from '@/pages/user/member/api';
+  import dayjs from "dayjs";
   import LINKDIALOG from './components/link-dialog';
 
-  const { proxy } = getCurrentInstance()
+  const props = defineProps(['userId'])
+  const emits = defineEmits(['goBack'])
   const store = useStore()
 
   const searchFormConfig = ref([
@@ -182,22 +181,18 @@
     {label:'未付费用户', key:'0'},
   ])
   const linkList = ref([
-    {name:'AI个人助理', url: 'https://ai.maliyaka.com/login'},
-    {name:'AI个绘画', url: 'https://ai.maliyaka.com/login'},
-    {name:'AI营销写作', url: 'https://ai.maliyaka.com/login'},
+    // {name:'AI个人助理', url: 'https://ai.maliyaka.com/login'},
+    // {name:'AI个绘画', url: 'https://ai.maliyaka.com/login'},
+    // {name:'AI营销写作', url: 'https://ai.maliyaka.com/login'},
   ])
   const linkDialogVisible = ref(false)
+  const userInfo = ref({})
+
 
   function datePickerChange(dates) {
     // 记录选择的起始日期
     let hasSelectDate = dates !== null && dates.length > 0
     startDate.value = hasSelectDate ? dates[0] : null
-  }
-
-  function handleClickHeaderBtn(type) {
-    if (type === 'link') {
-      linkDialogVisible.value = true
-    }
   }
 
   // 限定时间选择范围
@@ -217,6 +212,19 @@
     }
   }
 
+  function handleShowLink() {
+    linkDialogVisible.value = true
+  }
+
+  function handleFormatTableCell(row, prop) {
+    let text = row[prop]
+    if (prop === 'isPay') {
+      text = row[prop] ? '是' : '否'
+    }
+
+    return text
+  }
+
   function handleDynamicOptions(prop) {
     let list = []
     switch (prop) {
@@ -232,6 +240,10 @@
     }
 
     return list
+  }
+
+  function goBack() {
+    emits('goBack')
   }
 
   function handleGetTableList() {
@@ -263,15 +275,6 @@
     })
   }
 
-  function handleFormatTableCell(row, prop) {
-    let text = row[prop]
-    if (prop === 'isPay') {
-      text = row[prop] ? '是' : '否'
-    }
-
-    return text
-  }
-
   function handleSearchTable(type) {
     if (type === 'search') {
       searchTableParams.value.pageIndex = 1
@@ -287,6 +290,17 @@
     handleGetTableList()
   }
 
+  function handleGetUserInfo() {
+    if (props.userId) {
+      API.getUserInfoById(props.userId).then(res=>{
+        if (res.code == '0') {
+          userInfo.value = res.data
+        }
+      })
+    }
+
+  }
+
   const sourceTypeOptions = computed(() => {
     let res = [{label:'全部', key:'null'}], list = store.getters['platformType/list']
 
@@ -298,60 +312,57 @@
   })
 
   onMounted(() => {
+    // handleGetUserInfo()
     handleGetTableList()
   })
 </script>
 
 <style scoped lang="scss">
-    .operate-container{
-        position: relative;
+    .detail-container{
+        position: absolute;
+        height: 100%;
+        width: 100%;
+        z-index: 999;
+        top: 0;
+        left: 0;
 
-        .title{
-            padding: 10px;
-            font-size: 26px;
+        .header{
+            color: #ffffff;
+            font-size: 22px;
             font-weight: bold;
-            border-bottom: 1px dashed #3f99f7;
+            padding: 10px 15px;
+            background: #6ea3ff;
         }
 
-        .dialog-title{
-            text-align: center;
-            font-size: 18px;
-            color: #404040;
-            margin-bottom: 1vh;
-        }
-
-        .my-invite{
-            padding: 10px;
+        .search-container{
             position: relative;
+            padding: 20px;
 
-            .desc{
+            .user-info{
                 position: relative;
-                font-size: 16px;
-                font-weight: bold;
-                color: #212121;
-            }
 
-            .content{
-                display: flex;
-                margin-top: 10px;
-                font-size: 15px;
+                .desc{
+                    position: relative;
+                    font-size: 16px;
+                    font-weight: bold;
+                    color: #212121;
+                }
 
-                .item{
-                    width: 200px;
-                    span{
-                        margin: 0 5%;
+                .content{
+                    display: flex;
+                    margin-bottom: 20px;
+                    font-size: 16px;
+
+                    .item{
+                        width: auto;
+                        margin-right: 5%;
                     }
                 }
             }
         }
 
-        .search-container{
-            position: relative;
-            padding: 0 10px;
-        }
-
         .table-main{
-            height: calc(100% - 200px);
+            height: calc(100% - 315px);
             position: relative;
             display: flex;
             flex-direction: column;
@@ -419,5 +430,6 @@
                 }
             }
         }
+
     }
 </style>

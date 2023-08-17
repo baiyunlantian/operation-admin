@@ -3,11 +3,24 @@
 
         <el-col :span="22" class="echarts-container">
             <div class="top">
-                <Popover v-model="searchType" :options="selectionList" />
+                <div style="margin-right: 2%">
+                    <Popover v-model="params.sort" :options="sortOptions">
+                        <template v-slot:popover-icon>
+                            <el-icon class="u-cursor" style="font-size: 16px; color: #6ea3ff"><Sort /></el-icon>
+                        </template>
+                    </Popover>
+                </div>
+
+
+                <Popover v-model="params.promotion" :options="selectionList">
+                    <template v-slot:popover-icon>
+                        <span></span>
+                    </template>
+                </Popover>
 
                 <div class="time-range">
                     <div v-for="(item, index) in timeRangeTags" :key="index"
-                         :class="[dateScopeType === item.key ? 'active' : '', 'u-cursor u-m-r-10']"
+                         :class="[params.dateScopeType === item.key ? 'active' : '', 'u-cursor u-m-r-10']"
                          @click="handleClickTimeTag(item.key)"
                     >
                         {{ item.label }}
@@ -25,7 +38,7 @@
 </template>
 
 <script setup>
-  import {computed, onBeforeUnmount, onMounted, reactive, ref} from 'vue';
+  import {watch, onBeforeUnmount, onMounted, reactive, ref} from 'vue';
   import API from '../api';
   import * as echarts from "echarts";
   import Popover from '@/components/productTypePopover';
@@ -38,12 +51,20 @@
     {label:'按推广付费人数', key:'1'},
     {label:'按推广人数', key:'2'},
   ])
-  const dateScopeType = ref('1');
   const timeRangeTags = reactive([
     {label:'今日', key:'1'},
     {label:'本周', key:'2'},
     {label:'本月', key:'3'},
   ])
+  const sortOptions = ref([
+    {label: '降序', key: 'desc'},
+    {label: '升序', key: 'asc'},
+  ])
+  const params = reactive({
+    sort:'desc',
+    promotion: '0',
+    dateScopeType: '1'
+  })
 
 
   let myChars = null
@@ -99,7 +120,7 @@
 
   // 点击图表上的日期tag
   function handleClickTimeTag(tagValue) {
-    dateScopeType.value = tagValue
+    params.dateScopeType = tagValue
   }
 
 
@@ -134,6 +155,10 @@
     xAxisData.value = _xAxisData
     lineData.value = _seriesData
   }
+
+  watch(params, (newVal) => {
+    console.log('watch params', newVal)
+  }, {deep:true})
 
   onMounted(() => {
     echartsInit()
@@ -171,22 +196,6 @@
                         background-color: #409EFF;
                         padding: 5px 10px;
                         border-radius: 5px;
-                    }
-                }
-
-                .popover-text{
-                    position: relative;
-
-                    .point{
-                        display: inline-block;
-                        width: 10px;
-                        height: 10px;
-                        border-radius: 50%;
-                        background-color: blue;
-                    }
-
-                    .text{
-                        color: blue;
                     }
                 }
             }

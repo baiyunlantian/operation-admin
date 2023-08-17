@@ -164,7 +164,7 @@
 
         .header{
             color: #ffffff;
-            font-size: 24px;
+            font-size: 22px;
             font-weight: bold;
             padding: 10px 15px;
             background: #6ea3ff;

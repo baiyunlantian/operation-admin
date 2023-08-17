@@ -3,10 +3,9 @@
 
         <div class="title title-box">用户总览</div>
         <div class="statistic-container bg-fff">
-<!--            分销需求-->
-<!--            <div class="popover-container">-->
-<!--                <Popover v-model="productType" />-->
-<!--            </div>-->
+            <div class="popover-container">
+                <Popover v-model="productType" />
+            </div>
 
             <el-row class="w-100" :gutter="0">
                 <el-col v-for="(item, index) in totalStatisticConfig"  :span="5" :offset="1"  :key="index" class="item">
@@ -37,9 +36,7 @@
   import User from '../components/lineStatistic';
   import Source from './components/sourceStatistic'
   import Popover from '@/components/productTypePopover';
-  import {useStore} from "vuex";
 
-  const store = useStore()
 
   const totalStatisticConfig = reactive([
     {label:'今日新增', prop:'todayNewUserCount'},

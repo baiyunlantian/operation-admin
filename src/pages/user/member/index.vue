@@ -11,7 +11,7 @@
 
                     <el-select v-else-if="item.type === 'select' " v-model="searchTableParams[item.prop]" class="m-2" :placeholder="item.placeholder" clearable>
                         <el-option
-                                v-for="item in sourceTypeOptions"
+                                v-for="item in handleReturnOptions(item.prop)"
                                 :key="item.key"
                                 :label="item.label"
                                 :value="item.key"
@@ -139,7 +139,7 @@
     {label:'用户昵称：', prop:'userName', type:'input', placeholder:'用户昵称'},
     {label:'注册时间：', prop:'registerTime', type:'datetimerange'},
     {label:'', prop:'sourceType', type:'select', placeholder:'账号来源'},
-    // {label:'', prop:'dynamicScope', type:'select', placeholder:'最近活跃'},
+    {label:'', prop:'dynamicScope', type:'select', placeholder:'最近活跃'},
   ])
   const rules = reactive({
     account:[
@@ -167,18 +167,16 @@
   const tableData = ref([])
   const tableColumnConfig = ref([
     {label:'用户ID', prop:'userId'},
-    {label:'用户账号', prop:'account'},
+    {label:'手机号', prop:'account'},
     {label:'用户昵称', prop:'userName'},
     {label:'是否付费', prop:'isPay', insertSlot:'isPay'},
     {label:'总消费金额', prop:'consumedAmount'},
     {label:'账号来源', prop:'source'},
-    {label:'账号余额', prop:'balance'},
     {label:'注册时间', prop:'registerTime'},
-    // {label:'最近活跃时间', prop:'registerTime'},
+    {label:'最近活跃时间', prop:'registerTime'},
     {label:'账户启用状态', prop:'status', insertSlot:'status'},
     {label:'操作', prop:'operate', insertSlot:'operate'},
   ])
-  const timer = ref(null)
   const pageSizeOptions = ref([50, 100, 200])
   const timeSortOptions = ref([
     {label:'注册时间从晚到早', value:'desc'},
@@ -190,13 +188,29 @@
   const tableListTotal = ref(0)
   const startDate = ref(null)
   const formRef = ref(null)
-  const dynamicScope = ref([
-    {label:'1天内', value:'1'},
-    {label:'3天内', value:'2'},
-    {label:'7天内', value:'3'},
-    {label:'30天内', value:'4'},
-    {label:'30天前', value:'5'},
+  const dynamicScopeOptions = ref([
+    {label:'1天内', key:'1'},
+    {label:'3天内', key:'2'},
+    {label:'7天内', key:'3'},
+    {label:'30天内', key:'4'},
+    {label:'30天前', key:'5'},
   ])
+
+  function handleReturnOptions(prop) {
+    let options = []
+    switch (prop) {
+      case 'sourceType':
+        options = sourceTypeOptions.value;
+        break;
+      case 'dynamicScope':
+        options = dynamicScopeOptions.value;
+        break;
+      default:
+        options = [];
+    }
+
+    return options
+  }
 
   function datePickerChange(dates) {
     // 记录选择的起始日期

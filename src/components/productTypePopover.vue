@@ -2,8 +2,11 @@
     <el-popover placement="right" :width="150" trigger="click">
         <template #reference>
             <div class="popover-text">
-                <span class="point"></span>
-                <span class="text u-m-l-10">{{ selectedLabel }}</span>
+                <slot name="popover-icon">
+                    <span class="point"></span>
+                </slot>
+
+                <span class="text u-m-l-10 u-cursor">{{ selectedLabel }}</span>
             </div>
         </template>
         <el-radio-group v-model="selectedValue" @change="handleChangeValue">
@@ -13,7 +16,7 @@
 </template>
 
 <script setup>
-  import {computed, ref, defineEmits, defineProps, watch, onMounted} from "vue";
+  import {computed, ref, defineEmits, defineProps, watch} from "vue";
   import { useStore } from 'vuex';
 
   const store = useStore()
@@ -65,17 +68,19 @@
 <style scoped lang="scss">
     .popover-text{
         position: relative;
+        display: flex;
+        align-items: center;
 
         .point{
             display: inline-block;
             width: 10px;
             height: 10px;
             border-radius: 50%;
-            background-color: blue;
+            background-color: #6ea3ff;
         }
 
         .text{
-            color: blue;
+            color: #6ea3ff;
         }
     }
 </style>
