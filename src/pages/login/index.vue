@@ -40,7 +40,7 @@
         <el-form-item v-if="formType !== 'forget'">
           <div class="bottom-text u-flex u-row-between">
             <div class="u-flex">
-              <el-checkbox v-model="autoLogin">自动登录</el-checkbox>
+              <el-checkbox v-model="rememberPassword">记住密码</el-checkbox>
             </div>
             <el-link @click="handleSwitchForm('forgetPassword')" type="primary" :underline="false">
               <span class="f-999">忘记密码？</span>
@@ -57,9 +57,10 @@
 </template>
 
 <script setup>
-  import { reactive, ref, getCurrentInstance, onUnmounted, watch } from 'vue';
+  import { reactive, ref, getCurrentInstance, onUnmounted, watch, onMounted } from 'vue';
   import { useRouter } from 'vue-router';
   import cryptojs from "@/assets/js/cryptojs.js";
+  import Cookie from 'js-cookie';
   import API from './api';
 
   const { proxy } = getCurrentInstance()
@@ -113,12 +114,12 @@
     }]
   })
   const formRef = ref(null)
-  const autoLogin = ref(false)
+  const rememberPassword = ref(false)
   const isPending = ref(false)
   const countdown = ref(59)
   const timer = ref(null)
   const btnLoading = ref(false)
-  const formType = ref('code')
+  const formType = ref('password')
   // 表单类型  code:验证码登录    password:密码登录    forget:忘记密码
   const formConfig = reactive({
     'code':{
@@ -147,18 +148,25 @@
   })
 
   function handleSwitchForm(type) {
+    Object.keys(formData).forEach(key=>{
+      if (type !== 'forgetPassword' && key === 'account') {
+        formData['account'] = Cookie.get('account') || ''
+      }else {
+        formData[key] = ''
+      }
+    })
+
     if (type === 'code' || type === 'forget') {
+      const cachePw = Cookie.get('password')
       formType.value = 'password'
+      formData['password'] = cachePw ? cryptojs.decrypt(cachePw) : ''
     }else if (type === 'password') {
       formType.value = 'code'
     }else if (type === 'forgetPassword'){
       formType.value = 'forget'
     }
 
-    Object.keys(formData).forEach(key=>{
-      formData[key] = ''
-    })
-    formRef.value.resetFields()
+    formRef.value.clearValidate()
     resetCode()
   }
 
@@ -179,6 +187,12 @@
           btnLoading.value = true
           API.forgetPassword(params).then(res=>{
             if (res.code == '0') {
+
+              // 判断当前重置的账号是否是之前记住密码的账号，是的话清空密码
+              if (params.account === Cookie.get('account')) {
+                Cookie.remove('password')
+              }
+              rememberPassword.value = false
               proxy.$message({
                 type:'success',
                 message:'重置密码成功'
@@ -193,6 +207,13 @@
           btnLoading.value = true
           API.login(params).then(res=>{
             if (res.code == '0') {
+              if (rememberPassword.value && formType.value === 'password') {
+                Cookie.set('password', params.password, {expires:7})
+              }else {
+                Cookie.remove('password')
+              }
+
+              Cookie.set('account', params.account, {expires:7})
               localStorage.setItem('token', 'Bearer ' + res.data.token)
               localStorage.setItem('account', res.data.account)
               router.push({path:'/home'})
@@ -259,6 +280,16 @@
             }
           }
   )
+
+  onMounted(() => {
+    formData.account = Cookie.get('account') || '';
+    const password = Cookie.get('password') ? Cookie.get('password') : '';
+
+    if (password) {
+      formData.password = cryptojs.decrypt(password)
+      rememberPassword.value = true
+    }
+  })
 
   onUnmounted(() => {
     clearInterval(timer.value)
