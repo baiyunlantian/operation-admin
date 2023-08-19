@@ -21,7 +21,6 @@
                     <el-button type="primary" class="btn" @click="handleToggleDialog(true)">录入</el-button>
                 </el-form-item>
             </el-form>
-
         </div>
 
         <div class="table-main u-m-t-10 bg-fff">
@@ -85,7 +84,7 @@
                 />
             </div>
         </div>
-
+        <!-- 手机录入 -->
         <el-dialog
                 v-model="dialogVisible"
                 class="dialog-container"
@@ -99,6 +98,8 @@
                     <div class="close-btn icon u-cursor" @click="handleToggleDialog(false)">关闭</div>
                 </div>
             </template>
+
+
             <div class="dialog-body">
                 <el-input v-model="phoneList" class="textarea" type="textarea" placeholder="请输入手机号" />
             </div>
@@ -211,6 +212,7 @@
     }).catch(()=>{})
   }
 
+  // 手机录入弹出框
   function handleToggleDialog(visible) {
     if (visible === false) phoneList.value = ''
     dialogVisible.value = visible
@@ -427,7 +429,7 @@
                 position: relative;
 
                 .textarea{
-                    height: 500px;
+                    height: 45vh;
 
                     :deep(.el-textarea__inner){
                         height: 100%;
