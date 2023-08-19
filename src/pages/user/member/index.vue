@@ -114,7 +114,6 @@
             </div>
         </div>
 
-<!--        <BottomBox />-->
 
         <Transition name="fade" mode="out-in">
             <Detail v-if="detailVisible" :user-id="detailUserId" @goBack="handleGoBack"/>
@@ -128,7 +127,6 @@
   import dayjs from 'dayjs';
   import { useStore } from 'vuex';
   import API from './api';
-  import BottomBox from '@/components/bottom-box';
   import Detail from './detail'
 
   const { proxy } = getCurrentInstance()
@@ -139,7 +137,7 @@
     {label:'用户昵称：', prop:'userName', type:'input', placeholder:'用户昵称'},
     {label:'注册时间：', prop:'registerTime', type:'datetimerange'},
     {label:'', prop:'sourceType', type:'select', placeholder:'账号来源'},
-    {label:'', prop:'dynamicScope', type:'select', placeholder:'最近活跃'},
+    // {label:'', prop:'dynamicScope', type:'select', placeholder:'最近登录'},
   ])
   const rules = reactive({
     account:[
@@ -173,7 +171,8 @@
     {label:'总消费金额', prop:'consumedAmount'},
     {label:'账号来源', prop:'source'},
     {label:'注册时间', prop:'registerTime'},
-    {label:'最近活跃时间', prop:'registerTime'},
+    {label:'今日是否使用', prop:'isPay', insertSlot:'isPay'},
+    {label:'最后登录时间', prop:'lastLoginTime'},
     {label:'账户启用状态', prop:'status', insertSlot:'status'},
     {label:'操作', prop:'operate', insertSlot:'operate'},
   ])
@@ -189,6 +188,7 @@
   const startDate = ref(null)
   const formRef = ref(null)
   const dynamicScopeOptions = ref([
+    {label:'全部', key:'null'},
     {label:'1天内', key:'1'},
     {label:'3天内', key:'2'},
     {label:'7天内', key:'3'},
@@ -244,16 +244,6 @@
     return text
   }
 
-  // 暂时屏蔽
-  // function // 暂时屏蔽() {
-  //   if (selectedRows.value.length === 0) {
-  //     proxy.$message({
-  //       type:'error',
-  //       message:'请选择需要删除的数据！'
-  //     })
-  //   }
-  // }
-
   function handleSelectionChange(value) {
     selectedRows.value = value
   }
@@ -273,6 +263,10 @@
 
     if (params.sourceType === 'null') {
       params.sourceType = ''
+    }
+
+    if (params.dynamicScope === 'null') {
+      params.dynamicScope = ''
     }
 
     formRef.value.validate(valid => {
@@ -333,17 +327,16 @@
   function handleSearchTable(type) {
     if (type === 'search') {
       searchTableParams.value.pageIndex = 1
+      handleGetTableList()
     }else if (type === 'reset') {
-      searchTableParams.value = {
-        pageSize:50,
-        pageIndex:1,
-        sortField: 'register_time',
-        sort: 'desc',
-        sourceType: 'null'
-      }
+      searchFormConfig.value.forEach(item=>{
+        if (item.prop === 'register_time') {
+          searchTableParams.value[item.prop] = []
+        }else {
+          searchTableParams.value[item.prop] = item.prop === 'sourceType' ? 'null' : ''
+        }
+      })
     }
-
-    handleGetTableList()
   }
 
   const sourceTypeOptions = computed(() => {

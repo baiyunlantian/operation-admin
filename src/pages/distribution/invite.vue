@@ -291,16 +291,16 @@
   function handleSearchTable(type) {
     if (type === 'search') {
       searchTableParams.value.pageIndex = 1
+      handleGetTableList()
     }else if (type === 'reset') {
-      searchTableParams.value = {
-        pageSize:50,
-        pageIndex:1,
-        sourceType: 'null',
-        sort: 'desc',
-      }
+      searchFormConfig.value.forEach(item=>{
+        if (item.prop === 'registerTime') {
+          searchTableParams.value[item.prop] = []
+        }else {
+          searchTableParams.value[item.prop] = item.prop === 'sourceType' ? 'null' : ''
+        }
+      })
     }
-
-    handleGetTableList()
   }
 
   const sourceTypeOptions = computed(() => {

@@ -107,9 +107,9 @@
     }
   )
 
-  // onMounted(() => {
-  //   getData();
-  // })
+  onMounted(() => {
+    getData();
+  })
 </script>
 
 <style scoped lang="scss">

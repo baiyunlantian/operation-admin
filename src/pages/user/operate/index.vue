@@ -293,16 +293,16 @@
   function handleSearchTable(type) {
     if (type === 'search') {
       searchTableParams.value.pageIndex = 1
+      handleGetTableList()
     }else if (type === 'reset') {
-      searchTableParams.value = {
-        pageSize:50,
-        pageIndex:1,
-        sortField: 'created_time',
-        sortType: 'DESC',
-      }
+      searchFormConfig.value.forEach(item=>{
+        if (item.prop === 'createTime') {
+          searchTableParams.value[item.prop] = []
+        }else {
+          searchTableParams.value[item.prop] = ''
+        }
+      })
     }
-
-    handleGetTableList()
   }
   function handleClickBtn(eventType) {
     if (eventType === 'del') {
@@ -323,22 +323,6 @@
     modalVisible.value = visible
     refreshTable && handleGetTableList()
   }
-
-  // watch(searchTableParams, (newVal, oldVal) => {
-  //     if (timer.value !== null) {
-  //       clearTimeout(timer.value);
-  //     }
-  //     timer.value = setTimeout(() => {
-  //       formRef.value.validate(valid => {
-  //         if (valid) {
-  //           handleGetTableList()
-  //           timer.value = null;
-  //         }
-  //       })
-  //     }, 1000)
-  //   },
-  //   {deep:true}
-  // )
 
   onMounted(() => {
     handleGetTableList()

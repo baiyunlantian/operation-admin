@@ -4,7 +4,7 @@
         <el-col :span="22" class="echarts-container">
             <div class="top">
                 <div style="margin-right: 2%">
-                    <Popover v-model="params.sort" :options="sortOptions">
+                    <Popover v-model="params.sortType" :options="sortOptions">
                         <template v-slot:popover-icon>
                             <el-icon class="u-cursor" style="font-size: 16px; color: #6ea3ff"><Sort /></el-icon>
                         </template>
@@ -12,7 +12,7 @@
                 </div>
 
 
-                <Popover v-model="params.promotionType" :options="promotionTypeList">
+                <Popover v-model="params.sortField" :options="promotionTypeList">
                     <template v-slot:popover-icon>
                         <span></span>
                     </template>
@@ -28,7 +28,7 @@
                 </div>
             </div>
 
-            <div class="echarts-ref" ref="echartsRef"></div>
+            <div v-show="seriesData.length > 0" class="echarts-ref" ref="echartsRef"></div>
             <div v-show="seriesData.length === 0" class="empty-text">暂无数据</div>
 
             <div class="check-detail">查看详情</div>
@@ -47,9 +47,9 @@
   const yAxisData = ref([])
   const echartsRef = ref(null)
   const promotionTypeList = ref([
-    {label:'按推广付费金额', key:'1'},
-    {label:'按推广付费人数', key:'2'},
-    {label:'按推广人数', key:'3'},
+    {label:'按推广付费金额', key:'payment_amount'},
+    {label:'按推广付费人数', key:'promotion_payers'},
+    {label:'按推广人数', key:'promotion_numbers'},
   ])
   const timeRangeTags = reactive([
     {label:'今日', key:'1'},
@@ -61,8 +61,8 @@
     {label: '升序', key: 'asc'},
   ])
   const params = reactive({
-    sort:'desc',
-    promotionType: '1',
+    sortType:'desc',
+    sortField: 'payment_amount',
     dateScopeType: '1'
   })
 
@@ -89,11 +89,12 @@
       },
       xAxis: {
         type: 'value',
-        boundaryGap: [0, 0.01]
+        boundaryGap: [0, 0.01],
+        minInterval: 1,
       },
       yAxis: {
         type: 'category',
-        data: yAxisData.value
+        data: yAxisData.value,
       },
       series: seriesData.value,
     };
@@ -117,38 +118,11 @@
       ...params
     }
 
-    // API.getInviteStatistics(_params).then(res=>{
-    //   if (res.code == '0') {
-    //     formatLineData(res.data)
-    //   }
-    // })
-
-    // let list = [
-    //   {"platformName":"AI 个人助理", "xAxis":1000, "yAxis":"用户1",},
-    //   {"platformName":"AI 个人助理", "xAxis":1342, "yAxis":"用户2",},
-    //   {"platformName":"AI 个人助理", "xAxis":987, "yAxis":"用户3",},
-    //   {"platformName":"AI 个人助理", "xAxis":777, "yAxis":"用户4",},
-    //   {"platformName":"AI 个人助理", "xAxis":1512, "yAxis":"用户5",},
-    //   {"platformName":"AI 个人助理", "xAxis":1111, "yAxis":"用户6",},
-    //   {"platformName":"AI 个人助理", "xAxis":912, "yAxis":"用户7",},
-    //
-    //   {"platformName":"AI 绘画", "xAxis":615, "yAxis":"用户1",},
-    //   {"platformName":"AI 绘画", "xAxis":1364, "yAxis":"用户2",},
-    //   {"platformName":"AI 绘画", "xAxis":888, "yAxis":"用户3",},
-    //   {"platformName":"AI 绘画", "xAxis":1500, "yAxis":"用户4",},
-    //   {"platformName":"AI 绘画", "xAxis":542, "yAxis":"用户5",},
-    //   {"platformName":"AI 绘画", "xAxis":765, "yAxis":"用户6",},
-    //   {"platformName":"AI 绘画", "xAxis":844, "yAxis":"用户7",},
-    //
-    //   {"platformName":"AI 营销写作", "xAxis":1644, "yAxis":"用户1",},
-    //   {"platformName":"AI 营销写作", "xAxis":800, "yAxis":"用户2",},
-    //   {"platformName":"AI 营销写作", "xAxis":631, "yAxis":"用户3",},
-    //   {"platformName":"AI 营销写作", "xAxis":666, "yAxis":"用户4",},
-    //   {"platformName":"AI 营销写作", "xAxis":1005, "yAxis":"用户5",},
-    //   {"platformName":"AI 营销写作", "xAxis":1320, "yAxis":"用户6",},
-    //   {"platformName":"AI 营销写作", "xAxis":999, "yAxis":"用户7",},
-    // ]
-    // formatLineData(list)
+    API.getInviteStatistics(_params).then(res=>{
+      if (res.code == '0') {
+        formatLineData(res.data)
+      }
+    })
   }
 
   // 格式化数据

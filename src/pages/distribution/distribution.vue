@@ -236,16 +236,12 @@
   function handleSearchTable(type) {
     if (type === 'search') {
       searchTableParams.value.pageIndex = 1
+      handleGetTableList()
     }else if (type === 'reset') {
-      searchTableParams.value = {
-        pageSize:50,
-        pageIndex:1,
-        sortType: 'desc',
-        sortField: 'paymentAmount',
-      }
+      searchFormConfig.value.forEach(item=>{
+        searchTableParams.value[item.prop] = ''
+      })
     }
-
-    handleGetTableList()
   }
 
   watch(
