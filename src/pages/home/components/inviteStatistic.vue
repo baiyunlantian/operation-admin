@@ -79,7 +79,7 @@
       myChars = echarts.init(echartsRef.value)
     }
     myChars.clear(); // 清除画布内容
-    let option = {
+    myChars.setOption({
       color:['#5470c6', '#91cc75', '#fac858'],
       legend: {
         show: true,
@@ -102,8 +102,7 @@
         data: yAxisData.value,
       },
       series: seriesData.value,
-    };
-    myChars.setOption(option)
+    })
     window.addEventListener('resize', call)
   }
 
@@ -154,6 +153,7 @@
 
     setTimeout(()=>{
       echartsInit()
+      call()
     },100)
   }
 

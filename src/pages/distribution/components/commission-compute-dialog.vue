@@ -27,7 +27,7 @@
                     <span>该员工的推广付费用户付款一笔订单，员工可抽取</span>
                     <el-form class="search-form" ref="formRef" :inline="true" :model="computeData" :rules="rules" @submit.prevent>
                         <el-form-item prop="amount">
-                            <el-input class="compute-input" v-model="computeData.amount" />
+                            <el-input class="compute-input" v-model="computeData.amount" @blur="handleBlur"/>
                         </el-form-item>
                     </el-form>
 
@@ -87,7 +87,8 @@
   const formRef = ref()
 
   function validNumber(rule, value, callback) {
-    if (!value && value != 0) callback(new Error('请输入抽取额度'))
+    console.log('value', value)
+    if ((!value && value != 0) || value == '0.') callback(new Error('请输入抽取额度'))
 
     const reg = /((^[1-9]\d*)|^0)(\.\d{0,2}){0,1}$/, _value = Number(value);
     if (computeData.value.type === 0) {
@@ -161,6 +162,10 @@
       type: 0,
       amount: 0
     }
+  }
+
+  function handleBlur() {
+    if (computeData.value.amount === '') computeData.value.amount = 0
   }
 
   watch(
