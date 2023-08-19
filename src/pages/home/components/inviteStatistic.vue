@@ -31,17 +31,22 @@
             <div v-show="seriesData.length > 0" class="echarts-ref" ref="echartsRef"></div>
             <div v-show="seriesData.length === 0" class="empty-text">暂无数据</div>
 
-            <div class="check-detail">查看详情</div>
+            <div v-if="userInfo.isRoot" class="check-detail" @click="handleJumpRoute">查看详情</div>
         </el-col>
 
     </el-row>
 </template>
 
 <script setup>
-  import {watch, onBeforeUnmount, onMounted, reactive, ref} from 'vue';
+  import {watch, onBeforeUnmount, onMounted, reactive, ref, computed} from 'vue';
   import API from '../api';
   import * as echarts from "echarts";
   import Popover from '@/components/productTypePopover';
+  import { useStore } from 'vuex';
+  import { useRouter } from "vue-router";
+
+  const store = useStore();
+  const router = useRouter();
 
   const seriesData = ref([])
   const yAxisData = ref([])
@@ -151,6 +156,14 @@
       echartsInit()
     },100)
   }
+
+  function handleJumpRoute() {
+    router.push({path: '/distribution'})
+  }
+
+  const userInfo = computed(() => {
+    return store.getters["user/info"];
+  });
 
   watch(params, (newVal) => {
     handleGetData()

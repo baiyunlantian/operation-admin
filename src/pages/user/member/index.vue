@@ -38,18 +38,13 @@
                 </el-form-item>
             </el-form>
 
-            <!--暂时屏蔽      -->
-            <!--      <div class="btns">-->
-            <!--          <el-button type="primary" class="btn" @click="handleClickBtn">批量删除</el-button>-->
-            <!--      </div>-->
-
         </div>
 
         <div class="table-main u-m-t-10 bg-fff">
             <div class="header-operate theme-bg title-box">
                 <div class="left-text">用户列表</div>
                 <div class="right-sort">
-                    <el-select v-model="searchTableParams.pageSize" class="m-2" placeholder="显示条数" @change="handleSearchTable('select')">
+                    <el-select v-model="searchTableParams.pageSize" class="m-2" placeholder="显示条数" @change="handleGetTableList">
                         <el-option
                                 v-for="item in pageSizeOptions"
                                 :key="item"
@@ -58,7 +53,7 @@
                         />
                     </el-select>
 
-                    <el-select v-model="searchTableParams.sort" class="m-2" placeholder="排序方式" @change="handleSearchTable('select')">
+                    <el-select v-model="searchTableParams.sort" class="m-2" placeholder="排序方式" @change="handleGetTableList">
                         <el-option
                                 v-for="item in timeSortOptions"
                                 :key="item.value"
@@ -133,7 +128,7 @@
   const store = useStore()
 
   const searchFormConfig = ref([
-    {label:'ID/账号：', prop:'account', type:'input', placeholder:'用户ID/账号'},
+    {label:'ID/手机号：', prop:'account', type:'input', placeholder:'用户ID/手机号'},
     {label:'用户昵称：', prop:'userName', type:'input', placeholder:'用户昵称'},
     {label:'注册时间：', prop:'registerTime', type:'datetimerange'},
     {label:'', prop:'sourceType', type:'select', placeholder:'账号来源'},

@@ -22,14 +22,14 @@
 
                     <template v-if="menuItems === 'left'">
                         <template v-for="(menu, index) in leftMenuList" :key="menu.menuId">
-                            <el-menu-item v-if="menu.children.length === 0" class="menu-item"  :index="menu.path">
+                            <el-menu-item v-if="menu.children.length === 0 && permissionList.includes(menu.path) === false || (permissionList.includes(menu.path) && userInfo.isRoot)" class="menu-item"  :index="menu.path">
                                 {{menu.name}}
                             </el-menu-item>
 
-                            <el-sub-menu v-else class="sub-menu-item" :index="index+'b'">
+                            <el-sub-menu v-else-if="menu.children.length > 0 && permissionList.includes(menu.path) === false || (permissionList.includes(menu.path) && userInfo.isRoot)" class="sub-menu-item" :index="index+'b'">
                                 <template #title>{{menu.name}}</template>
                                 <template v-for="(secondMenu, sIndex) in menu.children" :key="secondMenu.menuId">
-                                    <el-menu-item :index="secondMenu.path">{{secondMenu.name}}</el-menu-item>
+                                    <el-menu-item v-if="permissionList.includes(secondMenu.path) === false || (permissionList.includes(secondMenu.path) && userInfo.isRoot)" :index="secondMenu.path">{{secondMenu.name}}</el-menu-item>
                                 </template>
                             </el-sub-menu>
                         </template>
@@ -41,12 +41,12 @@
                                 <template #title>
                                     <div class="user-box u-flex u-col-center">
                                         <div class="user-child">
-                                            <img :src="userAvatar" style="height: 100%; width: 100%"/>
+                                            <img :src="userInfo.userImage || AutoAvatar" style="height: 100%; width: 100%"/>
                                         </div>
                                     </div>
                                 </template>
                                 <template v-for="(secondMenu, sIndex) in menu.children" :key="secondMenu.menuId">
-                                    <el-menu-item :index="secondMenu.path">{{secondMenu.name}}</el-menu-item>
+                                    <el-menu-item v-if="permissionList.includes(secondMenu.path) === false || (permissionList.includes(secondMenu.path) && userInfo.isRoot)" :index="secondMenu.path">{{secondMenu.name}}</el-menu-item>
                                 </template>
                             </el-sub-menu>
                         </template>
@@ -70,6 +70,8 @@
   const store = useStore();
 
   const menuList = reactive(MENULIST)
+  // 权限路由（临时）
+  const permissionList = ref(['/operate', '/distribution']);
   const activeIndex = ref('/home')
 
   const leftMenuList = computed(() => {
@@ -90,9 +92,8 @@
     }
   }
 
-  const userAvatar = computed(() => {
-    const userInfo = store.getters["user/info"];
-    return userInfo.userImage || AutoAvatar
+  const userInfo = computed(() => {
+    return store.getters["user/info"];
   });
 
   watch(

@@ -70,7 +70,8 @@ const asyncRouterMap = modulesFiles.keys().reduce((modules, modulePath) => {
 
 // 白名单
 const white = ['login', 'register', '404']
-
+// 权限路由（临时）
+const permissionList = ['/operate', '/distribution'];
 
 
 
@@ -82,6 +83,7 @@ router.beforeResolve((to, from, next) => {
 router.beforeEach(async (to, from, next) => {
   // console.log("beforeEach")
   let token = window.localStorage.getItem('token') || '';
+  const isRoot = store.getters['user/info']['isRoot'] || false;
   if (token) {
     // 权限列表为空则调用 获取权限列表的方法
     if (store.getters['user/permissionList'].length === 0) {
@@ -96,9 +98,15 @@ router.beforeEach(async (to, from, next) => {
         path: "/"
       });
     } else {
-      next();
+      // 非超管不能跳转
+      if (isRoot === false && permissionList.includes(to.path) === true) {
+        next({
+          path: "/"
+        });
+      }else {
+        next();
+      }
     }
-    // 已登录
   } else {
     // 未登录
     // 跳转的页面不是登录页面

@@ -35,7 +35,7 @@
                         </Popover>
                     </div>
 
-                    <el-select v-model="searchTableParams.sortField" class="m-2" placeholder="排序方式" @change="handleSearchTable('select')">
+                    <el-select v-model="searchTableParams.sortField" class="m-2" placeholder="排序方式" @change="handleGetTableList">
                         <el-option
                                 v-for="item in promotionOptions"
                                 :key="item.value"
@@ -44,7 +44,7 @@
                         />
                     </el-select>
 
-                    <el-select v-model="searchTableParams.pageSize" class="m-2" placeholder="显示条数" @change="handleSearchTable('select')">
+                    <el-select v-model="searchTableParams.pageSize" class="m-2" placeholder="显示条数" @change="handleGetTableList">
                         <el-option
                                 v-for="item in pageSizeOptions"
                                 :key="item"

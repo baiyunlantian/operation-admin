@@ -44,14 +44,6 @@ const navCtrl = {
 
   },
   actions: {
-    getPermissionList({ commit }) {
-      let list = [1];
-      commit('SET_PERMISSION_LIST', list);
-      return list;
-      // return new Promise((resolve, reject) => {
-
-      // });
-    }
   },
   getters: {
     getNavCtrl: state => state.navCtrl,

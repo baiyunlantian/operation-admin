@@ -49,11 +49,6 @@
                 </el-form-item>
             </el-form>
 
-            <!--暂时屏蔽      -->
-            <!--      <div class="btns">-->
-            <!--          <el-button type="primary" class="btn" @click="handleClickBtn">批量删除</el-button>-->
-            <!--      </div>-->
-
         </div>
 
         <div class="table-main u-m-t-10 bg-fff">
@@ -61,7 +56,7 @@
                 <div class="left-text">邀新列表</div>
                 <div class="right-sort">
 
-                    <el-select v-model="searchTableParams.pageSize" class="m-2" placeholder="显示条数" @change="handleSearchTable('select')">
+                    <el-select v-model="searchTableParams.pageSize" class="m-2" placeholder="显示条数" @change="handleGetTableList">
                         <el-option
                                 v-for="item in pageSizeOptions"
                                 :key="item"
@@ -70,7 +65,7 @@
                         />
                     </el-select>
 
-                    <el-select v-model="searchTableParams.sort" class="m-2" placeholder="排序方式" @change="handleSearchTable('select')">
+                    <el-select v-model="searchTableParams.sort" class="m-2" placeholder="排序方式" @change="handleGetTableList">
                         <el-option
                                 v-for="item in sortOptions"
                                 :key="item.value"

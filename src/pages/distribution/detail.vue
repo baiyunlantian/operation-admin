@@ -65,7 +65,7 @@
                 <div class="left-text">邀新列表</div>
                 <div class="right-sort">
 
-                    <el-select v-model="searchTableParams.pageSize" class="m-2" placeholder="显示条数" @change="handleSearchTable('select')">
+                    <el-select v-model="searchTableParams.pageSize" class="m-2" placeholder="显示条数" @change="handleGetTableList">
                         <el-option
                                 v-for="item in pageSizeOptions"
                                 :key="item"
@@ -74,7 +74,7 @@
                         />
                     </el-select>
 
-                    <el-select v-model="searchTableParams.sortType" class="m-2" placeholder="排序方式" @change="handleSearchTable('select')">
+                    <el-select v-model="searchTableParams.sortType" class="m-2" placeholder="排序方式" @change="handleGetTableList">
                         <el-option
                                 v-for="item in sortOptions"
                                 :key="item.value"
@@ -111,7 +111,6 @@
                         :total="tableListTotal"
                         background
                         @current-change="handleGetTableList"
-                        @size-change="handleGetTableList"
                 />
             </div>
         </div>
@@ -124,6 +123,7 @@
   import { reactive, ref, defineProps, onMounted, computed, defineEmits } from 'vue';
   import { useStore } from 'vuex';
   import API from './api';
+  import _API from '@/pages/user/member';
   import dayjs from "dayjs";
   import LINKDIALOG from './components/link-dialog';
 

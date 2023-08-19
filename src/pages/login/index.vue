@@ -38,8 +38,8 @@
         </el-form-item>
 
         <el-form-item v-if="formType !== 'forget'">
-          <div class="bottom-text u-flex u-row-between">
-            <div class="u-flex">
+          <div class="bottom-text u-flex" :class="formType === 'password' ? 'u-row-between' : 'u-row-right'">
+            <div class="u-flex" v-show="formType === 'password'">
               <el-checkbox v-model="rememberPassword">记住密码</el-checkbox>
             </div>
             <el-link @click="handleSwitchForm('forgetPassword')" type="primary" :underline="false">

@@ -106,7 +106,7 @@
   ])
   const statisticInfo = ref([])
   const statisticTableColumnConfig = computed(()=>{
-    console.log('userInfo', userInfo)
+    // console.log('userInfo', userInfo)
     let list = [
       {label:'是否付费', prop:'isPay'},
       {label:'总付费金额', prop:'consumedAmount'},
