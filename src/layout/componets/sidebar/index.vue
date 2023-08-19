@@ -71,7 +71,7 @@
 
   const menuList = reactive(MENULIST)
   // 权限路由（临时）
-  const permissionList = ref(['/operate', '/distribution']);
+  const permissionList = ref([]);
   const activeIndex = ref('/home')
 
   const leftMenuList = computed(() => {
