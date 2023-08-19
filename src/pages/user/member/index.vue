@@ -65,6 +65,7 @@
             </div>
 
             <el-table
+                    ref="tableRef"
                     class="table-container"
                     :data="tableData"
                     border
@@ -182,6 +183,7 @@
   const tableListTotal = ref(0)
   const startDate = ref(null)
   const formRef = ref(null)
+  const tableRef = ref()
   const dynamicScopeOptions = ref([
     {label:'全部', key:'null'},
     {label:'1天内', key:'1'},
@@ -268,6 +270,7 @@
       if (valid) {
         API.getMemberTableList(params).then(res=>{
           if (res.code == '0') {
+            tableRef.value.setScrollTop(0)
             tableData.value = res.data.list
             tableListTotal.value = res.data.total
           }

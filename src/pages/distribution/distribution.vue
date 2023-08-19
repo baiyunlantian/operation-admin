@@ -56,6 +56,7 @@
             </div>
 
             <el-table
+                    ref="tableRef"
                     class="table-container"
                     :data="tableData"
                     border
@@ -168,6 +169,7 @@
   const detailUserId = ref('')
   const tableListTotal = ref(0)
   const formRef = ref(null)
+  const tableRef = ref()
   const sortOptions = ref([
     {label: '降序', key: 'desc'},
     {label: '升序', key: 'asc'},
@@ -220,6 +222,7 @@
       if (valid) {
         API.getDistributionManageList(params).then(res=>{
           if (res.code == '0') {
+            tableRef.value.setScrollTop(0)
             tableData.value = res.data.list
             tableListTotal.value = res.data.total
           }

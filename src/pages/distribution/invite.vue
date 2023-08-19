@@ -2,7 +2,7 @@
     <div class="operate-container bg-fff">
         <div class="title header-btns">
             <el-button type="primary" @click="handleClickHeaderBtn('invite')">邀请奖励规则</el-button>
-            <el-button type="primary" @click="handleClickHeaderBtn('link')">生成邀请链接</el-button>
+            <el-button type="primary" @click="handleClickHeaderBtn('link')">复制邀请链接</el-button>
         </div>
 
         <div class="my-invite">
@@ -77,6 +77,7 @@
             </div>
 
             <el-table
+                    ref="tableRef"
                     class="table-container"
                     :data="tableData"
                     border
@@ -177,6 +178,7 @@
   const Payer = ref(0)
   const startDate = ref(null)
   const formRef = ref(null)
+  const tableRef = ref()
   const isPayOptions = ref([
     {label:'付费用户', key:'1'},
     {label:'未付费用户', key:'0'},
@@ -184,7 +186,6 @@
   const linkList = ref([])
   const linkDialogVisible = ref(false)
   const inviteContentDialogVisible = ref(false)
-  const userId = ref('')
 
   function datePickerChange(dates) {
     // 记录选择的起始日期
@@ -253,8 +254,9 @@
 
     formRef.value.validate(valid => {
       if (valid) {
-        API.getNewMemberList(params).then(res=>{
+        API.getInviteUserList(params).then(res=>{
           if (res.code == '0') {
+            tableRef.value.setScrollTop(0)
             const { CommissionAmount:c, Payer:p, list, total } = res.data
             tableData.value = list
             tableListTotal.value = total
@@ -309,8 +311,8 @@
   })
 
   onMounted(() => {
-    // handleGetLinkList()
-    // handleGetTableList()
+    handleGetLinkList()
+    handleGetTableList()
   })
 </script>
 

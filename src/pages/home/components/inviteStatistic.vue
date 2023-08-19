@@ -31,7 +31,7 @@
             <div v-show="seriesData.length > 0" class="echarts-ref" ref="echartsRef"></div>
             <div v-show="seriesData.length === 0" class="empty-text">暂无数据</div>
 
-            <div v-if="userInfo.isRoot" class="check-detail" @click="handleJumpRoute">查看详情</div>
+            <div v-if="userInfo.isAdmin === 1" class="check-detail" @click="handleJumpRoute">查看详情</div>
         </el-col>
 
     </el-row>
@@ -52,9 +52,9 @@
   const yAxisData = ref([])
   const echartsRef = ref(null)
   const promotionTypeList = ref([
-    {label:'按推广付费金额', key:'payment_amount'},
-    {label:'按推广付费人数', key:'promotion_payers'},
-    {label:'按推广人数', key:'promotion_numbers'},
+    {label:'按推广付费金额', key:'PaymentAmount'},
+    {label:'按推广付费人数', key:'PromotionPayers'},
+    {label:'按推广人数', key:'PromotionNumbers'},
   ])
   const timeRangeTags = reactive([
     {label:'今日', key:'1'},
@@ -67,7 +67,7 @@
   ])
   const params = reactive({
     sortType:'desc',
-    sortField: 'payment_amount',
+    sortField: 'PaymentAmount',
     dateScopeType: '1',
     sourceType: '',
   })
@@ -221,6 +221,10 @@
         params.sourceType = list.join(',')
       }
   }, {deep:true, immediate: true})
+
+  // onMounted(() => {
+  //   handleGetData()
+  // })
 
 
   onBeforeUnmount(() => {

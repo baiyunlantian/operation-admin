@@ -8,7 +8,7 @@
                 <el-form-item v-for="(item, index) in formConfig" :label="item.label" :prop="item.key" :key="item.key">
                     <template v-if="item.key === 'code'">
                         <div class="inputFormCode">
-                            <el-input v-model="formData[item.key]" :placeholder="`请输入${item.placeholder}`"/>
+                            <el-input v-model="formData[item.key]" :placeholder="`请输入${item.placeholder}`" :validate-event="false"/>
 
                             <div class="code-content">
                                 <div v-if="isPending" class="countdown">倒计时{{countdown}}s</div>
@@ -23,6 +23,7 @@
                             :type="item.compoentType === 'password' ? 'password' : 'text'"
                             :placeholder="`请输入${item.placeholder}`"
                             :show-password="item.compoentType === 'password'"
+                            :validate-event="false"
                             onkeyup="value=value.replace(/[^\x00-\xff]/g, '')"
                     />
                 </el-form-item>

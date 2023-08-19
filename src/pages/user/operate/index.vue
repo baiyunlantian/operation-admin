@@ -60,6 +60,7 @@
             </div>
 
             <el-table
+                    ref="tableRef"
                     class="table-container"
                     :data="tableData"
                     border
@@ -157,7 +158,7 @@
     {label:'账户启用状态', prop:'status', insertSlot:'status'},
     {label:'操作', prop:'operate', insertSlot:'operate'},
   ])
-  const timer = ref(null)
+  const tableRef = ref()
   const pageSizeOptions = ref([50, 100, 200])
   const timeSortOptions = ref([
     {label:'创建时间从晚到早', value:'DESC'},
@@ -207,6 +208,7 @@
       if (valid) {
         API.getOperateTableList(params).then(res=>{
           if (res.code == '0') {
+            tableRef.value.setScrollTop(0)
             tableData.value = res.data.list
             tableTotal.value = res.data.total
           }

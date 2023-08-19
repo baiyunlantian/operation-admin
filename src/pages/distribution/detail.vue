@@ -20,8 +20,8 @@
 <!--                    <div class="item"><span>推广佣金额度：</span><span class="u-m-l-10 u-m-r-10">￥{{ userInfo.promotionPayers || 0 }}</span>元</div>-->
                 </div>
             </div>
-
-            <el-button class="u-m-b-20" type="primary" @click="handleShowLink">查看邀请链接</el-button>
+                <!--    暂时去掉    -->
+                <!--    <el-button class="u-m-b-20" type="primary" @click="handleShowLink">查看邀请链接</el-button>-->
 
             <el-form class="search-form" ref="formRef" :inline="true" :model="searchTableParams" :rules="rules">
 

@@ -42,7 +42,7 @@ const user = {
         getUserInfo({ commit }) {
             HOME.getUserInfo().then(res=>{
                 if (res.code == '0') {
-                    commit('SET_USER_INFO', {...res.data, isRoot: true});
+                    commit('SET_USER_INFO', res.data);
                 }else {
                     commit('SET_USER_INFO', {});
                 }

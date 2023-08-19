@@ -83,7 +83,7 @@ router.beforeResolve((to, from, next) => {
 router.beforeEach(async (to, from, next) => {
   // console.log("beforeEach")
   let token = window.localStorage.getItem('token') || '';
-  const isRoot = store.getters['user/info']['isRoot'] || false;
+  const isAdmin = store.getters['user/info']['isAdmin'] || 0;
   if (token) {
     // 权限列表为空则调用 获取权限列表的方法
     if (store.getters['user/permissionList'].length === 0) {
@@ -103,7 +103,7 @@ router.beforeEach(async (to, from, next) => {
         document.title = to.meta.title
       }
       // 非超管不能跳转
-      if (isRoot === false && permissionList.includes(to.path) === true) {
+      if (isAdmin === 1 && permissionList.includes(to.path) === true) {
         next({
           path: "/"
         });

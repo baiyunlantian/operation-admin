@@ -296,6 +296,7 @@
       if (valid) {
         API.getCourseUserList(params).then(res=>{
           if (res.code == '0') {
+            tableRef.value.setScrollTop(0)
             tableData.value = res.data.list
             tableListTotal.value = res.data.total
 

@@ -73,10 +73,10 @@
         required: true,
         message: '密码不能为空!',
       },
-      {
-        pattern: /^[0-9A-Za-z]{8,16}$/,
-        message: '请输入8-16位的数字和字母!',
-      },
+      // {
+      //   pattern: /^[0-9A-Za-z]{8,16}$/,
+      //   message: '请输入8-16位的数字和字母!',
+      // },
     ],
     resetPassword: [
       {

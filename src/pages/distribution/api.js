@@ -2,11 +2,6 @@ import HTTP from '@/utils/request';
 
 export default {
 
-  // 获取我的邀新列表
-  getNewMemberList(params) {
-    return HTTP.get("/DistributionManage/InviteUser/Page", params );
-  },
-
   // 查看邀请奖励规则
   getInvitationRewardRules(params) {
     return HTTP.get("/DistributionManage/Activity/Content", params );

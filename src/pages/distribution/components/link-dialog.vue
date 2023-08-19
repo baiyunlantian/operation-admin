@@ -2,7 +2,6 @@
     <div class="dialog-container">
         <el-dialog
                 v-model="visible"
-                width="500"
                 :close-on-click-modal="false"
                 :show-close="true"
                 @close="handleToggleDialog"
@@ -14,7 +13,7 @@
                 <template v-if="linkList.length > 0">
                     <div class="row">邀请链接：</div>
                     <div class="row" v-for="(link, index) in linkList" :key="index">
-                        <span class="copy-content">{{ link.name }}：{{ link.inviteLink }}</span>
+                        <div class="copy-content">{{ link.name }}：{{ link.inviteLink }}</div>
                         <el-icon class="u-cursor" style="font-size: 24px;" @click="handleCopy(link)"><CopyDocument /></el-icon>
                     </div>
                 </template>
@@ -113,6 +112,9 @@
 
         :deep(.el-dialog) {
             margin-top: 30vh;
+            min-width: 700px;
+            width: auto;
+            max-width: 1100px;
 
             .el-dialog__footer{
                 text-align: center;
@@ -132,7 +134,7 @@
                 justify-content: space-between;
                 color: #404040;
 
-                span{
+                .copy-content{
                     position: relative;
                 }
             }

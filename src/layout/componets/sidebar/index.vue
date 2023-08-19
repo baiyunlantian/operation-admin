@@ -22,14 +22,14 @@
 
                     <template v-if="menuItems === 'left'">
                         <template v-for="(menu, index) in leftMenuList" :key="menu.menuId">
-                            <el-menu-item v-if="menu.children.length === 0 && permissionList.includes(menu.path) === false || (permissionList.includes(menu.path) && userInfo.isRoot)" class="menu-item"  :index="menu.path">
+                            <el-menu-item v-if="menu.children.length === 0 && permissionList.includes(menu.path) === false || (permissionList.includes(menu.path) && userInfo.isAdmin === 1)" class="menu-item"  :index="menu.path">
                                 {{menu.name}}
                             </el-menu-item>
 
-                            <el-sub-menu v-else-if="menu.children.length > 0 && permissionList.includes(menu.path) === false || (permissionList.includes(menu.path) && userInfo.isRoot)" class="sub-menu-item" :index="index+'b'">
+                            <el-sub-menu v-else-if="menu.children.length > 0 && permissionList.includes(menu.path) === false || (permissionList.includes(menu.path) && userInfo.isAdmin === 1)" class="sub-menu-item" :index="index+'b'">
                                 <template #title>{{menu.name}}</template>
                                 <template v-for="(secondMenu, sIndex) in menu.children" :key="secondMenu.menuId">
-                                    <el-menu-item v-if="permissionList.includes(secondMenu.path) === false || (permissionList.includes(secondMenu.path) && userInfo.isRoot)" :index="secondMenu.path">{{secondMenu.name}}</el-menu-item>
+                                    <el-menu-item v-if="permissionList.includes(secondMenu.path) === false || (permissionList.includes(secondMenu.path) && userInfo.isAdmin === 1)" :index="secondMenu.path">{{secondMenu.name}}</el-menu-item>
                                 </template>
                             </el-sub-menu>
                         </template>
@@ -46,7 +46,7 @@
                                     </div>
                                 </template>
                                 <template v-for="(secondMenu, sIndex) in menu.children" :key="secondMenu.menuId">
-                                    <el-menu-item v-if="permissionList.includes(secondMenu.path) === false || (permissionList.includes(secondMenu.path) && userInfo.isRoot)" :index="secondMenu.path">{{secondMenu.name}}</el-menu-item>
+                                    <el-menu-item v-if="permissionList.includes(secondMenu.path) === false || (permissionList.includes(secondMenu.path) && userInfo.isAdmin === 1)" :index="secondMenu.path">{{secondMenu.name}}</el-menu-item>
                                 </template>
                             </el-sub-menu>
                         </template>
