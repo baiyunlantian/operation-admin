@@ -98,6 +98,10 @@ router.beforeEach(async (to, from, next) => {
         path: "/"
       });
     } else {
+      // 添加title
+      if(to.meta.title){
+        document.title = to.meta.title
+      }
       // 非超管不能跳转
       if (isRoot === false && permissionList.includes(to.path) === true) {
         next({

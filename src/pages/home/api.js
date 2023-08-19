@@ -9,7 +9,7 @@ export default {
 
  // 首页数据总览
   getBoardInfo(params) {
-    return HTTP.get("/Home/BoardInfo ", params );
+    return HTTP.get("/Home/BoardInfo", params );
   },
 
   // 用户统计数据

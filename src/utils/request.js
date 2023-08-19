@@ -2,6 +2,10 @@ import axios from 'axios'
 import { ElLoading, ElMessage } from 'element-plus'
 // import config from './index'
 import router from '../router';
+import { requestGuid } from './idGenerator'
+
+// console.log(process.env.VUE_APP_BASE_API, "地址")
+// console.log(process.env.VUE_APP_MODE, "地址")
 
 // 创建axios默认请求
 const service = axios.create({
@@ -16,6 +20,13 @@ const service = axios.create({
 // 请求拦截
 service.interceptors.request.use(config => {
     // token认证
+    // console.log(config)
+    // 判断是否有个params参数 ?xxx=xxx
+    if (!config.params) {
+        config.params = {}
+    }
+    // 统一添加params
+    config.params['nonce'] = requestGuid()
     config.headers['authorization'] = window.localStorage.getItem("token") || "";
     // // 显示加载动画
     // ElLoading.service({
@@ -23,7 +34,6 @@ service.interceptors.request.use(config => {
     //   text: 'Loading',
     //   background: 'rgba(0, 0, 0, 0.7)',
     // })
-    // console.log(config, "=================")
     return config
 }, error => {
     // Do something with request error

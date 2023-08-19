@@ -68,15 +68,26 @@
   const params = reactive({
     sortType:'desc',
     sortField: 'payment_amount',
-    dateScopeType: '1'
+    dateScopeType: '1',
+    sourceType: '',
   })
-
+  const platformTypeObject = ref({})
 
   let myChars = null
   // 初始化
   function echartsInit() {
     if (myChars === null) {
       myChars = echarts.init(echartsRef.value)
+      myChars.on('legendselectchanged', function (param) {
+        let { selected } = param, list = [];
+        Object.keys(selected).forEach(key=>{
+          if (selected[key] === true) {
+            list.push(platformTypeObject.value[key])
+          }
+        })
+
+        params.sourceType = list.join(',');
+      });
     }
     myChars.clear(); // 清除画布内容
     myChars.setOption({
@@ -122,11 +133,39 @@
       ...params
     }
 
+    // console.log('handleGetData', _params)
     API.getInviteStatistics(_params).then(res=>{
       if (res.code == '0') {
         formatLineData(res.data)
       }
     })
+
+    // let list = [
+    //   {"platformName":"AI 个人助理", "xAxis":1000, "yAxis":"用户1",},
+    //   {"platformName":"AI 个人助理", "xAxis":1342, "yAxis":"用户2",},
+    //   {"platformName":"AI 个人助理", "xAxis":987, "yAxis":"用户3",},
+    //   {"platformName":"AI 个人助理", "xAxis":777, "yAxis":"用户4",},
+    //   {"platformName":"AI 个人助理", "xAxis":1512, "yAxis":"用户5",},
+    //   {"platformName":"AI 个人助理", "xAxis":1111, "yAxis":"用户6",},
+    //   {"platformName":"AI 个人助理", "xAxis":912, "yAxis":"用户7",},
+    //
+    //   {"platformName":"AI 绘画", "xAxis":615, "yAxis":"用户1",},
+    //   {"platformName":"AI 绘画", "xAxis":1364, "yAxis":"用户2",},
+    //   {"platformName":"AI 绘画", "xAxis":888, "yAxis":"用户3",},
+    //   {"platformName":"AI 绘画", "xAxis":1500, "yAxis":"用户4",},
+    //   {"platformName":"AI 绘画", "xAxis":542, "yAxis":"用户5",},
+    //   {"platformName":"AI 绘画", "xAxis":765, "yAxis":"用户6",},
+    //   {"platformName":"AI 绘画", "xAxis":844, "yAxis":"用户7",},
+    //
+    //   {"platformName":"AI 营销写作", "xAxis":1644, "yAxis":"用户1",},
+    //   {"platformName":"AI 营销写作", "xAxis":800, "yAxis":"用户2",},
+    //   {"platformName":"AI 营销写作", "xAxis":631, "yAxis":"用户3",},
+    //   {"platformName":"AI 营销写作", "xAxis":666, "yAxis":"用户4",},
+    //   {"platformName":"AI 营销写作", "xAxis":1005, "yAxis":"用户5",},
+    //   {"platformName":"AI 营销写作", "xAxis":1320, "yAxis":"用户6",},
+    //   {"platformName":"AI 营销写作", "xAxis":999, "yAxis":"用户7",},
+    // ]
+    // formatLineData(list)
   }
 
   // 格式化数据
@@ -169,9 +208,20 @@
     handleGetData()
   }, {deep:true})
 
-  onMounted(() => {
-    handleGetData()
-  })
+  watch(
+    ()=>store.getters['platformType/list'],
+    (newVal) => {
+      if (newVal && newVal.length > 0) {
+        let list =  []
+        newVal.forEach(item=>{
+          list.push(item.key)
+          platformTypeObject.value[item.label] = item.key
+        })
+
+        params.sourceType = list.join(',')
+      }
+  }, {deep:true, immediate: true})
+
 
   onBeforeUnmount(() => {
     window.removeEventListener('resize', call)
