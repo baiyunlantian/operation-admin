@@ -4,7 +4,7 @@
         <div class="title title-box">收益总览</div>
         <div class="statistic-container bg-fff">
             <div class="popover-container">
-                <Popover v-model="productType" />
+                <!-- <Popover v-model="productType" /> -->
             </div>
 
             <el-row class="w-100" :gutter="0">
