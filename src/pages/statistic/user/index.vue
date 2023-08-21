@@ -92,7 +92,7 @@
   // 获取用户总览信息
   function handleGetTotalUserNumber() {
     let params = {
-      productType: productType.value
+      platformType: productType.value
     }
     API.getTotalUserNumber(params).then(res=>{
       if (res.code == '0') {

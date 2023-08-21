@@ -20,7 +20,7 @@
 
     <EarningsStatistic />
 
-    <InviteStatistic />
+    <InviteStatistic v-if="userInfo.isAdmin === 1"/>
 
     <div class="title-box u-m-t-20">运营快捷入口</div>
     <div class="fast-container bg-fff">
@@ -52,6 +52,7 @@
   import InviteStatistic from './components/inviteStatistic';
 
   const router = useRouter();
+  const store = useStore();
 
   const totalStatisticConfig = ref([
     {text:'今日新增用户', prop:'todayNewUserCount', imgUrl:UserImg},
@@ -79,6 +80,10 @@
       }
     })
   }
+
+  const userInfo = computed(() => {
+    return store.getters["user/info"];
+  });
 
   onMounted(() => {
     handleGetBoardInfo()

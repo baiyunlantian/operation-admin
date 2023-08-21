@@ -91,7 +91,7 @@
   // 获取收益总览信息
   function handleGetTotalUserIncome() {
     let params = {
-      productType: productType.value
+      platformType: productType.value
     }
 
     API.getTotalUserIncome(params).then(res=>{

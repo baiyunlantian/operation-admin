@@ -42,7 +42,7 @@ const user = {
         getUserInfo({ commit }) {
             HOME.getUserInfo().then(res=>{
                 if (res.code == '0') {
-                    res.data.isAdmin = 1
+                    // res.data.isAdmin = 1
                     commit('SET_USER_INFO', res.data);
                     window.localStorage.setItem('isAdmin', res.data.isAdmin || 0)
                 }else {
