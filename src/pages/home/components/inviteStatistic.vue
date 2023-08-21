@@ -80,7 +80,7 @@
     sortType:'desc',
     sortField: 'PaymentAmount',
     dateScopeType: '1',
-    sourceType: '',
+    platformType: '',
   })
   const platformTypeObject = ref({})
 
@@ -97,7 +97,7 @@
           }
         })
 
-        params.sourceType = list.join(',');
+        params.platformType = list.join(',');
       });
     }
     myChars.clear(); // 清除画布内容
@@ -202,7 +202,7 @@
           platformTypeObject.value[item.label] = item.key
         })
 
-        params.sourceType = list.join(',')
+        params.platformType = list.join(',')
       }
   }, {deep:true, immediate: true})
 
