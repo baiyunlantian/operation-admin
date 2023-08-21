@@ -14,10 +14,8 @@
                     <div class="item"><span>用户账号：{{ userInfo.account }}</span></div>
                 </div>
                 <div class="content">
-                    <div class="item" style="margin-right: 5%;">推广付费人员：<div class="value">{{ userInfo.promotionCommissionAmount || 0 }}</div>人</div>
-                    <div class="item">推广佣金额度：<div class="value">￥{{ userInfo.promotionPayers || 0 }}</div>元</div>
-<!--                    <div class="item"><span>推广付费人员：</span><span class="u-m-l-10 u-m-r-10">{{ userInfo.promotionCommissionAmount || 0 }}</span>人</div>-->
-<!--                    <div class="item"><span>推广佣金额度：</span><span class="u-m-l-10 u-m-r-10">￥{{ userInfo.promotionPayers || 0 }}</span>元</div>-->
+                    <div class="item" style="margin-right: 5%;">推广付费人员：<div class="value">{{ userInfo.promotionPayers || 0 }}</div>人</div>
+                    <div class="item">推广佣金额度：<div class="value">￥{{ userInfo.promotionCommissionAmount || 0 }}</div>元</div>
                 </div>
             </div>
                 <!--    暂时去掉    -->

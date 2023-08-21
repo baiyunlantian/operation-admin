@@ -1,7 +1,22 @@
 <template>
     <div class="trading-container">
 
-        <div class="title title-box">收益总览</div>
+        <div class="title-box u-m-t-20 header-operate">
+            <div class="text">收益总览</div>
+
+            <div class="btns">
+                <div class="select-month u-m-l-10">
+                    <el-select v-model="productType" class="m-2" @change="handleGetTotalUserIncome">
+                        <el-option
+                                v-for="item in platformTypeList"
+                                :key="item.key"
+                                :label="item.label"
+                                :value="item.key"
+                        />
+                    </el-select>
+                </div>
+            </div>
+        </div>
         <div class="statistic-container bg-fff">
             <div class="popover-container">
                 <!-- <Popover v-model="productType" /> -->
@@ -75,7 +90,11 @@
 
   // 获取收益总览信息
   function handleGetTotalUserIncome() {
-    API.getTotalUserIncome().then(res=>{
+    let params = {
+      productType: productType.value
+    }
+
+    API.getTotalUserIncome(params).then(res=>{
       if (res.code == '0') {
         Object.assign(totalStatisticData, res.data)
       }
@@ -83,6 +102,15 @@
   }
 
   const productType = ref(0)
+
+  const platformTypeList = computed(() => {
+    let arr = [{label:'全部', key:0}], list = store.getters['platformType/list'];
+    if (Array.isArray(list)) {
+      arr = arr.concat(list)
+    }
+
+    return  arr
+  })
 
   onMounted(() => {
     handleGetTotalUserIncome();
@@ -92,6 +120,33 @@
 <style scoped lang="scss">
     .trading-container{
         position: relative;
+
+        .header-operate {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            .btns{
+                flex: 1;
+                display: flex;
+                align-items: center;
+                justify-content: flex-end;
+
+                .sort-container{
+                    margin-right: 20px;
+
+                    :deep(.text){
+                        color: #ffffff;
+                    }
+                }
+
+                ::v-deep .el-select{
+                    width: 170px;
+                    margin-left: 10px;
+                }
+            }
+        }
 
         .statistic-container{
             position: relative;

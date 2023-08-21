@@ -16,13 +16,10 @@
       </el-row>
     </div>
 
-    <div class="title-box u-m-t-20">用户统计</div>
     <UserStatistic />
 
-    <div class="title-box u-m-t-20">收益统计</div>
     <EarningsStatistic />
 
-    <div class="title-box u-m-t-20">邀新排名</div>
     <InviteStatistic />
 
     <div class="title-box u-m-t-20">运营快捷入口</div>
@@ -40,8 +37,10 @@
 </template>
   
 <script setup>
-  import { reactive, ref, onMounted, watch } from 'vue';
+  import { reactive, ref, onMounted, watch, computed } from 'vue';
   import { useRouter } from 'vue-router';
+  import { useStore } from 'vuex';
+
   import API from './api';
   import UserImg from '@/assets/images/home-user.png';
   import MoneyImg from '@/assets/images/home-money.png';
@@ -51,7 +50,6 @@
   import UserStatistic from './components/userStatistic';
   import EarningsStatistic from './components/earningsStatistic';
   import InviteStatistic from './components/inviteStatistic';
-  import BottomBox from '@/components/bottom-box';
 
   const router = useRouter();
 

@@ -1,7 +1,22 @@
 <template>
     <div class="user-statistic-container">
 
-        <div class="title title-box">用户总览</div>
+        <div class="title-box u-m-t-20 header-operate">
+            <div class="text">用户总览</div>
+
+            <div class="btns">
+                <div class="select-month u-m-l-10">
+                    <el-select v-model="productType" class="m-2" @change="handleGetTotalUserNumber">
+                        <el-option
+                                v-for="item in platformTypeList"
+                                :key="item.key"
+                                :label="item.label"
+                                :value="item.key"
+                        />
+                    </el-select>
+                </div>
+            </div>
+        </div>
         <div class="statistic-container bg-fff">
             <div class="popover-container">
                 <!-- <Popover v-model="productType" /> -->
@@ -36,6 +51,9 @@
   import User from '../components/lineStatistic';
   import Source from './components/sourceStatistic'
   import Popover from '@/components/productTypePopover';
+  import {useStore} from "vuex";
+
+  const store = useStore()
 
 
   const totalStatisticConfig = reactive([
@@ -73,7 +91,10 @@
 
   // 获取用户总览信息
   function handleGetTotalUserNumber() {
-    API.getTotalUserNumber().then(res=>{
+    let params = {
+      productType: productType.value
+    }
+    API.getTotalUserNumber(params).then(res=>{
       if (res.code == '0') {
         Object.assign(totalStatisticData, res.data)
       }
@@ -81,6 +102,15 @@
   }
 
   const productType = ref(0)
+
+  const platformTypeList = computed(() => {
+    let arr = [{label:'全部', key:0}], list = store.getters['platformType/list'];
+    if (Array.isArray(list)) {
+      arr = arr.concat(list)
+    }
+
+    return  arr
+  })
 
 
   onMounted(() => {
@@ -91,6 +121,33 @@
 <style scoped lang="scss">
     .user-statistic-container{
         position: relative;
+
+        .header-operate {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            .btns{
+                flex: 1;
+                display: flex;
+                align-items: center;
+                justify-content: flex-end;
+
+                .sort-container{
+                    margin-right: 20px;
+
+                    :deep(.text){
+                        color: #ffffff;
+                    }
+                }
+
+                ::v-deep .el-select{
+                    width: 170px;
+                    margin-left: 10px;
+                }
+            }
+        }
 
         .statistic-container{
             position: relative;

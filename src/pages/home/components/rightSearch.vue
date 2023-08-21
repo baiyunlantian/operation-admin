@@ -1,6 +1,6 @@
 <template>
     <div class="right">
-        <Popover v-model="productType" />
+<!--        <Popover v-model="productType" />-->
 
         <div class="time-range">
             <div v-for="(item, index) in timeRangeTags" :key="index"
@@ -115,7 +115,7 @@
 <style scoped lang="scss">
     .right{
         display: flex;
-        justify-content: space-between;
+        justify-content: flex-end;
 
         .time-range{
             display: flex;

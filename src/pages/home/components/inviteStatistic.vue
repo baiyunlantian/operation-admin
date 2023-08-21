@@ -1,40 +1,51 @@
 <template>
-    <el-row class="chart-container bg-fff" :gutter="0" justify="center">
+    <div class="inviteStatistic-container">
+        <div class="title-box u-m-t-20 header-operate">
+            <div class="text">邀新排名</div>
 
-        <el-col :span="22" class="echarts-container">
-            <div class="top">
-                <div style="margin-right: 2%">
+            <div class="btns">
+                <div class="u-m-l-10 sort-container">
                     <Popover v-model="params.sortType" :options="sortOptions">
                         <template v-slot:popover-icon>
-                            <el-icon class="u-cursor" style="font-size: 16px; color: #6ea3ff"><Sort /></el-icon>
+                            <el-icon class="u-cursor" style="font-size: 16px; color: #fff"><Sort /></el-icon>
                         </template>
                     </Popover>
                 </div>
 
-
-                <Popover v-model="params.sortField" :options="promotionTypeList">
-                    <template v-slot:popover-icon>
-                        <span></span>
-                    </template>
-                </Popover>
-
-                <div class="time-range">
-                    <div v-for="(item, index) in timeRangeTags" :key="index"
-                         :class="[params.dateScopeType === item.key ? 'active' : '', 'u-cursor u-m-r-10']"
-                         @click="handleClickTimeTag(item.key)"
-                    >
-                        {{ item.label }}
-                    </div>
+                <div class="select-month u-m-l-10">
+                    <el-select v-model="params.sortField" class="m-2">
+                        <el-option
+                                v-for="item in promotionTypeList"
+                                :key="item.key"
+                                :label="item.label"
+                                :value="item.key"
+                        />
+                    </el-select>
                 </div>
             </div>
+        </div>
 
-            <div v-show="seriesData.length > 0" class="echarts-ref" ref="echartsRef"></div>
-            <div v-show="seriesData.length === 0" class="empty-text">暂无数据</div>
+        <el-row class="chart-container bg-fff" :gutter="0" justify="center">
+            <el-col :span="22" class="echarts-container">
+                <div class="top">
+                    <div class="time-range">
+                        <div v-for="(item, index) in timeRangeTags" :key="index"
+                             :class="[params.dateScopeType === item.key ? 'active' : '', 'u-cursor u-m-r-10']"
+                             @click="handleClickTimeTag(item.key)"
+                        >
+                            {{ item.label }}
+                        </div>
+                    </div>
+                </div>
 
-            <div v-if="userInfo.isAdmin === 1" class="check-detail" @click="handleJumpRoute">查看详情</div>
-        </el-col>
+                <div v-show="seriesData.length > 0" class="echarts-ref" ref="echartsRef"></div>
+                <div v-show="seriesData.length === 0" class="empty-text">暂无数据</div>
 
-    </el-row>
+                <div v-if="userInfo.isAdmin === 1" class="check-detail" @click="handleJumpRoute">查看详情</div>
+            </el-col>
+
+        </el-row>
+    </div>
 </template>
 
 <script setup>
@@ -139,33 +150,6 @@
         formatLineData(res.data)
       }
     })
-
-    // let list = [
-    //   {"platformName":"AI 个人助理", "xAxis":1000, "yAxis":"用户1",},
-    //   {"platformName":"AI 个人助理", "xAxis":1342, "yAxis":"用户2",},
-    //   {"platformName":"AI 个人助理", "xAxis":987, "yAxis":"用户3",},
-    //   {"platformName":"AI 个人助理", "xAxis":777, "yAxis":"用户4",},
-    //   {"platformName":"AI 个人助理", "xAxis":1512, "yAxis":"用户5",},
-    //   {"platformName":"AI 个人助理", "xAxis":1111, "yAxis":"用户6",},
-    //   {"platformName":"AI 个人助理", "xAxis":912, "yAxis":"用户7",},
-    //
-    //   {"platformName":"AI 绘画", "xAxis":615, "yAxis":"用户1",},
-    //   {"platformName":"AI 绘画", "xAxis":1364, "yAxis":"用户2",},
-    //   {"platformName":"AI 绘画", "xAxis":888, "yAxis":"用户3",},
-    //   {"platformName":"AI 绘画", "xAxis":1500, "yAxis":"用户4",},
-    //   {"platformName":"AI 绘画", "xAxis":542, "yAxis":"用户5",},
-    //   {"platformName":"AI 绘画", "xAxis":765, "yAxis":"用户6",},
-    //   {"platformName":"AI 绘画", "xAxis":844, "yAxis":"用户7",},
-    //
-    //   {"platformName":"AI 营销写作", "xAxis":1644, "yAxis":"用户1",},
-    //   {"platformName":"AI 营销写作", "xAxis":800, "yAxis":"用户2",},
-    //   {"platformName":"AI 营销写作", "xAxis":631, "yAxis":"用户3",},
-    //   {"platformName":"AI 营销写作", "xAxis":666, "yAxis":"用户4",},
-    //   {"platformName":"AI 营销写作", "xAxis":1005, "yAxis":"用户5",},
-    //   {"platformName":"AI 营销写作", "xAxis":1320, "yAxis":"用户6",},
-    //   {"platformName":"AI 营销写作", "xAxis":999, "yAxis":"用户7",},
-    // ]
-    // formatLineData(list)
   }
 
   // 格式化数据
@@ -234,9 +218,41 @@
 </script>
 
 <style scoped lang="scss">
-    .chart-container{
+    .inviteStatistic-container{
         position: relative;
         height: 61%;
+
+        .header-operate {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            .btns{
+                flex: 1;
+                display: flex;
+                align-items: center;
+                justify-content: flex-end;
+
+                .sort-container{
+                    margin-right: 20px;
+
+                    :deep(.text){
+                        color: #ffffff;
+                    }
+                }
+
+                ::v-deep .el-select{
+                    width: 170px;
+                    margin-left: 10px;
+                }
+            }
+        }
+    }
+
+    .chart-container{
+        position: relative;
+        height: calc(100% - 41px);
 
         .echarts-container{
             display: flex;

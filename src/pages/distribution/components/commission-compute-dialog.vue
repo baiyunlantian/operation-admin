@@ -87,7 +87,6 @@
   const formRef = ref()
 
   function validNumber(rule, value, callback) {
-    console.log('value', value)
     if ((!value && value != 0) || value == '0.') callback(new Error('请输入抽取额度'))
 
     const reg = /((^[1-9]\d*)|^0)(\.\d{0,2}){0,1}$/, _value = Number(value);
@@ -112,10 +111,17 @@
     formRef.value.validate(valid=>{
       if (valid) {
         let length = props.userIds.length, text = '';
+        let params = {
+          userIds: [...props.userIds],
+          type: computeData.value.type,
+          amount: Number(Number(computeData.value.amount).toFixed(2))
+        }
 
         // 判断单选、多选、全选
         if (length === 0) {
           text = '确定设置全部用户的佣金计算方式吗'
+          params.isAll = true
+          params.userIds = [0]
         }else if (length === 1) {
           text = '确定设置该用户的佣金计算方式吗'
         }else {
@@ -127,12 +133,6 @@
           type: 'warning',
         }).then(res=>{
           if (res === 'confirm') {
-            let params = {
-              userIds: [...props.userIds],
-              type: computeData.value.type,
-              amount: Number(Number(computeData.value.amount).toFixed(2))
-            }
-
             btnLoading.value = true
             API.setCommission(params).then(res=>{
               if (res.code == 0) {

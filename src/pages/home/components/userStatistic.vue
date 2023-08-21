@@ -1,4 +1,22 @@
 <template>
+    <div class="userStatistic-container">
+        <div class="title-box u-m-t-20 header-operate">
+            <div class="text">收益统计</div>
+
+            <div class="btns">
+                <div class="select-month u-m-l-10">
+                    <el-select v-model="productType" class="m-2" @change="handleGetUserStatistic">
+                        <el-option
+                                v-for="item in platformTypeList"
+                                :key="item.key"
+                                :label="item.label"
+                                :value="item.key"
+                        />
+                    </el-select>
+                </div>
+            </div>
+        </div>
+
     <el-row class="chart-container bg-fff" :gutter="0">
         <el-col :span="3" class="search-container">
             <LeftStatistic :statistic-config="leftStatisticConfig" :left-data="leftData"/>
@@ -22,15 +40,20 @@
         </el-col>
 
     </el-row>
+    </div>
 </template>
 
 <script setup>
-  import { reactive, ref } from 'vue';
+  import {computed, reactive, ref} from 'vue';
   import API from '../api';
   import MutiLine from '@/components/Echarts/muti-line';
   import RightSearch from './rightSearch';
   import LeftStatistic from './leftStatistic';
+  import {useStore} from "vuex";
 
+  const store = useStore()
+
+  const productType = ref(0)
   const leftStatisticConfig = reactive([
     {title:'本月用户总数', subText:'同比上月', countProp:'currentMonthUserCount', ratioProp:'monthRatio'},
     {title:'本周用户数量', subText:'同比上周', countProp:'currentWeekUserCount', ratioProp:'weekRatio'}
@@ -44,7 +67,11 @@
   })
 
   // 获取用户统计图表数据
-  function handleGetUserStatistic(params) {
+  function handleGetUserStatistic(param) {
+    let params = {
+      ...param,
+      productType: productType.value
+    }
     API.getUserStatistic(params).then(res=>{
       if (res.code == '0') {
         const { statisticsData, ...other } = res.data
@@ -78,12 +105,53 @@
     lineData.value = _seriesData
   }
 
+  const platformTypeList = computed(() => {
+    let arr = [{label:'全部', key:0}], list = store.getters['platformType/list'];
+    if (Array.isArray(list)) {
+      arr = arr.concat(list)
+    }
+
+    return  arr
+  })
+
 </script>
 
 <style scoped lang="scss">
-    .chart-container{
+    .userStatistic-container{
         position: relative;
         height: 51%;
+
+        .header-operate {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            .btns{
+                flex: 1;
+                display: flex;
+                align-items: center;
+                justify-content: flex-end;
+
+                .sort-container{
+                    margin-right: 20px;
+
+                    :deep(.text){
+                        color: #ffffff;
+                    }
+                }
+
+                ::v-deep .el-select{
+                    width: 170px;
+                    margin-left: 10px;
+                }
+            }
+        }
+    }
+
+    .chart-container{
+        position: relative;
+        height: calc(100% - 41px);
 
         .search-container{
             display: flex;
