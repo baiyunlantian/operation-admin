@@ -66,8 +66,12 @@
   ])
 
   function handleExport() {
-    let tableTitle = [{label: startDate.value, prop: 'name'}, {label: '占比', prop: 'ratio'}]
-    let _tableData = tableData.value.concat([{name: '汇总', ratio: '100%'}])
+    let tableTitle = [{label: startDate.value, prop: 'name'}, {label: '占比', prop: 'ratio'}, {label:'人数(人)', prop: 'number'}]
+    let totalNumber = 0;
+    tableData.value.forEach(item=>{
+      totalNumber += item.number
+    })
+    let _tableData = tableData.value.concat([{name: '汇总', ratio: '100%', number: totalNumber}])
     setTimeEscalationClone(() => {ExportExcel(_tableData, tableTitle, '用户来源')},
       () => {proxy.$message.warning('操作过于频繁！')})
   }
@@ -90,7 +94,6 @@
       dateScopeType: dateScopeType.value,
       startDate: startDate.value
     };
-    // console.log('handleGetUserStatistic', params)
 
     API.getUserSourceStatistic(params).then(res=>{
       if (res.code == '0') {
@@ -112,8 +115,8 @@
       tooltip: {
         trigger: 'item',
         formatter: (obj) => {
-          const {value, name, ratio} = obj.data
-          return `${name}<br />占比：${ratio}`
+          const {value, name, ratio, number} = obj.data
+          return `${name}<br />人数：${number}人<br />占比：${ratio}`
         }
       },
       legend: {
@@ -143,10 +146,10 @@
 
   const echartsData = computed(() => {
     let list = []
-    tableData.value.forEach(({name, ratio})=>{
+    tableData.value.forEach(({name, ratio, number})=>{
       let value = ratio.slice(0, ratio.length - 1)
       if (value != '0') {
-        list.push({name, value, ratio})
+        list.push({name, value, ratio, number})
       }
     })
 

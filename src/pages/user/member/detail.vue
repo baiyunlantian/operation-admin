@@ -33,10 +33,6 @@
                                      :width="item.width"
                                      align="center"
                     >
-                        <template  #default="{ row, column, $index }">
-                            <div class="custom-cell" v-if="item.insertSlot">{{ row[item.prop] }}（会员&lt;无线次数&gt;）</div>
-                            <div class="custom-cell" v-else>{{ row[item.prop] }}</div>
-                        </template>
                     </el-table-column>
                 </el-table>
             </el-col>
@@ -106,7 +102,6 @@
   ])
   const statisticInfo = ref([])
   const statisticTableColumnConfig = computed(()=>{
-    // console.log('userInfo', userInfo)
     let list = [
       {label:'是否付费', prop:'isPay'},
       {label:'总付费金额', prop:'consumedAmount'},
@@ -114,15 +109,15 @@
 
     if (userInfo.sourceName !== 'AI 绘画') {
       list = list.concat([
-        {label:'已使用免费token（个）', prop:'expend'},
-        {label:'已使用付费token（个）', prop:'useNumber'},
-        {label:'剩余付费token（个）', prop:'balance', insertSlot: true},
+        {label:'已使用免费token（个）', prop:'useFreeTokenNum'},
+        {label:'已使用付费token（个）', prop:'usePayTokenNum'},
+        {label:'剩余付费token（个）', prop:'balance'},
       ])
     }else {
       list = list.concat([
-        {label:'已使用免费次数（次）', prop:'expend'},
-        {label:'已使用付费次数（次）', prop:'useNumber'},
-        {label:'剩余付费次数（次）', prop:'balance', insertSlot: true},
+        {label:'已使用免费次数（次）', prop:'useFreeTokenNum'},
+        {label:'已使用付费次数（次）', prop:'usePayTokenNum'},
+        {label:'剩余付费次数（次）', prop:'balance'},
       ])
     }
 
