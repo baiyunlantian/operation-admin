@@ -21,9 +21,9 @@
 
     <div class="title-box u-m-t-20">收益统计</div>
     <EarningsStatistic />
-    <!-- 分销暂时隐藏 -->
-    <!-- <div class="title-box u-m-t-20">邀新排名</div>
-    <InviteStatistic /> -->
+
+    <div class="title-box u-m-t-20">邀新排名</div>
+    <InviteStatistic />
 
     <div class="title-box u-m-t-20">运营快捷入口</div>
     <div class="fast-container bg-fff">

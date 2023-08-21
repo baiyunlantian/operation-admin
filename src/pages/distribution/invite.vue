@@ -65,7 +65,7 @@
                         />
                     </el-select>
 
-                    <el-select v-model="searchTableParams.sort" class="m-2" placeholder="排序方式" @change="handleGetTableList">
+                    <el-select v-model="searchTableParams.sortType" class="m-2" placeholder="排序方式" @change="handleGetTableList">
                         <el-option
                                 v-for="item in sortOptions"
                                 :key="item.value"
@@ -156,7 +156,7 @@
     pageSize:50,
     pageIndex:1,
     sourceType: 'null',
-    sort: 'desc',
+    sortType: 'desc',
   })
   const tableData = ref([])
   const tableColumnConfig = ref([

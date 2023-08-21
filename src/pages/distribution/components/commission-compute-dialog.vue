@@ -76,7 +76,7 @@
   })
   const computeData = ref({
     type: 0,
-    amount: 0,
+    amount: '0',
   })
   const commissionOptions = ref([
     {label: '百分比抽取', value: 0},
@@ -104,7 +104,7 @@
   }
 
   function handleSelectChange() {
-    computeData.value.amount = 0
+    computeData.value.amount = '0'
   }
 
   function handleSubmit() {
@@ -160,12 +160,12 @@
 
     computeData.value = {
       type: 0,
-      amount: 0
+      amount: '0'
     }
   }
 
   function handleBlur() {
-    if (computeData.value.amount === '') computeData.value.amount = 0
+    if (computeData.value.amount === '') computeData.value.amount = '0'
   }
 
   watch(

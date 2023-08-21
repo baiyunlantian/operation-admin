@@ -4,9 +4,14 @@
                 v-model="visible"
                 width="800"
                 :close-on-click-modal="false"
-                :show-close="true"
-                @close="handleCloseDialog"
+                :show-close="false"
         >
+            <template #header>
+                <div class="dialog-header">
+                    <div class="close-btn icon u-cursor" @click="handleCloseDialog">x</div>
+                </div>
+            </template>
+
             <div class="dialog-body">
                 <Toolbar
                         v-if="canEdit"
@@ -209,7 +214,7 @@
 <style scoped lang="scss">
     .dialog-container{
         :deep(.el-dialog) {
-            margin-top: 20vh;
+            margin-top: 15vh;
 
             .el-dialog__footer{
                 text-align: center;
@@ -224,7 +229,7 @@
             position: relative;
 
             .editor-container{
-                height: 500px !important;
+                height: 45vh !important;
 
                 :deep(.w-e-text-container) {
                     .w-e-scroll::-webkit-scrollbar {
@@ -254,15 +259,20 @@
             }
         }
 
+
+
+        :deep(.el-dialog__body) {
+            padding: 10px 20px;
+        }
+
+        :deep(.el-dialog__header) {
+            padding: 10px;
+        }
+
         .dialog-header{
             display: flex;
             align-items: center;
-            justify-content: space-between;
-
-            div{
-                font-weight: bold;
-                font-size: 18px;
-            }
+            justify-content: flex-end;
 
             .close-btn{
                 position: relative;

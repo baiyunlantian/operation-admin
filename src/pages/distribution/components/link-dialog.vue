@@ -2,7 +2,7 @@
     <div class="dialog-container">
         <el-dialog
                 v-model="visible"
-                :close-on-click-modal="false"
+                :close-on-click-modal="true"
                 :show-close="true"
                 @close="handleToggleDialog"
         >
@@ -114,7 +114,7 @@
             margin-top: 30vh;
             min-width: 700px;
             width: auto;
-            max-width: 1100px;
+            max-width: 900px;
 
             .el-dialog__footer{
                 text-align: center;

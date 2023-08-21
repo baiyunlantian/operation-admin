@@ -192,7 +192,7 @@
         })
       }else {
         userIds.value = selectedRows.value
-        userCommission.value = {type:0, amount: 0}
+        userCommission.value = {type:0, amount: '0'}
       }
       commissionDialogVisible.value = true
     }else {
