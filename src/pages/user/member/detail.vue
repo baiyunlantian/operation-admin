@@ -97,7 +97,7 @@
     {label:'手机号', prop:'account'},
     {label:'个性签名', prop:'sign'},
     {label:'注册时间', prop:'registerTime'},
-    {label:'最近活跃时间', prop:'registerTime'},
+    {label:'最近登录时间', prop:'lastLoginTime'},
     {label:'账号类别', prop:'sourceName'},
   ])
   const statisticInfo = ref([])

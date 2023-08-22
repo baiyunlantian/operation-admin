@@ -51,7 +51,7 @@
   import Client from './components/clientStatistic';
   import Earnings from './components/earningsStatistic';
   import Source from './components/sourceStatistic';
-  import Popover from '@/components/productTypePopover';
+  import Popover from '@/components/Popover';
   import { useStore } from 'vuex';
 
   const store = useStore()

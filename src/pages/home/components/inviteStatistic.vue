@@ -27,7 +27,14 @@
 
         <el-row class="chart-container bg-fff" :gutter="0" justify="center">
             <el-col :span="22" class="echarts-container">
-                <div class="top">
+                <div :class="[seriesData.length === 0 ? 'u-row-right' : 'u-row-between', 'top']">
+                    <div v-show="seriesData.length > 0" class="legend-container">
+                        <div class="legend-item u-cursor" v-for="(legend, index) in platformTypeMap" :key="index" @click="handleClickLegend(legend[1])">
+                            <div class="block" :style="{backgroundColor: legend[1].selected ? legend[1].color : '#cccccc'}"></div>
+                            <div class="name" :style="{color: legend[1].selected ? '' : '#cccccc'}">{{ legend[1]['label'] }}</div>
+                        </div>
+                    </div>
+
                     <div class="time-range">
                         <div v-for="(item, index) in timeRangeTags" :key="index"
                              :class="[params.dateScopeType === item.key ? 'active' : '', 'u-cursor u-m-r-10']"
@@ -52,7 +59,7 @@
   import {watch, onBeforeUnmount, onMounted, reactive, ref, computed} from 'vue';
   import API from '../api';
   import * as echarts from "echarts";
-  import Popover from '@/components/productTypePopover';
+  import Popover from '@/components/Popover';
   import { useStore } from 'vuex';
   import { useRouter } from "vue-router";
 
@@ -80,33 +87,24 @@
     sortType:'desc',
     sortField: 'PaymentAmount',
     dateScopeType: '1',
-    platformType: '',
+    platformTypes: [],
   })
-  const platformTypeObject = ref({})
+  const platformTypeMap = ref(new Map())
 
   let myChars = null
   // 初始化
   function echartsInit() {
     if (myChars === null) {
       myChars = echarts.init(echartsRef.value)
-      myChars.on('legendselectchanged', function (param) {
-        let { selected } = param, list = [];
-        Object.keys(selected).forEach(key=>{
-          if (selected[key] === true) {
-            list.push(platformTypeObject.value[key])
-          }
-        })
-
-        params.platformType = list.join(',');
-      });
     }
+    let colors = [];
+    platformTypeMap.value.forEach((legend, key) => {
+      if (legend.selected) colors.push(legend.color)
+    })
+
     myChars.clear(); // 清除画布内容
     myChars.setOption({
-      color:['#5470c6', '#91cc75', '#fac858'],
-      legend: {
-        show: true,
-        left: 20
-      },
+      color: colors,
       // 鼠标移动到数据项时显示
       tooltip: {
         trigger: 'axis',
@@ -137,6 +135,11 @@
     params.dateScopeType = tagValue
   }
 
+  function handleClickLegend(legend) {
+    const { key, selected } = legend
+    platformTypeMap.value.set(key, {...platformTypeMap.value.get(key), selected:!selected})
+    handleGetData()
+  }
 
   // 获取收益统计图表数据
   function handleGetData() {
@@ -146,25 +149,62 @@
       pageSize: 7,
     }
 
+    let platformTypes = [];
+    platformTypeMap.value.forEach((legend, key) => {
+      if (legend.selected) platformTypes.push(key)
+    })
+    _params.platformTypes = platformTypes.sort((a,b)=>a-b).join(',')
+
     API.getInviteStatistics(_params).then(res=>{
       if (res.code == '0') {
         formatLineData(res.data)
       }
     })
+
+    // let list = [
+    //   {
+    //     yAxis: '用户1',
+    //     childs: [
+    //       { platformName: 'AI 个人助理', content: 100},
+    //       { platformName: 'AI 绘画', content: 132},
+    //       { platformName: 'AI 营销写作', content: 341},
+    //     ]
+    //   },
+    //   {
+    //     yAxis: '用户2',
+    //     childs: [
+    //       { platformName: 'AI 个人助理', content: 214},
+    //       { platformName: 'AI 绘画', content: 122},
+    //       { platformName: 'AI 营销写作', content: 40},
+    //     ]
+    //   },
+    //   {
+    //     yAxis: '用户3',
+    //     childs: [
+    //       { platformName: 'AI 个人助理', content: 342},
+    //       { platformName: 'AI 绘画', content: 48},
+    //       { platformName: 'AI 营销写作', content: 123},
+    //     ]
+    //   }
+    // ]
+    // formatLineData(list)
   }
 
   // 格式化数据
   function formatLineData(list) {
     let _seriesDataMap = new Map(), _yAxisData = new Set();
-    list.forEach((items, index)=>{
-      const {platformName, xAxis, yAxis} = items;
+    list.forEach((user, index)=>{
+      const {childs, yAxis} = user;
       _yAxisData.add(yAxis);
 
-      if (_seriesDataMap.has(platformName)) {
-        _seriesDataMap.set(platformName, _seriesDataMap.get(platformName).concat([xAxis]))
-      }else {
-        _seriesDataMap.set(platformName, [xAxis])
-      }
+      (childs || []).forEach(item=>{
+        const {platformName, content} = item;
+        if (_seriesDataMap.has(platformName)) {
+          _seriesDataMap.set(platformName, _seriesDataMap.get(platformName).concat([content]))
+        }else {
+          _seriesDataMap.set(platformName, [content])
+        }
+      })
     })
 
     let _seriesData = [];
@@ -193,20 +233,14 @@
     ()=>store.getters['platformType/list'],
     (newVal) => {
       if (newVal && newVal.length > 0) {
-        let list =  []
-        newVal.forEach(item=>{
-          list.push(item.key)
-          platformTypeObject.value[item.label] = item.key
-        })
+        let colors = ['#5470c6', '#91cc75', '#fac858'];
 
-        params.platformType = list.join(',')
+        params.platformTypes = newVal.map((item, index)=>{
+          platformTypeMap.value.set(item.key, {key: item.key, label:item.label, color:colors[index], selected: true})
+          return item.key
+        })
       }
   }, {deep:true, immediate: true})
-
-  onMounted(() => {
-    console.log('onMounted', myChars)
-  })
-
 
   onBeforeUnmount(() => {
     window.removeEventListener('resize', call)
@@ -259,7 +293,6 @@
             .top{
                 height: 30px;
                 display: flex;
-                justify-content: flex-end;
                 align-items: center;
 
                 .time-range{
@@ -272,6 +305,25 @@
                         background-color: #409EFF;
                         padding: 5px 10px;
                         border-radius: 5px;
+                    }
+                }
+
+                .legend-container{
+                    position: relative;
+                    display: flex;
+                    align-items: center;
+
+                    .legend-item{
+                        margin-right: 2vw;
+                        display: flex;
+                        align-items: center;
+
+                        .block{
+                            width: 1.2vw;
+                            height: 0.6vw;
+                            border-radius: 2px;
+                            margin-right: 5px;
+                        }
                     }
                 }
             }

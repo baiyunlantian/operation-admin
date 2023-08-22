@@ -192,7 +192,7 @@
     selectedRows.value = value
   }
 
-  function handleGetTableList() {
+  function handleGetTableList(setScrollTop = true) {
     let params = {
       ...searchTableParams.value,
     }
@@ -208,7 +208,7 @@
       if (valid) {
         API.getOperateTableList(params).then(res=>{
           if (res.code == '0') {
-            tableRef.value.setScrollTop(0)
+            setScrollTop && tableRef.value.setScrollTop(0)
             tableData.value = res.data.list
             tableTotal.value = res.data.total
           }
@@ -235,7 +235,7 @@
                 type: 'success',
                 message: '修改状态成功'
               })
-              handleGetTableList()
+              handleGetTableList(false)
               return resolve(true)
             }else {
               return reject(false)
@@ -298,11 +298,7 @@
       handleGetTableList()
     }else if (type === 'reset') {
       searchFormConfig.value.forEach(item=>{
-        if (item.prop === 'createTime') {
-          searchTableParams.value[item.prop] = []
-        }else {
-          searchTableParams.value[item.prop] = ''
-        }
+        searchTableParams.value[item.prop] = ''
       })
     }
   }

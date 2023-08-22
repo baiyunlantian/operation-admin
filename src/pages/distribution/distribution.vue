@@ -114,7 +114,7 @@
   import dayjs from 'dayjs';
   import API from './api';
   import Detail from './detail'
-  import Popover from '@/components/productTypePopover';
+  import Popover from '@/components/Popover';
   import CommissionComputeDialog from './components/commission-compute-dialog';
   import InviteContentDialog from './components/invite-content-dialog';
 
@@ -213,7 +213,7 @@
     selectedRows.value = value.map(item=>item.userId)
   }
 
-  function handleGetTableList() {
+  function handleGetTableList(setScrollTop = true) {
     let params = {
       ...searchTableParams.value,
     }
@@ -222,7 +222,7 @@
       if (valid) {
         API.getDistributionManageList(params).then(res=>{
           if (res.code == '0') {
-            tableRef.value.setScrollTop(0)
+            setScrollTop && tableRef.value.setScrollTop(0)
             tableData.value = res.data.list
             tableListTotal.value = res.data.total
           }

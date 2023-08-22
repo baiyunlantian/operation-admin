@@ -7,6 +7,18 @@
                 <div class="btn-item">
                     <el-button type="default" @click="handleExport">导出数据</el-button>
                 </div>
+
+                <div class="btn-item u-m-l-10">
+                    <el-select v-model="productType" class="m-2">
+                        <el-option
+                                v-for="item in platformTypeList"
+                                :key="item.key"
+                                :label="item.label"
+                                :value="item.key"
+                        />
+                    </el-select>
+                </div>
+
                 <div class="btn-item u-m-l-10">
                     <el-select v-model="dateScopeType" @change="handleSelectChange" class="m-2">
                         <el-option
@@ -68,7 +80,7 @@
 
             <div class="content">
                 <div class="right">
-                    <Popover v-model="productType" />
+<!--                    <Popover v-model="productType" />-->
 
                     <div class="switch-card-text blue u-cursor" @click="handleSwitch">{{tableShow ? '统计图显示' : '表格显示'}}</div>
                 </div>
@@ -122,7 +134,7 @@
   import ExportExcel from '@/utils/exportExcel';
   import { setTimeEscalation } from '@/assets/js/utils';
   import MutiLine from '@/components/Echarts/muti-line';
-  import Popover from '@/components/productTypePopover';
+  import Popover from '@/components/Popover';
 
   const store = useStore()
   const emit = defineEmits(['update'])
@@ -384,6 +396,15 @@
       return props.statisticType === 'user' ? '用户/人' : '金额/元'
   })
 
+  const platformTypeList = computed(() => {
+    let arr = [{label:'全部', key:0}], list = store.getters['platformType/list'];
+    if (Array.isArray(list)) {
+      arr = arr.concat(list)
+    }
+
+    return  arr
+  })
+
   // 统计图表切换类型
   watch(
     () => productType.value,
@@ -524,7 +545,7 @@
 
                 .right{
                     display: flex;
-                    justify-content: space-between;
+                    justify-content: flex-end;
                     padding: 0 5%;
 
                     .time-range{

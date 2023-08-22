@@ -29,7 +29,7 @@
   import {reactive, ref, onMounted, computed, watch, defineEmits} from 'vue';
   import { useStore } from 'vuex';
   import dayjs from "dayjs";
-  import Popover from '@/components/productTypePopover';
+  import Popover from '@/components/Popover';
 
   const emit = defineEmits(['getData'])
   const store = useStore()

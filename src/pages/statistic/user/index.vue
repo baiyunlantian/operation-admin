@@ -50,7 +50,7 @@
   import API from './api';
   import User from '../components/lineStatistic';
   import Source from './components/sourceStatistic'
-  import Popover from '@/components/productTypePopover';
+  import Popover from '@/components/Popover';
   import {useStore} from "vuex";
 
   const store = useStore()
