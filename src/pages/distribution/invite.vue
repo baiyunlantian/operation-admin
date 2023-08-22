@@ -164,9 +164,9 @@
     {label:'用户账号', prop:'account'},
     {label:'用户昵称', prop:'userName'},
     {label:'是否付费', prop:'isPay', insertSlot:true},
-    {label:'付费总金额', prop:'totalPaymentAmount'},
-    {label:'注册时间', prop:'createdTime'},
-    {label:'账号来源', prop:'source'},
+    {label:'付费总金额', prop:'paymentAmount'},
+    {label:'注册时间', prop:'registrationDate'},
+    {label:'账号来源', prop:'platformName'},
   ])
   const pageSizeOptions = ref([50, 100, 200])
   const sortOptions = ref([

@@ -41,7 +41,7 @@
                 <div v-show="seriesData.length > 0" class="echarts-ref" ref="echartsRef"></div>
                 <div v-show="seriesData.length === 0" class="empty-text">暂无数据</div>
 
-                <div v-if="userInfo.isAdmin === 1" class="check-detail" @click="handleJumpRoute">查看详情</div>
+                <div class="check-detail" @click="handleJumpRoute">查看详情</div>
             </el-col>
 
         </el-row>
@@ -141,10 +141,11 @@
   // 获取收益统计图表数据
   function handleGetData() {
     let _params = {
-      ...params
+      ...params,
+      pageIndex: 1,
+      pageSize: 7,
     }
 
-    // console.log('handleGetData', _params)
     API.getInviteStatistics(_params).then(res=>{
       if (res.code == '0') {
         formatLineData(res.data)
@@ -184,10 +185,6 @@
     router.push({path: '/distribution'})
   }
 
-  const userInfo = computed(() => {
-    return store.getters["user/info"];
-  });
-
   watch(params, (newVal) => {
     handleGetData()
   }, {deep:true})
@@ -206,9 +203,9 @@
       }
   }, {deep:true, immediate: true})
 
-  // onMounted(() => {
-  //   handleGetData()
-  // })
+  onMounted(() => {
+    console.log('onMounted', myChars)
+  })
 
 
   onBeforeUnmount(() => {

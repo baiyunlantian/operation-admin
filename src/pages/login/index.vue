@@ -59,12 +59,14 @@
 <script setup>
   import { reactive, ref, getCurrentInstance, onUnmounted, watch, onMounted } from 'vue';
   import { useRouter } from 'vue-router';
+  import { useStore } from 'vuex';
   import cryptojs from "@/assets/js/cryptojs.js";
   import Cookie from 'js-cookie';
   import API from './api';
 
   const { proxy } = getCurrentInstance()
   const router = useRouter()
+  const store = useStore()
 
   let formData = reactive({})
   const rules = reactive({
@@ -289,6 +291,9 @@
       formData.password = cryptojs.decrypt(password)
       rememberPassword.value = true
     }
+
+    // 重置用户信息，防止登录时有上次登录的用户信息缓存
+    store.commit('user/SET_USER_INFO', {})
   })
 
   onUnmounted(() => {

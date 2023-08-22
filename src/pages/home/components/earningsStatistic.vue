@@ -5,7 +5,7 @@
 
             <div class="btns">
                 <div class="select-month u-m-l-10">
-                    <el-select v-model="productType" class="m-2" @change="handleGetUserStatistic">
+                    <el-select v-model="productType" class="m-2" @change="handleGetEarningsStatistic">
                         <el-option
                                 v-for="item in platformTypeList"
                                 :key="item.key"

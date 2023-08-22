@@ -32,7 +32,6 @@
       </el-row>
     </div>
 
-<!--    <BottomBox />-->
   </div>
 </template>
   
@@ -82,6 +81,7 @@
   }
 
   const userInfo = computed(() => {
+    console.log('computed userInfo', store.getters["user/info"])
     return store.getters["user/info"];
   });
 
