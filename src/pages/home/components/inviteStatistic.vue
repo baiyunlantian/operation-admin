@@ -137,8 +137,18 @@
 
   function handleClickLegend(legend) {
     const { key, selected } = legend
+    const selectedList = [];
     platformTypeMap.value.set(key, {...platformTypeMap.value.get(key), selected:!selected})
-    handleGetData()
+    platformTypeMap.value.forEach((legend, key) => {
+      selectedList.push(legend.selected)
+    })
+
+    // 至少要选中一个图例
+    if (selectedList.includes(true)) {
+      handleGetData()
+    }else {
+      platformTypeMap.value.set(key, {...platformTypeMap.value.get(key), selected:true})
+    }
   }
 
   // 获取收益统计图表数据
@@ -160,34 +170,6 @@
         formatLineData(res.data)
       }
     })
-
-    // let list = [
-    //   {
-    //     yAxis: '用户1',
-    //     childs: [
-    //       { platformName: 'AI 个人助理', content: 100},
-    //       { platformName: 'AI 绘画', content: 132},
-    //       { platformName: 'AI 营销写作', content: 341},
-    //     ]
-    //   },
-    //   {
-    //     yAxis: '用户2',
-    //     childs: [
-    //       { platformName: 'AI 个人助理', content: 214},
-    //       { platformName: 'AI 绘画', content: 122},
-    //       { platformName: 'AI 营销写作', content: 40},
-    //     ]
-    //   },
-    //   {
-    //     yAxis: '用户3',
-    //     childs: [
-    //       { platformName: 'AI 个人助理', content: 342},
-    //       { platformName: 'AI 绘画', content: 48},
-    //       { platformName: 'AI 营销写作', content: 123},
-    //     ]
-    //   }
-    // ]
-    // formatLineData(list)
   }
 
   // 格式化数据
@@ -198,22 +180,26 @@
       _yAxisData.add(yAxis);
 
       (childs || []).forEach(item=>{
-        const {platformName, content} = item;
-        if (_seriesDataMap.has(platformName)) {
-          _seriesDataMap.set(platformName, _seriesDataMap.get(platformName).concat([content]))
-        }else {
-          _seriesDataMap.set(platformName, [content])
+        const {platformName, content, platformType} = item;
+
+        // 后端返回全部平台类型，前端筛选出选中的平台类型
+        if (platformTypeMap.value.get(platformType)['selected'] === true) {
+          if (_seriesDataMap.has(platformName)) {
+            _seriesDataMap.set(platformName, _seriesDataMap.get(platformName).concat([content]))
+          }else {
+            _seriesDataMap.set(platformName, [content])
+          }
         }
       })
     })
 
     let _seriesData = [];
     _seriesDataMap.forEach((value, key)=>{
-      _seriesData.push({name: key, data: value, type: 'bar'})
+      _seriesData.push({name: key, data: value.reverse(), type: 'bar'})
     })
 
     seriesData.value = _seriesData
-    yAxisData.value = Array.from(_yAxisData)
+    yAxisData.value = Array.from(_yAxisData).reverse()
 
     setTimeout(()=>{
       echartsInit()
