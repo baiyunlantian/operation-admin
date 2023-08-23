@@ -48,7 +48,7 @@
                 <div v-show="seriesData.length > 0" class="echarts-ref" ref="echartsRef"></div>
                 <div v-show="seriesData.length === 0" class="empty-text">暂无数据</div>
 
-                <div class="check-detail" @click="handleJumpRoute">查看详情</div>
+                <div v-if="userInfo.isAdmin === 1" class="check-detail" @click="handleJumpRoute">查看详情</div>
             </el-col>
 
         </el-row>
@@ -110,6 +110,14 @@
         trigger: 'axis',
         axisPointer: {
           type: 'shadow'
+        },
+        formatter: (arr) => {
+          let unit = params.sortField === 'PaymentAmount' ? '元' : '人', formatterText = '';
+          (arr || []).forEach((obj, index)=>{
+            if (index === 0) formatterText += obj.name + '<br />'
+            formatterText += `${obj.seriesName}：${obj.value}${unit}<br />`
+          })
+          return formatterText
         }
       },
       xAxis: {
@@ -210,6 +218,10 @@
   function handleJumpRoute() {
     router.push({path: '/distribution'})
   }
+
+  const userInfo = computed(() => {
+    return store.getters["user/info"];
+  });
 
   watch(params, (newVal) => {
     handleGetData()

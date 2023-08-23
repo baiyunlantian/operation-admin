@@ -20,7 +20,7 @@
 
     <EarningsStatistic />
 
-    <InviteStatistic v-if="userInfo.isAdmin === 1"/>
+    <InviteStatistic />
 
     <div class="title-box u-m-t-20">运营快捷入口</div>
     <div class="fast-container bg-fff">
@@ -79,10 +79,6 @@
       }
     })
   }
-
-  const userInfo = computed(() => {
-    return store.getters["user/info"];
-  });
 
   onMounted(() => {
     handleGetBoardInfo()

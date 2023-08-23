@@ -167,7 +167,7 @@
     {label:'总消费金额', prop:'consumedAmount'},
     {label:'账号来源', prop:'source'},
     {label:'注册时间', prop:'registerTime'},
-    {label:'今日是否使用', prop:'isPay', insertSlot:'isPay'},
+    {label:'今日是否使用', prop:'isUse'},
     {label:'最后登录时间', prop:'lastLoginTime'},
     {label:'账户启用状态', prop:'status', insertSlot:'status'},
     {label:'操作', prop:'operate', insertSlot:'operate'},

@@ -8,8 +8,8 @@
         <div class="my-invite">
             <div class="desc">我的邀请列表</div>
             <div class="content">
-                <div class="item" style="margin-right: 5%;">推广付费人员：<div class="value">{{ Payer || 0 }}</div>人</div>
-                <div class="item">推广佣金额度：<div class="value">￥{{ CommissionAmount || 0 }}</div>元</div>
+                <div class="item" style="margin-right: 5%;">推广付费人员：<div class="value">{{ userInfo.promotionPayers || 0 }}</div>人</div>
+                <div class="item">推广佣金额度：<div class="value">￥{{ userInfo.promotionCommissionAmount || 0 }}</div>元</div>
             </div>
         </div>
 
@@ -156,6 +156,7 @@
     pageSize:50,
     pageIndex:1,
     sourceType: 'null',
+    isPay: 'null',
     sortType: 'desc',
   })
   const tableData = ref([])
@@ -180,12 +181,14 @@
   const formRef = ref(null)
   const tableRef = ref()
   const isPayOptions = ref([
+    {label:'全部', key:'null'},
     {label:'付费用户', key:'1'},
     {label:'未付费用户', key:'0'},
   ])
   const linkList = ref([])
   const linkDialogVisible = ref(false)
   const inviteContentDialogVisible = ref(false)
+  const userInfo = ref({})
 
   function datePickerChange(dates) {
     // 记录选择的起始日期
@@ -252,6 +255,10 @@
       params.sourceType = ''
     }
 
+    if (params.isPay === 'null') {
+      params.isPay = ''
+    }
+
     formRef.value.validate(valid => {
       if (valid) {
         API.getInviteUserList(params).then(res=>{
@@ -291,9 +298,17 @@
       handleGetTableList()
     }else if (type === 'reset') {
       searchFormConfig.value.forEach(item=>{
-        searchTableParams.value[item.prop] = item.prop === 'sourceType' ? 'null' : ''
+        searchTableParams.value[item.prop] = item.prop === 'sourceType' || item.prop === 'isPay' ? 'null' : ''
       })
     }
+  }
+
+  function handleGetUserInfo() {
+    API.getDetailByUserId().then(res=>{
+      if (res.code == '0') {
+        userInfo.value = res.data
+      }
+    })
   }
 
   const sourceTypeOptions = computed(() => {
@@ -309,6 +324,7 @@
   onMounted(() => {
     handleGetLinkList()
     handleGetTableList()
+    handleGetUserInfo()
   })
 </script>
 
