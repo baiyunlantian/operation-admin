@@ -1,7 +1,7 @@
 <template>
     <div class="earningStatistic-container">
         <div class="title-box u-m-t-20 header-operate">
-            <div class="text">用户统计</div>
+            <div class="text">收益统计</div>
 
             <div class="btns">
                 <div class="select-month u-m-l-10">
@@ -23,7 +23,7 @@
             </el-col>
 
             <el-col :span="20" class="echarts-container">
-                <RightSearch @getData="handleGetEarningsStatistic"/>
+                <RightSearch @updateParams="handleUpdateParams"/>
 
                 <MutiLine
                         v-show="lineData.length > 0"
@@ -42,7 +42,7 @@
 </template>
 
 <script setup>
-  import {computed, reactive, ref} from 'vue';
+  import {computed, reactive, ref, watch} from 'vue';
   import API from '../api';
   import MutiLine from '@/components/Echarts/muti-line';
   import RightSearch from './rightSearch';
@@ -56,6 +56,7 @@
     {title:'本周收益总额', subText:'同比上周', countProp:'currentWeekIncomeAmount', ratioProp:'weekRatio'}
   ])
   const leftData = reactive({})
+  const searchParams = ref({})
   const userEchartsDataList = ref([])
   const lineData = ref([])
   const xAxisData = ref([])
@@ -65,9 +66,9 @@
   const productType = ref(0)
 
   // 获取收益统计图表数据
-  function handleGetEarningsStatistic(param) {
+  function handleGetEarningsStatistic() {
     let params = {
-      ...param,
+      ...searchParams.value,
       productType: productType.value
     }
 
@@ -102,6 +103,11 @@
     echartsOptions.tooltip = tooltip;
     xAxisData.value = _xAxisData
     lineData.value = _seriesData
+  }
+
+  function handleUpdateParams(params) {
+    searchParams.value = params
+    handleGetEarningsStatistic()
   }
 
   const platformTypeList = computed(() => {

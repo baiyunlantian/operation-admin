@@ -1,6 +1,5 @@
 <template>
     <div class="right">
-<!--        <Popover v-model="productType" />-->
 
         <div class="time-range">
             <div v-for="(item, index) in timeRangeTags" :key="index"
@@ -27,14 +26,10 @@
 
 <script setup>
   import {reactive, ref, onMounted, computed, watch, defineEmits} from 'vue';
-  import { useStore } from 'vuex';
   import dayjs from "dayjs";
-  import Popover from '@/components/Popover';
 
-  const emit = defineEmits(['getData'])
-  const store = useStore()
+  const emit = defineEmits(['updateParams'])
 
-  const productType = ref(0)
   const dateScopeType = ref(2)
   const startDate = ref(null)
   const timeRangeTags = reactive([
@@ -46,13 +41,12 @@
 
   function getData() {
     let params = {
-      productType: productType.value,
       dateScopeType: dateScopeType.value,
       startDate: timeRange.value[0],
       endDate: timeRange.value[1],
     }
 
-    emit('getData', params)
+    emit('updateParams', params)
   }
 
   function datePickerChange(dates) {
@@ -98,14 +92,6 @@
       )
     }
   }
-
-  // 用户统计图表切换
-  watch(
-    () => productType.value,
-    Category => {
-      getData()
-    }
-  )
 
   onMounted(() => {
     getData();

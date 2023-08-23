@@ -17,9 +17,7 @@
     </div>
 
     <UserStatistic />
-
     <EarningsStatistic />
-
     <InviteStatistic />
 
     <div class="title-box u-m-t-20">运营快捷入口</div>
