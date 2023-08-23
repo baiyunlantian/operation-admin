@@ -181,8 +181,8 @@
   const tableRef = ref()
   const isPayOptions = ref([
     {label:'全部', key:'null'},
-    {label:'付费用户', key:'1'},
-    {label:'未付费用户', key:'0'},
+    {label:'付费用户', key:'true'},
+    {label:'未付费用户', key:'false'},
   ])
   const linkList = ref([])
   const linkDialogVisible = ref(false)

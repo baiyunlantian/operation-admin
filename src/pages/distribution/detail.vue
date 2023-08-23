@@ -156,6 +156,7 @@
     pageSize:50,
     pageIndex:1,
     sourceType: 'null',
+    isPay: 'null',
     sortType: 'desc',
   })
   const tableData = ref([])
@@ -177,6 +178,7 @@
   const startDate = ref(null)
   const formRef = ref(null)
   const isPayOptions = ref([
+    {label:'全部', key:'null'},
     {label:'付费用户', key:'1'},
     {label:'未付费用户', key:'0'},
   ])
@@ -260,10 +262,8 @@
       params.sourceType = ''
     }
 
-    if (params.isPay === '1') {
-      params.isPay = true
-    }else if (params.isPay === '0'){
-      params.isPay = false
+    if (params.isPay === 'null') {
+      params.isPay = ''
     }
 
     formRef.value.validate(valid => {
@@ -288,7 +288,7 @@
       })
     }else if (type === 'reset') {
       searchFormConfig.value.forEach(item=>{
-        searchTableParams.value[item.prop] = item.prop === 'sourceType' ? 'null' : ''
+        searchTableParams.value[item.prop] = item.prop === 'sourceType' || item.prop === 'isPay' ? 'null' : ''
       })
       formRef.value.clearValidate()
     }
