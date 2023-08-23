@@ -132,9 +132,9 @@
     ],
     userName:[
       {
-        max: 15,
+        max: 10,
         trigger: 'blur',
-        message: '请输入不超过15位数的昵称'
+        message: '请输入不超过10位数的昵称'
       }
     ]
   })
@@ -238,12 +238,17 @@
 
   function handleSearchTable(type) {
     if (type === 'search') {
-      searchTableParams.value.pageIndex = 1
-      handleGetTableList()
+      formRef.value.validate(valid => {
+        if (valid) {
+          searchTableParams.value.pageIndex = 1
+          handleGetTableList()
+        }
+      })
     }else if (type === 'reset') {
       searchFormConfig.value.forEach(item=>{
         searchTableParams.value[item.prop] = ''
       })
+      formRef.value.clearValidate()
     }
   }
 

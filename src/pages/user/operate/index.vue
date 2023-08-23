@@ -106,7 +106,6 @@
             </div>
         </div>
 
-<!--        <BottomBox />-->
 
         <Modal v-if="modalVisible" @close="handleToggleModal"/>
     </div>
@@ -294,12 +293,17 @@
 
   function handleSearchTable(type) {
     if (type === 'search') {
-      searchTableParams.value.pageIndex = 1
-      handleGetTableList()
+      formRef.value.validate(valid => {
+        if (valid) {
+          searchTableParams.value.pageIndex = 1
+          handleGetTableList()
+        }
+      })
     }else if (type === 'reset') {
       searchFormConfig.value.forEach(item=>{
         searchTableParams.value[item.prop] = ''
       })
+      formRef.value.clearValidate()
     }
   }
   function handleClickBtn(eventType) {

@@ -132,7 +132,7 @@
     {label:'ID/手机号：', prop:'account', type:'input', placeholder:'用户ID/手机号'},
     {label:'用户昵称：', prop:'userName', type:'input', placeholder:'用户昵称'},
     {label:'注册时间：', prop:'registerTime', type:'datetimerange'},
-    {label:'', prop:'sourceType', type:'select', placeholder:'账号来源'},
+    {label:'账号来源：', prop:'sourceType', type:'select', placeholder:'账号来源'},
     // {label:'', prop:'dynamicScope', type:'select', placeholder:'最近登录'},
   ])
   const rules = reactive({
@@ -145,9 +145,9 @@
     ],
     userName:[
       {
-        max: 15,
+        max: 10,
         trigger: 'blur',
-        message: '请输入不超过15位数的昵称'
+        message: '请输入不超过10位数的昵称'
       }
     ]
   })
@@ -324,12 +324,17 @@
 
   function handleSearchTable(type) {
     if (type === 'search') {
-      searchTableParams.value.pageIndex = 1
-      handleGetTableList()
+      formRef.value.validate(valid => {
+        if (valid) {
+          searchTableParams.value.pageIndex = 1
+          handleGetTableList()
+        }
+      })
     }else if (type === 'reset') {
       searchFormConfig.value.forEach(item=>{
         searchTableParams.value[item.prop] = item.prop === 'sourceType' ? 'null' : ''
       })
+      formRef.value.clearValidate()
     }
   }
 

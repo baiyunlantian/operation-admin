@@ -184,6 +184,7 @@
               editorRef.value.disable()
             }else {
               isEdit.value = true
+              editorRef.value.enable()
             }
           }
         })
