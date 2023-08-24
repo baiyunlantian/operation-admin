@@ -445,3 +445,13 @@ body {
 .theme-bg {
   background-color: #6ea3ff;
 }
+
+.popup-dialog-btn:focus {
+  background-color: var(--el-color-primary);
+}
+
+.popup-dialog-btn:hover {
+  color: var(--el-color-white);
+  background-color: var(--el-color-primary-light-3);
+  border-color: var(--el-color-primary-light-3);
+}

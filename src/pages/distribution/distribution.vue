@@ -5,8 +5,8 @@
         <div class="search-container u-m-t-15 u-m-b-10">
             <el-form class="search-form" ref="formRef" :inline="true" :model="searchTableParams" :rules="rules">
                 <el-form-item class="first-form-item">
-                    <el-button type="primary" @click="handleToggleDialog('commission')">设置佣金计算</el-button>
-                    <el-button type="primary" @click="handleToggleDialog('invite')">邀请奖励活动内容</el-button>
+                    <el-button class="popup-dialog-btn" type="primary" @click="handleToggleDialog('commission')">设置佣金计算</el-button>
+                    <el-button class="popup-dialog-btn" type="primary" @click="handleToggleDialog('invite')">邀请奖励活动内容</el-button>
                 </el-form-item>
 
                 <el-form-item v-for="(item, index) in searchFormConfig" :prop="item.prop" :label="item.label" :key="item.prop" label-position="left">
@@ -179,6 +179,7 @@
   function handleGoBack() {
     detailVisible.value = false
     detailUserId.value = ''
+    handleGetTableList()
   }
 
   function handleToggleDialog(dialogType, param) {

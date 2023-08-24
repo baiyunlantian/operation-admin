@@ -1,15 +1,15 @@
 <template>
     <div class="operate-container bg-fff">
         <div class="title header-btns">
-            <el-button type="primary" @click="handleClickHeaderBtn('invite')">邀请奖励规则</el-button>
-            <el-button type="primary" @click="handleClickHeaderBtn('link')">复制邀请链接</el-button>
+            <el-button class="popup-dialog-btn" type="primary" @click="handleClickHeaderBtn('invite')">邀请奖励规则</el-button>
+            <el-button class="popup-dialog-btn" type="primary" @click="handleClickHeaderBtn('link')">复制邀请链接</el-button>
         </div>
 
         <div class="my-invite">
             <div class="desc">我的邀请列表</div>
             <div class="content">
                 <div class="item" style="margin-right: 5%;">推广付费人员：<div class="value">{{ userInfo.promotionPayers || 0 }}</div>人</div>
-                <div class="item">推广佣金：<div class="value">￥{{ userInfo.promotionCommissionAmount || 0 }}</div>元</div>
+                <div class="item">推广佣金：<div class="value">{{ userInfo.promotionCommissionAmount || 0 }}</div>元</div>
             </div>
         </div>
 

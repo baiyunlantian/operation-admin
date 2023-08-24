@@ -15,7 +15,7 @@
                 </div>
                 <div class="content">
                     <div class="item" style="margin-right: 5%;">推广付费人员：<div class="value">{{ userInfo.promotionPayers || 0 }}</div>人</div>
-                    <div class="item">推广佣金额度：<div class="value">￥{{ userInfo.promotionCommissionAmount || 0 }}</div>元</div>
+                    <div class="item">推广佣金：<div class="value">{{ userInfo.promotionCommissionAmount || 0 }}</div>元</div>
                 </div>
             </div>
                 <!--    暂时去掉    -->
@@ -162,7 +162,7 @@
   const tableData = ref([])
   const tableColumnConfig = ref([
     {label:'用户ID', prop:'userId'},
-    {label:'用户账号', prop:'account'},
+    {label:'手机号', prop:'account'},
     {label:'用户昵称', prop:'userName'},
     {label:'是否付费', prop:'isPay', insertSlot:true},
     {label:'付费总金额', prop:'paymentAmount'},

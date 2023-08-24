@@ -29,8 +29,8 @@
             </el-form>
 
             <div class="btns">
-                <el-button type="primary" class="btn" @click="handleClickBtn('del')">批量删除</el-button>
-                <el-button type="primary" class="btn" @click="handleClickBtn('add')">添加用户</el-button>
+                <el-button class="popup-dialog-btn btn" type="primary" @click="handleClickBtn('del')">批量删除</el-button>
+                <el-button class="popup-dialog-btn btn" type="primary" @click="handleClickBtn('add')">添加用户</el-button>
             </div>
 
         </div>

@@ -73,7 +73,6 @@
 
   const editorRef = shallowRef()
   const contentValue = ref('')
-  const contentValueCopy = ref('')
   const visible = ref(false)
   const btnLoading = ref(false)
   const isEdit = ref(false)
@@ -100,11 +99,7 @@
       "codeBlock",
       "blockquote",
       "headerSelect",
-      "header1",
-      "header2",
-      "header3",
       "todo",
-      "redo",
       "undo",
     ],
   }
@@ -130,9 +125,7 @@
         editorRef.value.enable()
         break;
       case 'cancel':
-        isEdit.value = false;
-        editorRef.value.disable()
-        contentValue.value = contentValueCopy.value
+        handleCloseDialog()
         break;
       case 'ok':
         if (contentLength.value <= 1000) {
@@ -160,6 +153,8 @@
   function handleCloseDialog() {
     isEdit.value = false
     editorRef.value.disable()
+    // 回滚至顶部
+    document.getElementsByClassName('w-e-scroll')[0].scrollTop = 0;
     emits('update:modelValue', false)
   }
 
@@ -167,7 +162,6 @@
     API.getInvitationRewardRules().then(res=>{
       if (res.code == 0) {
         contentValue.value = res.data || ''
-        contentValueCopy.value = res.data || ''
 
           /***
            * 邀新列表进来 只读

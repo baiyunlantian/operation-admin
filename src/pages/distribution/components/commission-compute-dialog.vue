@@ -87,7 +87,7 @@
   const formRef = ref()
 
   function validNumber(rule, value, callback) {
-    if ((!value && value != 0) || value == '0.') callback(new Error('请输入抽取额度'))
+    if ((!value && value != 0) || value === '0.') callback(new Error('请输入抽取额度'))
 
     const reg = /((^[1-9]\d*)|^0)(\.\d{0,2}){0,1}$/, _value = Number(value);
     if (computeData.value.type === 0) {

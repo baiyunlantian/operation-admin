@@ -14,11 +14,11 @@
                 </el-form-item>
 
                 <el-form-item class="">
-                    <el-button type="primary" class="btn" @click="handleClickDelete('batchDel')">批量删除</el-button>
+                    <el-button type="primary" class="btn popup-dialog-btn" @click="handleClickDelete('batchDel')">批量删除</el-button>
                 </el-form-item>
 
                 <el-form-item class="enter-btn">
-                    <el-button type="primary" class="btn" @click="handleToggleDialog(true)">录入</el-button>
+                    <el-button type="primary" class="btn popup-dialog-btn" @click="handleToggleDialog(true)">录入</el-button>
                 </el-form-item>
             </el-form>
         </div>
