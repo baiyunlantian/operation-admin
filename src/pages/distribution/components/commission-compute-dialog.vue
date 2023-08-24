@@ -157,11 +157,6 @@
 
   function handleCloseDialog() {
     emits('update:modelValue', false)
-
-    computeData.value = {
-      type: 0,
-      amount: '0'
-    }
   }
 
   function handleBlur() {
