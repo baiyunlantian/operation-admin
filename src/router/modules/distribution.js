@@ -11,14 +11,14 @@ export default [
     children: [
       {
         path: '/invite',
-        meta: {title: "邀新列表"},
+        meta: {title: "我的邀新列表"},
         component: () => import('@/pages/distribution/invite.vue'),
         name: 'invite',
         permission: 1
       },
       {
         path: '/distribution',
-        meta: {title: "管理分销用户"},
+        meta: {title: "分销管理"},
         component: () => import('@/pages/distribution/distribution.vue'),
         name: 'distribution',
         permission: 1

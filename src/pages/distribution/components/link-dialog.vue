@@ -2,10 +2,14 @@
     <div class="dialog-container">
         <el-dialog
                 v-model="visible"
-                :close-on-click-modal="true"
-                :show-close="true"
-                @close="handleToggleDialog"
+                :close-on-click-modal="false"
+                :show-close="false"
         >
+            <template #header>
+                <div class="dialog-header">
+                    <div class="close-btn icon u-cursor" @click="handleToggleDialog">x</div>
+                </div>
+            </template>
 
             <div class="dialog-body">
                 <slot name="title"></slot>
@@ -155,6 +159,17 @@
                     font-size: 16px;
                     color: #383838;
                 }
+            }
+        }
+
+        .dialog-header{
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+
+            .close-btn{
+                position: relative;
+                font-size: 24px;
             }
         }
     }
