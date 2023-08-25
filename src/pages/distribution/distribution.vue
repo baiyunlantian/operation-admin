@@ -27,12 +27,9 @@
             <div class="header-operate theme-bg title-box">
                 <div class="left-text">用户列表</div>
                 <div class="right-sort">
-                    <div class="sort-container">
-                        <Popover v-model="searchTableParams.sortType" :options="sortOptions">
-                            <template v-slot:popover-icon>
-                                <el-icon class="u-cursor" style="font-size: 16px; color: #fff"><Sort /></el-icon>
-                            </template>
-                        </Popover>
+                    <div class="sort-container u-m-r-20 u-cursor" @click="handleChangeSort(searchTableParams.sortType)">
+                        <el-icon class="u-m-r-5" style="font-size: 16px; color: #fff"><Sort /></el-icon>
+                        <span class="sort-text" style="font-size: 16px; color: #fff">{{sortObject[searchTableParams.sortType]}}</span>
                     </div>
 
                     <el-select v-model="searchTableParams.sortField" class="m-2" placeholder="排序方式" @change="handleGetTableList">
@@ -120,7 +117,7 @@
 
   const searchFormConfig = ref([
     {label:'ID/账号：', prop:'account', type:'input', placeholder:'用户ID/账号'},
-    {label:'用户昵称：', prop:'userName', type:'input', placeholder:'用户昵称'},
+    {label:'用户名：', prop:'userName', type:'input', placeholder:'用户名'},
   ])
   const rules = reactive({
     account:[
@@ -170,11 +167,15 @@
   const tableListTotal = ref(0)
   const formRef = ref(null)
   const tableRef = ref()
-  const sortOptions = ref([
-    {label: '降序', key: 'desc'},
-    {label: '升序', key: 'asc'},
-  ])
+  const sortObject = reactive({
+    desc: '降序',
+    asc: '升序',
+  })
   const userCommission = ref({})
+
+  function handleChangeSort(val) {
+    searchTableParams.value.sortType = val === 'desc' ? 'asc' : 'desc'
+  }
 
   function handleGoBack() {
     detailVisible.value = false
@@ -304,11 +305,8 @@
                     align-items: center;
 
                     .sort-container{
-                        margin-right: 20px;
-
-                        :deep(.text){
-                            color: #ffffff;
-                        }
+                        display: flex;
+                        align-items: center;
                     }
 
                     ::v-deep .el-select{

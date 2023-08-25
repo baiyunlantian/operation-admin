@@ -4,12 +4,9 @@
             <div class="text">邀新排名</div>
 
             <div class="btns">
-                <div class="u-m-l-10 sort-container">
-                    <Popover v-model="params.sortType" :options="sortOptions">
-                        <template v-slot:popover-icon>
-                            <el-icon class="u-cursor" style="font-size: 16px; color: #fff"><Sort /></el-icon>
-                        </template>
-                    </Popover>
+                <div class="u-m-l-10 sort-container u-cursor" @click="handleChangeSort(params.sortType)">
+                    <el-icon class="u-m-r-5" style="font-size: 16px; color: #fff"><Sort /></el-icon>
+                    <span class="sort-text" style="font-size: 16px; color: #fff">{{sortObject[params.sortType]}}</span>
                 </div>
 
                 <div class="select-month u-m-l-10">
@@ -79,10 +76,10 @@
     {label:'本周', key:'2'},
     {label:'本月', key:'3'},
   ])
-  const sortOptions = ref([
-    {label: '降序', key: 'desc'},
-    {label: '升序', key: 'asc'},
-  ])
+  const sortObject = reactive({
+    desc: '降序',
+    asc: '升序',
+  })
   const params = reactive({
     sortType:'desc',
     sortField: 'PaymentAmount',
@@ -90,6 +87,10 @@
     platformTypes: [],
   })
   const platformTypeMap = ref(new Map())
+
+  function handleChangeSort(val) {
+    params.sortType = val === 'desc' ? 'asc' : 'desc'
+  }
 
   let myChars = null
   // 初始化
@@ -264,11 +265,8 @@
                 justify-content: flex-end;
 
                 .sort-container{
-                    margin-right: 20px;
-
-                    :deep(.text){
-                        color: #ffffff;
-                    }
+                    display: flex;
+                    align-items: center;
                 }
 
                 ::v-deep .el-select{
