@@ -9,7 +9,7 @@
         <template #header>
             <div class="dialog-header">
                 <div class="title">充值记录</div>
-                <div class="icon u-cursor" @click="handleClose">X</div>
+                <div class="icon u-cursor u-font-24" @click="handleClose">×</div>
             </div>
         </template>
 

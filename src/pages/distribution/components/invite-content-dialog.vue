@@ -8,7 +8,7 @@
         >
             <template #header>
                 <div class="dialog-header">
-                    <div class="close-btn icon u-cursor u-font-18" @click="handleCloseDialog">x</div>
+                    <div class="close-btn icon u-cursor u-font-24" @click="handleCloseDialog">×</div>
                 </div>
             </template>
 
