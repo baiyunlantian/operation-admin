@@ -1,5 +1,5 @@
 <template>
-    <div class="detail-container bg-fff">
+    <div class="detail-container bg-fff u-flex-col">
         <div class="header bg-box">
             <span class="u-cursor" @click="goBack">&lt;</span>
             分销用户详情
@@ -58,7 +58,7 @@
 
         </div>
 
-        <div class="table-main bg-fff">
+        <div class="table-main bg-fff u-flex-col">
             <div class="header-operate theme-bg title-box">
                 <div class="left-text">邀新列表</div>
                 <div class="right-sort">
@@ -380,10 +380,8 @@
         }
 
         .table-main{
-            height: calc(100% - 315px);
-            position: relative;
-            display: flex;
-            flex-direction: column;
+            flex: 1;
+            overflow: hidden;
 
             .header-operate{
                 position: relative;

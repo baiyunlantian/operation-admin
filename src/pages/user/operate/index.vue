@@ -1,5 +1,5 @@
 <template>
-    <div class="operate-container bg-fff">
+    <div class="operate-container bg-fff u-flex-col">
         <div class="title">筛选</div>
 
         <div class="search-container u-m-t-15 u-m-b-10">
@@ -35,7 +35,7 @@
 
         </div>
 
-        <div class="table-main u-m-t-10">
+        <div class="table-main u-m-t-10 u-flex-col">
             <div class="header-operate theme-bg title-box">
                 <div class="left-text">用户列表</div>
                 <div class="right-sort">
@@ -358,9 +358,8 @@
         }
 
         .table-main{
-            position: relative;
-            /* height 减去 .title  .search-container  高度 */
-            height: calc(100% - 160px);
+            flex: 1;
+            overflow: hidden;
 
             .header-operate{
                 position: relative;

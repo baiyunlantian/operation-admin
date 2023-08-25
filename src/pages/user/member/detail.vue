@@ -185,6 +185,7 @@
         padding-bottom: 5vh;
         top: 0;
         left: 0;
+        box-sizing: border-box;
 
         .u-m-l-r-20 {
             margin: 0 20px;

@@ -1,5 +1,5 @@
 <template>
-    <div class="operate-container bg-fff">
+    <div class="operate-container bg-fff u-flex-col">
         <div class="title header-btns">
             <el-button class="popup-dialog-btn" type="primary" @click="handleClickHeaderBtn('invite')">邀请奖励规则</el-button>
             <el-button class="popup-dialog-btn" type="primary" @click="handleClickHeaderBtn('link')">复制邀请链接</el-button>
@@ -50,7 +50,7 @@
             </el-form>
         </div>
 
-        <div class="table-main u-m-t-10 bg-fff">
+        <div class="table-main u-m-t-10 bg-fff u-flex-col">
             <div class="header-operate theme-bg title-box">
                 <div class="left-text">邀新列表</div>
                 <div class="right-sort">
@@ -393,10 +393,8 @@
         }
 
         .table-main{
-            height: calc(100% - 250px);
-            position: relative;
-            display: flex;
-            flex-direction: column;
+            flex: 1;
+            overflow: hidden;
 
             .header-operate{
                 position: relative;

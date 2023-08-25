@@ -1,5 +1,5 @@
 <template>
-    <div class="operate-container bg-fff">
+    <div class="operate-container bg-fff u-flex-col">
         <div class="title">筛选</div>
 
         <div class="search-container u-m-t-15 u-m-b-10">
@@ -23,7 +23,7 @@
             </el-form>
         </div>
 
-        <div class="table-main u-m-t-10 bg-fff">
+        <div class="table-main u-m-t-10 bg-fff u-flex-col">
             <div class="header-operate theme-bg title-box">
                 <div class="left-text">用户列表</div>
                 <div class="right-sort">
@@ -356,9 +356,8 @@
 
         .table-main{
             position: relative;
-            display: flex;
-            flex-direction: column;
-            height: calc(100% - 130px);
+            flex: 1;
+            overflow: hidden;
 
             .header-operate{
                 position: relative;
