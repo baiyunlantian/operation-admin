@@ -8,7 +8,7 @@
         >
             <template #header>
                 <div class="dialog-header">
-                    <div class="">推广佣金计算方式</div>
+                    <div class="u-font-weight">推广佣金计算方式</div>
                     <div class="close-btn icon u-cursor" @click="handleCloseDialog">x</div>
                 </div>
             </template>
@@ -235,13 +235,7 @@
             justify-content: space-between;
 
             div{
-                font-weight: bold;
                 font-size: 18px;
-            }
-
-            .close-btn{
-                position: relative;
-                font-size: 24px;
             }
         }
     }

@@ -8,7 +8,7 @@
         >
             <template #header>
                 <div class="dialog-header">
-                    <div class="close-btn icon u-cursor" @click="handleCloseDialog">x</div>
+                    <div class="close-btn icon u-cursor u-font-18" @click="handleCloseDialog">x</div>
                 </div>
             </template>
 
@@ -268,11 +268,6 @@
             display: flex;
             align-items: center;
             justify-content: flex-end;
-
-            .close-btn{
-                position: relative;
-                font-size: 24px;
-            }
         }
     }
 </style>
