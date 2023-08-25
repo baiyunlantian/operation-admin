@@ -1,6 +1,5 @@
 <template>
     <div class="operate-container bg-fff u-flex-col">
-        <div class="title"></div>
 
         <div class="search-container u-m-t-15 u-m-b-10">
             <el-form class="search-form" ref="formRef" :inline="true" :model="searchTableParams" :rules="rules">

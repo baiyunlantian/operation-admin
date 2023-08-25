@@ -449,6 +449,14 @@
 
             .btn-item{
                 position: relative;
+
+                :deep(.el-date-editor--daterange) {
+                    width: 370px !important;
+                }
+
+                :deep(.el-date-editor--monthrange) {
+                    width: 370px !important;
+                }
             }
         }
 

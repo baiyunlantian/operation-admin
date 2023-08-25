@@ -340,7 +340,6 @@
             padding: 10px;
             font-size: 26px;
             font-weight: bold;
-            border-bottom: 1px dashed #3f99f7;
         }
 
         .dialog-title{
