@@ -62,7 +62,7 @@
           copyText += `${link.name}：${link.inviteLink}\n`
         })
       }else {
-        copyText = `${copyObj.name}：${copyObj.inviteLink}`
+        copyText = copyObj.inviteLink
       }
 
       // 如果当前浏览器版本不兼容navigator.clipboard
