@@ -18,8 +18,6 @@
                     <div class="item">推广佣金：<div class="value">{{ userInfo.promotionCommissionAmount || 0 }}</div>元</div>
                 </div>
             </div>
-                <!--    暂时去掉    -->
-                <!--    <el-button class="u-m-b-20" type="primary" @click="handleShowLink">查看邀请链接</el-button>-->
 
             <el-form class="search-form" ref="formRef" :inline="true" :model="searchTableParams" :rules="rules">
 
@@ -36,17 +34,7 @@
                         />
                     </el-select>
 
-                    <el-date-picker
-                            v-else
-                            v-model="searchTableParams[item.prop]"
-                            type="datetimerange"
-                            range-separator="-"
-                            format="YYYY-MM-DD HH:mm"
-                            start-placeholder="开始时间"
-                            end-placeholder="结束时间"
-                            :disabled-date="handleDisabledDate"
-                            @calendar-change="datePickerChange"
-                    />
+                    <LimitDatePicker v-else v-model="searchTableParams[item.prop]"/>
 
                 </el-form-item>
 
@@ -121,9 +109,9 @@
   import { reactive, ref, defineProps, onMounted, computed, defineEmits } from 'vue';
   import { useStore } from 'vuex';
   import API from './api';
-  import _API from '@/pages/user/member';
   import dayjs from "dayjs";
   import LINKDIALOG from './components/link-dialog';
+  import LimitDatePicker from '@/components/LimitDatePicker';
 
   const props = defineProps(['userId'])
   const emits = defineEmits(['goBack'])
@@ -175,7 +163,6 @@
     {label:'注册时间从早到晚', value:'asc'},
   ])
   const tableListTotal = ref(0)
-  const startDate = ref(null)
   const formRef = ref(null)
   const isPayOptions = ref([
     {label:'全部', key:'null'},
@@ -185,34 +172,6 @@
   const linkList = ref([])
   const linkDialogVisible = ref(false)
   const userInfo = ref({})
-
-
-  function datePickerChange(dates) {
-    // 记录选择的起始日期
-    let hasSelectDate = dates !== null && dates.length > 0
-    startDate.value = hasSelectDate ? dates[0] : null
-  }
-
-  // 限定时间选择范围
-  function handleDisabledDate(time) {
-    // 不能超过当前系统时间且不能往前大于30天
-    const day = 24 * 60 * 60 * 1000;
-    const timestamp = time.getTime()
-    const nowTimestamp = new Date().getTime()
-    if (startDate.value !== null) {
-      return (
-        timestamp < startDate.value.getTime() - 29 * day ||
-        timestamp > startDate.value.getTime() + 29 * day ||
-        timestamp > nowTimestamp
-      )
-    }else {
-      return timestamp > nowTimestamp
-    }
-  }
-
-  function handleShowLink() {
-    linkDialogVisible.value = true
-  }
 
   function handleFormatTableCell(row, prop) {
     let text = row[prop]

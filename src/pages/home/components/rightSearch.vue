@@ -8,15 +8,12 @@
             >
                 {{ item.label }}
             </div>
-            <el-date-picker
+
+            <LimitDatePicker
                     v-model="timeRange"
-                    type="daterange"
-                    range-separator="至"
-                    format="YYYY-MM-DD"
-                    value-format="YYYY-MM-DD"
-                    start-placeholder="请选择起始时间"
-                    end-placeholder="请选择结束时间"
-                    :disabled-date="handleDisabledDate"
+                    datePickerType="daterange"
+                    formatText="YYYY-MM-DD"
+                    :custom-disabled-date-fn="handleDisabledDate"
                     @calendar-change="datePickerChange"
                     @change="dateChange"
             />
@@ -27,11 +24,11 @@
 <script setup>
   import {reactive, ref, onMounted, computed, watch, defineEmits} from 'vue';
   import dayjs from "dayjs";
+  import LimitDatePicker from '@/components/LimitDatePicker';
 
   const emit = defineEmits(['updateParams'])
 
   const dateScopeType = ref(2)
-  const startDate = ref(null)
   const timeRangeTags = reactive([
     {label:'今日', key:1},
     {label:'最近7天', key:2},
@@ -50,10 +47,6 @@
   }
 
   function datePickerChange(dates) {
-    // 记录选择的起始日期
-    let hasSelectDate = dates !== null && dates.length > 0
-    startDate.value = hasSelectDate ? dates[0] : null
-
     const [start, end] = dates;
     if (start && end) {
       const _start = dayjs(start).format('YYYY-MM-DD')
@@ -68,7 +61,6 @@
 
   function dateChange(dates) {
     timeRange.value = dates;
-    startDate.value = null
     if (dates === null || dates.length === 0) {
       handleClickTimeTag(2)
     }
@@ -82,13 +74,13 @@
   }
 
   // 限定时间选择范围
-  function handleDisabledDate(time) {
+  function handleDisabledDate(time, startDate) {
     const day = 24 * 60 * 60 * 1000;
     const timestamp = time.getTime()
-    if (startDate.value !== null) {
+    if (startDate !== null) {
       return (
-        timestamp < startDate.value.getTime() - 13 * day ||
-        timestamp > startDate.value.getTime() + 13 * day
+        timestamp < startDate.getTime() - 13 * day ||
+        timestamp > startDate.getTime() + 13 * day
       )
     }
   }

@@ -32,16 +32,12 @@
 
                 <div class="btn-item u-m-l-10">
                     <div class="time-range">
-                        <el-date-picker
+                        <LimitDatePicker
                                 v-if="dateScopeType === 1"
                                 v-model="timeRange"
-                                type="daterange"
-                                range-separator="至"
-                                format="YYYY-MM-DD"
-                                value-format="YYYY-MM-DD"
-                                start-placeholder="请选择起始时间"
-                                end-placeholder="请选择结束时间"
-                                :disabled-date="handleDisabledDate"
+                                datePickerType="daterange"
+                                formatText="YYYY-MM-DD"
+                                :custom-disabled-date-fn="handleDisabledDate"
                                 @calendar-change="datePickerChange"
                                 @change="dateChange"
                         />
@@ -134,6 +130,7 @@
   import ExportExcel from '@/utils/exportExcel';
   import { setTimeEscalation } from '@/assets/js/utils';
   import MutiLine from '@/components/muti-line';
+  import LimitDatePicker from '@/components/LimitDatePicker';
 
   const store = useStore()
   const emit = defineEmits(['update'])
@@ -168,7 +165,6 @@
   const setTimeEscalationClone = setTimeEscalation();
 
   const timeRange = ref([])
-  const startDate = ref(null)
   const productType = ref(0)
   const lineData = ref([])
   const tableData = ref([])
@@ -219,10 +215,6 @@
 
   // 选择时间范围
   function datePickerChange(dates) {
-    // 记录选择的起始日期
-    let hasSelectDate = dates !== null && dates.length > 0
-    startDate.value = hasSelectDate ? dates[0] : null
-
     const [start, end] = dates;
     if (start && end) {
       const _start = dayjs(start).format('YYYY-MM-DD')
@@ -234,7 +226,6 @@
   }
 
   function dateChange(dates) {
-    startDate.value = null
     if (dates === null || dates.length === 0) {
       nextTick(()=>{
         timeRange.value = [proxy.$utils.getDateBeforeDays(14), dayjs(new Date()).format('YYYY-MM-DD')]
@@ -249,16 +240,15 @@
   }
 
   // 限定时间选择范围
-  function handleDisabledDate(time) {
-    // console.log('handleDisabledDate', time)
+  function handleDisabledDate(time, startDate) {
     /**
      * 按日筛选，时间区间选择为（7~30）天
      * */
     const day = 24 * 60 * 60 * 1000;
     // 当前选中的时间
     const timestamp = time.getTime()
-    if (startDate.value !== null) {
-      const startDateTime = startDate.value.getTime();
+    if (startDate !== null) {
+      const startDateTime = startDate.getTime();
       // 小于7-30天
       const lessThan = timestamp < startDateTime - 5 * day && timestamp > startDateTime - 30 * day
       // 大于7-30天

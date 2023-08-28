@@ -29,17 +29,7 @@
                         />
                     </el-select>
 
-                    <el-date-picker
-                            v-else
-                            v-model="searchTableParams[item.prop]"
-                            type="datetimerange"
-                            range-separator="-"
-                            format="YYYY-MM-DD HH:mm"
-                            start-placeholder="开始时间"
-                            end-placeholder="结束时间"
-                            :disabled-date="handleDisabledDate"
-                            @calendar-change="datePickerChange"
-                    />
+                    <LimitDatePicker v-else v-model="searchTableParams[item.prop]"/>
 
                 </el-form-item>
 
@@ -118,14 +108,14 @@
 </template>
 
 <script setup>
-  import {ref, reactive, watch, getCurrentInstance, onMounted, computed} from 'vue';
+  import {ref, reactive, onMounted, computed} from 'vue';
   import dayjs from 'dayjs';
   import { useStore } from 'vuex';
   import API from './api';
   import LINKDIALOG from './components/link-dialog';
   import InviteContentDialog from './components/invite-content-dialog';
+  import LimitDatePicker from '@/components/LimitDatePicker';
 
-  const { proxy } = getCurrentInstance()
   const store = useStore()
 
   const searchFormConfig = ref([
@@ -176,7 +166,6 @@
   const tableListTotal = ref(0)
   const CommissionAmount = ref(0)
   const Payer = ref(0)
-  const startDate = ref(null)
   const formRef = ref(null)
   const tableRef = ref()
   const isPayOptions = ref([
@@ -189,34 +178,11 @@
   const inviteContentDialogVisible = ref(false)
   const userInfo = ref({})
 
-  function datePickerChange(dates) {
-    // 记录选择的起始日期
-    let hasSelectDate = dates !== null && dates.length > 0
-    startDate.value = hasSelectDate ? dates[0] : null
-  }
-
   function handleClickHeaderBtn(type) {
     if (type === 'link') {
       linkDialogVisible.value = true
     }else {
       inviteContentDialogVisible.value = true
-    }
-  }
-
-  // 限定时间选择范围
-  function handleDisabledDate(time) {
-    // 不能超过当前系统时间且不能往前大于30天
-    const day = 24 * 60 * 60 * 1000;
-    const timestamp = time.getTime()
-    const nowTimestamp = new Date().getTime()
-    if (startDate.value !== null) {
-      return (
-        timestamp < startDate.value.getTime() - 29 * day ||
-        timestamp > startDate.value.getTime() + 29 * day ||
-        timestamp > nowTimestamp
-      )
-    }else {
-      return timestamp > nowTimestamp
     }
   }
 
