@@ -133,8 +133,7 @@
   import { useStore } from 'vuex';
   import ExportExcel from '@/utils/exportExcel';
   import { setTimeEscalation } from '@/assets/js/utils';
-  import MutiLine from '@/components/Echarts/muti-line';
-  import Popover from '@/components/Popover';
+  import MutiLine from '@/components/muti-line';
 
   const store = useStore()
   const emit = defineEmits(['update'])

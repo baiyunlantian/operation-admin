@@ -42,8 +42,10 @@
                     </div>
                 </div>
 
-                <div v-show="seriesData.length > 0" class="echarts-ref" ref="echartsRef"></div>
-                <div v-show="seriesData.length === 0" class="empty-text">暂无数据</div>
+                <div class="echarts-ref">
+                    <Echarts ref="echartsRef" :option-config="echartsOptions" :is-empty="seriesData.length === 0"/>
+                </div>
+
 
                 <div v-if="userInfo.isAdmin === 1" class="check-detail" @click="handleJumpRoute">查看详情</div>
             </el-col>
@@ -53,10 +55,9 @@
 </template>
 
 <script setup>
-  import {watch, onBeforeUnmount, onMounted, reactive, ref, computed} from 'vue';
+  import {watch, reactive, ref, computed} from 'vue';
   import API from '../api';
-  import * as echarts from "echarts";
-  import Popover from '@/components/Popover';
+  import Echarts from '@/components/Echarts';
   import { useStore } from 'vuex';
   import { useRouter } from "vue-router";
 
@@ -65,7 +66,8 @@
 
   const seriesData = ref([])
   const yAxisData = ref([])
-  const echartsRef = ref(null)
+  const echartsRef = ref()
+  const echartsOptions = ref({})
   const promotionTypeList = ref([
     {label:'按推广付费金额', key:'PaymentAmount'},
     {label:'按推广付费人数', key:'PromotionPayers'},
@@ -92,19 +94,14 @@
     params.sortType = val === 'desc' ? 'asc' : 'desc'
   }
 
-  let myChars = null
   // 初始化
   function echartsInit() {
-    if (myChars === null) {
-      myChars = echarts.init(echartsRef.value)
-    }
     let colors = [];
     platformTypeMap.value.forEach((legend, key) => {
       if (legend.selected) colors.push(legend.color)
     })
 
-    myChars.clear(); // 清除画布内容
-    myChars.setOption({
+    echartsOptions.value = {
       color: colors,
       // 鼠标移动到数据项时显示
       tooltip: {
@@ -131,12 +128,12 @@
         data: yAxisData.value,
       },
       series: seriesData.value,
-    })
-    window.addEventListener('resize', call)
-  }
+    }
 
-  function call() {
-    myChars.resize()
+    setTimeout(()=>{
+      echartsRef.value.init()
+      echartsRef.value.resize()
+    },100)
   }
 
   // 点击图表上的日期tag
@@ -209,11 +206,7 @@
 
     seriesData.value = _seriesData
     yAxisData.value = Array.from(_yAxisData).reverse()
-
-    setTimeout(()=>{
-      echartsInit()
-      call()
-    },100)
+    echartsInit()
   }
 
   function handleJumpRoute() {
@@ -240,10 +233,6 @@
         })
       }
   }, {deep:true, immediate: true})
-
-  onBeforeUnmount(() => {
-    window.removeEventListener('resize', call)
-  })
 
 </script>
 
@@ -326,13 +315,6 @@
 
             .el-col {
                 height: 83%;
-            }
-
-            .empty-text{
-                height: 100%;
-                display: grid;
-                place-items: center;
-                font-size: 16px;
             }
 
             .echarts-ref{

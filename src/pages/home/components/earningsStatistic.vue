@@ -26,13 +26,11 @@
                 <RightSearch @updateParams="handleUpdateParams"/>
 
                 <MutiLine
-                        v-show="lineData.length > 0"
                         x-axis-end-text="日期/天"
                         :x-axis-data="xAxisData"
                         :line-data="lineData"
                         :option-config="echartsOptions"
                 />
-                <div v-show="lineData.length === 0" class="empty-text">暂无数据</div>
 
                 <div class="total-statistic">共收益￥{{ leftData.total }}</div>
             </el-col>
@@ -44,7 +42,7 @@
 <script setup>
   import {computed, reactive, ref, watch} from 'vue';
   import API from '../api';
-  import MutiLine from '@/components/Echarts/muti-line';
+  import MutiLine from '@/components/muti-line';
   import RightSearch from './rightSearch';
   import LeftStatistic from './leftStatistic';
   import {useStore} from "vuex";
@@ -178,13 +176,6 @@
 
             .el-col {
                 height: 83%;
-            }
-
-            .empty-text{
-                height: 100%;
-                display: grid;
-                place-items: center;
-                font-size: 16px;
             }
         }
     }

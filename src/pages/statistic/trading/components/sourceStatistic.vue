@@ -5,8 +5,7 @@
         <div class="chart-container bg-fff u-p-b-20">
 
             <div  class="echarts-container">
-                <div v-show="echartsData.length > 0" class="echarts-ref" ref="echartsRef"></div>
-                <div v-show="echartsData.length === 0" class="empty-text">暂无数据</div>
+                <Echarts ref="echartsRef" :option-config="echartsOptions" :is-empty="echartsData.length === 0"/>
             </div>
 
             <el-table class="table-container" :data="tableData" border>
@@ -31,10 +30,10 @@
 </template>
 
 <script setup>
-  import {reactive, ref, onMounted, computed, watch, getCurrentInstance, onBeforeUnmount} from 'vue';
+  import { ref, getCurrentInstance } from 'vue';
   import API from '../api';
-  import * as echarts from 'echarts';
   import TitleBox from './titleBox';
+  import Echarts from '@/components/Echarts';
   import ExportExcel from "@/utils/exportExcel";
   import { setTimeEscalation } from "@/assets/js/utils";
 
@@ -44,6 +43,7 @@
   const startDate = ref('')
   const echartsRef = ref(null)
   const echartsData = ref([])
+  const echartsOptions = ref({})
   const colors = ref(['#91cc75', '#5470c6'])
   const tableData = ref([])
   const tableColumnConfig = ref([
@@ -114,21 +114,13 @@
 
         tableData.value = list
         echartsData.value = echarts
-
-        setTimeout(() => {
-          echartsInit()
-        }, 100)
+        echartsInit()
       }
     })
   }
 
-  let myChars = null
   function echartsInit() {
-    if (myChars === null) {
-      myChars = echarts.init(echartsRef.value)
-    }
-    myChars.clear(); // 清除画布内容
-    myChars.setOption({
+    echartsOptions.value = {
       color:colors.value,
       // 鼠标移动到数据项时显示
       tooltip: {
@@ -155,12 +147,11 @@
           },
         }
       ]
-    })
+    }
 
-    window.addEventListener('resize', call)
-  }
-  function call() {
-    myChars.resize()
+    setTimeout(() => {
+      echartsRef.value.init()
+    }, 100)
   }
 
   // 判断增长还是下降
@@ -172,10 +163,6 @@
 
     return flag
   }
-
-  onBeforeUnmount(() => {
-    window.removeEventListener('resize', call)
-  })
 
 </script>
 
@@ -212,17 +199,6 @@
 
             .echarts-container{
                 flex: 1;
-
-                .echarts-ref{
-                    height: 100%;
-                }
-
-                .empty-text{
-                    height: 100%;
-                    display: grid;
-                    place-items: center;
-                    font-size: 16px;
-                }
 
             }
 

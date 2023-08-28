@@ -3,13 +3,10 @@
         <TitleBox title="用户收益分布" @getData="handleGetEarningStatistic" @export="handleExport"/>
 
         <div class="chart-container bg-fff">
-            <div class="search-container">
-            </div>
 
             <el-row :gutter="0" class="echarts-container">
                 <el-col :span="20" :offset="2">
-                    <div v-show="total > 0" class="echarts-ref" ref="echartsRef"></div>
-                    <div v-show="total === 0" class="empty-text">暂无数据</div>
+                    <Echarts ref="echartsRef" :option-config="echartsOptions" :is-empty="total === 0"/>
                 </el-col>
             </el-row>
 
@@ -22,6 +19,7 @@
   import {getCurrentInstance, onBeforeUnmount, ref,} from 'vue';
   import API from '../api';
   import TitleBox from './titleBox';
+  import Echarts from '@/components/Echarts';
   import ExportExcel from "@/utils/exportExcel";
   import { setTimeEscalation } from "@/assets/js/utils";
   const setTimeEscalationClone = setTimeEscalation();
@@ -31,6 +29,7 @@
 
   const echartsRef = ref(null)
   const echartsData = ref([])
+  const echartsOptions = ref({})
   const xAxisData = ref([])
   const tableTitle = ref([])
   const tableData = ref([])
@@ -62,25 +61,13 @@
         echartsData.value = _echartsData
         total.value = totalStatistic
 
-        setTimeout(()=>{
-          echartsInit()
-        },100)
+        echartsInit()
       }
     })
   }
 
-  let myChars = null
   function echartsInit() {
-    if (myChars === null) {
-      myChars = echarts.init(echartsRef.value)
-    }
-    myChars.clear(); // 清除画布内容
-    myChars.setOption({
-      // dataZoom: [
-      //   {
-      //     type: 'slider',
-      //   }
-      // ],
+    echartsOptions.value = {
       xAxis: {
         type: 'category',
         axisTick:{
@@ -126,17 +113,12 @@
           }
         }
       }]
-    })
+    }
 
-    window.addEventListener('resize', call)
+    setTimeout(() => {
+      echartsRef.value.init()
+    }, 100)
   }
-  function call() {
-    myChars.resize()
-  }
-
-  onBeforeUnmount(() => {
-    window.removeEventListener('resize', call)
-  })
 
 </script>
 
@@ -186,17 +168,6 @@
 
                 .el-col{
                     height: 84%;
-
-                    .echarts-ref{
-                        height: 100%;
-                    }
-
-                    .empty-text{
-                        height: 100%;
-                        display: grid;
-                        place-items: center;
-                        font-size: 16px;
-                    }
                 }
 
             }
