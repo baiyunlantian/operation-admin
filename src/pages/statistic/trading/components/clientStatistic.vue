@@ -6,8 +6,7 @@
 
             <el-row :gutter="0" class="echarts-container">
                 <el-col :span="12" :offset="1">
-                    <div v-show="echartsData.length > 0" class="echarts-ref" ref="echartsRef"></div>
-                    <div v-show="echartsData.length === 0" class="empty-text">暂无数据</div>
+                    <Echarts ref="echartsRef" :option-config="echartsOptions" :is-empty="echartsData.length === 0"/>
                 </el-col>
 
                 <el-col :span="8" :offset="1">
@@ -49,17 +48,18 @@
 </template>
 
 <script setup>
-  import {ref, watch, getCurrentInstance, onBeforeUnmount} from 'vue';
+  import {ref, getCurrentInstance } from 'vue';
   import API from '../api';
-  import * as echarts from 'echarts';
   import TitleBox from './titleBox';
+  import Echarts from '@/components/Echarts';
   import ExportExcel from "@/utils/exportExcel";
   import { setTimeEscalation } from "@/assets/js/utils";
 
   const setTimeEscalationClone = setTimeEscalation();
   const { proxy } = getCurrentInstance()
 
-  const echartsRef = ref(null)
+  const echartsOptions = ref({})
+  const echartsRef = ref()
   const echartsData = ref([])
   const colors = ref(['#91cc75', '#5470c6'])
   const tableData = ref([])
@@ -116,21 +116,13 @@
 
         tableData.value = list
         echartsData.value = echarts
-
-        setTimeout(() => {
-          echartsInit()
-        }, 100)
+        echartsInit()
       }
     })
   }
 
-  let myChars = null
   function echartsInit() {
-    if (myChars === null) {
-      myChars = echarts.init(echartsRef.value)
-    }
-    myChars.clear(); // 清除画布内容
-    myChars.setOption({
+    echartsOptions.value = {
       color:colors.value,
       // 鼠标移动到数据项时显示
       tooltip: {
@@ -151,12 +143,10 @@
           }
         }
       ]
-    })
-
-    window.addEventListener('resize', call)
-  }
-  function call() {
-    myChars.resize()
+    }
+    setTimeout(() => {
+      echartsRef.value.init()
+    }, 100)
   }
 
   // 判断增长还是下降
@@ -168,10 +158,6 @@
 
     return flag
   }
-
-  onBeforeUnmount(() => {
-    window.removeEventListener('resize', call)
-  })
 
 </script>
 
@@ -212,17 +198,6 @@
 
                 .el-col{
                     height: 84%;
-
-                    .echarts-ref{
-                        height: 100%;
-                    }
-
-                    .empty-text{
-                        height: 100%;
-                        display: grid;
-                        place-items: center;
-                        font-size: 16px;
-                    }
                 }
 
                 .right{

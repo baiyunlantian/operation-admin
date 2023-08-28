@@ -35,8 +35,7 @@
 
             <el-row :gutter="0" justify="center" class="echarts-container">
                 <el-col :span="20">
-                    <div v-show="echartsData.length > 0" class="echarts-ref" ref="echartsRef"></div>
-                    <div v-show="echartsData.length === 0" class="empty-text">暂无数据</div>
+                    <Echarts ref="echartsRef" :option-config="echartsOptions" :is-empty="echartsData.length === 0"/>
                 </el-col>
             </el-row>
 
@@ -46,18 +45,19 @@
 </template>
 
 <script setup>
-  import {reactive, ref, onMounted, computed, watch, getCurrentInstance, onBeforeUnmount} from 'vue';
+  import { ref, onMounted, computed, getCurrentInstance } from 'vue';
   import API from '../api';
   import dayjs from 'dayjs';
-  import * as echarts from 'echarts';
   import ExportExcel from "@/utils/exportExcel";
   import {setTimeEscalation} from "@/assets/js/utils";
+  import Echarts from '@/components/Echarts';
 
   const { proxy } = getCurrentInstance()
   const setTimeEscalationClone = setTimeEscalation();
 
   const startDate = ref('')
-  const echartsRef = ref(null)
+  const echartsRef = ref()
+  const echartsOptions = ref({})
   const tableData = ref([])
   const dateScopeType = ref(3)
   const selectOptions = ref([
@@ -98,19 +98,13 @@
     API.getUserSourceStatistic(params).then(res=>{
       if (res.code == '0') {
         tableData.value = res.data
-
-        setTimeout(() => {echartsInit()}, 100)
+        echartsInit()
       }
     })
   }
 
-  let myChars = null
   function echartsInit() {
-    if (myChars === null) {
-      myChars = echarts.init(echartsRef.value)
-    }
-    myChars.clear(); // 清除画布内容
-    myChars.setOption({
+    echartsOptions.value = {
       // 鼠标移动到数据项时显示
       tooltip: {
         trigger: 'item',
@@ -136,12 +130,10 @@
           }
         }
       ]
-    })
-
-    window.addEventListener('resize', call)
-  }
-  function call() {
-    myChars.resize()
+    }
+    setTimeout(() => {
+      echartsRef.value.init()
+    }, 100)
   }
 
   const echartsData = computed(() => {
@@ -159,10 +151,6 @@
   onMounted(() => {
     startDate.value = dayjs(new Date()).format('YYYY-MM')
     handleGetUserStatistic();
-  })
-
-  onBeforeUnmount(() => {
-    window.removeEventListener('resize', call)
   })
 
 </script>
@@ -209,17 +197,6 @@
 
                 .el-col{
                     height: inherit;
-
-                    .echarts-ref{
-                        height: inherit;
-                    }
-
-                    .empty-text{
-                        height: inherit;
-                        display: grid;
-                        place-items: center;
-                        font-size: 16px;
-                    }
                 }
 
             }

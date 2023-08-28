@@ -1,10 +1,10 @@
 <template>
-    <div class="echarts-ref" ref="echartsRef" :style="{height: height,width:width }"></div>
+    <Echarts ref="echartsRef" :option-config="echartsOptions" :is-empty="lineData.length === 0"/>
 </template>
 
 <script setup>
-  import { reactive, ref, onMounted, computed, watch, defineProps, onBeforeUnmount } from 'vue';
-  import * as echarts from 'echarts';
+  import { ref, watch, defineProps } from 'vue';
+  import Echarts from '@/components/Echarts';
 
   const props = defineProps({
     height: {
@@ -41,19 +41,12 @@
       }
     },
   })
-  const echartsRef = ref(null)
+  const echartsRef = ref()
+  const echartsOptions = ref({})
 
-  let myChars = null
   // 初始化
   function echartsInit() {
-    if (myChars === null) {
-      myChars = echarts.init(echartsRef.value)
-    }
-    myChars.clear(); // 清除画布内容
     let option = {
-      // dataZoom: {
-      //   type: 'slider',
-      // },
       legend: {
         show: true
       },
@@ -79,23 +72,16 @@
       },
       series: props.lineData || []
     };
-    myChars.setOption(Object.assign(option, props.optionConfig))
-    window.addEventListener('resize', call)
-  }
 
-  function call() {
-    myChars.resize()
+    echartsOptions.value = Object.assign(option, props.optionConfig)
+    setTimeout(() => {
+      echartsRef.value.init()
+    }, 100)
   }
-
-  onBeforeUnmount(() => {
-    window.removeEventListener('resize', call)
-  })
 
 
   watch(() => props.lineData, (newVal, oldVal) => {
-      setTimeout(() => {
         echartsInit()
-      }, 100)
     },
   )
 
