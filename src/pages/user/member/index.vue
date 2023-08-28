@@ -18,17 +18,7 @@
                         />
                     </el-select>
 
-                    <el-date-picker
-                            v-else
-                            v-model="searchTableParams[item.prop]"
-                            type="datetimerange"
-                            range-separator="-"
-                            format="YYYY-MM-DD HH:mm"
-                            start-placeholder="开始时间"
-                            end-placeholder="结束时间"
-                            :disabled-date="handleDisabledDate"
-                            @calendar-change="datePickerChange"
-                    />
+                    <LimitDatePicker v-else v-model="searchTableParams[item.prop]"/>
 
                 </el-form-item>
 
@@ -123,7 +113,8 @@
   import dayjs from 'dayjs';
   import { useStore } from 'vuex';
   import API from './api';
-  import Detail from './detail'
+  import Detail from './detail';
+  import LimitDatePicker from '@/components/LimitDatePicker';
 
   const { proxy } = getCurrentInstance()
   const store = useStore()
@@ -181,7 +172,6 @@
   const detailVisible = ref(false)
   const detailUserId = ref('')
   const tableListTotal = ref(0)
-  const startDate = ref(null)
   const formRef = ref(null)
   const tableRef = ref()
   const dynamicScopeOptions = ref([
@@ -207,29 +197,6 @@
     }
 
     return options
-  }
-
-  function datePickerChange(dates) {
-    // 记录选择的起始日期
-    let hasSelectDate = dates !== null && dates.length > 0
-    startDate.value = hasSelectDate ? dates[0] : null
-  }
-
-  // 限定时间选择范围
-  function handleDisabledDate(time) {
-    // 不能超过当前系统时间且不能往前大于30天
-    const day = 24 * 60 * 60 * 1000;
-    const timestamp = time.getTime()
-    const nowTimestamp = new Date().getTime()
-    if (startDate.value !== null) {
-      return (
-        timestamp < startDate.value.getTime() - 29 * day ||
-        timestamp > startDate.value.getTime() + 29 * day ||
-        timestamp > nowTimestamp
-      )
-    }else {
-      return timestamp > nowTimestamp
-    }
   }
 
   function handleFormatTableCell(row, prop) {

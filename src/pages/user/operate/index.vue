@@ -9,17 +9,7 @@
 
                     <el-input v-if="item.type === 'input'" v-model="searchTableParams[item.prop]" :placeholder="item.placeholder || item.label" clearable/>
 
-                    <el-date-picker
-                            v-else
-                            v-model="searchTableParams[item.prop]"
-                            type="datetimerange"
-                            range-separator="-"
-                            format="YYYY-MM-DD HH:mm"
-                            start-placeholder="开始时间"
-                            end-placeholder="结束时间"
-                            :disabled-date="handleDisabledDate"
-                            @calendar-change="datePickerChange"
-                    />
+                    <LimitDatePicker v-else ref="datePickerRef" v-model="searchTableParams[item.prop]" :custom-disabled-date-fn="handleDisabledDate"/>
                 </el-form-item>
 
                 <el-form-item class="">
@@ -115,8 +105,8 @@
   import {ref, reactive, watch, getCurrentInstance, onMounted} from 'vue';
   import API from './api';
   import dayjs from 'dayjs';
-  import BottomBox from '@/components/bottom-box';
   import Modal from './components/modal';
+  import LimitDatePicker from '@/components/LimitDatePicker';
 
   const { proxy } = getCurrentInstance()
 
@@ -165,24 +155,17 @@
   ])
   const selectedRows = ref([])
   const modalVisible = ref(false)
-  const startDate = ref(null)
   const tableTotal = ref(0)
   const formRef = ref(null)
 
-  function datePickerChange(dates) {
-    // 记录选择的起始日期
-    let hasSelectDate = dates !== null && dates.length > 0
-    startDate.value = hasSelectDate ? dates[0] : null
-  }
-
   // 限定时间选择范围
-  function handleDisabledDate(time) {
+  function handleDisabledDate(time, startDate) {
     const day = 24 * 60 * 60 * 1000;
     const timestamp = time.getTime()
-    if (startDate.value !== null) {
+    if (startDate !== null) {
       return (
-        timestamp < startDate.value.getTime() - 29 * day ||
-        timestamp > startDate.value.getTime() + 29 * day
+        timestamp < startDate.getTime() - 29 * day ||
+        timestamp > startDate.getTime() + 29 * day
       )
     }
   }
