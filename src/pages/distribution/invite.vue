@@ -40,12 +40,12 @@
             </el-form>
         </div>
 
-        <div class="table-main u-m-t-10 bg-fff u-flex-col">
-            <div class="header-operate theme-bg title-box">
+        <div class="u-table-main u-m-t-10 bg-fff u-flex-col">
+            <div class="u-table-header-operate theme-bg title-box">
                 <div class="left-text">邀新列表</div>
                 <div class="right-sort">
 
-                    <el-select v-model="searchTableParams.pageSize" class="m-2" placeholder="显示条数" @change="handleGetTableList">
+                    <el-select v-model="searchTableParams.pageSize" class="m-2 u-m-l-10" placeholder="显示条数" @change="handleGetTableList">
                         <el-option
                                 v-for="item in pageSizeOptions"
                                 :key="item"
@@ -54,7 +54,7 @@
                         />
                     </el-select>
 
-                    <el-select v-model="searchTableParams.sortType" class="m-2" placeholder="排序方式" @change="handleGetTableList">
+                    <el-select v-model="searchTableParams.sortType" class="m-2 u-m-l-10" placeholder="排序方式" @change="handleGetTableList">
                         <el-option
                                 v-for="item in sortOptions"
                                 :key="item.value"
@@ -67,7 +67,7 @@
 
             <el-table
                     ref="tableRef"
-                    class="table-container"
+                    class="u-table-container"
                     :data="tableData"
                     border
                     style="width: 100%"
@@ -79,12 +79,12 @@
                                  align="center"
                 >
                     <template #default="{ row, column, $index }">
-                        <div class="custom-cell">{{ handleFormatTableCell(row, item.prop) }}</div>
+                        <div>{{ handleFormatTableCell(row, item.prop) }}</div>
                     </template>
                 </el-table-column>
             </el-table>
 
-            <div class="pagination-container">
+            <div class="u-pagination-container">
                 <el-pagination
                         v-model:current-page="searchTableParams.pageIndex"
                         v-model:page-size="searchTableParams.pageSize"
@@ -357,72 +357,5 @@
             }
         }
 
-        .table-main{
-            flex: 1;
-            overflow: hidden;
-
-            .header-operate{
-                position: relative;
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-
-                .left-text{
-                    position: relative;
-                }
-
-                .right-sort{
-                    position: relative;
-
-                    ::v-deep .el-select{
-                        width: 170px;
-                        margin-left: 10px;
-                    }
-                }
-            }
-
-            .table-container {
-                position: relative;
-                height: calc(100% - 60px);
-
-                ::v-deep .el-scrollbar{
-                    overflow: auto;
-                }
-
-                ::v-deep .el-table__header-wrapper{
-                    .el-table__cell{
-                        background-color: #f7f7f7;
-                        color: #000;
-                    }
-                }
-
-                ::v-deep .el-table__body-wrapper{
-                    height: calc(100% - 40px);
-                    flex: unset !important;
-                }
-
-                ::v-deep .el-table__cell{
-                    text-align: center;
-                }
-
-                .custom-cell{
-                    text-align: center;
-                }
-
-                .insert-cell-container{
-                    position: relative;
-
-                }
-            }
-
-            .pagination-container{
-                position: relative;
-                padding: 10px;
-
-                ::v-deep .el-pagination{
-                    justify-content: flex-end;
-                }
-            }
-        }
     }
 </style>

@@ -3,7 +3,7 @@
         <template #reference>
             <div class="popover-text">
                 <slot name="popover-icon">
-                    <span class="point"></span>
+                    <span class="point theme-bg"></span>
                 </slot>
 
                 <span class="text u-m-l-10 u-cursor">{{ selectedLabel }}</span>
@@ -76,7 +76,6 @@
             width: 10px;
             height: 10px;
             border-radius: 50%;
-            background-color: #6ea3ff;
         }
 
         .text{

@@ -25,11 +25,11 @@
 
         </div>
 
-        <div class="table-main u-m-t-10 u-flex-col">
-            <div class="header-operate theme-bg title-box">
+        <div class="u-table-main u-m-t-10 u-flex-col">
+            <div class="u-table-header-operate theme-bg title-box">
                 <div class="left-text">用户列表</div>
                 <div class="right-sort">
-                    <el-select v-model="searchTableParams.pageSize" class="m-2" placeholder="显示条数" @change="handleGetTableList">
+                    <el-select v-model="searchTableParams.pageSize" class="m-2 u-m-l-10" placeholder="显示条数" @change="handleGetTableList">
                         <el-option
                                 v-for="item in pageSizeOptions"
                                 :key="item"
@@ -38,7 +38,7 @@
                         />
                     </el-select>
 
-                    <el-select v-model="searchTableParams.sortType" class="m-2" placeholder="排序方式" @change="handleGetTableList">
+                    <el-select v-model="searchTableParams.sortType" class="m-2 u-m-l-10" placeholder="排序方式" @change="handleGetTableList">
                         <el-option
                                 v-for="item in timeSortOptions"
                                 :key="item.value"
@@ -51,7 +51,7 @@
 
             <el-table
                     ref="tableRef"
-                    class="table-container"
+                    class="u-table-container"
                     :data="tableData"
                     border
                     style="width: 100%"
@@ -65,7 +65,7 @@
                                  align="center"
                 >
                     <template #default="{ row, column, $index }">
-                        <div v-if="item.insertSlot && item.prop === 'status'" class="insert-cell-container">
+                        <div v-if="item.insertSlot && item.prop === 'status'">
                             <el-switch
                                     v-model="row[item.prop]"
                                     :before-change="()=>beforeChange(row[item.prop], row.userId)"
@@ -74,17 +74,17 @@
                             />
                         </div>
 
-                        <div v-else-if="item.insertSlot && item.prop === 'operate'" class="insert-cell-container">
+                        <div v-else-if="item.insertSlot && item.prop === 'operate'">
                             <span class="u-cursor blue u-m-r-20" @click="handleOperateTable('reset', row)">重置密码</span>
                             <span class="u-cursor blue" @click="handleOperateTable('del', row)">删除</span>
                         </div>
 
-                        <div v-else class="custom-cell">{{ row[item.prop] }}</div>
+                        <div v-else>{{ row[item.prop] }}</div>
                     </template>
                 </el-table-column>
             </el-table>
 
-            <div class="pagination-container bg-fff">
+            <div class="u-pagination-container bg-fff">
                 <el-pagination
                         v-model:current-page="searchTableParams.pageIndex"
                         v-model:page-size="searchTableParams.pageSize"
@@ -336,70 +336,6 @@
 
                 .btn{
                     position: relative;
-                }
-            }
-        }
-
-        .table-main{
-            flex: 1;
-            overflow: hidden;
-
-            .header-operate{
-                position: relative;
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-
-                .left-text{
-                    position: relative;
-                }
-
-                .right-sort{
-                    position: relative;
-
-                    ::v-deep .el-select{
-                        width: 170px;
-                        margin-left: 10px;
-                    }
-                }
-            }
-
-            .table-container {
-                position: relative;
-                height: calc(100% - 110px);
-
-                ::v-deep .el-table__header-wrapper{
-                    .el-table__cell{
-                        background-color: #f7f7f7;
-                        color: #000;
-                    }
-                }
-
-                ::v-deep .el-table__body-wrapper{
-                    height: calc(100% - 40px);
-                    flex: unset !important;
-                }
-
-                ::v-deep .el-table__cell{
-                    text-align: center;
-                }
-
-                .custom-cell{
-                    text-align: center;
-                }
-
-                .insert-cell-container{
-                    position: relative;
-
-                }
-            }
-
-            .pagination-container{
-                position: relative;
-                padding: 10px;
-
-                ::v-deep .el-pagination{
-                    justify-content: flex-end;
                 }
             }
         }

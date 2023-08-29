@@ -436,7 +436,6 @@ body {
 
 .title-box{
   font-size: 16px;
-  background-color: #6ea3ff;
   padding: 10px 15px;
   border-radius: 10px 10px 0 0;
   color: #fff;
@@ -454,4 +453,58 @@ body {
   color: var(--el-color-white);
   background-color: var(--el-color-primary-light-3);
   border-color: var(--el-color-primary-light-3);
+}
+
+.u-table-main {
+  flex: 1;
+  overflow: hidden;
+
+  .u-table-header-operate{
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    .left-text{
+      position: relative;
+    }
+
+    .right-sort{
+      position: relative;
+
+      .el-select{
+        width: 170px;
+      }
+    }
+  }
+
+  .u-table-container{
+    position: relative;
+    flex: 1;
+
+    .el-scrollbar{
+      overflow: auto;
+    }
+
+    .el-table__header-wrapper{
+      .el-table__cell{
+        background-color: #f7f7f7;
+        color: #000;
+      }
+    }
+
+    .el-table__cell{
+      text-align: center;
+    }
+
+  }
+}
+
+.u-pagination-container{
+  position: relative;
+  padding: 10px;
+
+  .el-pagination{
+    justify-content: flex-end;
+  }
 }

@@ -232,24 +232,6 @@
                         }
                     }
 
-                    .table-container{
-                        position: relative;
-
-                        ::v-deep .el-table{
-                            position: relative;
-
-                            .el-table__header-wrapper{
-                                .el-table__cell{
-                                    background-color: #f7f7f7;
-                                    text-align: center;
-                                }
-                            }
-
-                            .custom-cell{
-                                text-align: center;
-                            }
-                        }
-                    }
                 }
             }
         }

@@ -1,6 +1,6 @@
 <template>
     <div class="account-info-container bg-fff">
-        <div class="header bg-box">
+        <div class="header theme-bg">
             <span class="u-cursor" @click="goBack">&lt;</span>
             个人资料
         </div>
@@ -167,7 +167,6 @@
             font-size: 22px;
             font-weight: bold;
             padding: 10px 15px;
-            background: #6ea3ff;
         }
 
         .content{

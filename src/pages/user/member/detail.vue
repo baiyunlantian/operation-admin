@@ -1,6 +1,6 @@
 <template>
     <div class="detail-container bg-fff">
-        <div class="header bg-box">
+        <div class="header theme-bg">
             <span class="u-cursor" @click="goBack">&lt;</span>
             用户详情
         </div>
@@ -196,7 +196,6 @@
             font-size: 22px;
             font-weight: bold;
             padding: 10px 15px;
-            background: #6ea3ff;
         }
 
         .base-info{
@@ -273,21 +272,6 @@
             color: #000000;
             font-weight: bold;
             font-size: 22px;
-        }
-
-        .table-container{
-            position: relative;
-
-            ::v-deep .el-table__header-wrapper{
-                .el-table__cell{
-                    background-color: #f7f7f7;
-                    color: #000;
-                }
-            }
-
-            ::v-deep .el-table__cell{
-                text-align: center;
-            }
         }
 
         .check-more{
