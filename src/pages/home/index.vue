@@ -20,7 +20,7 @@
     <EarningsStatistic />
     <InviteStatistic />
 
-    <div class="title-box u-m-t-20">运营快捷入口</div>
+    <div class="title-box theme-bg u-m-t-20">运营快捷入口</div>
     <div class="fast-container bg-fff">
       <el-row class="w-100" :gutter="0">
         <el-col v-for="(item,index) in fastRouteConfig"  :span="1" :offset="1" :key="index" class="item u-cursor" @click="handleClickFast(item)">

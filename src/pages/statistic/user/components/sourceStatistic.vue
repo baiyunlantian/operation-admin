@@ -1,6 +1,6 @@
 <template>
     <div class="source-container u-m-t-20 u-m-b-20 u-p-b-20">
-        <div class="title title-box">
+        <div class="title theme-bg title-box">
             <div class="text">用户来源</div>
 
             <div class="btns">

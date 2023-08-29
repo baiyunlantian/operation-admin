@@ -1,7 +1,7 @@
 <template>
     <div class="trading-container">
 
-        <div class="title-box u-m-t-20 header-operate">
+        <div class="title-box theme-bg u-m-t-20 header-operate">
             <div class="text">收益总览</div>
 
             <div class="btns">

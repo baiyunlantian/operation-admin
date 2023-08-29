@@ -1,6 +1,6 @@
 <template>
     <div class="userStatistic-container">
-        <div class="title-box u-m-t-20 header-operate">
+        <div class="title-box theme-bg u-m-t-20 header-operate">
             <div class="text">用户统计</div>
 
             <div class="btns">

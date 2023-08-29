@@ -1,6 +1,6 @@
 <template>
     <div class="line-container u-m-t-20">
-        <div class="title title-box">
+        <div class="title theme-bg title-box">
             <div class="text">{{ statisticType === 'user' ? '用户增长情况' : '交易收益金额'}}</div>
 
             <div class="btns">

@@ -1,5 +1,5 @@
 <template>
-    <div class="title title-box">
+    <div class="title theme-bg title-box">
         <div class="text">{{ title }}</div>
 
         <div class="btns">
