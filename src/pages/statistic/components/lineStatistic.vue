@@ -304,10 +304,8 @@
 
       // table列表 汇总列 字段
       columnDataObj['total'] = Number(categoryTotal.toFixed(2));
-      if (categoryTotal > 0) {
-        _tableData.push(columnDataObj)
-        _seriesData.push(seriesItem)
-      }
+      _tableData.push(columnDataObj)
+      _seriesData.push(seriesItem)
     })
 
     // 构造table 最后一行数据
@@ -315,9 +313,7 @@
     tableLastRowData.forEach((value, prop) => {
       tableLastRowObj[prop] = Number(value.toFixed(2))
     })
-    if (statisticTotal > 0) {
-      _tableData.push(tableLastRowObj)
-    }
+    _tableData.push(tableLastRowObj)
 
 
     echartsOptions.tooltip = tooltip
