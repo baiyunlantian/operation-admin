@@ -2,8 +2,8 @@
     <div class="header_container theme-bg">
 
         <div class="logo-container">
-            <div class="logo-text">MLYK</div>
-<!--            <img class="logo" src="@/assets/images/logo.png">-->
+<!--            <div class="logo-text">MLYK</div>-->
+            <img class="logo" src="@/assets/images/logo.png">
         </div>
 
         <div class="menu-container">
@@ -130,7 +130,7 @@
             align-items: center;
 
             .logo{
-                margin-top: 10px;
+                width: 140px;
             }
 
             .logo-text{

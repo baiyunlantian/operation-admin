@@ -17,7 +17,7 @@ export default [
     children:[
       {
         type:'user',
-        name:'个人资料',
+        name:'个人中心',
         descType:'text',
         menuId:'2-1',
         path:'/info',
