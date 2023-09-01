@@ -132,6 +132,14 @@ export default [
         path: "/information",
         children: [],
       },
+      {
+        type: "system",
+        name: "财务系统",
+        descType: "text",
+        menuId: "7-1",
+        path: "/financialSystem",
+        children: [],
+      },
     ],
   },
 ];

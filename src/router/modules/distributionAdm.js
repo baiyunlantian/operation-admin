@@ -16,6 +16,14 @@ export default [
         name: "information",
         permission: 1,
       },
+      {
+        path: "/financialSystem",
+        meta: { title: "财务管理" },
+        component: () =>
+          import("@/pages/distributionAdm/financialSystem/index.vue"),
+        name: "financialSystem",
+        permission: 1,
+      },
     ],
   },
 ];

@@ -25,7 +25,7 @@
 
 <script setup>
 import { ref, reactive, getCurrentInstance } from "vue";
-import RightSearch from "./rightSearch";
+import RightSearch from "../../components/rightSearch.vue";
 import MutiLine from "@/components/muti-line";
 import { getUserStatistic } from "../api";
 
@@ -159,6 +159,7 @@ function handleUpdateParams(params) {
 <style lang="scss" scoped>
 .brokenLine {
   padding: 16px 24px;
+  // margin-right: 16px;
   box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.1);
 
   .top-title {
