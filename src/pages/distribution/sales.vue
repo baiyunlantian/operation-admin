@@ -2,7 +2,7 @@
   <div class="agent-container">
     <module-card>
       <header class="agent-data-head">
-        <h1>财务数据</h1>
+        <h1>销售数据</h1>
         <variety-date-picker
           :selectDay="daysData"
           @getBeforeDate="getBeforeDate"
@@ -20,38 +20,18 @@
       <el-row :gutter="8">
         <div class="table-search-container">
           <template v-for="way in searchWay" :key="way.prefix">
-            <el-col :span="24 / searchWay.length">
+            <el-col :span="24 / 4">
               <table-search :searchWay="way">
-                <template #status>
-                  <div class="status-container">
-                    <el-select
-                      v-model="value"
-                      class="m-2"
-                      placeholder="状态"
-                      size="small"
-                    >
-                      <el-option
-                        v-for="item in statusOptions"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value"
-                      />
-                    </el-select>
-                  </div>
-                </template>
-                <template #createTime>
-                  <div class="create-time-container">
-                    <p>创建时间：</p>
-                    <variety-date-picker
-                      @getBeforeDate="getBeforeDate"
-                    ></variety-date-picker>
-                  </div>
-                </template>
                 <template #search>
-                  <el-button>查询</el-button>
+                  <el-input
+                    v-model="input2"
+                    class="w-50 m-2"
+                    placeholder="请输入你需要搜索的内容"
+                    :suffix-icon="Search"
+                  />
                 </template>
-                <template #reset>
-                  <el-button>重置</el-button>
+                <template #add>
+                  <el-button type="primary">添加销售</el-button>
                 </template>
               </table-search>
             </el-col>
@@ -110,6 +90,7 @@
 </template>
 
 <script setup>
+import { ref } from "vue";
 // 代理数据展示组件
 import ModuleCard from "@/components/Card/ModuleCard.vue";
 import ShowCard from "@/components/Card/ShowCard.vue";
@@ -119,10 +100,12 @@ import VarietyDatePicker from "@/components/DatePicker/VarietyDatePicker";
 import TableSearch from "@/components/Table/TableSearch.vue";
 import DataTable from "@/components/Table/DataTable.vue";
 
+import { Search } from "@element-plus/icons-vue";
+
 // 卡片数据
 const cardData = [
   {
-    title: "代理总量",
+    title: "成交销售数量",
     amount: 1126,
     url: require("@/assets/images/user_count.png"),
     total: {
@@ -131,7 +114,7 @@ const cardData = [
     },
   },
   {
-    title: "订单总量",
+    title: "成交金额",
     amount: 1126,
     url: require("@/assets/images/file.png"),
     total: {
@@ -140,25 +123,7 @@ const cardData = [
     },
   },
   {
-    title: "成交金额",
-    amount: 1126,
-    url: require("@/assets/images/bar_chart.png"),
-    total: {
-      totalTitle: "提现总额",
-      totalAmount: "￥76800.00",
-    },
-  },
-  {
-    title: "平均单价",
-    amount: 1126,
-    url: require("@/assets/images/normal_chart.png"),
-    total: {
-      totalTitle: "提现总额",
-      totalAmount: "￥76800.00",
-    },
-  },
-  {
-    title: "返佣金额",
+    title: "平均价",
     amount: 1126,
     url: require("@/assets/images/bar_chart.png"),
     total: {
@@ -197,15 +162,12 @@ const daysData = [
 
 // 筛选的方式
 const searchWay = [
-  { prefix: "代理名称" },
-  { prefix: "代理手机号" },
-  { prefix: "代理ID" },
-  { prefix: "销售名称" },
-  { prefix: "状态", slot: "status" },
-  { prefix: "创建时间:", slot: "createTime" },
   { prefix: "搜索", slot: "search" },
-  { prefix: "重置", slot: "reset" },
+  { prefix: "添加销售", slot: "add" },
 ];
+
+// 页面内容选择
+const pageSize = ref(100);
 
 // 状态的选择器
 const statusOptions = [

@@ -115,6 +115,22 @@ export default [
         path: "/agent",
         children: [],
       },
+      {
+        type: "system",
+        name: "销售管理",
+        descType: "text",
+        menuId: "5-4",
+        path: "/sales",
+        children: [],
+      },
+      {
+        type: "system",
+        name: "客户管理",
+        descType: "text",
+        menuId: "5-5",
+        path: "/customer",
+        children: [],
+      },
     ],
   },
   {

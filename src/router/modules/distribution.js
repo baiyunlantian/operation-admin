@@ -29,6 +29,20 @@ export default [
         name: "agent",
         permission: 1,
       },
+      {
+        path: "/sales",
+        meta: { title: "销售管理" },
+        component: () => import("@/pages/distribution/sales.vue"),
+        name: "sales",
+        permission: 1,
+      },
+      {
+        path: "/customer",
+        meta: { title: "客户管理" },
+        component: () => import("@/pages/distribution/customer.vue"),
+        name: "customer",
+        permission: 1,
+      },
     ],
   },
 ];
