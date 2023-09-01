@@ -3,64 +3,68 @@
         <payMoneyTipsBox />
 
         <div class="main-content">
-            <div class="box-shadow bg-fff u-m-t-15" style="padding: 1.5% 2%">
-                <span class="u-font-22 u-font-weight u-m-r-30">Hi，铁牛</span>
-                <span style="letter-spacing: 1px" class="u-font-16 u-font-weight">{{ time }}好，今天是你加入吗哩呀咔的第100天~</span>
-            </div>
-
-            <div class="box-shadow bg-fff u-m-t-15 padding-2-pre">
-                <div class="u-font-23 u-font-weight u-m-b-10">个人信息</div>
-
-                <div class="info-container">
-                    <div class="left u-border-radius-4 padding-2-pre">
-                        <div class="img-box">
-                            <img :src="userInfo.userImage || AutoAvatar" style="height: 100%; width: 100%"/>
-                        </div>
-                        <div class="name u-font-weight u-font-18">{{ userInfo.name }}</div>
-                        <div class="company u-font-16"><span class="u-m-r-5">{{ userInfo.company }}</span><span>直属代理</span></div>
+            <div class="header-container u-m-t-15">
+                <div class="left u-border-radius-4 padding-2-pre">
+                    <div class="img-box">
+                        <img :src="userInfo.userImage || AutoAvatar" style="height: 100%; width: 100%"/>
                     </div>
-
-                    <div class="right">
-                        <div class="content-box" v-for="(item, index) in infoConfig" :key="index">
-                            <div class="label-color u-font-18">{{ item.label }}</div>
-                            <div class="prop-color u-font-weight u-font-18">{{ userInfo[item.prop] }}</div>
-                        </div>
-                    </div>
+                    <div class="name u-font-weight u-font-18">{{ userInfo.name }}</div>
+                    <div class="company u-font-16"><span class="u-m-r-5">{{ userInfo.company }}</span><span>直属代理</span></div>
                 </div>
+
+                <div class="right">
+                    <div class="box-shadow bg-fff padding-2-pre">
+                        <span class="u-font-22 u-font-weight u-m-r-30">Hi，铁牛</span>
+                        <span style="letter-spacing: 1px" class="u-font-16 u-font-weight">{{ time }}好，今天是你加入吗哩呀咔的第100天~</span>
+                    </div>
+
+                    <div class="box-shadow bg-fff u-m-t-15 padding-2-pre">
+                        <div class="u-font-23 u-font-weight u-m-b-10">个人信息</div>
+
+                        <div class="info-container">
+                            <div class="content-box" v-for="(item, index) in infoConfig" :key="index">
+                                <div class="label-color u-font-18">{{ item.label }}</div>
+                                <div class="prop-color u-font-weight u-font-18">{{ userInfo[item.prop] }}</div>
+                            </div>
+                        </div>
+                    </div>
+            </div>
             </div>
 
             <div class="box-shadow bg-fff u-m-t-15 padding-2-pre">
                 <div class="u-font-23 u-font-weight u-m-b-10">提现相关</div>
 
-                <div class="withdraw-container">
-                    <div class="content-box" :class="item.className" v-for="(item, index) in withdrawConfig" :key="index">
-                        <div class="label-color u-font-18">{{ item.label }}</div>
-                        <div :class="[item.prop === 'freeze' ? 'u-cursor blue-color' : '']" class="prop-color u-font-weight u-font-18">{{ item.prop === 'freeze' ? '立刻缴纳' : withdrawInfo[item.prop] }}</div>
+                <div class="content-container">
+                    <div class="withdraw-container">
+                        <div class="content-box" :class="item.className" v-for="(item, index) in withdrawConfig" :key="index">
+                            <div class="label-color u-font-18">{{ item.label }}</div>
+                            <div :class="[item.prop === 'freeze' ? 'u-cursor blue-color' : '']" class="prop-color u-font-weight u-font-18">{{ item.prop === 'freeze' ? '立刻缴纳' : withdrawInfo[item.prop] }}</div>
+                        </div>
                     </div>
-                </div>
 
-                <div class="bank-container">
-                    <div class="left">
-                        <div class="header">
-                            <div class="title">银行卡信息</div>
-                            <div class="btns">
-                                <div class="btn u-cursor u-m-r-10" @click="handleClickFormBtn(formReadonly)">{{ formReadonly ? '编辑' : '保存' }}</div>
-                                <div v-show="!formReadonly" class="btn u-cursor" @click="handleClickFormBtn('cancel')">取消</div>
+                    <div class="bank-container">
+                        <div class="left">
+                            <div class="header">
+                                <div class="title">银行卡信息</div>
+                                <div class="btns">
+                                    <div class="btn u-cursor u-m-r-10" @click="handleClickFormBtn(formReadonly)">{{ formReadonly ? '编辑' : '保存' }}</div>
+                                    <div v-show="!formReadonly" class="btn u-cursor" @click="handleClickFormBtn('cancel')">取消</div>
+                                </div>
+                            </div>
+
+                            <div class="content">
+                                <el-form class="account-form" ref="formRef" :rules="rules" :model="bankInfoCopy" :hide-required-asterisk="true">
+                                    <el-form-item v-for="(item, index) in formConfig" :label="item.label" :prop="item.key" :key="item.key">
+                                        <div v-if="formReadonly" class="form-content">{{ bankInfoCopy[item.key] }}</div>
+                                        <el-input v-else v-model="bankInfoCopy[item.key]" :validate-event="false"/>
+                                    </el-form-item>
+                                </el-form>
                             </div>
                         </div>
-
-                        <div class="content">
-                            <el-form class="account-form" ref="formRef" :rules="rules" :model="bankInfoCopy" :hide-required-asterisk="true">
-                                <el-form-item v-for="(item, index) in formConfig" :label="item.label" :prop="item.key" :key="item.key">
-                                    <div v-if="formReadonly" class="form-content">{{ bankInfoCopy[item.key] }}</div>
-                                    <el-input v-else v-model="bankInfoCopy[item.key]" :validate-event="false"/>
-                                </el-form-item>
-                            </el-form>
+                        <div class="right">
+                            <div v-if="drawBtnStatus" class="btn u-m-b-15 u-cursor" @click="handleClickDraw">提现</div>
+                            <el-button v-else type="info" plain disabled>提现</el-button>
                         </div>
-                    </div>
-                    <div class="right">
-                        <div v-if="drawBtnStatus" class="btn u-m-b-15 u-cursor" @click="handleClickDraw">提现</div>
-                        <el-button v-else type="info" plain disabled>提现</el-button>
                     </div>
                 </div>
             </div>
@@ -245,7 +249,7 @@
         overflow: auto;
 
         .box-shadow{box-shadow: 0px 1px 4px 0px #d6d6d6;}
-        .padding-2-pre {padding: 1.5% 2%;}
+        .padding-2-pre {padding: 2% 2%;}
         .label-color {color: #9c9c9c;}
         .prop-color {color: #383838;}
         .blue-color {color: #3164f5;}
@@ -255,28 +259,27 @@
             display: flex;
             flex-direction: column;
             justify-content: space-evenly;
+            height: 8vh;
+            max-height: 100px;
+            min-height: 50px;
         }
 
         .main-content{
             position: relative;
             margin: 0 5%;
 
-            .header{
+            .header-container{
                 position: relative;
-            }
-
-            .info-container{
-                position: relative;
-                display: grid;
-                grid-template-columns: 1fr 3fr;
+                display: flex;
+                justify-content: space-between;
 
                 .left{
-                    width: 100%;
+                    width: 25%;
+                    margin-right: 15px;
                     background-color: #0052d9;
                     border-radius: 4px;
                     color: #fff;
                     box-sizing: border-box;
-                    padding: 5% 10%;
 
                     .img-box {
                         width: 30%;
@@ -291,115 +294,118 @@
                     }
 
                     .name {
-                        margin: 5% 0 2% 0;
+                        margin: 15% 0 5% 0;
                     }
                 }
 
                 .right{
-                    align-items: center;
-                    padding-left: 5%;
-                    display: grid;
-                    grid-template-columns: repeat(4, 1fr);
+                    flex: 1;
+                }
+            }
 
-                    .content-box {
-                        height: 100%;
+            .info-container{
+                position: relative;
+                display: grid;
+                grid-template-columns: repeat(4,1fr);
+            }
+
+            .content-container{
+                position: relative;
+                display: flex;
+
+                .withdraw-container{
+                    position: relative;
+                    display: flex;
+                    flex-wrap: wrap;
+                    align-content: space-between;
+                    flex: 1;
+
+                    .content-box{
+                        width: 20%;
                     }
                 }
-            }
 
-            .withdraw-container{
-                position: relative;
-                display: flex;
-                flex-wrap: wrap;
-
-                .content-box{
-                    width: 20%;
-                    height: 7vh;
-                    min-height: 50px;
-                }
-            }
-
-            .bank-container{
-                position: relative;
-                display: flex;
-                margin-top: 2vh;
-
-                .left{
+                .bank-container{
                     position: relative;
-                    border: 1px solid #c5c5c5;
-                    border-radius: 0 0 10px 10px;
-                    width: 40%;
-                    min-width: 400px;
+                    display: flex;
 
-                    .header{
-                        display: flex;
-                        align-items: center;
-                        justify-content: space-between;
-                        padding: 8px 10px;
-                        border-bottom: 1px solid #c5c5c5;
-                        border-top: 0;
+                    .left{
+                        position: relative;
+                        border: 1px solid #c5c5c5;
                         border-radius: 0 0 10px 10px;
+                        width: 40%;
+                        min-width: 400px;
 
-                        .title{
-                            font-weight: bold;
-                            font-size: 16px;
-                            color: #2c3e50;
-                        }
-
-                        .btns{
+                        .header{
                             display: flex;
-                            .btn{
-                                color: #3164f5;
+                            align-items: center;
+                            justify-content: space-between;
+                            padding: 8px 10px;
+                            border-bottom: 1px solid #c5c5c5;
+                            border-top: 0;
+                            border-radius: 0 0 10px 10px;
+
+                            .title{
+                                font-weight: bold;
                                 font-size: 16px;
+                                color: #2c3e50;
                             }
-                        }
-                    }
 
-                    .content{
-                        position: relative;
-                        padding: 0 10px;
-
-                        .account-form{
-                            position: relative;
-
-                            :deep(.el-form-item){
+                            .btns{
                                 display: flex;
-                                align-items: center;
-                                margin: 15px 0px;
-
-                                .el-form-item__content{
-                                    position: relative;
+                                .btn{
+                                    color: #3164f5;
+                                    font-size: 16px;
                                 }
+                            }
+                        }
 
-                                .el-form-item__label{
-                                    width: 80px;
-                                    text-align-last: justify;
-                                    display: unset;
-                                }
+                        .content{
+                            position: relative;
+                            padding: 0 10px;
 
-                                .el-input__wrapper{
-                                    position: relative;
-                                    width: 250px;
+                            .account-form{
+                                position: relative;
+
+                                :deep(.el-form-item){
+                                    display: flex;
+                                    align-items: center;
+                                    margin: 15px 0px;
+
+                                    .el-form-item__content{
+                                        position: relative;
+                                    }
+
+                                    .el-form-item__label{
+                                        width: 80px;
+                                        text-align-last: justify;
+                                        display: unset;
+                                    }
+
+                                    .el-input__wrapper{
+                                        position: relative;
+                                        width: 250px;
+                                    }
                                 }
                             }
                         }
                     }
-                }
 
-                .right{
-                    position: relative;
-                    margin-left: 5vw;
-
-                    .btn{
+                    .right{
                         position: relative;
-                        background-color: #0052d9;
-                        color: #ffffff;
-                        border-radius: 4px;
-                        text-align: center;
-                        height: 32px;
-                        line-height: 32px;
-                        padding: 5px 20px;
-                        font-size: 14px;
+                        margin-left: 5vw;
+
+                        .btn{
+                            position: relative;
+                            background-color: #0052d9;
+                            color: #ffffff;
+                            border-radius: 4px;
+                            text-align: center;
+                            height: 32px;
+                            line-height: 32px;
+                            padding: 5px 20px;
+                            font-size: 14px;
+                        }
                     }
                 }
             }

@@ -117,4 +117,12 @@ export default [
     path: '/course',
     children: []
   },
+  {
+    type: 'system',
+    name: '商品目录',
+    descType: 'text',
+    menuId: '7',
+    path: '/product',
+    children: []
+  },
 ]
