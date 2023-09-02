@@ -23,6 +23,7 @@
           :default-time="defaultTime"
           :teleported="false"
           size="small"
+          @change="changeDatePick"
         />
       </div>
     </div>
@@ -30,26 +31,46 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import utils from "@/assets/js/utils";
 
 const props = defineProps(["selectDay"]);
 const datePick = ref("");
 const defaultTime = [new Date(2000, 1, 1), new Date(2000, 2, 1)];
-const beforeDays = ref();
-const emits = defineEmits(["getBeforeDate"]);
-
+const beforeDays = ref(7);
+const emits = defineEmits(["getBeforeDate", "getListDate"]);
+const startTime = "00:00:00";
+const endTime = "23:59:59";
 // 获取准确的日期
 const getDate = (beforeDays) => {
   // 选择日期输入框清空
   datePick.value = "";
+
   // 获取结束的日期,beforeDays为0 则结束时间为0 ，否则为前一天的日期
-  let endDate = !beforeDays ? utils.getBeforeDate(0) : utils.getBeforeDate(1);
-  const startDate = utils.getBeforeDate(beforeDays);
+  let endDate =
+    (!beforeDays ? utils.getBeforeDate(0) : utils.getBeforeDate(1)) +
+    " " +
+    endTime;
+  const startDate = utils.getBeforeDate(beforeDays) + " " + startTime;
+
   // console.log(beforeDate);
   // 传到父组件
   emits("getBeforeDate", { startDate, endDate });
+  return { startDate, endDate };
 };
+
+const changeDatePick = () => {
+  beforeDays.value = "";
+  const dateArr = datePick.value.map((value) => {
+    return value.toLocaleDateString().split("/").join("-");
+  });
+  const startDate = dateArr[0] + " " + startTime;
+  const endDate = dateArr[1] + " " + endTime;
+  emits("getBeforeDate", { startDate, endDate });
+  emits("getListDate", { startDate, endDate });
+};
+
+defineExpose({ getDate });
 </script>
 
 <style lang="scss" scoped>

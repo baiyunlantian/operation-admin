@@ -1,11 +1,12 @@
 <template>
   <div class="table-search-container">
     <el-input
-      v-model="input1"
+      v-model.lazy="input"
       class="w-50 m-2"
       size="small"
       v-if="!searchWay.slot"
       :placeholder="'请输入' + searchWay.prefix"
+      @blur="blurEvent(searchWay.name)"
     >
       <template #prefix>
         <div class="input-prefix">{{ searchWay.prefix }}</div>
@@ -20,7 +21,11 @@
 <script setup>
 import { ref } from "vue";
 const props = defineProps(["searchWay"]);
-const input1 = ref();
+const emits = defineEmits(["searchValue"]);
+const input = ref();
+const blurEvent = (name) => {
+  emits("searchValue", { name, input: input.value });
+};
 </script>
 
 <style lang="scss" scoped>
