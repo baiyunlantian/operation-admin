@@ -1,6 +1,6 @@
 <template>
     <div class="center-container">
-        <payMoneyTipsBox />
+        <payMoneyTipsBox v-if="userInfo.isFreeOfCommission == 0 && userInfo.isPayCashPledge == 0"/>
 
         <div class="main-content">
             <div class="header-container u-m-t-15">
@@ -8,17 +8,17 @@
                     <div class="img-box">
                         <img :src="userInfo.userImage || AutoAvatar" style="height: 100%; width: 100%"/>
                     </div>
-                    <div class="name u-font-weight u-font-18">{{ userInfo.name }}</div>
-                    <div class="company u-font-16"><span class="u-m-r-5">{{ userInfo.company }}</span><span>直属代理</span></div>
+                    <div class="name u-font-weight u-font-18">{{ userInfo.userName }}</div>
+                    <div class="company u-font-16"><span class="u-m-r-5">{{ userInfo.company }}</span><span>{{ userInfo.roleName }}</span></div>
                 </div>
 
                 <div class="right">
                     <div class="box-shadow bg-fff padding-2-pre">
-                        <span class="u-font-22 u-font-weight u-m-r-30">Hi，铁牛</span>
-                        <span style="letter-spacing: 1px" class="u-font-16 u-font-weight">{{ time }}好，今天是你加入吗哩呀咔的第100天~</span>
+                        <span class="u-font-22 u-font-weight u-m-r-30">Hi，{{ userInfo.userName }}</span>
+                        <span style="letter-spacing: 1px" class="u-font-16 u-font-weight">{{ time }}好，今天是你加入{{ userInfo.company }}的第{{ userInfo.joinDays }}天~</span>
                     </div>
 
-                    <div class="box-shadow bg-fff u-m-t-15 padding-2-pre">
+                    <div class="box-shadow bg-fff u-m-t-15 padding-2-pre" style="flex: 1">
                         <div class="u-font-23 u-font-weight u-m-b-10">个人信息</div>
 
                         <div class="info-container">
@@ -38,7 +38,9 @@
                     <div class="withdraw-container">
                         <div class="content-box" :class="item.className" v-for="(item, index) in withdrawConfig" :key="index">
                             <div class="label-color u-font-18">{{ item.label }}</div>
-                            <div :class="[item.prop === 'freeze' ? 'u-cursor blue-color' : '']" class="prop-color u-font-weight u-font-18">{{ item.prop === 'freeze' ? '立刻缴纳' : withdrawInfo[item.prop] }}</div>
+                            <div :class="[handleFormatWithDrawText(item) === '立即缴纳' ? 'u-cursor blue-color' : '']" class="prop-color u-font-weight u-font-18">
+                                {{ handleFormatWithDrawText(item) }}
+                            </div>
                         </div>
                     </div>
 
@@ -61,7 +63,7 @@
                                 </el-form>
                             </div>
                         </div>
-                        <div class="right">
+                        <div class="right" v-if="userInfo.roleId == 20">
                             <div v-if="drawBtnStatus" class="btn u-m-b-15 u-cursor" @click="handleClickDraw">提现</div>
                             <el-button v-else type="info" plain disabled>提现</el-button>
                         </div>
@@ -75,74 +77,41 @@
 <script setup>
     import { ref, reactive, computed, onMounted, getCurrentInstance } from 'vue';
     import { useStore } from 'vuex';
+    import API from './api';
     import AutoAvatar from '@/assets/images/account.png';
     import PayMoneyTipsBox from '@/components/payMoneyTipsBox';
 
     const store = useStore()
     const { proxy } = getCurrentInstance()
 
-    const infoConfig = ref([
-      {label:'联系方式', prop:'contact'},
-      {label:'办公邮箱', prop:'workEmail'},
-      {label:'加入时间', prop:'joinTime'},
-      {label:'所属企业', prop:'company'},
-      {label:'专属销售', prop:'seller'},
-      {label:'销售电话', prop:'phone'},
-      {label:'销售邮箱', prop:'sellerEmail'},
-    ])
     const userInfo = ref({
-      name: '张三',
-      contact: '+86 1386546312',
-      workEmail: 'osimwqm@qq.cm',
-      joinTime: '2021-06-05',
-      company: '广州吗哩呀咔科技有限公司',
-      seller: '老李',
-      phone: '+86 1386546312',
-      sellerEmail: 'osimwqm@qq.cm',
+      agencyCashPledge:0
     })
-
-    const withdrawConfig = ref([
-      {label:'待付款订单', prop:'dueOrder'},
-      {label:'部署中订单', prop:'deployOrder'},
-      {label:'已完成订单', prop:'finish'},
-      {label:'冻结押金', prop:'freeze', className:'col-2'},
-      {label:'待付款佣金', prop:'dueCommission'},
-      {label:'部署中佣金', prop:'deployCommission'},
-      {label:'待提现佣金', prop:'unWithdrawCommission'},
-      {label:'已提现佣金', prop:'withdrawCommission'},
-      {label:'赚取佣金', prop:'totalCommission'},
-    ])
+    const infoConfig = ref([])
+    const withdrawConfig = ref([])
     const withdrawInfo = ref({
-      dueOrder: 1355,
-      deployOrder: 1355,
-      finish: 1355,
-      dueCommission: 1355,
-      deployCommission: 1355,
-      unWithdrawCommission: 1355,
-      withdrawCommission: 1355,
-      totalCommission: 1355,
+      notPaymentOrderQty: 0,
+      carryOutOrdersQty: 0,
+      completedOrdersQty: 0,
+      notPaymentCommission: 0,
+      carryOutCommission: 0,
+      notWithdrawalCommission: 0,
+      withdrawalCommission: 0,
+      totalCommission: 0,
     })
 
     const formConfig = ref([
-      {label:'户主名称:', key:'userName'},
-      {label:'银行卡号:', key:'bankCard'},
-      {label:'开户行:', key:'bankName'}
+      {label:'户主名称:', key:'cardName'},
+      {label:'银行卡号:', key:'cardNo'},
+      {label:'开户行:', key:'openingBank'}
     ])
-    const bankInfo = ref({
-      userName: '互助名',
-      bankCard: '684321354454561861',
-      bankName: '阿瑟东及哦i就欧的设计费',
-    })
-    const bankInfoCopy = ref({
-      userName: '互助名',
-      bankCard: '684321354454561861',
-      bankName: '阿瑟东及哦i就欧的设计费',
-    })
+    const bankInfo = ref({})
+    const bankInfoCopy = ref({})
     const formReadonly = ref(true)
     const rules = reactive({
-      userName:[{required: true, message: '户主名称不能为空！', trigger:'blur'}],
-      bankName:[{required: true, message: '开户行不能为空！', trigger:'blur'}],
-      bankCard:[
+      cardName:[{required: true, message: '户主名称不能为空！', trigger:'blur'}],
+      openingBank:[{required: true, message: '开户行不能为空！', trigger:'blur'}],
+      cardNo:[
         {
           required: true,
           message: '银行卡号不能为空！',
@@ -156,10 +125,11 @@
       ]
     })
     const formRef = ref()
-    const drawBtnStatus = ref(true)
     const time = ref('')
 
     function handleClickFormBtn(eventType) {
+      // 未交押金
+      if (userInfo.value.isFreeOfCommission == 0 && userInfo.value.isPayCashPledge == 0) return
       /**
        * eventType:
        *    true:点击编辑
@@ -167,7 +137,6 @@
        *    cancel:点击取消
        * */
 
-      console.log('handleSwitchStatus', eventType)
       if (eventType === true) {
         formReadonly.value = false
       }else if (eventType === false) {
@@ -191,20 +160,125 @@
         type: 'warning',
       }).then(res=>{
         if (res === 'confirm') {
-          console.log('confirm 提现')
+          API.WithdrawalDeposit().then(res=>{
+            if (res.code == 0) {
+              proxy.$message({
+                type: 'success',
+                message: '提现成功!'
+              })
+              // 更新用户信息
+              handleGetAgentUserInfo()
+            }
+          })
         }
       }).catch(()=>{
         console.log('取消')
       })
     }
 
-    onMounted(() => {
-      const date = new Date()
-      // 只有1和15号且用户未提现，才可点击提现按钮
-      if (date.getDate() === 1 || date.getDate() === 15) {
-        drawBtnStatus.value = true
+    function handleGetAgentUserInfo() {
+      API.getAgentUserInfo().then(res=>{
+        if (res.code == 0) {
+          userInfo.value = res.data
+        }
+      })
+
+      handleFormatConfig()
+    }
+
+    function handleGetOrderCommissionInfo() {
+      API.getOrderCommissionInfo().then(res=>{
+        if (res.code == 0) {
+          withdrawInfo.value = res.data
+        }
+      })
+    }
+
+    function handleGetBankCardInfo() {
+      API.getBankCardInfo().then(res=>{
+        if (res.code == 0) {
+          bankInfo.value = {...res.data}
+          bankInfoCopy.value = {...res.data}
+        }
+      })
+    }
+
+    function handleFormatConfig() {
+      if (userInfo.value.roleId == '20') {
+        infoConfig.value = [
+          {label:'联系方式', prop:'account'},
+          {label:'办公邮箱', prop:'email'},
+          {label:'加入时间', prop:'joinDate'},
+          {label:'所属企业', prop:'company'},
+          {label:'专属销售', prop:'appertainSalesName'},
+          {label:'销售电话', prop:'appertainSalesPhone'},
+          {label:'销售邮箱', prop:'appertainSalesEmail'},
+        ]
+
+        withdrawConfig.value = [
+          {label:'待付款订单', prop:'notPaymentOrderQty'},
+          {label:'部署中订单', prop:'carryOutOrdersQty'},
+          {label:'已完成订单', prop:'completedOrdersQty'},
+          {label:'冻结押金', prop:'agencyCashPledge', className:'col-2', type:'money'},
+          {label:'待付款佣金', prop:'notPaymentCommission', type:'money'},
+          {label:'部署中佣金', prop:'carryOutCommission', type:'money'},
+          {label:'待提现佣金', prop:'notWithdrawalCommission', type:'money'},
+          {label:'已提现佣金', prop:'withdrawalCommission', type:'money'},
+          {label:'共赚取佣金', prop:'totalCommission', type:'money'},
+        ]
+      }else {
+        infoConfig.value = [
+          {label:'联系方式', prop:'account'},
+          {label:'办公邮箱', prop:'email'},
+          {label:'加入时间', prop:'joinDate'},
+          {label:'所属企业', prop:'company'},
+        ]
+
+        withdrawConfig.value = [
+          {label:'待付款订单', prop:'notPaymentOrderQty'},
+          {label:'部署中订单', prop:'carryOutOrdersQty'},
+          {label:'已完成订单', prop:'completedOrdersQty', className:'col-3'},
+          {label:'待付款佣金', prop:'notPaymentCommission', type:'money'},
+          {label:'部署中佣金', prop:'carryOutCommission', type:'money'},
+          {label:'待提现佣金', prop:'notWithdrawalCommission', type:'money'},
+          {label:'已提现佣金', prop:'withdrawalCommission', type:'money'},
+          {label:'共赚取佣金', prop:'totalCommission', type:'money'},
+        ]
+      }
+    }
+
+    function handleFormatWithDrawText(obj) {
+      let {prop, type} = obj, text = '';
+      if (prop === 'agencyCashPledge') {
+        text = userInfo.value.agencyCashPledge === 0 ? '立即缴纳' : `￥ ${userInfo.value.agencyCashPledge.toFixed(2)}`
+      }else {
+        text = type === 'money' ? `￥ ${withdrawInfo.value[prop].toFixed(2)}` : withdrawInfo.value[prop]
       }
 
+      return text
+    }
+
+    const drawBtnStatus = computed(() => {
+      let date = new Date(), btnStatus = false;
+      /**
+       * 提现按钮满足条件
+       *    时间：1和15号
+       *    身份：代理
+       *    提现状态：未提现
+       * */
+      if ((date.getDate() === 1 || date.getDate() === 15) && userInfo.value.roleId == 20 && userInfo.value.agencyWithdrawstatus == 0) {
+        btnStatus = true
+      }
+
+      return btnStatus
+    })
+
+    onMounted(() => {
+      handleGetAgentUserInfo()
+      handleGetOrderCommissionInfo()
+      handleGetBankCardInfo()
+
+      const date = new Date()
       /**
        * 3-6 凌晨
        * 6-8 早上
@@ -235,9 +309,6 @@
       }
     })
 
-    // const userInfo = computed(() => {
-    //   return store.getters["user/info"];
-    // });
 </script>
 
 <style scoped lang="scss">
@@ -254,6 +325,7 @@
         .prop-color {color: #383838;}
         .blue-color {color: #3164f5;}
         .col-2{ width: 40% !important;}
+        .col-3{ width: 60% !important;}
 
         .content-box {
             display: flex;
@@ -300,6 +372,8 @@
 
                 .right{
                     flex: 1;
+                    display: flex;
+                    flex-direction: column;
                 }
             }
 

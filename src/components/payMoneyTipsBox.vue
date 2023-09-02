@@ -13,28 +13,33 @@
             mainText="押金缴纳提交成功，请尽快付款！"
             :formItemsConfig="dialogFormItemsConfig"
             :formData="dialogFormData"
+            v-bind="$attrs"
         />
     </div>
 </template>
 
 <script setup>
-  import { ref } from 'vue';
+  import { ref, useAttrs } from 'vue';
   import PayMoneyDialog from '@/components/payMoneyDialog';
+  import API from '@/pages/account/api';
+
+  const attrs = useAttrs()
 
   const dialogVisible = ref(false)
   const dialogFormItemsConfig = ref([
-    {label: '代理商', prop: 'agent'},
-    {label: '押金单号', prop: 'orderNum'},
-    {label: '应付金额', prop: 'payMoney'},
+    {label: '代理商', prop: 'agencyName'},
+    {label: '押金单号', prop: 'orderCode'},
+    {label: '应付金额', prop: 'paymentAmount'},
   ])
-  const dialogFormData = ref({
-    agent: '山东i和',
-    orderNum: 'MIPMASD54646878',
-    payMoney: '654332.00',
-  })
+  const dialogFormData = ref({})
 
   function handleRecharge() {
-    dialogVisible.value = true
+    API.CashPledgePayment().then(res=>{
+      if (res.code == 0) {
+        dialogFormData.value = res.data
+        dialogVisible.value = true
+      }
+    })
   }
 
 </script>

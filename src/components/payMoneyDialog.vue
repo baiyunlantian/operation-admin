@@ -13,21 +13,9 @@
                     <el-icon color="#00a870" size="24"><CircleCheckFilled /></el-icon>
                     <div class="main-text u-font-weight u-font-18 u-m-l-15">{{ mainText }}</div>
                 </div>
-                <div class="sub-text">{{ subText || '请在2023-06-05 23:48:59内完成支付，否则订单会被自动取消！' }}</div>
+                <div class="sub-text">{{ subText }}</div>
             </div>
 
-<!--            <el-form ref="form" :model="formData" :rules="rules" label-width="90">-->
-<!--                <el-form-item v-for="(item, index) in formItemsConfig" :prop="item.prop" :label="item.label" :key="item.prop"-->
-<!--                              label-position="right">-->
-
-<!--                    <el-input v-model="formData[item.prop]" :placeholder="item.placeholder"/>-->
-
-<!--                </el-form-item>-->
-
-<!--                <el-form-item label="支付方式">-->
-<!--                    <div class="pay-way-option">微信支付</div>-->
-<!--                </el-form-item>-->
-<!--            </el-form>-->
             <div class="form">
                 <div class="form-item" v-for="(item, index) in formItemsConfig" :key="item.prop">
                     <div class="form-item-label">{{ item.label }}</div>
@@ -42,7 +30,14 @@
 
             <div class="bottom-container">
                 <div class="left">
-                    <img :src="FakeQRCode"/>
+                    <QRCodeVue3
+                            :value="formData.qRCodeUrl"
+                            v-if="formData.qRCodeUrl"
+                            :width="200"
+                            :height="200"
+                            :dotsOptions="{type: 'classy'}"
+                            :cornersSquareOptions="{ type: 'square', color: '#000000' }"
+                    />
                 </div>
                 <div class="right u-m-l-20">
                     <div class="scan-tip-text">请使用微信扫码，支付成功后自动开通服务</div>
@@ -56,10 +51,11 @@
 
 <script setup>
   import {reactive, ref, defineEmits, defineProps, watch, getCurrentInstance, onUnmounted} from 'vue';
-  import FakeQRCode from '@/assets/images/fake-qrcode.png';
+  import QRCodeVue3 from "qrcode-vue3";
+  import API from '@/pages/account/api';
 
   const { proxy } = getCurrentInstance()
-  const emit = defineEmits(['update:modelValue'])
+  const emits = defineEmits(['update:modelValue', 'success'])
   const props = defineProps({
     modelValue: {
       required: true,
@@ -90,57 +86,40 @@
   })
 
   const visible = ref(false)
-  const rules = {
-    account: [
-      {
-        required: true,
-        message: '手机号不能为空!',
-        trigger: 'blur',
-      },
-      {
-        message: '手机号不合法!',
-        trigger: 'blur',
-        pattern: /^1(3|4|5|6|7|8|9)\d{9}$/
-      }
-    ],
-    email: [{
-      pattern: /^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z0-9]{2,6}$/,
-      message: '邮箱不合法!',
-      trigger: 'blur'
-    }],
-    userName: [
-      {
-        required: true,
-        message: '用户名不能为空!',
-        trigger: 'blur'
-      },
-      {
-        message: '请输入1-7位数用户名!',
-        trigger: 'blur',
-        max:7,
-        min:1
-      }
-    ]
-  }
-  const form = ref(null)
   const timer = ref(null)
 
   function handleClose() {
     clearInterval(timer.value)
-    emit('update:modelValue', false)
+    emits('update:modelValue', false)
+    emits('success')
   }
 
   function queryPayStatus() {
     timer.value = setInterval(() => {
-      const random = Math.random()
-      console.log('random', random)
-      if (random > 0.7) {
-        proxy.$message({
-          type:'success',
-          message:'付款成功！'
-        })
-        handleClose()
-      }
+      API.queryPayStatus({orderId: props.formData.orderCode}).then(res=>{
+        if (res.code == '0') {
+          if (res.data.paymentStatus == '0') {
+            proxy.$message({
+              type: 'success',
+              message: '支付成功',
+              duration: 5000
+            })
+            emits('success')
+            handleClose()
+          } else if(res.data.paymentStatus == '2') {
+            proxy.$message({
+              type: 'success',
+              message: '支付失败',
+              duration: 5000
+            })
+            handleClose()
+          }
+        }else {
+          clearInterval(timer.value)
+        }
+      }).catch(() => {
+        clearInterval(timer.value)
+      })
     }, 2000)
   }
 
@@ -218,19 +197,6 @@
                 }
             }
 
-            :deep(.el-form) {
-                .el-form-item__label{
-                    color: #272727;
-                    font-weight: bold;
-                }
-
-                .pay-way-option{
-                    background: #1aad19;
-                    color: #fff;
-                    padding: 0 30px;
-                }
-            }
-
             .bottom-container {
                 position: relative;
                 margin-left: 90px;
@@ -240,11 +206,7 @@
                 .left{
                     position: relative;
                     width: 200px;
-
-                    img{
-                        width: 100%;
-                        height: 100%;
-                    }
+                    height: 200px;
                 }
 
                 .right{

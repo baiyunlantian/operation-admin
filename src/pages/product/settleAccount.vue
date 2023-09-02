@@ -1,5 +1,5 @@
 <template>
-    <div class="settle-account-container">
+    <div class="settle-account-container" id="settle-account">
         <div class="main-container bg-fff box-shadow padding-2-pre u-m-t-10 ">
             <div class="u-font-22 u-font-weight">客户信息</div>
 
@@ -17,18 +17,20 @@
             <div class="deploy-container border">
                 <div class="left">
                     <div class="label">销售跟单：</div>
-                    <el-checkbox-group v-model="needSeller">
+                    <el-checkbox-group v-model="checkboxValue" @change="handleCheckboxChange">
                         <div class="checkbox-item" v-for="(checkbox, index) in checkboxs" :key="index">
-                            <el-checkbox v-model="checkbox.value" :label="checkbox.label" />
+                            <el-checkbox :label="checkbox.value">{{ checkbox.label }}</el-checkbox>
+                            <div class="icon border">?</div>
 
-                            <el-tooltip class="box-item" effect="dark" placement="right" trigger="click">
-                                <template v-slot:content>
-                                    <div class="tooltip-content">{{checkbox.tooltip}}</div>
-                                </template>
-                                <template v-slot:default>
-                                    <div class="icon border">?</div>
-                                </template>
-                            </el-tooltip>
+                            <!--   暂时屏蔽    -->
+                            <!--   <el-tooltip class="box-item" effect="dark" placement="right" trigger="click">-->
+                            <!--       <template v-slot:content>-->
+                            <!--           <div class="tooltip-content">{{checkbox.tooltip}}</div>-->
+                            <!--       </template>-->
+                            <!--       <template v-slot:default>-->
+                            <!--           <div class="icon border">?</div>-->
+                            <!--       </template>-->
+                            <!--   </el-tooltip>-->
                         </div>
                     </el-checkbox-group>
                 </div>
@@ -52,22 +54,51 @@
                     </template>
                 </el-table-column>
 
-                <template v-slot:append>
+                <template v-if="tableData.length > 0" v-slot:append>
                     <div class="table-last-row">
                         <div>&nbsp;</div>
-                        <div class="total-count">5</div>
-                        <div class="total-money">共计：<span class="color">9999.99</span>元</div>
+                        <div class="total-count">{{ totalCount }}</div>
+                        <div class="total-money">共计：<span class="color">{{ totalMoney }}</span>元</div>
                     </div>
                 </template>
             </el-table>
+
+            <div class="u-font-22 u-font-weight">客户备注</div>
+            <el-input v-model="remark"  type="textarea" />
         </div>
 
-        <div class="footer-container bg-fff box-shadow padding-2-pre u-m-t-10">页脚</div>
+        <div class="footer-container bg-fff padding-2-pre">
+            <div class="left">
+                <div class="product-option">
+                    <div class="text">时长</div>
+                    <div class="version">一年</div>
+                </div>
+                <div class="product-option">
+                    <div class="text">数量：</div>
+                    <div class="border">1</div>
+                </div>
+            </div>
+            <div class="right">
+                <div class="total-money">费用总计<span>{{totalMoney}}元</span></div>
+                <div class="btn" @click="handleClickBtn">立即购买</div>
+            </div>
+        </div>
+
+        <PayMoneyDialog
+                v-model="dialogVisible"
+                title="支付订单"
+                mainText="订单提交成功，请尽快付款！"
+                :formItemsConfig="formConfig.slice(0, 4)"
+                :formData="formData"
+        />
     </div>
 </template>
 
 <script setup>
-  import {reactive, ref} from 'vue';
+  import {reactive, ref, getCurrentInstance, onMounted, onUnmounted, computed} from 'vue';
+  import PayMoneyDialog from '@/components/payMoneyDialog';
+
+  const { proxy } = getCurrentInstance()
 
   const formConfig = ref([
     { label:'客户名称', prop:'name'},
@@ -113,33 +144,116 @@
     ],
   })
   const formData = reactive({})
-  const needSeller = ref(['1'])
+  const checkboxValue = ref(['1'])
+  const currentCheckboxValue = ref('1')
   const checkboxs = ref([
     { label:'需要', value: '1', tooltip:'需要销售' },
     { label:'不需要', value: '0', tooltip:'不需要销售' },
   ])
   const tableColumnConfig = ref([
-    { label:'项目名称', prop:'name'},
+    { label:'项目名称', prop:'title'},
     { label:'项目数量', prop:'count'},
     { label:'单价（元）', prop:'price', insertSlot: true},
   ])
-  const tableData = ref([
-    {name:'吗哩呀咔', count:1, price:'513'},
-    {name:'sdfsdf', count:1, price:'513'},
-    {name:'dfgd', count:1, price:'513'},
-    {name:'dfgdf', count:1, price:'513'},
-    {name:'werwer', count:1, price:'513'},
-    {name:'ertergg', count:1, price:'513'},
-  ])
+  const tableData = ref([])
+  const dialogVisible = ref(false)
+  const totalMoney = ref(0)
+  const totalCount = ref(0)
+  const remark = ref('')
 
-  function f() {
-
+  // 实现单选框逻辑
+  function handleCheckboxChange(checkedValue) {
+    if (checkedValue.length === 0) {
+      checkboxValue.value = [currentCheckboxValue.value]
+    }else if (checkedValue.length === 1) {
+      checkboxValue.value = checkedValue[0]
+    }else if (checkedValue.length === 2) {
+      checkboxValue.value = checkedValue.filter((checkbox) => checkbox !== currentCheckboxValue.value)
+      currentCheckboxValue.value = checkboxValue.value[0]
+    }
   }
+
+  function handleClickBtn() {
+    let params = {
+      ...formData,
+      needSeller: currentCheckboxValue.value,
+    }
+
+    if (tableData.value.length === 0) {
+      proxy.$message({
+        type: 'warning',
+        message: '暂无结算商品，请前往商品目录页面选择商品！'
+      })
+      return
+    }
+
+    if (!params.name) {
+      proxy.$message({
+        type: 'error',
+        message: '客户名称不能为空！'
+      })
+      return
+    }
+
+    if (/^1(3|4|5|6|7|8|9)\d{9}$/.test(params.phone) === false) {
+      proxy.$message({
+        type: 'error',
+        message: '请输入正确的手机号！'
+      })
+      return
+    }
+
+    if (/^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z0-9]{2,6}$/.test(params.email) === false) {
+      proxy.$message({
+        type: 'error',
+        message: '请输入正确的邮箱！'
+      })
+      return
+    }
+
+    console.log('params', params)
+    console.log('立即购买')
+    dialogVisible.value = true
+  }
+
+  function handleComputeTotal() {
+    let money = 0, count = 0;
+    if (tableData.value) {
+      tableData.value.forEach(product=>{
+        money += Number(product.price)
+        count += Number(product.count)
+      })
+    }
+
+    totalMoney.value = money.toFixed(2) || 0
+    totalCount.value = count || 0
+  }
+
+  onMounted(() => {
+    document.getElementsByClassName('body')[0].scrollTop = 0
+    const products = JSON.parse(sessionStorage.getItem('product'))
+    if (products && Array.isArray(products)) {
+      tableData.value = products
+
+      handleComputeTotal()
+    }
+  })
+
+  onUnmounted(() => {
+    // 离开当前页面时清除缓存
+    sessionStorage.removeItem('product')
+  })
 </script>
 
 <style scoped lang="scss">
     .settle-account-container{
         position: relative;
+        display: flex;
+        justify-content: center;
+        padding-bottom: 70px;
+        height: auto !important;
+        min-height: 100%;
+        box-sizing: border-box;
 
         .border{border: 1px solid #dedede;}
         .box-shadow{box-shadow: 0px 1px 4px 0px #d6d6d6;}
@@ -169,6 +283,10 @@
 
                     .el-form-item__content{
                         position: relative;
+
+                        .el-input__wrapper{
+                            position: 1px 10px;
+                        }
                     }
                 }
             }
@@ -281,10 +399,68 @@
             bottom: -5px;
             left: -20px;
             width: calc(100% + 40px);
-            height: 60px;
-            line-height: 60px;
-            padding: 0 2%;
+            padding: 12px 4%;
             box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 16px;
+            box-shadow: 0px -4px 4px 0px #d6d6d6;
+
+            .left{
+                position: relative;
+                display: flex;
+                align-items: center;
+
+                .product-option{
+                    position: relative;
+                    display: flex;
+                    align-items: center;
+                    margin-right: 10px;
+
+                    .version{
+                        background-color: #3164f5;
+                        padding: 4px 10px;
+                        color: #fff;
+                        border-radius: 4px;
+                        margin: 0 10px;
+                        font-size: 14px;
+                    }
+
+                    .border{
+                        position: relative;
+                        border: 1px solid #e8e8e8;
+                        padding: 8px 20px;
+                        border-radius: 3px;
+                    }
+                }
+            }
+
+            .right{
+                display: flex;
+                align-items: center;
+
+                .total-money{
+                    font-size: 15px;
+                    font-weight: bold;
+
+                    span{
+                        color: orange;
+                        margin: 0 5px;
+                    }
+                }
+
+                .btn{
+                    background-color: #0052d9;
+                    color: #ffffff;
+                    padding: 8px 20px;
+                    text-align: center;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    margin-left: 1vw;
+                    font-size: 14px;
+                }
+            }
         }
     }
 </style>
