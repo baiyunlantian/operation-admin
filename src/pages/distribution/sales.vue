@@ -531,6 +531,18 @@ const dialogDetaiOpt = reactive({
   title: "销售信息",
   width: "60vw",
 });
+
+const formArr = ref([
+  { title: "手机", name: "userName" },
+  { title: "微信", name: "account" },
+  { title: "办公邮箱", name: "email" },
+  { title: "入职时间", name: "cardName" },
+  { title: "管理主体", name: "cardNo" },
+  { title: "直属上级", name: "openingBank" },
+  { title: "职位", name: "openingBank" },
+  { title: "离职时间", name: "openingBank" },
+]);
+const salesFormData = ref();
 </script>
 
 <style lang="scss" scoped>
