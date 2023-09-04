@@ -61,16 +61,24 @@ const getDate = (beforeDays) => {
 
 const changeDatePick = () => {
   beforeDays.value = "";
-  const dateArr = datePick.value.map((value) => {
-    return value.toLocaleDateString().split("/").join("-");
-  });
-  const startDate = dateArr[0] + " " + startTime;
-  const endDate = dateArr[1] + " " + endTime;
+  let startDate = "";
+  let endDate = "";
+  if (!datePick.value) {
+    startDate = "";
+    endDate = "";
+  } else {
+    const dateArr = datePick.value.map((value) => {
+      return value.toLocaleDateString().split("/").join("-");
+    });
+    startDate = dateArr[0] + " " + startTime;
+    endDate = dateArr[1] + " " + endTime;
+  }
+
   emits("getBeforeDate", { startDate, endDate });
   emits("getListDate", { startDate, endDate });
 };
 
-defineExpose({ getDate });
+defineExpose({ getDate, datePick });
 </script>
 
 <style lang="scss" scoped>

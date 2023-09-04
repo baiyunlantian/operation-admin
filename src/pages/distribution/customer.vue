@@ -1,4 +1,4 @@
-<template>
+ <template>
   <div class="agent-container">
     <module-card>
       <header class="agent-data-head">

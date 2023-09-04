@@ -16,10 +16,10 @@
       </el-row>
     </div>
 
-    <div class="show-card-total" v-if="cardData.total">
+    <div class="show-card-total">
       <div class="show-card-total-content">
-        {{ cardData.total.totalTitle
-        }}<span>{{ cardData.total.totalAmount }}</span>
+        {{ cardData.total?.totalTitle || " "
+        }}<span>{{ cardData.total?.totalAmount || " " }}</span>
       </div>
     </div>
   </div>
@@ -43,7 +43,7 @@ const props = defineProps(["cardData"]);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    
+
     .show-card-msg-content {
       // min-width: 200px;
       .show-card-msg-title {

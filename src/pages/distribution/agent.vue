@@ -51,7 +51,10 @@
               />
             </template>
             <template #add>
-              <el-button type="primary" :style="{ 'margin-left': '12px' }"
+              <el-button
+                type="primary"
+                :style="{ 'margin-left': '12px' }"
+                @click="addAgent"
                 >添加代理</el-button
               >
             </template>
@@ -60,7 +63,7 @@
         <div class="pagesize-container">
           <el-pagination
             v-model:page-size="pageSize"
-            :page-sizes="[100, 200, 300, 400]"
+            :page-sizes="[50, 100, 200]"
             layout="sizes"
             :total="1000"
             @size-change="handleSizeChange"
@@ -74,6 +77,7 @@
         :column="agentDataHead"
         :data="agentDataRow"
         :sortable="true"
+        v-loading="dataLoading"
       >
         <template #totalCommission="{ row }">
           <div class="totalCommission-container">
@@ -101,15 +105,29 @@
       </data-table>
 
       <div class="pagination-container">
-        <el-pagination background small layout="total" :total="1000" />
+        <el-pagination
+          background
+          small
+          layout="total"
+          :total="agentDataRow?.length"
+        />
         <el-pagination
           background
           small
           layout="prev, pager, next"
-          :total="1000"
+          :total="agentDataRow?.length"
         />
       </div>
     </module-card>
+
+    <!-- 新增代理弹框 -->
+    <form-dialog
+      :dialogOpt="dialogOpt"
+      :formTitles="formTitles"
+      :agentData="agentData"
+      :form="form"
+      @getNewAgentData="getNewAgentData"
+    ></form-dialog>
   </div>
 </template>
 
@@ -128,6 +146,7 @@ import VarietyDatePicker from "@/components/DatePicker/VarietyDatePicker";
 import TableSearch from "@/components/Table/TableSearch.vue";
 import DataTable from "@/components/Table/DataTable.vue";
 
+// 搜索图标
 import { Search } from "@element-plus/icons-vue";
 
 // 选择日期的数据
@@ -163,6 +182,7 @@ let selectedDate = null;
 onMounted(() => {
   selectedDate = datePickerRef.value.getDate(7);
   getAgentData();
+  getAgentList({});
 });
 
 // 卡片的数值
@@ -176,7 +196,7 @@ const getAgentData = () => {
   API.getAgentData(params).then((res) => {
     amount.value = res.data;
     updateCardData();
-    console.log(amount.value);
+    // console.log(amount.value);
   });
 };
 
@@ -190,13 +210,13 @@ const updateCardData = () => {
 // 卡片数据
 const cardData = ref([
   {
-    title: "成交代理",
+    title: "代理总量",
     name: "completeOrderAgentCount",
     amount: amount.value.agentCount,
     url: require("@/assets/images/user_count.png"),
   },
   {
-    title: "订单量",
+    title: "订单总量",
     name: "completeOrderCount",
     amount: amount.value.orderCount,
     url: require("@/assets/images/file.png"),
@@ -236,10 +256,14 @@ const searchWay = reactive([
   { name: "addSaler", prefix: "添加销售", slot: "add" },
 ]);
 
-const pageSize = ref(100);
+const pageSize = ref(50);
 const handleSizeChange = (val) => {
   pageSize.value = val;
-  // console.log(val);
+  getAgentList({
+    keyword: keyword.value,
+    status: status.value,
+    pageSize: pageSize.value,
+  });
 };
 
 // 状态的选择器
@@ -265,6 +289,7 @@ const statusOptions = [
     label: "Option5",
   },
 ];
+
 // 状态变化
 const status = ref();
 const getStatus = (val) => {
@@ -286,6 +311,7 @@ const search = (val, e) => {
 };
 
 // 获取代理列表
+const dataLoading = ref(false);
 const getAgentList = ({
   status = 1,
   sortField = "OrderQty",
@@ -302,6 +328,7 @@ const getAgentList = ({
   //   pageIndex,
   //   pageSize,
   // });
+  dataLoading.value = true;
   API.getAgentList({
     status,
     sortField,
@@ -310,25 +337,24 @@ const getAgentList = ({
     pageIndex,
     pageSize,
   }).then((res) => {
-    console.log(res.data);
+    // console.log(res.data);
+    dataLoading.value = false;
     agentDataRow.value = res.data;
     agentDataRow.value.forEach((val) => {
-      val.totalCommission = totalCommission
+      val.totalCommission = totalCommission;
       val.operate = operate;
     });
-    console.log(agentDataRow.value);
+    // console.log('-------------',agentDataRow.value);
     // agentDataRow.value = res.data;
   });
 };
 
-const updateListData = () => {};
-
 // 代理数据的表头
 const agentDataHead = [
-  { prop: "agencyName", label: "代理名称", width: "80" },
-  { prop: "agencyPhone", label: "代理手机号", width: "110" },
-  { prop: "agencyId", label: "代理ID", width: "110" },
-  { prop: "salesName", label: "销售名称", width: "80" },
+  { prop: "agencyName", label: "代理名称", width: "100", header: true },
+  { prop: "agencyPhone", label: "代理手机号", width: "110", header: true },
+  { prop: "agencyId", label: "代理ID", width: "110", header: true },
+  { prop: "salesName", label: "销售名称", width: "100", header: true },
   { prop: "customerQty", label: "客户数量", width: "100", header: true },
   { prop: "orderQty", label: "订单量", width: "100", header: true },
   { prop: "orderAmount", label: "成交额", width: "100", header: true },
@@ -340,7 +366,7 @@ const agentDataHead = [
     slot: true,
     header: true,
   },
-  { prop: "status", label: "状态", width: "180" },
+  { prop: "status", label: "状态", width: "180", header: true },
   { prop: "createdTime", label: "创建时间", width: "180", header: true },
   {
     prop: "operate",
@@ -358,11 +384,12 @@ const operate = [
     isShow: true,
     clickEvent: (id) => {
       console.log(id);
-      router.push("/agentDetail");
+      router.push({ path: "/agentDetail", query: { userId: id } });
     },
   },
   { func: "禁用", isShow: true },
   { func: "恢复", isShow: true },
+  { func: "免佣", isShow: true },
 ];
 
 // 总押金参数
@@ -374,6 +401,122 @@ const totalCommission = [
 
 // 代理数据的数据行内容
 const agentDataRow = ref();
+
+// -------------------------新增代理
+// 弹框组件
+import FormDialog from "@/components/Dialog/FormDialog.vue";
+const dialogOpt = reactive({
+  dialogVisible: false,
+  title: "创建代理",
+  width: "80vw",
+});
+const addAgent = () => {
+  dialogOpt.dialogVisible = true;
+};
+
+const formTitles = [
+  { title: "基本信息", name: "baseForm" },
+  { title: "提现信息", name: "cashForm" },
+];
+
+//表单上传数据
+const agentData = reactive({
+  agencyName: "",
+  phone: "",
+  email: "",
+  password: "",
+  salesId: "",
+  cardName: "",
+  cardNo: "",
+  openingBank: "",
+  bankName: "",
+});
+
+// 表单数据
+const form = reactive({
+  baseForm: [
+    {
+      title: "代理名称",
+      name: "agencyName",
+      type: "input",
+      placeholder: "请输入代理名称",
+      isRequired: true,
+    },
+    {
+      title: "代理手机号",
+      name: "phone",
+      type: "input",
+      placeholder: "请输入手机号",
+      isRequired: true,
+    },
+    {
+      title: "邮箱",
+      name: "email",
+      type: "input",
+      placeholder: "请输入邮箱",
+      isRequired: true,
+    },
+    {
+      title: "账号密码",
+      name: "password",
+      type: "input",
+      placeholder: "请输入账号密码",
+      isRequired: true,
+    },
+    {
+      title: "绑定销售",
+      name: "salesId",
+      type: "input",
+      placeholder: "请输入绑定销售",
+      isRequired: false,
+    },
+  ],
+  cashForm: [
+    {
+      title: "开户名称",
+      name: "cardName",
+      type: "input",
+      placeholder: "请输入开户名称",
+      isRequired: true,
+    },
+    {
+      title: "开户账号",
+      name: "cardNo",
+      type: "input",
+      placeholder: "请输入开户账号",
+      isRequired: true,
+    },
+    {
+      title: "开户银行",
+      name: "openingBank",
+      type: "input",
+      placeholder: "请输入开户银行",
+      isRequired: true,
+    },
+    {
+      title: "开户支行",
+      name: "bankName",
+      type: "input",
+      placeholder: "请输入开户支行",
+      isRequired: true,
+    },
+  ],
+});
+
+const getNewAgentData = (data) => {
+  console.log(data);
+  API.addAgencyUser(data).then((res) => {
+    console.log(res);
+    getAgentList({
+      status: 1,
+      sortField: "OrderQty",
+      keyword: "",
+      sortType: "DESC",
+      pageIndex: 1,
+      pageSize: 50,
+    });
+  });
+};
 </script>
 
 <style lang="scss" scoped>

@@ -1,4 +1,4 @@
-<template>
+  <template>
   <div class="agent-detail-container">
     <div class="agent-detail-header">
       <h1>代理详情</h1>
@@ -6,11 +6,11 @@
     <div class="agent-detail">
       <div class="agent-detail-msg">
         <div class="agency-name">
-          代理名称：<span>{{ 12 }}</span>
+          代理名称：<span>{{ agentFormData.userName }}</span>
         </div>
-        <div class="agency-account">
+        <!-- <div class="agency-account">
           用户账号：<span>{{ 12 }}</span>
-        </div>
+        </div> -->
       </div>
 
       <module-card>
@@ -19,7 +19,7 @@
             <h1>个人信息</h1>
           </div>
           <div class="header-edit">
-            <el-button link
+            <el-button link @click="editMsg"
               ><el-icon><EditPen color="#999" /></el-icon
             ></el-button>
           </div>
@@ -30,7 +30,7 @@
               <template v-for="data in agentDataArr" :key="data.name">
                 <el-col :span="7">
                   <el-form-item class="agent-item-container">
-                    <p>{{ data.title }}</p>
+                    <p>{{ data.title }}&nbsp;</p>
                     <!-- <el-input
                   v-model="agentFormData[data.name]"
                 ></el-input> -->
@@ -44,87 +44,82 @@
           </el-row>
         </main>
       </module-card>
+      <div class="customer-list-container">
+        <table-detail-list
+          :agentDataRow="agentDataRow"
+          :searchParams="searchParams"
+          :searchWay="searchWay"
+          :sortType="sortType"
+          :agentDataHead="agentDataHead"
+          :agentDataTotal="agentDataTotal"
+          @searchEvent="getCustomerList"
+        >
+        </table-detail-list>
+      </div>
 
-      <div class="agent-table-container" style="width: 100%">
-        <div class="select-way">
-          <template v-for="way in searchWay" :key="way.prefix">
-            <table-search :searchWay="way" style="marginright: 8px">
-              <template #createTime>
-                <div class="create-time-container">
-                  <p>创建时间：</p>
-                  <variety-date-picker
-                    @getBeforeDate="getBeforeDate"
-                  ></variety-date-picker>
-                </div>
-              </template>
-            </table-search>
+      <div class="order-list-container">
+        <table-detail-list
+          :agentDataRow="orderDataRow"
+          :searchParams="searchParams"
+          :searchWay="orderSearchWay"
+          :sortType="sortType"
+          :agentDataHead="orderDataHead"
+          :agentDataTotal="orderDataTotal"
+          @searchEvent="getOrderList"
+          @resetStatus="handleStatusChange"
+        >
+          <template #header>
+            <div class="order-status">
+              <el-select
+                v-model="status"
+                class="m-2"
+                style="width: 80px; margin-right: 10px"
+                size="small"
+                @change="handleStatusChange"
+              >
+                <el-option
+                  v-for="item in statusOpt"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                />
+              </el-select>
+            </div>
           </template>
-        </div>
-        <div class="select-btns">
-          <el-button type="primary" size="small">查询</el-button>
-          <el-button type="primary" size="small">重置</el-button>
-        </div>
-      </div>
-
-      <div class="table-title-header">
-        <div class="table-title">客户列表</div>
-        <div class="pagesize-container">
-          <el-pagination
-            v-model:page-size="pageSize"
-            :page-sizes="[100, 200, 300, 400]"
-            layout="sizes"
-            :total="1000"
-            @size-change="handleSizeChange"
-            small
-          />
-          <el-select
-            v-model="value"
-            class="m-2"
-            placeholder="Select"
-            style="width: 140px; margin-left: 10px"
-            size="small"
-          >
-            <el-option
-              v-for="item in options"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            />
-          </el-select>
-        </div>
-      </div>
-
-      <data-table
-        ref="tableRef"
-        :column="agentDataHead"
-        :data="agentDataRow"
-        :sortable="true"
-        border
-      >
-      </data-table>
-
-      <div class="pagination-container">
-        <el-pagination background small layout="total" :total="1000" />
-        <el-pagination
-          background
-          small
-          layout="prev, pager, next"
-          :total="1000"
-        />
+        </table-detail-list>
       </div>
     </div>
+    <!-- 信息的弹框 -->
+    <edit-dialog
+      :dialogOpt="dialogOpt"
+      :form="agentFormData"
+      :formArr="formArr"
+    ></edit-dialog>
   </div>
 </template>
 
 <script setup>
-import { reactive, ref } from "vue";
-import ModuleCard from "@/components/Card/ModuleCard.vue";
-import TableSearch from "@/components/Table/TableSearch.vue";
-import VarietyDatePicker from "@/components/DatePicker/VarietyDatePicker";
-import DataTable from "@/components/Table/DataTable.vue";
+import { onMounted, reactive, ref } from "vue";
+import API from "./api";
 
-const agentFormData = reactive({
-  contact: "",
+import ModuleCard from "@/components/Card/ModuleCard.vue";
+
+import EditDialog from "@/components/Dialog/EditDialog";
+
+import TableDetailList from "@/components/Table/TableDetailList.vue";
+
+import { useRoute } from "vue-router";
+const route = useRoute();
+
+onMounted(() => {
+  getAgencyUser();
+  getCustomerList();
+  getOrderList();
+});
+
+const agentFormData = ref({
+  userName: "",
+  account: "",
   email: "",
   joinDate: "",
   company: "",
@@ -139,13 +134,13 @@ const agentFormData = reactive({
   completedOrdersQty: "",
   notWithdrawalCommission: "",
   totalCommission: "",
-  WithdrawalCommission: "",
+  withdrawalCommission: "",
   cardName: "",
   cardNo: "",
   openingBank: "",
 });
 const agentDataArr = reactive([
-  { title: "联系方式", name: "contact" },
+  { title: "联系方式", name: "account" },
   { title: "办公邮箱", name: "email" },
   { title: "加入时间", name: "joinDate" },
   { title: "所属企业", name: "company" },
@@ -160,7 +155,44 @@ const agentDataArr = reactive([
   { title: "已完成订单", name: "completedOrdersQty" },
   { title: "待提现佣金", name: "notWithdrawalCommission" },
   { title: "共赚取佣金", name: "totalCommission" },
-  { title: "已提现佣金", name: "WithdrawalCommission" },
+  { title: "已提现佣金", name: "withdrawalCommission" },
+  { title: "银行卡信息", name: "cardName" },
+  { title: "", name: "cardNo" },
+  { title: "", name: "openingBank" },
+]);
+
+// 获取代理个人信息
+const getAgencyUser = () => {
+  const params = {
+    userId: route.query.userId,
+  };
+  const APIArr = [
+    API.getAgencyUser(params),
+    API.getOrderCommission(params),
+    API.getBankInfo(params),
+  ];
+  Promise.all(APIArr).then((res) => {
+    agentFormData.value = res.reduce((prev, curr) => {
+      return Object.assign(prev, curr.data);
+    }, {});
+  });
+};
+
+// 编辑个人信息
+const editMsg = () => {
+  dialogOpt.dialogVisible = true;
+};
+
+const dialogOpt = reactive({
+  dialogVisible: false,
+  title: "代理信息",
+  width: "60vw",
+});
+
+const formArr = ref([
+  { title: "代理名称", name: "userName" },
+  { title: "联系方式", name: "account" },
+  { title: "办公邮箱", name: "email" },
   { title: "银行卡信息", name: "cardName" },
   { title: "", name: "cardNo" },
   { title: "", name: "openingBank" },
@@ -168,9 +200,42 @@ const agentDataArr = reactive([
 
 // 筛选的方式
 const searchWay = [
-  { prefix: "代理名称" },
-  { prefix: "代理手机号" },
-  { prefix: "创建时间:", slot: "createTime" },
+  { prefix: "代理名称", name: "customerId" },
+  { prefix: "代理手机号", name: "phone" },
+  {
+    prefix: "最后成交时间：",
+    prefixWidth: "90px",
+    name: "creatTime",
+    slot: "createTime",
+  },
+];
+const orderSearchWay = [
+  { prefix: "订单ID", name: "customerId" },
+  { prefix: "客户名称", name: "phone" },
+  {
+    prefix: "创建时间:",
+    prefixWidth: "60px",
+    name: "creatTime",
+    slot: "createTime",
+  },
+];
+
+const statusOpt = [
+  { value: "-1", label: "已取消" },
+  { value: "0", label: "未支付" },
+  { value: "1", label: "已支付" },
+  { value: "2", label: "已完成" },
+  { value: "3", label: "待提现" },
+  { value: "4", label: "已提现" },
+];
+const status = ref("1");
+const handleStatusChange = (val) => {
+  status.value = val;
+  getOrderList();
+};
+const sortType = [
+  { label: "最后成交时间从晚到早", value: "DESC" },
+  { label: "最后成交时间从早到晚", value: "ASC" },
 ];
 
 // 代理数据的表头
@@ -182,42 +247,51 @@ const agentDataHead = [
   { prop: "paymentTime", label: "最后成交时间", width: "100" },
   { prop: "registerTime", label: "注册时间", width: "100" },
 ];
-
-// 代理数据的数据行内容
-const agentDataRow = [
-  {
-    customerName: "1679989217626",
-    phone: "13100000001",
-    orderQty: "13100000001",
-    orderAmount: "13100000001",
-    paymentTime: "13100000001",
-    registerTime: "13100000001",
-  },
-  {
-    customerName: "1679989217626",
-    phone: "13100000001",
-    orderQty: "13100000001",
-    orderAmount: "13100000001",
-    paymentTime: "13100000001",
-    registerTime: "13100000001",
-  },
-  {
-    customerName: "1679989217626",
-    phone: "13100000001",
-    orderQty: "13100000001",
-    orderAmount: "13100000001",
-    paymentTime: "13100000001",
-    registerTime: "13100000001",
-  },
-  {
-    customerName: "1679989217626",
-    phone: "13100000001",
-    orderQty: "13100000001",
-    orderAmount: "13100000001",
-    paymentTime: "13100000001",
-    registerTime: "13100000001",
-  },
+const orderDataHead = [
+  { prop: "orderId", label: "订单ID", width: "80" },
+  { prop: "customerName", label: "客户名称", width: "110" },
+  { prop: "orderAmount", label: "订单金额", width: "110" },
+  { prop: "salesCommission", label: "销售返佣", width: "80" },
+  { prop: "agencyCommission", label: "代理返佣", width: "100" },
+  { prop: "paymentTime", label: "付款时间", width: "100" },
+  { prop: "statusName", label: "状态", width: "100" },
+  { prop: "createdTime", label: "创建时间", width: "100" },
 ];
+
+// 搜索
+const searchParams = reactive({
+  customerId: "",
+  phone: "",
+  startTime: "",
+  endTime: "",
+});
+const searchData = (val) => {
+  searchParams[val.name] = val.input;
+};
+// 代理数据的数据行内容
+const agentDataRow = ref([]);
+const agentDataTotal = ref();
+const getCustomerList = (params) => {
+  console.log(params);
+  API.getCustomerList(params).then((res) => {
+    agentDataRow.value = res.data.list;
+    agentDataTotal.value = res.data.total;
+  });
+};
+
+const orderDataRow = ref([]);
+const orderDataTotal = ref();
+const getOrderList = (params) => {
+  const orderParams = {
+    ...params,
+    status: status.value,
+  };
+  API.getOrderList(orderParams).then((res) => {
+    console.log(res);
+    orderDataRow.value = res.data.list;
+    orderDataTotal.value = res.data.total;
+  });
+};
 </script>
 
 <style lang="scss" scoped>
@@ -228,7 +302,7 @@ const agentDataRow = [
     padding: 12px 20px;
     h1 {
       color: #fff;
-      font-size: 20px;
+      font-size: 18px;
       margin: 0;
     }
   }
@@ -301,7 +375,7 @@ const agentDataRow = [
           display: flex;
           align-items: center;
           p {
-            width: 60px;
+            width: 80px;
             font-size: 12px;
             color: #606266;
           }
@@ -335,6 +409,9 @@ const agentDataRow = [
       justify-content: space-between;
       align-items: center;
     }
+  }
+  .order-list-container {
+    margin-top: 72px;
   }
 }
 </style>

@@ -26,6 +26,7 @@ const input = ref();
 const blurEvent = (name) => {
   emits("searchValue", { name, input: input.value });
 };
+defineExpose({ blurEvent, input });
 </script>
 
 <style lang="scss" scoped>

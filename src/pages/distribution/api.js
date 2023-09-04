@@ -50,4 +50,39 @@ export default {
   getAgentList(params) {
     return HTTP.get("/SalesAgency/Agency/Page", params);
   },
+  // 获取代理分页列表
+  addAgencyUser(params) {
+    return HTTP.post("/SalesAgency/Add/AgencyUser", params);
+  },
+  //获取代理个人信息
+  getAgencyUser(params) {
+    return HTTP.get("/SalesAgency/UserInfo", params);
+  },
+  // 获取个人订单和佣金信息
+  getOrderCommission(params) {
+    return HTTP.get("/SalesAgency/OrderCommissionInfo", params);
+  },
+  getBankInfo(params) {
+    return HTTP.get("/SalesAgency/BankCardInfo", params);
+  },
+
+  // 获取客户列表
+  getCustomerList(params) {
+    return HTTP.get("/SalesAgency/Customers/Page", params);
+  },
+
+  // 获取订单列表
+  getOrderList(params) {
+    return HTTP.get("/SalesAgency/Order/Page", params);
+  },
+
+  // ----------------销售管理
+  // 获取销售数据
+  getSalesData(params) {
+    return HTTP.get("/SalesAgency/GetSaleData", params);
+  },
+  // 获取代理分页列表
+  getSalesList(params) {
+    return HTTP.get("/SalesAgency/GetSaleDataPageList", params);
+  },
 };

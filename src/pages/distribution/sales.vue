@@ -4,6 +4,7 @@
       <header class="agent-data-head">
         <h1>销售数据</h1>
         <variety-date-picker
+          ref="datePickerRef"
           :selectDay="daysData"
           @getBeforeDate="getBeforeDate"
         ></variety-date-picker>
@@ -17,42 +18,49 @@
       </main>
     </module-card>
     <module-card>
-      <el-row :gutter="8">
-        <div class="table-search-container">
-          <template v-for="way in searchWay" :key="way.prefix">
-            <el-col :span="24 / 4">
-              <table-search :searchWay="way">
-                <template #search>
-                  <el-input
-                    v-model="input2"
-                    class="w-50 m-2"
-                    placeholder="请输入你需要搜索的内容"
-                    :suffix-icon="Search"
-                  />
-                </template>
-                <template #add>
-                  <el-button type="primary">添加销售</el-button>
-                </template>
-              </table-search>
-            </el-col>
-          </template>
-          <div class="pagesize-container">
-            <el-pagination
-              v-model:page-size="pageSize"
-              :page-sizes="[100, 200, 300, 400]"
-              layout="sizes"
-              :total="1000"
-              @size-change="handleSizeChange"
-            />
-          </div>
+      <div class="table-search-container">
+        <template v-for="way in searchWay" :key="way.prefix">
+          <table-search :searchWay="way">
+            <template #search>
+              <el-input
+                v-model="keyword"
+                class="w-50 m-2"
+                :style="{
+                  'margin-left': '12px',
+                }"
+                placeholder="请输入你需要搜索的内容"
+                :suffix-icon="Search"
+                @keyup.enter="search(way.name, $event)"
+              />
+            </template>
+            <template #add>
+              <el-button
+                type="primary"
+                :style="{ 'margin-left': '12px' }"
+                @click="addAgent"
+                >添加销售</el-button
+              >
+            </template>
+          </table-search>
+        </template>
+        <div class="pagesize-container">
+          <el-pagination
+            v-model:page-size="pageSize"
+            :page-sizes="[50, 100, 200]"
+            layout="sizes"
+            :total="1000"
+            @size-change="handleSizeChange"
+          />
         </div>
-      </el-row>
+      </div>
+
       <data-table
         :selection="true"
         ref="tableRef"
         :column="agentDataHead"
-        :data="agentDataRow"
+        :data="salesDataRow"
         :sortable="true"
+        v-loading="dataLoading"
       >
         <template #totalCommission="{ row }">
           <div class="totalCommission-container">
@@ -68,29 +76,57 @@
         <template #operate="{ row }">
           <div class="operate-container">
             <template v-for="operate in row.operate" :key="operate.func">
-              <el-link v-if="operate.isShow" type="primary">{{
-                operate.func
-              }}</el-link>
+              <el-link
+                v-if="operate.isShow"
+                type="primary"
+                @click="operate.clickEvent(row.salesId)"
+                >{{ operate.func }}</el-link
+              >
             </template>
           </div>
         </template>
       </data-table>
 
       <div class="pagination-container">
-        <el-pagination background small layout="total" :total="1000" />
+        <el-pagination
+          background
+          small
+          layout="total"
+          :total="salesDataRow?.length"
+        />
         <el-pagination
           background
           small
           layout="prev, pager, next"
-          :total="1000"
+          :total="salesDataRow?.length"
         />
       </div>
     </module-card>
+
+    <!-- 新增销售弹框 -->
+    <form-dialog
+      :dialogOpt="dialogOpt"
+      :formTitles="formTitles"
+      :agentData="agentData"
+      :form="form"
+      @getNewAgentData="getNewAgentData"
+    ></form-dialog>
+
+    <!-- 详情弹框 -->
+    <edit-dialog
+      :dialogOpt="dialogDetaiOpt"
+      :form="salesFormData"
+      :formArr="formArr"
+    ></edit-dialog>
   </div>
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { onMounted, reactive, ref } from "vue";
+import { useRouter } from "vue-router";
+const router = useRouter();
+import API from "./api";
+
 // 代理数据展示组件
 import ModuleCard from "@/components/Card/ModuleCard.vue";
 import ShowCard from "@/components/Card/ShowCard.vue";
@@ -100,38 +136,9 @@ import VarietyDatePicker from "@/components/DatePicker/VarietyDatePicker";
 import TableSearch from "@/components/Table/TableSearch.vue";
 import DataTable from "@/components/Table/DataTable.vue";
 
+// 搜索图标
 import { Search } from "@element-plus/icons-vue";
 
-// 卡片数据
-const cardData = [
-  {
-    title: "成交销售数量",
-    amount: 1126,
-    url: require("@/assets/images/user_count.png"),
-    total: {
-      totalTitle: "提现总额",
-      totalAmount: "￥76800.00",
-    },
-  },
-  {
-    title: "成交金额",
-    amount: 1126,
-    url: require("@/assets/images/file.png"),
-    total: {
-      totalTitle: "提现总额",
-      totalAmount: "￥76800.00",
-    },
-  },
-  {
-    title: "平均价",
-    amount: 1126,
-    url: require("@/assets/images/bar_chart.png"),
-    total: {
-      totalTitle: "提现总额",
-      totalAmount: "￥76800.00",
-    },
-  },
-];
 // 选择日期的数据
 const daysData = [
   {
@@ -160,14 +167,90 @@ const daysData = [
   },
 ];
 
-// 筛选的方式
-const searchWay = [
-  { prefix: "搜索", slot: "search" },
-  { prefix: "添加销售", slot: "add" },
-];
+const datePickerRef = ref();
+let selectedDate = null;
+onMounted(() => {
+  selectedDate = datePickerRef.value.getDate(7);
+  getSalesData();
+  getSalesList({});
+});
 
-// 页面内容选择
-const pageSize = ref(100);
+// 卡片的数值
+const amount = ref({});
+// 获取代理数据
+const getSalesData = () => {
+  const params = {
+    StartTime: selectedDate.startDate,
+    EndTime: selectedDate.endDate,
+  };
+  API.getSalesData(params).then((res) => {
+    amount.value = res.data;
+    updateCardData();
+    // console.log(amount.value);
+  });
+};
+
+// 更新卡片数据
+const updateCardData = () => {
+  cardData.value.forEach((value) => {
+    value.amount = amount.value[value.name];
+    if (value.total) {
+      value.total.totalAmount = amount.value[value.total.totalName];
+      console.log(value.total.totalAmount);
+    }
+  });
+};
+
+// 卡片数据
+const cardData = ref([
+  {
+    title: "成交销售数量",
+    name: "completeOrderSale",
+    amount: amount.value.agentCount,
+    url: require("@/assets/images/user_count.png"),
+    total: {
+      totalTitle: "销售总量",
+      totalName: "saleTotal",
+      totalAmount: amount.value.agentCount,
+    },
+  },
+  {
+    title: "成交金额",
+    name: "orderTotalAmount",
+    amount: amount.value.transactionAmount,
+    url: require("@/assets/images/bar_chart.png"),
+  },
+  {
+    title: "平均价",
+    name: "orderAvgAmoun",
+    amount: amount.value.transactionAvgAmount,
+    url: require("@/assets/images/bar_chart.png"),
+  },
+]);
+
+// 获取几天前的准确时间
+const getBeforeDate = (date) => {
+  selectedDate = date;
+  // console.log(date);
+  getSalesData();
+  // console.log(selectedDate);
+};
+
+// 筛选的方式
+const searchWay = reactive([
+  { name: "search", prefix: "搜索", slot: "search" },
+  { name: "addSaler", prefix: "添加销售", slot: "add" },
+]);
+
+const pageSize = ref(50);
+const handleSizeChange = (val) => {
+  pageSize.value = val;
+  getSalesList({
+    keyword: keyword.value,
+    status: status.value,
+    pageSize: pageSize.value,
+  });
+};
 
 // 状态的选择器
 const statusOptions = [
@@ -193,25 +276,99 @@ const statusOptions = [
   },
 ];
 
+// 状态变化
+const status = ref();
+const getStatus = (val) => {
+  getSalesList({
+    keyword: keyword.value,
+    status: status.value,
+    pageSize: pageSize.value,
+  });
+};
+
+// 搜索
+const keyword = ref();
+const search = (val, e) => {
+  getSalesList({
+    keyword: keyword.value,
+    status: status.value,
+    pageSize: pageSize.value,
+  });
+};
+
+// 获取代理列表
+const dataLoading = ref(false);
+const getSalesList = ({
+  status = 1,
+  sortField = "OrderQty",
+  keyword = "",
+  sortType = "DESC",
+  pageIndex = 1,
+  pageSize = 50,
+}) => {
+  // console.log({
+  //   status,
+  //   sortField,
+  //   keyword,
+  //   sortType,
+  //   pageIndex,
+  //   pageSize,
+  // });
+  dataLoading.value = true;
+  API.getSalesList({
+    status,
+    sortField,
+    keyword,
+    sortType,
+    pageIndex,
+    pageSize,
+  }).then((res) => {
+    // console.log(res.data);
+    dataLoading.value = false;
+    salesDataRow.value = res.data.list;
+    salesDataRow.value.forEach((val) => {
+      val.totalCommission = totalCommission;
+      val.operate = operate;
+    });
+    // console.log('-------------',salesDataRow.value);
+    // salesDataRow.value = res.data;
+  });
+};
+
 // 代理数据的表头
 const agentDataHead = [
-  { prop: "agencyName", label: "代理名称", width: "80" },
-  { prop: "agencyPhone", label: "代理手机号", width: "110" },
-  { prop: "agencyId", label: "代理ID", width: "110" },
-  { prop: "salesName", label: "销售名称", width: "80" },
-  { prop: "customerQty", label: "客户数量", width: "100", header: true },
-  { prop: "orderQty", label: "订单量", width: "100", header: true },
-  { prop: "orderAmount", label: "成交额", width: "100", header: true },
-  { prop: "avgAmount", label: "平均单价", width: "100", header: true },
+  { prop: "salesName", label: "销售名称", width: "100", header: true },
+  { prop: "phone", label: "手机号码", width: "110", header: true },
+  { prop: "orderCount", label: "订单数量", width: "110", header: true },
+  { prop: "orderAmount", label: "订单金额（元）", width: "200", header: true },
   {
-    prop: "totalCommission",
-    label: "总押金",
+    prop: "stayCommission",
+    label: "待结佣金金额（元）",
+    width: "200",
+    header: true,
+  },
+  {
+    prop: "withdrawCommission",
+    label: "已结佣金金额（元）",
+    width: "200",
+    header: true,
+  },
+  { prop: "customCount", label: "客户数量", width: "100", header: true },
+  { prop: "status", label: "销售状态", width: "180", header: true },
+  {
+    prop: "lastPaymentTime",
+    label: "最后成交时间",
+    width: "200",
+    header: true,
+  },
+  {
+    prop: "lastCommissionTime",
+    label: "最后结佣时间",
     width: "180",
     slot: true,
     header: true,
   },
-  { prop: "status", label: "状态", width: "180" },
-  { prop: "createdTime", label: "创建时间", width: "180", header: true },
+
   {
     prop: "operate",
     label: "操作",
@@ -223,9 +380,18 @@ const agentDataHead = [
 
 // 操作方式
 const operate = [
-  { func: "查看", isShow: true },
-  { func: "禁用", isShow: true },
+  {
+    func: "详情",
+    isShow: true,
+    clickEvent: (id) => {
+      console.log(id);
+      dialogDetaiOpt.dialogVisible = true;
+    },
+  },
+  { func: "封禁", isShow: true },
   { func: "恢复", isShow: true },
+  { func: "离职", isShow: true },
+  { func: "结算佣金", isShow: true },
 ];
 
 // 总押金参数
@@ -236,69 +402,135 @@ const totalCommission = [
 ];
 
 // 代理数据的数据行内容
-const agentDataRow = [
-  {
-    agencyName: "1679989217626",
-    agencyPhone: "13100000001",
-    agencyId: "13100000001",
-    salesName: "13100000001",
-    customerQty: "13100000001",
-    orderQty: "13100000001",
-    orderAmount: "13100000001",
-    avgAmount: "13100000001",
-    totalCommission,
-    status: "13100000001",
-    createdTime: "13100000001",
-    operate,
-  },
-  {
-    agencyName: "1679989217626",
-    agencyPhone: "王小虎",
-    agencyId: "上海市普陀区金沙江路 1518 弄",
-    salesName: "13100000001",
-    customerQty: "13100000001",
-    orderQty: "13100000001",
-    orderAmount: "13100000001",
-    avgAmount: "13100000001",
-    totalCommission,
-    status: "13100000001",
-    createdTime: "13100000001",
-    operate,
-  },
-  {
-    agencyName: "1679989217626",
-    agencyPhone: "王小虎",
-    agencyId: "上海市普陀区金沙江路 1518 弄",
-    salesName: "13100000001",
-    customerQty: "13100000001",
-    orderQty: "13100000001",
-    orderAmount: "13100000001",
-    avgAmount: "13100000001",
-    totalCommission,
-    status: "13100000001",
-    createdTime: "13100000001",
-    operate,
-  },
-  {
-    agencyName: "1679989217626",
-    agencyPhone: "王小虎",
-    agencyId: "上海市普陀区金沙江路 1518 弄",
-    salesName: "13100000001",
-    customerQty: "13100000001",
-    orderQty: "13100000001",
-    orderAmount: "13100000001",
-    avgAmount: "13100000001",
-    totalCommission,
-    status: "13100000001",
-    createdTime: "13100000001",
-    operate,
-  },
+const salesDataRow = ref();
+
+// -------------------------新增代理
+// 弹框组件
+import FormDialog from "@/components/Dialog/FormDialog.vue";
+const dialogOpt = reactive({
+  dialogVisible: false,
+  title: "创建代理",
+  width: "80vw",
+});
+const addAgent = () => {
+  dialogOpt.dialogVisible = true;
+};
+
+const formTitles = [
+  { title: "基本信息", name: "baseForm" },
+  { title: "提现信息", name: "cashForm" },
 ];
 
-// 获取几天前的准确时间
-const getBeforeDate = (date) => {
-  console.log(date);
+//表单上传数据
+const agentData = reactive({
+  agencyName: "",
+  phone: "",
+  email: "",
+  password: "",
+  salesId: "",
+  cardName: "",
+  cardNo: "",
+  openingBank: "",
+  bankName: "",
+});
+
+// 表单数据
+const form = reactive({
+  baseForm: [
+    {
+      title: "代理名称",
+      name: "agencyName",
+      type: "input",
+      placeholder: "请输入代理名称",
+      isRequired: true,
+    },
+    {
+      title: "代理手机号",
+      name: "phone",
+      type: "input",
+      placeholder: "请输入手机号",
+      isRequired: true,
+    },
+    {
+      title: "邮箱",
+      name: "email",
+      type: "input",
+      placeholder: "请输入邮箱",
+      isRequired: true,
+    },
+    {
+      title: "账号密码",
+      name: "password",
+      type: "input",
+      placeholder: "请输入账号密码",
+      isRequired: true,
+    },
+    {
+      title: "绑定销售",
+      name: "salesId",
+      type: "input",
+      placeholder: "请输入绑定销售",
+      isRequired: false,
+    },
+  ],
+  cashForm: [
+    {
+      title: "开户名称",
+      name: "cardName",
+      type: "input",
+      placeholder: "请输入开户名称",
+      isRequired: true,
+    },
+    {
+      title: "开户账号",
+      name: "cardNo",
+      type: "input",
+      placeholder: "请输入开户账号",
+      isRequired: true,
+    },
+    {
+      title: "开户银行",
+      name: "openingBank",
+      type: "input",
+      placeholder: "请输入开户银行",
+      isRequired: true,
+    },
+    {
+      title: "开户支行",
+      name: "bankName",
+      type: "input",
+      placeholder: "请输入开户支行",
+      isRequired: true,
+    },
+  ],
+});
+
+const getNewAgentData = (data) => {
+  console.log(data);
+  API.addAgencyUser(data).then((res) => {
+    console.log(res);
+    getSalesList({
+      status: 1,
+      sortField: "OrderQty",
+      keyword: "",
+      sortType: "DESC",
+      pageIndex: 1,
+      pageSize: 50,
+    });
+  });
 };
+
+// 销售信息组件
+import EditDialog from "@/components/Dialog/EditDialog.vue";
+//  :dialogOpt="dialogDetaiOpt"
+// :form="salesFormData"
+// :formArr="formArr"
+
+const dialogDetaiOpt = reactive({
+  dialogVisible: false,
+  title: "销售信息",
+  width: "60vw",
+});
 </script>
 
 <style lang="scss" scoped>
@@ -333,7 +565,6 @@ const getBeforeDate = (date) => {
 
 .table-search-container {
   display: flex;
-  flex: 1;
   margin: 12px 0;
   position: relative;
   .pagesize-container {
