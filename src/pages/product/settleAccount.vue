@@ -246,11 +246,11 @@
   }
 
   function handleGetAgentUserInfo() {
-    // API2.getAgentUserInfo().then(res=>{
-    //   if (res.code == 0) {
-    //     sellerInfo.value = res.data
-    //   }
-    // })
+    API2.getAgentUserInfo().then(res=>{
+      if (res.code == 0) {
+        sellerInfo.value = res.data
+      }
+    })
   }
 
   function handleSuccessPay() {
@@ -291,6 +291,7 @@
         .main-container{
             padding: 1% 1.5%;
             margin: 0 1%;
+            flex: 1;
 
             >div{margin-bottom: 2vh;}
 

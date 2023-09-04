@@ -80,7 +80,9 @@
     import API from './api';
     import AutoAvatar from '@/assets/images/account.png';
     import PayMoneyTipsBox from '@/components/payMoneyTipsBox';
+    import { setTimeEscalation } from "@/assets/js/utils";
 
+    const setTimeEscalationClone = setTimeEscalation();
     const store = useStore()
     const { proxy } = getCurrentInstance()
 
@@ -141,8 +143,19 @@
         formReadonly.value = false
       }else if (eventType === false) {
         formRef.value.validate(valid=>{
-          console.log('bankInfoCopy', bankInfoCopy.value)
-          console.log('valid', valid)
+          setTimeEscalationClone(() => {
+              API.editBankCardInfo(bankInfo).then(res=>{
+                if (res.code == 0) {
+                  proxy.$message({
+                    type: 'success',
+                    message: res.msg || '修改成功'
+                  })
+                  handleGetBankCardInfo()
+                  formReadonly.value = true
+                }
+              })
+            },
+            () => {proxy.$message.warning('操作过于频繁！')})
         })
       }else if (eventType === 'cancel') {
         bankInfoCopy.value = {...bankInfo.value}

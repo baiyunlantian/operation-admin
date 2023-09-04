@@ -23,8 +23,8 @@
   const store = useStore();
 
   onMounted(() => {
-    store.dispatch('user/getUserInfo')
-    store.dispatch('platformType/getPlatformTypeList')
+    // store.dispatch('user/getUserInfo')
+    // store.dispatch('platformType/getPlatformTypeList')
   })
 
 </script>

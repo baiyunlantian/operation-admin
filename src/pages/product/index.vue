@@ -24,7 +24,7 @@
                             </div>
                         </div>
 
-                        <el-progress class="progress" :percentage="50" :show-text="false" stroke-linecap="square"/>
+                        <el-progress :class="[`progress-${index}`,'progress']" stroke-linecap="square" :percentage="pricePercent" :show-text="false" :color="progressBarColors[index]" />
                     </div>
                 </div>
             </div>
@@ -85,19 +85,24 @@
     const checkedProductConfig = reactive(new Map())
     const selectedProduct = ref({})
     const selectedVersion = ref({})
+    const configTotalPrice = ref(0)
+    const progressBarColors = ref(['#0052d9','#e24d59','#00a870'])
 
     function handleFormatConfigList(ConfigList) {
-      let configMap = new Map();
+      let configMap = new Map(), _configTotalPrice = 0;
 
 
       ConfigList.forEach(option=>{
-        const {isEssential, productFeatureId, typeId} = option
+        option.price = Math.floor(Math.random() * 10000)
+        const {isEssential, productFeatureId, typeId, price} = option
+        _configTotalPrice += price
         if (isEssential) checkedProductConfig.set(productFeatureId, option)
         let list = configMap.has(typeId) ? configMap.get(typeId) : [];
         list.push(option)
         configMap.set(typeId, list)
       })
 
+      configTotalPrice.value = _configTotalPrice
       productConfigList.value = configMap
     }
 
@@ -121,6 +126,7 @@
         handleGetProductSelection(_version.productVersionId)
       }
 
+      _version.price = Math.floor(Math.random() * 10000)
       selectedVersion.value = _version
       selectedProduct.value = initPage ? {} : product
     }
@@ -183,6 +189,11 @@
         })
       }
     }
+
+    const pricePercent = computed(() => {
+      let versionPrice = selectedVersion.value.price || 0;
+      return Math.floor(Number(totalMoney.value) / ( versionPrice + configTotalPrice.value) * 100)
+    })
 
     const totalMoney = computed(() => {
       let money = 0;
@@ -325,6 +336,23 @@
                     left: 0;
                     bottom: 0;
                     width: 100%;
+
+
+                    &-0{
+                        :deep(.el-progress-bar__outer) {
+                            background-color: #d4e3fc;
+                        }
+                    }
+                    &-1{
+                        :deep(.el-progress-bar__outer) {
+                            background-color: #fcd4d4;
+                        }
+                    }
+                    &-2{
+                        :deep(.el-progress-bar__outer) {
+                            background-color: #aae2cf;
+                        }
+                    }
                 }
             }
         }
