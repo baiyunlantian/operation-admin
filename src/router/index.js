@@ -84,6 +84,7 @@ router.beforeEach(async (to, from, next) => {
   // console.log("beforeEach")
   let token = window.localStorage.getItem('token') || '';
   const isAdmin = window.localStorage.getItem('isAdmin') || 0;
+  const productList = JSON.parse(sessionStorage.getItem('product'))
 
   if (token) {
     // 权限列表为空则调用 获取权限列表的方法
@@ -109,7 +110,20 @@ router.beforeEach(async (to, from, next) => {
           path: "/"
         });
       }else {
-        next();
+        if (to.path === '/settleAccount') {
+          if (from.path === '/product') {
+            next();
+          }
+          // 在结算页面刷新页面或者在其它页面通过URL输入跳转
+          else if (from.path === '/' && Array.isArray(productList) && productList.length > 0){
+            next();
+          }else {
+            next({path: "/product"});
+          }
+        }else {
+          next();
+        }
+
       }
     }
   } else {

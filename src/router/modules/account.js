@@ -10,7 +10,7 @@ export default [
     permission: 1,
     children: [
       {
-        path: '/info',
+        path: '/center',
         meta: {title: "个人中心"},
         component: () => import('@/pages/account/center.vue'),
         name: 'info',
