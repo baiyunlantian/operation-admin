@@ -10,12 +10,33 @@
                             <div class="title u-font-22 u-font-weight">{{ product.title }}</div>
                             <div class="viceTitle u-font-16">{{ product.viceTitle }}</div>
                             <div class="version-container">
-                                <div :class="[version.productVersionId === selectedVersion.productVersionId ? 'active' : '','version']" v-for="(version) in product.versions" :key="version.productVersionId" @click.stop="handleSelectProduct(product, version)">
-                                    {{ version.versionName }}
-                                </div>
+                                <el-tabs
+                                        v-model="activeName"
+                                        type="card"
+                                        class="demo-tabs"
+                                        @tab-click="handleClick"
+                                >
+                                    <el-tab-pane
+                                            v-for="({versionName, productVersionId, description, price}) in product.versions"
+                                            :key="productVersionId"
+                                            :name="productVersionId"
+                                    >
+                                        <template #label>
+                                            <div :class="[productVersionId === selectedVersion.productVersionId ? 'active' : '','version']">{{ versionName }}</div>
+                                        </template>
+
+                                        <template>
+                                            <div class="pane-content">
+                                                <div class="description u-font-weight">{{ description }}</div>
+                                                <div class="price u-font-weight">售价：{{ price }} 元</div>
+                                            </div>
+                                        </template>
+                                    </el-tab-pane>
+                                </el-tabs>
+<!--                                <div   @click.stop="handleSelectProduct(product, version)">-->
+<!--                                    {{ version.versionName }}-->
+<!--                                </div>-->
                             </div>
-                            <div class="description u-font-weight">{{ selectedVersion.description }}</div>
-                            <div class="price u-font-weight">售价：{{ selectedVersion.price }} 元</div>
                         </div>
 
                         <div class="right">
@@ -95,7 +116,6 @@
 
 
       ConfigList.forEach(option=>{
-        option.price = Math.floor(Math.random() * 10000)
         const {isEssential, productFeatureId, typeName, price} = option
         _configTotalPrice += price
         if (isEssential) checkedProductConfig.set(productFeatureId, option)
@@ -128,9 +148,9 @@
         handleGetProductSelection(_version.productVersionId)
       }
 
-      _version.price = Math.floor(Math.random() * 10000)
       selectedVersion.value = _version
       selectedProduct.value = initPage ? {} : product
+      console.log('handleSelectProduct', productMenuList.value)
     }
 
     function handleChangeCheckbox(option) {
@@ -202,6 +222,11 @@
       }else {
         return 0
       }
+    }
+
+    function handleClick(a, b) {
+      console.log('a',a)
+      console.log('b',b)
     }
 
     const totalMoney = computed(() => {
