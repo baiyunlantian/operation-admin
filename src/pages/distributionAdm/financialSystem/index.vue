@@ -270,7 +270,7 @@
 import { ref, reactive, getCurrentInstance, computed } from "vue";
 import StatisticsTitle from "../components/statisticsTitle.vue";
 import userCount from "@/assets/images/user_count.png";
-import barChart from "@/assets/images/bar_chart .png";
+import barChart from "@/assets/images/bar_chart.png";
 import { getTopData } from "./api";
 import { useStore } from "vuex";
 

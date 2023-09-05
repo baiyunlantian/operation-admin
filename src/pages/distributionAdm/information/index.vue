@@ -98,7 +98,7 @@ import StatisticsTitle from "../components/statisticsTitle.vue";
 import BrokenLine from "./components/brokenLine";
 // import Pie from "./components/pie.vue";
 import Ranking from "./components/ranking.vue";
-import barChart from "@/assets/images/bar_chart .png";
+import barChart from "@/assets/images/bar_chart.png";
 import heartbeat from "@/assets/images/heartbeat.svg";
 import userCount from "@/assets/images/user_count.png";
 import file from "@/assets/images/file.png";
