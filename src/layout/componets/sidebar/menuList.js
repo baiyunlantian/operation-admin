@@ -17,10 +17,10 @@ export default [
     children: [
       {
         type: "user",
-        name: "个人资料",
+        name: "个人中心",
         descType: "text",
         menuId: "2-1",
-        path: "/info",
+        path: "/center",
         children: [],
       },
       {
@@ -107,6 +107,30 @@ export default [
         path: "/distribution",
         children: [],
       },
+      {
+        type: "system",
+        name: "代理管理",
+        descType: "text",
+        menuId: "5-3",
+        path: "/agent",
+        children: [],
+      },
+      {
+        type: "system",
+        name: "销售管理",
+        descType: "text",
+        menuId: "5-4",
+        path: "/sales",
+        children: [],
+      },
+      {
+        type: "system",
+        name: "客户管理",
+        descType: "text",
+        menuId: "5-5",
+        path: "/customer",
+        children: [],
+      },
     ],
   },
   {
@@ -117,6 +141,8 @@ export default [
     path: "/course",
     children: [],
   },
+<<<<<<< HEAD
+=======
   {
     type: "system",
     name: "分销管理",
@@ -150,4 +176,13 @@ export default [
       },
     ],
   },
+  {
+    type: "system",
+    name: "商品目录",
+    descType: "text",
+    menuId: "8",
+    path: "/product",
+    children: [],
+  },
+>>>>>>> 6ac9760fb0f636ede91bda45a64ebe728eb2f959
 ];
