@@ -93,13 +93,14 @@
 </template>
 
 <script setup>
-  import {reactive, ref, getCurrentInstance, onMounted, onUnmounted, computed} from 'vue';
+  import {reactive, ref, getCurrentInstance, onMounted, onUnmounted, computed, watch} from 'vue';
   import { useRouter } from "vue-router";
+  import { useStore } from 'vuex';
   import API from './api';
-  import API2 from '@/pages/account/api';
   import PayMoneyDialog from '@/components/payMoneyDialog';
 
   const router = useRouter();
+  const store = useStore();
   const { proxy } = getCurrentInstance()
 
   const formConfig = ref([
@@ -245,17 +246,17 @@
     totalMoney.value = _price
   }
 
-  function handleGetAgentUserInfo() {
-    API2.getAgentUserInfo().then(res=>{
-      if (res.code == 0) {
-        sellerInfo.value = res.data
-      }
-    })
-  }
-
   function handleSuccessPay() {
     router.replace({ path: '/product' })
   }
+
+  watch(
+    () => store.getters["user/agentInfo"],
+    (newVal, oldVal) => {
+      sellerInfo.value = newVal
+    },
+    {deep: true, immediate:true}
+  )
 
   onMounted(() => {
     //  解决初始加载时滚动条可能没有置顶问题
@@ -265,8 +266,6 @@
     if (products && Array.isArray(products)) {
       handleFormatTableData(products)
     }
-
-    handleGetAgentUserInfo()
   })
 
   onUnmounted(() => {

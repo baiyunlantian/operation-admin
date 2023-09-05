@@ -52,7 +52,7 @@
 <script setup>
   import {reactive, ref, defineEmits, defineProps, watch, getCurrentInstance, onUnmounted} from 'vue';
   import QRCodeVue3 from "qrcode-vue3";
-  import API from '@/pages/account/api';
+  import API from '@/pages/product/api';
 
   const { proxy } = getCurrentInstance()
   const emits = defineEmits(['update:modelValue', 'success'])
@@ -95,30 +95,25 @@
   }
 
   function queryPayStatus() {
-    // API.queryPayStatus({orderId: props.formData.orderCode}).then(res=>{
-    //   if (res.code == '0') {
-    //     if (res.data.paymentStatus == '0') {
-    //       proxy.$message({
-    //         type: 'success',
-    //         message: '支付成功',
-    //         duration: 5000
-    //       })
-    //       emits('success')
-    //       handleClose()
-    //     } else if(res.data.paymentStatus == '2') {
-    //       proxy.$message({
-    //         type: 'success',
-    //         message: '支付失败',
-    //         duration: 5000
-    //       })
-    //       handleClose()
-    //     }
-    //   }else {
-    //     clearInterval(timer.value)
-    //   }
-    // }).catch(() => {
-    //   clearInterval(timer.value)
-    // })
+    if (props.formData.orderId) {
+      API.getPaymentRecord({orderId: props.formData.orderId}).then(res=>{
+        if (res.code == '0') {
+          if (res.data.status == '1') {
+            proxy.$message({
+              type: 'success',
+              message: '支付成功',
+              duration: 5000
+            })
+            emits('success')
+            handleClose()
+          }
+        }else {
+          clearInterval(timer.value)
+        }
+      }).catch(() => {
+        clearInterval(timer.value)
+      })
+    }
   }
 
   watch(

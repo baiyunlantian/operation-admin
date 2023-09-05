@@ -16,4 +16,9 @@ export default {
   SettlementOrder(params) {
     return HTTP.post("/SalesAgency/Settlement", params );
   },
+
+  // 获取订单支付状态
+  getPaymentRecord(params) {
+    return HTTP.get("/SalesAgency/GetPaymentRecord", params );
+  },
 }

@@ -1,21 +1,21 @@
 <template>
     <div class="center-container">
-        <payMoneyTipsBox v-if="userInfo.isFreeOfCommission == 0 && userInfo.isPayCashPledge == 0"/>
+        <payMoneyTipsBox v-if="agentInfo.isFreeOfCommission == 0 && agentInfo.isPayCashPledge == 0" @success="handleSuccessPay"/>
 
         <div class="main-content">
             <div class="header-container u-m-t-15">
                 <div class="left u-border-radius-4 padding-2-pre">
                     <div class="img-box">
-                        <img :src="userInfo.userImage || AutoAvatar" style="height: 100%; width: 100%"/>
+                        <img :src="agentInfo.userImage || AutoAvatar" style="height: 100%; width: 100%"/>
                     </div>
-                    <div class="name u-font-weight u-font-18">{{ userInfo.userName }}</div>
-                    <div class="company u-font-16"><span class="u-m-r-5">{{ userInfo.company }}</span><span>{{ userInfo.roleName }}</span></div>
+                    <div class="name u-font-weight u-font-18">{{ agentInfo.userName }}</div>
+                    <div class="company u-font-16"><span class="u-m-r-5">{{ agentInfo.company }}</span><span>{{ agentInfo.roleName }}</span></div>
                 </div>
 
                 <div class="right">
                     <div class="box-shadow bg-fff padding-2-pre">
-                        <span class="u-font-22 u-font-weight u-m-r-30">Hi，{{ userInfo.userName }}</span>
-                        <span style="letter-spacing: 1px" class="u-font-16 u-font-weight">{{ time }}好，今天是你加入{{ userInfo.company }}的第{{ userInfo.joinDays }}天~</span>
+                        <span class="u-font-22 u-font-weight u-m-r-30">Hi，{{ agentInfo.userName }}</span>
+                        <span style="letter-spacing: 1px" class="u-font-16 u-font-weight">{{ time }}好，今天是你加入{{ agentInfo.company }}的第{{ agentInfo.joinDays }}天~</span>
                     </div>
 
                     <div class="box-shadow bg-fff u-m-t-15 padding-2-pre" style="flex: 1">
@@ -24,7 +24,7 @@
                         <div class="info-container">
                             <div class="content-box" v-for="(item, index) in infoConfig" :key="index">
                                 <div class="label-color u-font-18">{{ item.label }}</div>
-                                <div class="prop-color u-font-weight u-font-18">{{ userInfo[item.prop] }}</div>
+                                <div class="prop-color u-font-weight u-font-18">{{ agentInfo[item.prop] }}</div>
                             </div>
                         </div>
                     </div>
@@ -63,7 +63,7 @@
                                 </el-form>
                             </div>
                         </div>
-                        <div class="right" v-if="userInfo.roleId == 20">
+                        <div class="right" v-if="agentInfo.roleId == 20">
                             <div v-if="drawBtnStatus" class="btn u-m-b-15 u-cursor" @click="handleClickDraw">提现</div>
                             <el-button v-else type="info" plain disabled>提现</el-button>
                         </div>
@@ -75,7 +75,7 @@
 </template>
 
 <script setup>
-    import { ref, reactive, computed, onMounted, getCurrentInstance } from 'vue';
+    import { ref, reactive, watch, computed, onMounted, getCurrentInstance } from 'vue';
     import { useStore } from 'vuex';
     import API from './api';
     import AutoAvatar from '@/assets/images/account.png';
@@ -86,7 +86,7 @@
     const store = useStore()
     const { proxy } = getCurrentInstance()
 
-    const userInfo = ref({
+    const agentInfo = ref({
       agencyCashPledge:0
     })
     const infoConfig = ref([])
@@ -131,7 +131,7 @@
 
     function handleClickFormBtn(eventType) {
       // 未交押金
-      if (userInfo.value.isFreeOfCommission == 0 && userInfo.value.isPayCashPledge == 0) return
+      if (agentInfo.value.isFreeOfCommission == 0 && agentInfo.value.isPayCashPledge == 0) return
       /**
        * eventType:
        *    true:点击编辑
@@ -179,24 +179,15 @@
                 type: 'success',
                 message: '提现成功!'
               })
+
               // 更新用户信息
-              handleGetAgentUserInfo()
+              store.dispatch("user/getAgentUserInfo")
             }
           })
         }
       }).catch(()=>{
         console.log('取消')
       })
-    }
-
-    function handleGetAgentUserInfo() {
-      API.getAgentUserInfo().then(res=>{
-        if (res.code == 0) {
-          userInfo.value = res.data
-        }
-      })
-
-      handleFormatConfig()
     }
 
     function handleGetOrderCommissionInfo() {
@@ -217,7 +208,7 @@
     }
 
     function handleFormatConfig() {
-      if (userInfo.value.roleId == '20') {
+      if (agentInfo.value.roleId == '20') {
         infoConfig.value = [
           {label:'联系方式', prop:'account'},
           {label:'办公邮箱', prop:'email'},
@@ -263,12 +254,17 @@
     function handleFormatWithDrawText(obj) {
       let {prop, type} = obj, text = '';
       if (prop === 'agencyCashPledge') {
-        text = userInfo.value.agencyCashPledge === 0 ? '立即缴纳' : `￥ ${userInfo.value.agencyCashPledge.toFixed(2)}`
+        text = agentInfo.value.agencyCashPledge === 0 ? '立即缴纳' : `￥ ${agentInfo.value.agencyCashPledge.toFixed(2)}`
       }else {
         text = type === 'money' ? `￥ ${withdrawInfo.value[prop].toFixed(2)}` : withdrawInfo.value[prop]
       }
 
       return text
+    }
+
+    function handleSuccessPay() {
+      // 更新用户信息
+      store.dispatch("user/getAgentUserInfo")
     }
 
     const drawBtnStatus = computed(() => {
@@ -279,15 +275,23 @@
        *    身份：代理
        *    提现状态：未提现
        * */
-      if ((date.getDate() === 1 || date.getDate() === 15) && userInfo.value.roleId == 20 && userInfo.value.agencyWithdrawstatus == 0) {
+      if ((date.getDate() === 1 || date.getDate() === 15) && agentInfo.value.roleId == 20 && agentInfo.value.agencyWithdrawstatus == 0) {
         btnStatus = true
       }
 
       return btnStatus
     })
 
+    watch(
+      () => store.getters["user/agentInfo"],
+      (newVal) => {
+        agentInfo.value = newVal
+        handleFormatConfig()
+      },
+      {deep: true, immediate:true}
+    )
+
     onMounted(() => {
-      handleGetAgentUserInfo()
       handleGetOrderCommissionInfo()
       handleGetBankCardInfo()
 
