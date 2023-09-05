@@ -1,5 +1,5 @@
 <template>
-  <div class="ranking bg-fff">
+  <div class="ranking bg-fff" v-if="isShow">
     <div class="top-title">
       <div class="total-title fw">{{ title }}</div>
       <div class="month">月份</div>
@@ -25,6 +25,10 @@
 <script setup>
 import { ref, defineProps } from "vue";
 defineProps({
+  isShow: {
+    type: Boolean,
+    default: true,
+  },
   title: {
     type: String,
     default: "",

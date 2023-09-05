@@ -24,36 +24,20 @@
 </template>
 
 <script setup>
-import { ref, reactive, getCurrentInstance, computed } from "vue";
+import { ref, reactive, onMounted, getCurrentInstance, computed } from "vue";
 import RightSearch from "../../components/rightSearch.vue";
 import MutiLine from "@/components/muti-line";
 import { getTotalIncomeToDay } from "../api";
+import dayjs from "dayjs";
+import utils from "@/assets/js/utils.js";
 
 const { proxy } = getCurrentInstance();
 
-const searchParams = ref({});
-const userEchartsDataList = ref([
-  {
-    time: "8-24",
-    totalIncome: 11,
-    orderCount: 22,
-  },
-  {
-    time: "9-24",
-    totalIncome: 11,
-    orderCount: 22,
-  },
-  {
-    time: "10-24",
-    totalIncome: 11,
-    orderCount: 22,
-  },
-  {
-    time: "11-24",
-    totalIncome: 11,
-    orderCount: 22,
-  },
-]);
+const searchParams = ref({
+  startDate: utils.getDateBeforeDays(-7) + " " + "00:00:00",
+  endDate: dayjs().subtract(1, "day").format("YYYY-MM-DD") + " " + "23:59:59",
+});
+
 const lineData = ref([]);
 const xAxisData = ref([]);
 const echartsOptions = reactive({
@@ -135,6 +119,10 @@ function handleUpdateParams(params) {
   searchParams.value = params;
   handleGetUserStatistic();
 }
+
+onMounted(() => {
+  handleGetUserStatistic();
+});
 </script>
 
 <style lang="scss" scoped>

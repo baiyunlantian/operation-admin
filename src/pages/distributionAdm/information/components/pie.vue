@@ -19,8 +19,13 @@
 import { ref, reactive, getCurrentInstance, onMounted } from "vue";
 import Echarts from "@/components/Echarts";
 import { getUserStatistic } from "../api";
+import dayjs from "dayjs";
+import utils from "@/assets/js/utils.js";
 
-const searchParams = ref({});
+const searchParams = ref({
+  startDate: utils.getDateBeforeDays(-7) + " " + "00:00:00",
+  endDate: dayjs().subtract(1, "day").format("YYYY-MM-DD") + " " + "23:59:59",
+});
 const echartsRef = ref();
 const echartsData = ref([]);
 const echartsOptions = reactive({

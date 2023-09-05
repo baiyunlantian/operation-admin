@@ -660,5 +660,25 @@ const utils = {
     const beforeDateFormat = beforeDateSplit.join("-");
     return beforeDateFormat;
   },
+
+  getNextDate(n, date) {
+    let date1 = new Date(),
+      time1 =
+        date1.getFullYear() +
+        "-" +
+        (date1.getMonth() + 1) +
+        "-" +
+        date1.getDate(); //time1表示当前时间
+    let date2 = new Date(date1);
+    date2.setDate(date1.getDate() + n);
+    let time2 =
+      date2.getFullYear() +
+      "-" +
+      ("0" + (date2.getMonth() + 1)).slice(-2) +
+      "-" +
+      ("0" + date2.getDate()).slice(-2);
+    return time2;
+  },
 };
+
 export default utils;
