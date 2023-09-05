@@ -610,7 +610,7 @@ const utils = {
 
   // 获取目标日期前多少天的具体日期
   getDateBeforeDays(beforeDays = 1, targetDate) {
-    console.log(beforeDateFormat);
+    // console.log(beforeDateFormat);
     let current = targetDate || new Date();
     let currentYear = current.getFullYear(),
       currentMonth = current.getMonth() + 1,

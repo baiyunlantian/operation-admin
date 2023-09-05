@@ -88,6 +88,27 @@
           :tableData="sellTableData"
         />
       </el-col>
+      <el-col :xl="12" :lg="12" :md="24" :sm="24" :xs="24">
+        <Ranking
+          title="近期订单"
+          :listTitle="orderListTitle"
+          :tableData="orderTableData"
+        />
+      </el-col>
+      <el-col :xl="12" :lg="12" :md="24" :sm="24" :xs="24">
+        <Ranking
+          title="客户量排名"
+          :listTitle="customListTitle"
+          :tableData="customTableData"
+        />
+      </el-col>
+      <el-col :xl="12" :lg="12" :md="24" :sm="24" :xs="24">
+        <Ranking
+          title="代理排名"
+          :listTitle="agencyListTitle"
+          :tableData="agencyTableData"
+        />
+      </el-col>
     </el-row>
   </div>
 </template>
@@ -102,8 +123,17 @@ import barChart from "@/assets/images/bar_chart.png";
 import heartbeat from "@/assets/images/heartbeat.svg";
 import userCount from "@/assets/images/user_count.png";
 import file from "@/assets/images/file.png";
-import { getTopData } from "./api";
+import {
+  getIncome,
+  getDistributionDashboard,
+  getSaleRanking,
+  getOrderList,
+  getCustomCountRanking,
+  getAgentRanking,
+} from "./api";
 import { useStore } from "vuex";
+import dayjs from "dayjs";
+import utils from "@/assets/js/utils.js";
 
 const { proxy } = getCurrentInstance();
 const store = useStore();
@@ -116,7 +146,7 @@ const collectInformation = ref([
   {
     title: "全部总收入",
     isMoney: true,
-    money: "111",
+    money: "totalIncome",
     image: barChart,
     imageStyle: "width: 104px; height: 42px",
     isShow: userIdentity.value == 1 ? true : false,
@@ -124,23 +154,23 @@ const collectInformation = ref([
   {
     title: "昨日收入",
     isMoney: true,
-    money: "222",
+    money: "yesterdayIncome",
     image: barChart,
     imageStyle: "width: 104px; height: 42px",
     isShow: userIdentity.value == 1 ? true : false,
   },
   {
-    title: "昨周收入",
+    title: "上一周收入",
     isMoney: true,
-    money: "333",
+    money: "lastWeekIncome",
     image: barChart,
     imageStyle: "width: 104px; height: 42px",
     isShow: userIdentity.value == 1 ? true : false,
   },
   {
-    title: "昨月收入",
+    title: "上一月收入",
     isMoney: true,
-    money: "444",
+    money: "lastMonthIncome",
     image: barChart,
     imageStyle: "width: 104px; height: 42px",
     isShow: userIdentity.value == 1 ? true : false,
@@ -152,7 +182,7 @@ const panelInformation = ref([
     id: 1,
     title: "总收入",
     isMoney: true,
-    money: "111",
+    money: "totalIncome",
     image: barChart,
     imageStyle: "width: 104px; height: 42px",
     isShow: userIdentity.value == 1 ? true : false,
@@ -161,7 +191,13 @@ const panelInformation = ref([
     id: 2,
     title: "返佣金额",
     isMoney: true,
-    money: "222",
+    money: "brokerageCommission",
+    desc: "待返金额",
+    descNum: "totalWaitBrokerageCommission",
+    isDescMoney: true,
+    descO: "已返金额",
+    descNumO: "totalBrokerageCommission",
+    isDescOMoney: true,
     image: barChart,
     imageStyle: "width: 104px; height: 42px",
     isShow: userIdentity.value == 1 ? true : false,
@@ -170,27 +206,27 @@ const panelInformation = ref([
     id: 3,
     title: "冻结金额",
     isMoney: true,
-    money: "333",
+    money: "freezeAmount",
     image: heartbeat,
     imageStyle: "width: 96px; height: 40px",
-    isShow: userIdentity.value == 1 ? true : false,
+    isShow: userIdentity.value == 1 ? true : false, //销售不显示
   },
   {
     id: 4,
     title: "成交销售数量",
     isMoney: false,
-    money: "444",
+    money: "transactionSalesCount",
     desc: "销售总量",
-    descNum: "1",
+    descNum: "salesTotalCount",
     image: userCount,
     imageStyle: "width: 56px; height: 56px",
-    isShow: userIdentity.value == 1 ? true : false,
+    isShow: userIdentity.value == 1 ? true : false, //销售和代理不显示
   },
   {
     id: 5,
     title: "产生订单 (个)",
     isMoney: false,
-    money: "444",
+    money: "createOrderCount",
     image: file,
     imageStyle: "width: 56px; height: 56px",
     isShow: userIdentity.value == 1 ? true : false,
@@ -199,9 +235,9 @@ const panelInformation = ref([
     id: 6,
     title: "取消订单",
     isMoney: false,
-    money: "444",
+    money: "cancellationOrderCount",
     desc: "订单取消率",
-    descNum: "2",
+    descNum: "cancellationOrderProportion",
     image: userCount,
     imageStyle: "width: 56px; height: 56px",
     isShow: userIdentity.value == 1 ? true : false,
@@ -210,9 +246,9 @@ const panelInformation = ref([
     id: 7,
     title: "成交客户数量",
     isMoney: false,
-    money: "444",
+    money: "transactionCustomCount",
     desc: "客户总量",
-    descNum: "3",
+    descNum: "customTotalCount",
     image: userCount,
     imageStyle: "width: 56px; height: 56px",
     isShow: userIdentity.value == 1 ? true : false,
@@ -221,25 +257,25 @@ const panelInformation = ref([
     id: 8,
     title: "成交代理数量",
     isMoney: false,
-    money: "444",
+    money: "transactionAgentCount",
     desc: "代理总量",
-    descNum: "1",
+    descNum: "agentTotalCount",
     image: userCount,
     imageStyle: "width: 56px; height: 56px",
-    isShow: userIdentity.value == 1 ? true : false,
+    isShow: userIdentity.value == 1 ? true : false, //代理不显示
   },
 ]);
 
 // 顶部总数据
 const getTopInformation = () => {
-  getTopData().then((res) => {
+  getIncome().then((res) => {
     const { code, data, msg } = res || {};
-    if (code == 0) {
+    if (code != 0) {
       collectInformation.value.forEach((item) => {
-        data.forEach((iten) => {
-          item.money = iten.money;
-        });
+        item.money = data[item.money];
+        item.descNum = data[item.descNum];
       });
+      console.log(collectInformation.value);
     } else {
       proxy.$message({
         type: "error",
@@ -251,18 +287,18 @@ const getTopInformation = () => {
 
 // 仪表盘参数
 const searchParams = ref({
-  dateScopeType: 1,
+  startDate: utils.getDateBeforeDays(7),
+  endDate: dayjs().subtract(1, "day").format("YYYY-MM-DD"),
 });
+
 // 分销仪表盘
 const getPanelInformation = () => {
-  getTopData(searchParams.value).then((res) => {
+  getDistributionDashboard(searchParams.value).then((res) => {
     const { code, data, msg } = res || {};
     if (code == 0) {
       panelInformation.value.forEach((item) => {
-        data.forEach((iten) => {
-          item.money = iten.money;
-          item.descNum = iten.descNum;
-        });
+        item.money = data[item.money];
+        item.descNum = data[item.descNum];
       });
     } else {
       proxy.$message({
@@ -274,74 +310,194 @@ const getPanelInformation = () => {
 };
 
 const handleUpdateParams = (params) => {
-  // getPanelInformation(params);
+  searchParams.value = params;
+  getPanelInformation();
   console.log(params);
 };
 
 // 排名
+
+// 销售排名
 const sellListTitle = ref([
   {
     prop: "ranking",
     label: "排名",
+    insertSlot: "ranking",
   },
   {
-    prop: "sellName",
+    prop: "saleName",
     label: "销售名称",
   },
   {
-    prop: "num",
+    prop: "completeOrderCount",
     label: "订单量",
   },
   {
-    prop: "money",
+    prop: "orderAmount",
     label: "订单金额",
   },
   {
-    prop: "client",
+    prop: "transactionCustomCount",
     label: "客户数量",
   },
 ]);
-const sellTableData = ref([
+const sellTableData = ref([]);
+
+const handleGetSaleRanking = () => {
+  getSaleRanking().then((res) => {
+    const { code, data, msg } = res || {};
+    if (code == 0) {
+      const processData = ref([]);
+      data.forEach((item, index) => {
+        processData.value.push({ ...item, ranking: index + 1 });
+      });
+      sellTableData.value = processData.value;
+    } else {
+      proxy.$message({
+        type: "error",
+        message: msg,
+      });
+    }
+  });
+};
+
+// 近期订单
+const orderListTitle = ref([
   {
-    ranking: 1,
-    sellName: "a",
-    num: 11,
-    money: 123,
-    client: 12,
+    prop: "orderId",
+    label: "订单号",
   },
   {
-    ranking: 2,
-    sellName: "a",
-    num: 11,
-    money: 123,
-    client: 12,
+    prop: "orderCompleteTime",
+    label: "成交时间",
   },
   {
-    ranking: 3,
-    sellName: "a",
-    num: 11,
-    money: 123,
-    client: 12,
+    prop: "agentName",
+    label: "代理名称",
   },
   {
-    ranking: 4,
-    sellName: "a",
-    num: 11,
-    money: 123,
-    client: 12,
+    prop: "saleName",
+    label: "销售名称",
   },
   {
-    ranking: 5,
-    sellName: "a",
-    num: 11,
-    money: 123,
-    client: 12,
+    prop: "orderAmount",
+    label: "订单金额",
+  },
+  {
+    prop: "customName",
+    label: "客户名称",
   },
 ]);
+const orderTableData = ref([]);
+
+const handleGetOrderList = () => {
+  getOrderList().then((res) => {
+    const { code, data, msg } = res || {};
+    if (code == 0) {
+      orderTableData.value = data;
+    } else {
+      proxy.$message({
+        type: "error",
+        message: msg,
+      });
+    }
+  });
+};
+
+// 客户量排名
+const customListTitle = ref([
+  {
+    prop: "ranking",
+    label: "排名",
+    insertSlot: "ranking",
+  },
+  {
+    prop: "saleName",
+    label: "销售名称",
+  },
+  {
+    prop: "completeOrderCount",
+    label: "订单量",
+  },
+  {
+    prop: "orderAmount",
+    label: "订单金额",
+  },
+  {
+    prop: "TransactionCustomCount",
+    label: "客户数量",
+  },
+]);
+const customTableData = ref([]);
+
+const handleGetCustomCountRanking = () => {
+  getCustomCountRanking().then((res) => {
+    const { code, data, msg } = res || {};
+    if (code == 0) {
+      const processData = ref([]);
+      data.forEach((item, index) => {
+        processData.value.push({ ...item, ranking: index + 1 });
+      });
+      customTableData.value = processData.value;
+    } else {
+      proxy.$message({
+        type: "error",
+        message: msg,
+      });
+    }
+  });
+};
+
+// 代理排名
+const agencyListTitle = ref([
+  {
+    prop: "ranking",
+    label: "排名",
+    insertSlot: "ranking",
+  },
+  {
+    prop: "agentName",
+    label: "代理名称",
+  },
+  {
+    prop: "orderCount",
+    label: "代理下的订单数量",
+  },
+  {
+    prop: "orderAmount",
+    label: "订单金额",
+  },
+  {
+    prop: "customName",
+    label: "客户名称",
+  },
+]);
+const agencyTableData = ref([]);
+
+const handleGetAgentRanking = () => {
+  getAgentRanking().then((res) => {
+    const { code, data, msg } = res || {};
+    if (code == 0) {
+      const processData = ref([]);
+      data.forEach((item, index) => {
+        processData.value.push({ ...item, ranking: index + 1 });
+      });
+      agencyTableData.value = processData.value;
+    } else {
+      proxy.$message({
+        type: "error",
+        message: msg,
+      });
+    }
+  });
+};
 
 onMounted(() => {
-  // getTopInformation();
-  // getPanelInformation()
+  getTopInformation();
+  handleGetSaleRanking();
+  handleGetOrderList();
+  handleGetCustomCountRanking();
+  handleGetAgentRanking();
 });
 </script>
 

@@ -10,9 +10,16 @@
           <RightSearch @updateParams="handleUpdateParams" />
         </el-col>
       </el-row>
-      <el-row :span="24" :gutter="70">
+      <el-row :span="24" :gutter="severalRow ? 70 : 20">
         <template v-for="(item, index) in statisticsInformation" :key="index">
-          <el-col :xl="6" :lg="8" :md="12" :sm="12" :xs="24" v-if="item.isShow">
+          <el-col
+            :xl="6"
+            :lg="8"
+            :md="12"
+            :sm="12"
+            :xs="24"
+            v-if="item.isShow & severalRow"
+          >
             <el-card class="box-card">
               <div class="item common-item">
                 <div class="top-item">
@@ -26,10 +33,51 @@
                   <el-image :style="item.imageStyle" :src="item.image" alt="" />
                 </div>
                 <div class="describe fw">
-                  <div class="text">{{ item.desc }}</div>
-                  <div class="num">
-                    <span v-if="item.isDescMoney">¥ </span>
-                    <span>{{ item.descNum }}</span>
+                  <div class="describe-item u-m-r-10">
+                    <div class="text">{{ item.desc }}</div>
+                    <div class="num">
+                      <span v-if="item.isDescMoney">¥ </span>
+                      <span>{{ item.descNum }}</span>
+                    </div>
+                  </div>
+                  <div class="describe-item" v-if="item.descO">
+                    <div class="text">{{ item.descO }}</div>
+                    <div class="num">
+                      <span v-if="item.isDescOMoney">¥ </span>
+                      <span>{{ item.descNumO }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </el-card>
+          </el-col>
+          <el-col class="xl-5" v-if="!severalRow">
+            <el-card class="box-card">
+              <div class="item common-item">
+                <div class="top-item">
+                  <div class="left-box">
+                    <div class="title fw">{{ item.title }}</div>
+                    <div class="money fw">
+                      <span v-if="item.isMoney">¥ </span>
+                      <span>{{ item.money }}</span>
+                    </div>
+                  </div>
+                  <el-image :style="item.imageStyle" :src="item.image" alt="" />
+                </div>
+                <div class="describe fw">
+                  <div class="describe-item u-m-r-10">
+                    <div class="text">{{ item.desc }}</div>
+                    <div class="num">
+                      <span v-if="item.isDescMoney">¥ </span>
+                      <span>{{ item.descNum }}</span>
+                    </div>
+                  </div>
+                  <div class="describe-item" v-if="item.descO">
+                    <div class="text">{{ item.descO }}</div>
+                    <div class="num">
+                      <span v-if="item.isDescOMoney">¥ </span>
+                      <span>{{ item.descNumO }}</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -48,6 +96,10 @@ import RightSearch from "./rightSearch";
 const emit = defineEmits(["updateParams"]);
 defineProps({
   isSearch: {
+    type: Boolean,
+    default: true,
+  },
+  severalRow: {
     type: Boolean,
     default: true,
   },
@@ -125,9 +177,23 @@ const handleUpdateParams = (searchParam) => {
     color: rgba(0, 0, 0, 0.4);
     font-size: 14px;
 
+    .describe-item {
+      display: flex;
+      align-items: center;
+    }
+
     .text {
       margin-right: 16px;
     }
   }
+}
+
+.xl-5 {
+  width: 20%;
+}
+
+.xl-5.el-col-24 {
+  max-width: none;
+  flex: auto;
 }
 </style>

@@ -24,135 +24,116 @@
 </template>
 
 <script setup>
-import { ref, reactive, getCurrentInstance } from "vue";
+import { ref, reactive, getCurrentInstance, computed } from "vue";
 import RightSearch from "../../components/rightSearch.vue";
 import MutiLine from "@/components/muti-line";
-import { getUserStatistic } from "../api";
+import { getTotalIncomeToDay } from "../api";
+
+const { proxy } = getCurrentInstance();
 
 const searchParams = ref({});
 const userEchartsDataList = ref([
   {
-    name: "本月",
-    series: [
-      {
-        xAxis: "08-24",
-        yAxis: 3,
-      },
-      {
-        xAxis: "08-25",
-        yAxis: 3,
-      },
-      {
-        xAxis: "08-26",
-        yAxis: 0,
-      },
-      {
-        xAxis: "08-27",
-        yAxis: 0,
-      },
-      {
-        xAxis: "08-28",
-        yAxis: 1,
-      },
-      {
-        xAxis: "08-29",
-        yAxis: 1,
-      },
-      {
-        xAxis: "08-30",
-        yAxis: 0,
-      },
-      {
-        xAxis: "08-31",
-        yAxis: 0,
-      },
-    ],
+    time: "8-24",
+    totalIncome: 11,
+    orderCount: 22,
   },
   {
-    name: "上月",
-    series: [
-      {
-        xAxis: "08-24",
-        yAxis: 0,
-      },
-      {
-        xAxis: "08-25",
-        yAxis: 3,
-      },
-      {
-        xAxis: "08-26",
-        yAxis: 0,
-      },
-      {
-        xAxis: "08-27",
-        yAxis: 0,
-      },
-      {
-        xAxis: "08-28",
-        yAxis: 0,
-      },
-      {
-        xAxis: "08-29",
-        yAxis: 1,
-      },
-      {
-        xAxis: "08-30",
-        yAxis: 0,
-      },
-      {
-        xAxis: "08-31",
-        yAxis: 0,
-      },
-    ],
+    time: "9-24",
+    totalIncome: 11,
+    orderCount: 22,
+  },
+  {
+    time: "10-24",
+    totalIncome: 11,
+    orderCount: 22,
+  },
+  {
+    time: "11-24",
+    totalIncome: 11,
+    orderCount: 22,
   },
 ]);
 const lineData = ref([]);
 const xAxisData = ref([]);
 const echartsOptions = reactive({
   color: ["#0052d9", "#bbd3fb"],
-  tooltip: {},
+  tooltip: {
+    backgroundColor: "#ffffff",
+    borderColor: "#dcdcdc",
+    borderWidth: 1,
+    padding: 15,
+    textStyle: {
+      color: "#000000",
+    },
+  },
+  legend: {
+    data: ["成交额", "订单量"],
+  },
 });
 
 // 获取统计图表数据
-// function handleGetUserStatistic() {
-//   getUserStatistic(searchParams).then((res) => {
-//     if (res.code == "0") {
-//       const { statisticsData } = res.data;
-//       userEchartsDataList.value = statisticsData;
-//       formatLineData(statisticsData);
-//     }
-//   });
-// }
+function handleGetUserStatistic() {
+  getTotalIncomeToDay(searchParams.value).then((res) => {
+    const { code, data, msg } = res || {};
+    if (code == "0") {
+      formatLineData(data);
+    } else {
+      proxy.$message({
+        type: "error",
+        message: msg,
+      });
+    }
+  });
+}
 
 // 格式化数据
 function formatLineData(list) {
-  let _xAxisData = [],
-    _seriesData = [];
-  let tooltip = { trigger: "axis", formatter: "{b}<br />" };
-  list.forEach((items, index) => {
-    let seriesItem = { type: "line", name: items.name, data: [], smooth: true };
-    tooltip.formatter += `{a${index}}：{c${index}}人<br />`;
-
-    (items.series || []).forEach((item, itemIndex) => {
-      if (index === 0) {
-        _xAxisData.push(item.xAxis);
-      }
-      seriesItem["data"].push(item.yAxis);
+  const dataO = computed(() => {
+    const dO = ref([]);
+    list.filter((item) => {
+      dO.value.push(item.totalIncome);
     });
-
-    _seriesData.push(seriesItem);
+    return dO.value;
+  });
+  const dataT = computed(() => {
+    const dT = ref([]);
+    list.filter((item) => {
+      dT.value.push(item.totalIncome);
+    });
+    return dT.value;
+  });
+  let _xAxisData = [],
+    _seriesData = ref([
+      {
+        type: "line",
+        name: echartsOptions.legend.data[0],
+        data: dataO.value,
+        smooth: true,
+      },
+      {
+        type: "line",
+        name: echartsOptions.legend.data[1],
+        data: dataT.value,
+        smooth: true,
+      },
+    ]);
+  let tooltip = { trigger: "axis", formatter: "{b}<br />" };
+  _seriesData.value.forEach((item, index) => {
+    tooltip.formatter += `{a${index}}：{c${index}}<br />`;
+  });
+  list.forEach((items, index) => {
+    _xAxisData.push(items.time);
   });
 
-  echartsOptions.tooltip = tooltip;
+  echartsOptions.tooltip = { ...echartsOptions.tooltip, ...tooltip };
   xAxisData.value = _xAxisData;
-  lineData.value = _seriesData;
+  lineData.value = _seriesData.value;
 }
-
-formatLineData(userEchartsDataList.value);
 
 function handleUpdateParams(params) {
   searchParams.value = params;
-  // handleGetUserStatistic();
+  handleGetUserStatistic();
 }
 </script>
 
