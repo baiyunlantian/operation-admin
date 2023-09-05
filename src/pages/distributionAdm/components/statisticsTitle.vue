@@ -183,7 +183,7 @@ const handleUpdateParams = (searchParam) => {
     }
 
     .text {
-      margin-right: 16px;
+      margin-right: 6px;
     }
   }
 }

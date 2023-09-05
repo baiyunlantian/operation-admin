@@ -236,11 +236,13 @@ const getTopInformation = () => {
     const { code, data, msg } = res || {};
     if (code != 0) {
       collectInformation.value.forEach((item) => {
-        item.money = data[item.money];
-        item.descNum = data[item.descNum];
+        item.money = data[item.money] || 0;
       });
       console.log(collectInformation.value);
     } else {
+      collectInformation.value.forEach((item) => {
+        item.money = 0;
+      });
       proxy.$message({
         type: "error",
         message: msg,
@@ -350,10 +352,24 @@ const getPanelInformation = () => {
     const { code, data, msg } = res || {};
     if (code == 0) {
       panelInformation.value.forEach((item) => {
-        item.money = data[item.money];
-        item.descNum = data[item.descNum];
+        item.money = data[item.money] || 0;
+        if (item.descNum) {
+          item.descNum = data[item.descNum] || 0;
+        }
+        if (item.descNumO) {
+          item.descNumO = data[item.descNumO] || 0;
+        }
       });
     } else {
+      panelInformation.value.forEach((item) => {
+        item.money = 0;
+        if (item.descNum) {
+          item.descNum = 0;
+        }
+        if (item.descNumO) {
+          item.descNumO = 0;
+        }
+      });
       proxy.$message({
         type: "error",
         message: msg,

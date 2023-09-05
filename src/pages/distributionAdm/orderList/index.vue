@@ -505,10 +505,12 @@ const getOrderInformation = () => {
     const { code, data, msg } = res || {};
     if (code == 0) {
       financialInformation.value.forEach((item) => {
-        item.money = data[item.money];
-        item.descNum = data[item.descNum];
+        item.money = data[item.money] || 0;
       });
     } else {
+      financialInformation.value.forEach((item) => {
+        item.money = 0;
+      });
       proxy.$message({
         type: "error",
         message: msg,

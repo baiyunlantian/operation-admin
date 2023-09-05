@@ -356,10 +356,18 @@ const getFinanceInformation = () => {
     const { code, data, msg } = res || {};
     if (code == 0) {
       financialInformation.value.forEach((item) => {
-        item.money = data[item.money];
-        item.descNum = data[item.descNum];
+        item.money = data[item.money] || 0;
+        if (item.descNum) {
+          item.descNum = data[item.descNum] || 0;
+        }
       });
     } else {
+      financialInformation.value.forEach((item) => {
+        item.money = 0;
+        if (item.descNum) {
+          item.descNum = 0;
+        }
+      });
       proxy.$message({
         type: "error",
         message: msg,
