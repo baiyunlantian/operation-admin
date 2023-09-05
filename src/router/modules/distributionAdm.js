@@ -24,6 +24,13 @@ export default [
         name: "financialSystem",
         permission: 1,
       },
+      {
+        path: "/orderList",
+        meta: { title: "订单列表" },
+        component: () => import("@/pages/distributionAdm/orderList/index.vue"),
+        name: "orderList",
+        permission: 1,
+      },
     ],
   },
 ];
