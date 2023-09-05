@@ -48,7 +48,7 @@ const timeRange = ref([
 ]);
 
 const searchParam = reactive({
-  startDate: utils.getDateBeforeDays(7) + " " + "00:00:00",
+  startDate: utils.getBeforeDate(7) + " " + "00:00:00",
   endDate: dayjs().subtract(1, "day").format("YYYY-MM-DD") + " " + "23:59:59",
 });
 
@@ -81,12 +81,10 @@ function dateChange(dates) {
 function handleClickTimeTag(tagValue) {
   dateScopeType.value = tagValue;
   if (tagValue == 0) {
-    searchParam.startDate =
-      utils.getDateBeforeDays(tagValue) + " " + "00:00:00";
-    searchParam.endDate = utils.getDateBeforeDays(tagValue) + " " + "23:59:59";
+    searchParam.startDate = utils.getBeforeDate(tagValue) + " " + "00:00:00";
+    searchParam.endDate = utils.getBeforeDate(tagValue) + " " + "23:59:59";
   } else {
-    searchParam.startDate =
-      utils.getDateBeforeDays(tagValue) + " " + "00:00:00";
+    searchParam.startDate = utils.getBeforeDate(tagValue) + " " + "00:00:00";
     searchParam.endDate =
       dayjs().subtract(1, "day").format("YYYY-MM-DD") + " " + "23:59:59";
   }
