@@ -18,11 +18,11 @@
   import { useStore } from "vuex";
   import sidebar from "./componets/sidebar";
   import tegView from "./componets/tegView";
-  import API from "@/pages/home/api";
 
   const store = useStore();
 
   onMounted(() => {
+    store.dispatch('user/getAgentUserInfo')
     store.dispatch('user/getUserInfo')
     store.dispatch('platformType/getPlatformTypeList')
   })

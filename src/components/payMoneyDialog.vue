@@ -13,7 +13,7 @@
                     <el-icon color="#00a870" size="24"><CircleCheckFilled /></el-icon>
                     <div class="main-text u-font-weight u-font-18 u-m-l-15">{{ mainText }}</div>
                 </div>
-                <div class="sub-text">{{ subText }}</div>
+                <div class="sub-text">{{ formData.ExpirationTime ? `请在${formData.ExpirationTime}内完成支付，否则订单会被自动取消！` : '' }}</div>
             </div>
 
             <div class="form">
@@ -24,7 +24,7 @@
 
                 <div class="form-item">
                     <div class="form-item-label">支付方式</div>
-                    <div class="pay-way-option">微信支付</div>
+                    <div class="pay-way-option">{{ formData.payType || '微信支付' }}</div>
                 </div>
             </div>
 
@@ -41,7 +41,7 @@
                 </div>
                 <div class="right u-m-l-20">
                     <div class="scan-tip-text">请使用微信扫码，支付成功后自动开通服务</div>
-                    <div class="footer-btn" @click="handleClose">我已完成支付</div>
+                    <div class="footer-btn" @click="handleFooterBtn">我已完成支付</div>
                 </div>
             </div>
         </div>
@@ -52,7 +52,7 @@
 <script setup>
   import {reactive, ref, defineEmits, defineProps, watch, getCurrentInstance, onUnmounted} from 'vue';
   import QRCodeVue3 from "qrcode-vue3";
-  import API from '@/pages/account/api';
+  import API from '@/pages/product/api';
 
   const { proxy } = getCurrentInstance()
   const emits = defineEmits(['update:modelValue', 'success'])
@@ -67,10 +67,6 @@
     },
     mainText:{
       required: true,
-      type: String,
-    },
-    subText:{
-      required: false,
       type: String,
     },
     formItemsConfig: {
@@ -91,27 +87,24 @@
   function handleClose() {
     clearInterval(timer.value)
     emits('update:modelValue', false)
-    emits('success')
+  }
+
+  function handleFooterBtn() {
+    queryPayStatus()
+    handleClose()
   }
 
   function queryPayStatus() {
-    timer.value = setInterval(() => {
-      API.queryPayStatus({orderId: props.formData.orderCode}).then(res=>{
+    if (props.formData.orderId) {
+      API.getPaymentRecord({orderId: props.formData.orderId}).then(res=>{
         if (res.code == '0') {
-          if (res.data.paymentStatus == '0') {
+          if (res.data.status == '1') {
             proxy.$message({
               type: 'success',
               message: '支付成功',
               duration: 5000
             })
             emits('success')
-            handleClose()
-          } else if(res.data.paymentStatus == '2') {
-            proxy.$message({
-              type: 'success',
-              message: '支付失败',
-              duration: 5000
-            })
             handleClose()
           }
         }else {
@@ -120,13 +113,17 @@
       }).catch(() => {
         clearInterval(timer.value)
       })
-    }, 2000)
+    }
   }
 
   watch(
     () => props.modelValue,
     (newVal) => {
-      // if (newVal) queryPayStatus()
+      if (newVal) {
+        timer.value = setInterval(() => {
+          queryPayStatus()
+        }, 2000)
+      }
       visible.value = newVal
     }
   )

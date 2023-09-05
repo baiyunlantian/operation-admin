@@ -17,7 +17,12 @@ export default {
     return HTTP.get("/SalesAgency/BankCardInfo", params );
   },
 
-  // 获取押金缴纳
+  // 编辑银行卡信息
+  editBankCardInfo(params) {
+    return HTTP.post("/SalesAgency/Edit/BankCardInfo", params );
+  },
+
+  // 押金缴纳
   CashPledgePayment(params) {
     return HTTP.post("/SalesAgency/CashPledgePayment", params );
   },
