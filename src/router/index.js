@@ -1,16 +1,13 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import store from '@/store/index.js';
-import layout from '@/layout/layout.vue'
-import Login from '../pages/login/index.vue'
+import { createRouter, createWebHistory } from "vue-router";
+import store from "@/store/index.js";
+import layout from "@/layout/layout.vue";
+import Login from "../pages/login/index.vue";
 // import asyncRouterMap from './menuRouter.js';
-const routerHistory = createWebHistory()
+const routerHistory = createWebHistory();
 // const routerHistory = createWebHashHistory()
 // createWebHashHistory hash 路由
 // createWebHistory history 路由
 // createMemoryHistory 带缓存 history 路由
-
-
-
 
 const router = createRouter({
   // 指定模式
@@ -18,98 +15,110 @@ const router = createRouter({
   // 默认路由
   routes: [
     {
-      path: '/',
-      name: '首页',
-      meta: {title: "首页"},
-      permission: '1',
+      path: "/",
+      name: "首页",
+      meta: { title: "首页" },
+      permission: "1",
       component: layout,
-      redirect: { path: '/home' },
-      children: [{
-        path: 'home',
-        meta: { title: "首页", tagsDisabled: true },
-        name: 'home',
-        permission: '1',
-        component: () => import('@/pages/home/index.vue'),
-      }]
+      redirect: { path: "/home" },
+      children: [
+        {
+          path: "home",
+          meta: { title: "首页", tagsDisabled: true },
+          name: "home",
+          permission: "1",
+          component: () =>
+            import("@/pages/distributionAdm/information/index.vue"),
+        },
+      ],
     },
     {
-      path: '/login',
-      name: 'login',
-      meta: {title: "登录页"},
-      component: Login
-    },
-    {
-      path: '/404',
+      path: "/login",
+      name: "login",
       meta: { title: "登录页" },
-      component: layout
-    }
-  ]
-})
-
+      component: Login,
+    },
+    {
+      path: "/404",
+      meta: { title: "登录页" },
+      component: layout,
+    },
+  ],
+});
 
 // 获取modules下所有的js文件
-const modulesFiles = require.context('./modules', true, /\.js$/)
+const modulesFiles = require.context("./modules", true, /\.js$/);
 
 const asyncRouterMap = modulesFiles.keys().reduce((modules, modulePath) => {
   // 获取每个文件的名称
   // const moduleName = modulePath.replace(/^\.\/(.*)\.\w+$/, '$1')
   // 获取文件的内容
-  const value = modulesFiles(modulePath)
+  const value = modulesFiles(modulePath);
   // push数据
-  modules.push(...value.default)
-  return modules
-}, [])
-
-
-
-
+  modules.push(...value.default);
+  return modules;
+}, []);
 
 // const login = 'login';
 // const homeName = '首页';
 
-
 // 白名单
-const white = ['login', 'register', '404']
+const white = ["login", "register", "404"];
 // 权限路由（临时）
-const permissionList = ['/operate', '/distribution'];
-
-
+const permissionList = ["/operate", "/distribution"];
 
 router.beforeResolve((to, from, next) => {
-  next()
-  return false
-})
+  next();
+  return false;
+});
 
 router.beforeEach(async (to, from, next) => {
   // console.log("beforeEach")
-  let token = window.localStorage.getItem('token') || '';
-  const isAdmin = window.localStorage.getItem('isAdmin') || 0;
+  let token = window.localStorage.getItem("token") || "";
+  const isAdmin = window.localStorage.getItem("isAdmin") || 0;
+  const productList = JSON.parse(sessionStorage.getItem("product"));
 
   if (token) {
     // 权限列表为空则调用 获取权限列表的方法
-    if (store.getters['user/permissionList'].length === 0) {
-      await store.dispatch('user/getPermissionList').then(res => {
-
+    if (store.getters["user/permissionList"].length === 0) {
+      await store.dispatch("user/getPermissionList").then((res) => {
         addRouterList(store.state.user.permission);
         // router.addRoutes之后的next()可能会失效，因为可能next()的时候路由并没有完全add完成，使用 next(to) 重新走一遍router.beforeEach这个钩子
         next(to);
       });
-    } else if (white.indexOf(to.name) > -1) {          // 跳转的页面是登录页时跳转到主页
+    } else if (white.indexOf(to.name) > -1) {
+      // 跳转的页面是登录页时跳转到主页
       next({
-        path: "/"
+        path: "/",
       });
     } else {
       // 添加title
-      if(to.meta.title){
-        document.title = to.meta.title
+      if (to.meta.title) {
+        document.title = to.meta.title;
       }
       // 非超管不能跳转
       if (isAdmin === 1 && permissionList.includes(to.path) === true) {
         next({
-          path: "/"
+          path: "/",
         });
-      }else {
-        next();
+      } else {
+        if (to.path === "/settleAccount") {
+          if (from.path === "/product") {
+            next();
+          }
+          // 在结算页面刷新页面或者在其它页面通过URL输入跳转
+          else if (
+            from.path === "/" &&
+            Array.isArray(productList) &&
+            productList.length > 0
+          ) {
+            next();
+          } else {
+            next({ path: "/product" });
+          }
+        } else {
+          next();
+        }
       }
     }
   } else {
@@ -117,21 +126,17 @@ router.beforeEach(async (to, from, next) => {
     // 跳转的页面不是登录页面
     if (white.indexOf(to.name) < 0) {
       next({
-        name: 'login'
+        name: "login",
       });
     } else {
       next();
     }
   }
-
-
 });
-
-
 
 // 根据权限列表获取添加router列表
 function addRouterList(permissionList) {
-  let routerList = filterRouter(asyncRouterMap, permissionList)
+  let routerList = filterRouter(asyncRouterMap, permissionList);
   // 过滤只有一级分类 但是没有权限
   // let asyncRouterList = asyncRouterMap.filter((item, i) => {
   //   // console.log(!!state.permissionList.includes(item.permission) || !!item['children'], "xxxxxx")
@@ -149,71 +154,65 @@ function addRouterList(permissionList) {
   //   }
   //   return !!item.children.length > 0 || !!item['permission'];
   // })
-  routerPackag(routerList)
+  routerPackag(routerList);
 
-  store.commit('user/SET_FILTERROUTER_LIST', routerList);
-  router.addRoute('404', {
-    path: '/:pathMatch(.*)',
-    redirect: '/404',
-    component: layout
-  })
+  store.commit("user/SET_FILTERROUTER_LIST", routerList);
+  router.addRoute("404", {
+    path: "/:pathMatch(.*)",
+    redirect: "/404",
+    component: layout,
+  });
 }
-
-
 
 function filterRouter(routerList, permissionList, fullPath = "") {
-  let filterRouterList = routerList.filter(item => {
-    item.fullPath = fullPath + item.path
+  let filterRouterList = routerList.filter((item) => {
+    item.fullPath = fullPath + item.path;
     if (!permissionList.includes(item.permission)) {
-      return false
+      return false;
     }
     if (item.children) {
-      let children = []
+      let children = [];
 
-      children = filterRouter(item.children, permissionList, item.path)
-      item.children = children
-      return children.length > 0
+      children = filterRouter(item.children, permissionList, item.path);
+      item.children = children;
+      return children.length > 0;
     } else {
-      return true
+      return true;
     }
-  })
-  return filterRouterList
+  });
+  return filterRouterList;
 }
 
-
-function routerPackag(routerList, parentPath, pathName = '') {
-
-  routerList.forEach(item => {
+function routerPackag(routerList, parentPath, pathName = "") {
+  routerList.forEach((item) => {
     // path格式为 [父/子]
-    var path = !!parentPath ? (parentPath + item.path) : item.path;
+    var path = !!parentPath ? parentPath + item.path : item.path;
 
     let list = {
       path: path,
       title: item.title,
       meta: item.meta,
       name: item.name,
-      component: item.component
-    }
+      component: item.component,
+    };
     // 设置重定向 兼容动态路由
     if (item.children && !item.redirect) {
-      if (item.children[0]['default']) {
-        list.redirect = { path: `${path}${item.children[0]['default']}` }
+      if (item.children[0]["default"]) {
+        list.redirect = { path: `${path}${item.children[0]["default"]}` };
       } else {
-        list.redirect = { path: `${path}${item.children[0]['path']}` }
+        list.redirect = { path: `${path}${item.children[0]["path"]}` };
       }
-
     }
     // console.log(pathName)
     if (pathName) {
-      router.addRoute(pathName, list)
+      router.addRoute(pathName, list);
     } else {
-
-      router.addRoute(item.top ? "" : "index", list)
+      router.addRoute(item.top ? "" : "index", list);
     }
     if (item.children && item.children.length > 0) {
       routerPackag(item.children, path, item.name);
     }
-  })
+  });
 }
 
-export default router
+export default router;

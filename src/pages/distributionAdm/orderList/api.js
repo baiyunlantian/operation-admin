@@ -2,7 +2,7 @@ import HTTP from "@/utils/request";
 
 // 订单数据
 const getOrderData = (params) => {
-  return HTTP.get("/DistributionManage/GetOrderData", params);
+  return HTTP.get("/AgencyOrder/GetAgencyOrderData", params);
 };
 
 // 获取订单分页
@@ -27,7 +27,7 @@ const getOrderDetails = (params) => {
 
 // 修改备注
 const getRemark = (params) => {
-  return HTTP.get("/Order/Remark", params);
+  return HTTP.post("/Order/Remark", params);
 };
 
 export {

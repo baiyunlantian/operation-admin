@@ -1,50 +1,52 @@
 <template>
     <div class="product-container">
-        <div class="product-menu-container bg-fff box-shadow padding-2-pre u-m-t-10">
-            <div class="u-font-22 u-font-weight u-m-r-30">产品目录</div>
+        <div class="product-main">
+            <div class="product-menu-container bg-fff box-shadow padding-2-pre">
+                <div class="u-font-22 u-font-weight u-m-r-30">产品目录</div>
 
-            <div class="product-menu">
-                <div :class="[product.productId === selectedProduct.productId ? 'product-active' : '', 'product u-cursor']" v-for="(product, index) in productMenuList" :key="index" @click="handleSelectProduct(product)">
-                    <div class="left">
-                        <div class="title u-font-22 u-font-weight">{{ product.title }}</div>
-                        <div class="viceTitle u-font-16">{{ product.viceTitle }}</div>
-                        <div class="version-container">
-                            <div :class="[version.versionId === versionInfo.versionId ? 'active' : '','version']" v-for="(version) in product.version" :key="version.versionId" @click.stop="handleSelectProduct(product, version)">
-                                {{ version.name }}
+                <div class="product-menu">
+                    <div :class="[product.productId === selectedProduct.productId ? 'product-active' : '', 'product u-cursor']" v-for="(product, index) in productMenuList" :key="index" @click="handleSelectProduct(product)">
+                        <div class="left">
+                            <div class="title u-font-22 u-font-weight">{{ product.title }}</div>
+                            <div class="viceTitle u-font-16">{{ product.viceTitle }}</div>
+                            <div class="version-container">
+                                <div :class="[version.productVersionId === selectedVersion.productVersionId ? 'active' : '','version']" v-for="(version) in product.version" :key="version.productVersionId" @click.stop="handleSelectProduct(product, version)">
+                                    {{ version.versionName }}
+                                </div>
+                            </div>
+                            <div class="description u-font-weight">{{ selectedVersion.description }}</div>
+                            <div class="price u-font-weight">售价：{{ selectedVersion.price }} 元</div>
+                        </div>
+
+                        <div class="right">
+                            <div class="img-container u-cursor">
+                                <img :src="CartImg"/>
                             </div>
                         </div>
-                        <div class="description u-font-weight">{{ product.description }}</div>
-                        <div class="price u-font-weight">售价：{{ product.price }} 元</div>
-                    </div>
 
-                    <div class="right">
-                        <div class="img-container u-cursor">
-                            <img :src="CartImg"/>
-                        </div>
+                        <el-progress :class="[`progress-${index}`,'progress']" stroke-linecap="square" :percentage="pricePercent" :show-text="false" :color="progressBarColors[index]" />
                     </div>
-
-                    <el-progress class="progress" :percentage="50" :show-text="false" stroke-linecap="square"/>
                 </div>
             </div>
-        </div>
 
-        <div class="product-config-container bg-fff box-shadow padding-2-pre u-m-t-10">
-            <div class="u-font-22 u-font-weight u-m-r-30" style="margin-bottom: 1%">产品选配</div>
+            <div class="product-config-container bg-fff box-shadow padding-2-pre u-m-t-10">
+                <div class="u-font-22 u-font-weight u-m-r-30" style="margin-bottom: 1%">产品选配</div>
 
-            <div class="product-config-box">
-                <div class="config-items" v-for="(product, index) in _productConfigList" :key="index">
-                    <div class="config-type">{{ product[0] }}</div>
+                <div class="product-config-box">
+                    <div class="config-items" v-for="(product, index) in productConfigList" :key="index">
+                        <div class="config-type">{{ product[0] }}</div>
 
-                    <div class="config-item">
-                        <div class="item" v-for="(option, _index) in product[1]" :key="_index">
-                            <div class="left">
-                                <div class="title u-font-22 u-font-weight">{{ option.title }}</div>
-                                <div class="viceTitle u-font-16">{{ option.viceTitle }}</div>
-                                <div class="price u-font-weight">售价：{{ option.price }} 元</div>
-                            </div>
+                        <div class="config-item">
+                            <div class="item" v-for="(option, _index) in product[1]" :key="option.productFeatureId">
+                                <div class="left">
+                                    <div class="title u-font-22 u-font-weight">{{ option.title }}</div>
+                                    <div class="viceTitle u-font-16">{{ option.viceTitle }}</div>
+                                    <div class="price u-font-weight">售价：{{ option.price }} 元</div>
+                                </div>
 
-                            <div class="right">
-                                <el-checkbox @change="handleChangeCheckbox(option)" :checked="option.isEssential" :disabled="option.isEssential" size="large"/>
+                                <div class="right">
+                                    <el-checkbox @change="handleChangeCheckbox(option)" :checked="option.isEssential" :disabled="option.isEssential" size="large"/>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -56,7 +58,7 @@
             <div class="left" :style="{opacity: selectedProduct.productId ? 1 : 0}">
                 <div class="product-option">
                     <div class="text">{{ selectedProduct.title }}</div>
-                    <div class="version">{{ versionInfo.name }}</div>
+                    <div class="version">{{ selectedVersion.versionName }}</div>
                     <div class="count">x 1</div>
                 </div>
                 <div class="product-option">选配产品 x {{ checkedProductConfig.size }}</div>
@@ -70,120 +72,133 @@
 </template>
 
 <script setup>
-    import { ref, reactive, computed, watch, getCurrentInstance } from 'vue';
+    import { ref, reactive, computed, watch, getCurrentInstance, onMounted } from 'vue';
     import { useRouter } from "vue-router";
+    import API from './api';
     import CartImg from '@/assets/images/cart.png';
 
     const router = useRouter();
     const { proxy } = getCurrentInstance()
 
-    const productMenuList = ref([
-      {
-        productId:'zhuhou',
-        title: '吗哩呀咔-智能助手',
-        viceTitle: '吗哩呀咔语言大模型',
-        description: '这是描述文字',
-        price: 4088,
-        version: [
-          {name:'基础班', versionId:'zhuhou1'},
-          {name:'专业班', versionId:'zhuhou2'},
-          {name:'企业班', versionId:'zhuhou3'},
-        ],
-      },
-      {
-        productId:'markinif',
-        title: '吗哩呀咔-营销文案',
-        viceTitle: '吗哩呀咔语言大模型',
-        description: '这是描述文字',
-        price: 4088,
-        version: [
-          {name:'基础班', versionId:'markinif1'},
-          {name:'专业班', versionId:'markinif2'},
-          {name:'企业班', versionId:'markinif3'},
-        ],
-      },
-      {
-        productId:'paint',
-        title: '吗哩呀咔-智能绘图',
-        viceTitle: '吗哩呀咔语言大模型',
-        description: '这是描述文字',
-        price: 4088,
-        version: [
-          {name:'基础班', versionId:'paint1'},
-          {name:'专业班', versionId:'paint2'},
-          {name:'企业班', versionId:'paint3'},
-        ],
-      }
-    ])
-    const productConfigList = ref([
-      {type:'功能选配', title:'创建自定义角色', viceTitle:'AI助手', price:883, isEssential:true,optionId:'qweeqw'},
-      {type:'运营选配', title:'邀请好友', viceTitle:'AI助手', price:883, isEssential:false,optionId:'fgjhfgt'},
-      {type:'运营选配', title:'弹窗广告', viceTitle:'AI助手', price:883, isEssential:false,optionId:'tjtykgh'},
-      {type:'多终端产品', title:'微信小程序', viceTitle:'AI助手', price:883, isEssential:false,optionId:'yukyvbc'},
-      {type:'基础服务', title:'服务器', viceTitle:'AI助手', price:883, isEssential:true,optionId:'piwejpj'},
-      {type:'功能选配', title:'自定义对话角色', viceTitle:'AI助手', price:883, isEssential:true,optionId:'xcvbfg'},
-      {type:'运营选配', title:'自定义套餐', viceTitle:'AI助手', price:883, isEssential:false,optionId:'wetfag'},
-      {type:'运营选配', title:'兑换码管理', viceTitle:'AI助手', price:883, isEssential:false,optionId:'gyktyk'},
-      {type:'多终端产品', title:'微信公众号', viceTitle:'AI助手', price:883, isEssential:false,optionId:'oyujkn'},
-      {type:'多终端产品', title:'微信订阅号', viceTitle:'AI助手', price:883, isEssential:false,optionId:'mvxcza'},
-      {type:'其他配套', title:'AI互动课程', viceTitle:'AI助手', price:883, isEssential:false,optionId:'qsasvx'},
-      {type:'其他配套', title:'付费问答', viceTitle:'AI助手', price:883, isEssential:false,optionId:'hrttnn'},
-    ])
-    const _productConfigList = ref(new Map())
+    const productMenuList = ref([])
+    const productConfigList = ref(new Map())
     const checkedProductConfig = reactive(new Map())
     const selectedProduct = ref({})
-    const versionInfo = ref({})
+    const selectedVersion = ref({})
+    const configTotalPrice = ref(0)
+    const progressBarColors = ref(['#0052d9','#e24d59','#00a870'])
 
     function handleFormatConfigList(ConfigList) {
-      let configMap = new Map();
+      let configMap = new Map(), _configTotalPrice = 0;
+
 
       ConfigList.forEach(option=>{
-        if (option.isEssential) checkedProductConfig.set(option.optionId, option)
-        let list = configMap.has(option.type) ? configMap.get(option.type) : [];
+        option.price = Math.floor(Math.random() * 10000)
+        const {isEssential, productFeatureId, typeId, price} = option
+        _configTotalPrice += price
+        if (isEssential) checkedProductConfig.set(productFeatureId, option)
+        let list = configMap.has(typeId) ? configMap.get(typeId) : [];
         list.push(option)
-        configMap.set(option.type, list)
+        configMap.set(typeId, list)
       })
 
-      _productConfigList.value = configMap
+      configTotalPrice.value = _configTotalPrice
+      productConfigList.value = configMap
     }
 
-    function handleSelectProduct(product, version) {
-      selectedProduct.value = product
-      versionInfo.value = version ? version : product.version[1]
-      checkedProductConfig.clear()
-      handleFormatConfigList(productConfigList.value)
+    function handleSelectProduct(product, version, initPage = false) {
+      let _version = {};
+
+      if (version) {
+        _version = version
+      }
+      // 默认选中专业版
+      else {
+        const versionList = product.version, length = versionList.length;
+        if (Array.isArray(versionList) && length > 0) {
+          _version = length > 1 ? version[1] : product.version[0]
+        }
+      }
+
+      // 优化---点击同个产品同个版本时，不发送新请求
+      if (!(product.productId === selectedProduct.value.productId && _version.productVersionId === selectedVersion.value.productVersionId)) {
+        checkedProductConfig.clear()
+        handleGetProductSelection(_version.productVersionId)
+      }
+
+      _version.price = Math.floor(Math.random() * 10000)
+      selectedVersion.value = _version
+      selectedProduct.value = initPage ? {} : product
     }
 
     function handleChangeCheckbox(option) {
-      if (checkedProductConfig.has(option.optionId)) {
-        checkedProductConfig.delete(option.optionId)
+      const {productFeatureId} = option
+      // 防止初次加载时，未选择产品直接选择选配
+      if (JSON.stringify(selectedProduct.value) === '{}') {
+        selectedProduct.value = productMenuList.value[0]
+      }
+
+      if (checkedProductConfig.has(productFeatureId)) {
+        checkedProductConfig.delete(productFeatureId)
       }else {
-        checkedProductConfig.set(option.optionId, option)
+        checkedProductConfig.set(productFeatureId, option)
       }
     }
 
     function handleClickFooterBtn() {
+      const {productId, title} = selectedProduct.value;
+      const {price, productVersionId} = selectedVersion.value;
       // 没有选中商品不可跳转
-      if (selectedProduct.value.productId) {
-        let params = [{...selectedProduct.value, type:'1', count:1}]
+      if (productId) {
+        let params = [{title, price, productMarking:1, count:1, productId: productVersionId}]
 
-        checkedProductConfig.forEach(product=>{
-          params.push({...product, type:'2', count:1})
+        checkedProductConfig.forEach(option=>{
+          const {title, price, productFeatureId} = option
+          params.push({title, price, productMarking:2, count:1, productId: productFeatureId})
         })
         sessionStorage.setItem('product', JSON.stringify(params))
-        router.push({path: '/settleAccount'})
+        // 不向 history 添加 settleAccount页面 记录
+        router.replace({path: '/settleAccount'})
       }else {
         proxy.$message({
-          type: 'info',
+          type: 'warning',
           message: '请选择购买的商品！'
         })
       }
     }
 
+    function handleGetProductMenu() {
+      API.getProductMenu().then(res=>{
+        if (res.code == 0) {
+          productMenuList.value = res.data || [];
+
+          if (Array.isArray(res.data) && res.data.length > 0) {
+            const firstProduct = res.data[0]
+            handleSelectProduct(firstProduct, null, true)
+          }
+        }
+      })
+    }
+    
+    function handleGetProductSelection(productVersionId) {
+      if (productVersionId) {
+        API.getProductSelection({productVersionId}).then(res=>{
+          if (res.code == 0) {
+            handleFormatConfigList(res.data || [])
+          }
+        })
+      }
+    }
+
+    const pricePercent = computed(() => {
+      let versionPrice = selectedVersion.value.price || 0;
+      return Math.floor(Number(totalMoney.value) / ( versionPrice + configTotalPrice.value) * 100)
+    })
+
     const totalMoney = computed(() => {
       let money = 0;
-      if (selectedProduct.value.price) {
-        money += selectedProduct.value.price
+      if (JSON.stringify(selectedProduct.value) !== '{}' && selectedVersion.value.price) {
+        money += selectedVersion.value.price
 
         checkedProductConfig.forEach(product=>{
           money += product.price
@@ -193,18 +208,19 @@
       return money.toFixed(2)
     })
 
-    watch(
-      () => productConfigList.value,
-      (newVal) => {
-        handleFormatConfigList(newVal)
-      }, {deep: true, immediate: true}
-    )
+    onMounted(() => {
+      handleGetProductMenu()
+    })
 </script>
 
 <style scoped lang="scss">
     .product-container{
         position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
         height: auto !important;
+        min-height: 100%;
         margin: 0 2% 1% 2%;
 
         .box-shadow{box-shadow: 0px 1px 4px 0px #d6d6d6;}
@@ -219,6 +235,13 @@
         .price{
             color: #3164f5;
             font-size: 15px;
+        }
+
+        .product-main{
+            position: relative;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
         }
 
         .product-menu{
@@ -313,12 +336,30 @@
                     left: 0;
                     bottom: 0;
                     width: 100%;
+
+
+                    &-0{
+                        :deep(.el-progress-bar__outer) {
+                            background-color: #d4e3fc;
+                        }
+                    }
+                    &-1{
+                        :deep(.el-progress-bar__outer) {
+                            background-color: #fcd4d4;
+                        }
+                    }
+                    &-2{
+                        :deep(.el-progress-bar__outer) {
+                            background-color: #aae2cf;
+                        }
+                    }
                 }
             }
         }
 
         .product-config-container{
             position: relative;
+            flex: 1;
             margin-top: 1%;
 
             .product-config-box{

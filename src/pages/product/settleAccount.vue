@@ -35,9 +35,9 @@
                     </el-checkbox-group>
                 </div>
                 <div class="right">
-                    <span>销售名称：网啊</span>
-                    <span>联系方式：13800138000</span>
-                    <span>企业邮箱：oiwai@qq.com</span>
+                    <span>销售名称：{{ sellerInfo.appertainSalesName }}</span>
+                    <span>联系方式：{{ sellerInfo.appertainSalesPhone }}</span>
+                    <span>企业邮箱：{{ sellerInfo.appertainSalesEmail }}</span>
                 </div>
             </div>
 
@@ -49,22 +49,19 @@
                                  :width="item.width"
                 >
                     <template #default="{ row, column, $index }">
-                        <div v-if="item.insertSlot" class="color">{{ row[item.prop] }}</div>
+                        <div v-if="item.insertSlot">
+                            <div v-if="$index === tableData.length - 1" class="">
+                                <div class="total-money">共计：<span class="color" style="margin: 0 5px">{{ row[item.prop] }}</span>元</div>
+                            </div>
+                            <div v-else class="color">{{ row[item.prop] }}</div>
+                        </div>
                         <div v-else>{{ row[item.prop] }}</div>
                     </template>
                 </el-table-column>
-
-                <template v-if="tableData.length > 0" v-slot:append>
-                    <div class="table-last-row">
-                        <div>&nbsp;</div>
-                        <div class="total-count">{{ totalCount }}</div>
-                        <div class="total-money">共计：<span class="color">{{ totalMoney }}</span>元</div>
-                    </div>
-                </template>
             </el-table>
 
             <div class="u-font-22 u-font-weight">客户备注</div>
-            <el-input v-model="remark"  type="textarea" />
+            <el-input v-model="formData.remark"  type="textarea" />
         </div>
 
         <div class="footer-container bg-fff padding-2-pre">
@@ -88,16 +85,22 @@
                 v-model="dialogVisible"
                 title="支付订单"
                 mainText="订单提交成功，请尽快付款！"
-                :formItemsConfig="formConfig.slice(0, 4)"
-                :formData="formData"
+                :formItemsConfig="orderFormConfig"
+                :formData="orderFormData"
+                @success="handleSuccessPay"
         />
     </div>
 </template>
 
 <script setup>
-  import {reactive, ref, getCurrentInstance, onMounted, onUnmounted, computed} from 'vue';
+  import {reactive, ref, getCurrentInstance, onMounted, onUnmounted, computed, watch} from 'vue';
+  import { useRouter } from "vue-router";
+  import { useStore } from 'vuex';
+  import API from './api';
   import PayMoneyDialog from '@/components/payMoneyDialog';
 
+  const router = useRouter();
+  const store = useStore();
   const { proxy } = getCurrentInstance()
 
   const formConfig = ref([
@@ -144,11 +147,11 @@
     ],
   })
   const formData = reactive({})
-  const checkboxValue = ref(['1'])
-  const currentCheckboxValue = ref('1')
+  const checkboxValue = ref([true])
+  const currentCheckboxValue = ref(true)
   const checkboxs = ref([
-    { label:'需要', value: '1', tooltip:'需要销售' },
-    { label:'不需要', value: '0', tooltip:'不需要销售' },
+    { label:'需要', value: true, tooltip:'需要销售' },
+    { label:'不需要', value: false, tooltip:'不需要销售' },
   ])
   const tableColumnConfig = ref([
     { label:'项目名称', prop:'title'},
@@ -158,8 +161,14 @@
   const tableData = ref([])
   const dialogVisible = ref(false)
   const totalMoney = ref(0)
-  const totalCount = ref(0)
-  const remark = ref('')
+  const orderFormConfig = ref([
+    { label:'客户名称', prop:'customerName'},
+    { label:'代理商', prop:'agencyName'},
+    { label:'订单号', prop:'orderCode'},
+    { label:'应付金额', prop:'paymentAmount'},
+  ])
+  const orderFormData = ref({})
+  const sellerInfo = ref({})
 
   // 实现单选框逻辑
   function handleCheckboxChange(checkedValue) {
@@ -176,10 +185,15 @@
   function handleClickBtn() {
     let params = {
       ...formData,
-      needSeller: currentCheckboxValue.value,
+      isCarry: currentCheckboxValue.value,
+      orderDurationId: '1',
+      settlements: tableData.value.map(item=>{
+        const {productId, count, productMarking} = item
+        return {productId, count, productMarking}
+      })
     }
 
-    if (tableData.value.length === 0) {
+    if (params.settlements.length === 0) {
       proxy.$message({
         type: 'warning',
         message: '暂无结算商品，请前往商品目录页面选择商品！'
@@ -211,31 +225,46 @@
       return
     }
 
-    console.log('params', params)
-    console.log('立即购买')
-    dialogVisible.value = true
+    // console.log('params', params)
+    API.SettlementOrder(params).then(res=>{
+      if (res.code == 0) {
+        orderFormData.value = res.data
+        dialogVisible.value = true
+      }
+    })
   }
 
-  function handleComputeTotal() {
-    let money = 0, count = 0;
-    if (tableData.value) {
-      tableData.value.forEach(product=>{
-        money += Number(product.price)
-        count += Number(product.count)
-      })
-    }
+  function handleFormatTableData(list) {
+    let _price = 0, _count = 0;
+    list.forEach(({price, count})=>{
+      _price += Number(price)
+      _count += Number(count)
+    })
 
-    totalMoney.value = money.toFixed(2) || 0
-    totalCount.value = count || 0
+    let lastRowData = {price:_price, count:_count}
+    tableData.value = list.concat([lastRowData])
+    totalMoney.value = _price
   }
+
+  function handleSuccessPay() {
+    router.replace({ path: '/product' })
+  }
+
+  watch(
+    () => store.getters["user/agentInfo"],
+    (newVal, oldVal) => {
+      sellerInfo.value = newVal
+    },
+    {deep: true, immediate:true}
+  )
 
   onMounted(() => {
+    //  解决初始加载时滚动条可能没有置顶问题
     document.getElementsByClassName('body')[0].scrollTop = 0
     const products = JSON.parse(sessionStorage.getItem('product'))
-    if (products && Array.isArray(products)) {
-      tableData.value = products
 
-      handleComputeTotal()
+    if (products && Array.isArray(products)) {
+      handleFormatTableData(products)
     }
   })
 
@@ -249,8 +278,8 @@
     .settle-account-container{
         position: relative;
         display: flex;
-        justify-content: center;
-        padding-bottom: 70px;
+        flex-direction: column;
+        justify-content: space-between;
         height: auto !important;
         min-height: 100%;
         box-sizing: border-box;
@@ -261,6 +290,7 @@
         .main-container{
             padding: 1% 1.5%;
             margin: 0 1%;
+            flex: 1;
 
             >div{margin-bottom: 2vh;}
 
@@ -395,11 +425,12 @@
         }
 
         .footer-container{
-            position: absolute;
+            position: relative;
             bottom: -5px;
             left: -20px;
             width: calc(100% + 40px);
             padding: 12px 4%;
+            margin-top: 2vh;
             box-sizing: border-box;
             display: flex;
             align-items: center;
