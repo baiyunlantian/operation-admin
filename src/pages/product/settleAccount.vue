@@ -87,6 +87,7 @@
                 mainText="订单提交成功，请尽快付款！"
                 :formItemsConfig="orderFormConfig"
                 :formData="orderFormData"
+                :payCallback="payCallback"
                 @success="handleSuccessPay"
         />
     </div>
@@ -169,6 +170,7 @@
   ])
   const orderFormData = ref({})
   const sellerInfo = ref({})
+  const payCallback = ref(API.getPaymentRecord)
 
   // 实现单选框逻辑
   function handleCheckboxChange(checkedValue) {

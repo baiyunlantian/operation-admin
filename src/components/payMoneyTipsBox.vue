@@ -13,6 +13,7 @@
             mainText="押金缴纳提交成功，请尽快付款！"
             :formItemsConfig="dialogFormItemsConfig"
             :formData="dialogFormData"
+            :payCallback="payCallback"
             v-bind="$attrs"
         />
     </div>
@@ -32,6 +33,7 @@
     {label: '应付金额', prop: 'paymentAmount'},
   ])
   const dialogFormData = ref({})
+  const payCallback = ref(API.getDepositPaymentRecord)
 
   function handleRecharge() {
     API.CashPledgePayment().then(res=>{

@@ -5,9 +5,9 @@
         <el-image :src="logoUrl" fit="cover"></el-image>
       </div>
       <div class="head-msg">
-        <p v-if="formType === 'forget'">重置密码</p>
-        <p v-else-if="formType === 'password'">账号登录</p>
-        <p v-else>验证码登录</p>
+        <p v-if="formType === 'update'">修改密码</p>
+        <p v-else-if="formType === 'password'">登录</p>
+<!--        <p v-else>验证码登录</p>-->
       </div>
 
       <el-form
@@ -23,32 +23,32 @@
           :prop="item.key"
           :key="item.key"
         >
-          <template v-if="item.key === 'code'">
-            <div class="inputFormCode">
-              <el-input
-                v-model="formData[item.key]"
-                :placeholder="`请输入${item.label}`"
-                :validate-event="false"
-                :prefix-icon="item.icon"
-              />
+          <!--    暂时屏蔽验证码功能      -->
+          <!--          <template v-if="item.key === 'code'">-->
+          <!--            <div class="inputFormCode">-->
+          <!--              <el-input-->
+          <!--                v-model="formData[item.key]"-->
+          <!--                :placeholder="`请输入${item.label}`"-->
+          <!--                :validate-event="false"-->
+          <!--                :prefix-icon="item.icon"-->
+          <!--              />-->
 
-              <div class="code-content">
-                <div v-if="!isPending" class="countdown">
-                  倒计时{{ countdown }}s
-                </div>
-                <el-button
-                  v-else
-                  type="default"
-                  size="small"
-                  @click="handleGetCode"
-                  >获取验证码</el-button
-                >
-              </div>
-            </div>
-          </template>
+          <!--              <div class="code-content">-->
+          <!--                <div v-if="isPending" class="countdown">-->
+          <!--                  倒计时{{ countdown }}s-->
+          <!--                </div>-->
+          <!--                <el-button-->
+          <!--                  v-else-->
+          <!--                  type="default"-->
+          <!--                  size="small"-->
+          <!--                  @click="handleGetCode"-->
+          <!--                  >获取验证码</el-button-->
+          <!--                >-->
+          <!--              </div>-->
+          <!--            </div>-->
+          <!--          </template>-->
 
           <el-input
-            v-else
             v-model="formData[item.key]"
             :type="item.compoentType === 'password' ? 'password' : 'text'"
             :placeholder="`请输入${item.label}`"
@@ -57,7 +57,7 @@
             :prefix-icon="item.icon"
           />
         </el-form-item>
-        <el-form-item v-if="formType !== 'forget'">
+        <el-form-item>
           <div
             class="bottom-text u-flex"
             :class="formType === 'password' ? 'u-row-between' : 'u-row-right'"
@@ -66,11 +66,11 @@
               <el-checkbox v-model="rememberPassword">记住密码</el-checkbox>
             </div>
             <el-link
-              @click="handleSwitchForm('forgetPassword')"
+              @click="handleSwitchForm(formType)"
               type="primary"
               :underline="false"
             >
-              <span class="forget-pwd f-999">忘记密码？</span>
+              <span class="forget-pwd f-999">{{formType === 'password' ? '修改密码' : '登录'}}</span>
             </el-link>
           </div>
         </el-form-item>
@@ -81,14 +81,15 @@
             :loading="btnLoading"
             :disabled="btnLoading"
           >
-            {{ formType === "forget" ? "重置密码" : "登录" }}
+            {{ formType === "update" ? "修改密码" : "登录" }}
           </el-button>
         </el-form-item>
       </el-form>
 
-      <div class="once-login" @click="handleSwitchForm(formType)">
-        {{ formConfig[formType]["tip"] }}
-      </div>
+      <!--   暂时屏蔽 -->
+      <!--      <div class="once-login" @click="handleSwitchForm(formType)">-->
+      <!--        {{ formConfig[formType]["tip"] }}-->
+      <!--      </div>-->
     </div>
 
     <div class="bg-trangle">
@@ -136,7 +137,17 @@ const rules = reactive({
     //   message: '请输入8-16位的数字和字母!',
     // },
   ],
-  resetPassword: [
+  oldPassword: [
+    {
+      required: true,
+      message: "密码不能为空!",
+    },
+    // {
+    //   pattern: /^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{8,20}$/,
+    //   message: "请输入8-20位的数字和字母!",
+    // },
+  ],
+  newPassword: [
     {
       required: true,
       message: "密码不能为空!",
@@ -157,18 +168,12 @@ const rules = reactive({
       message: "新密码输入不一致!",
     },
   ],
-  account: [
-    {
+  account: [{
       required: true,
-      message: "手机号码不能为空!",
-    },
-    {
-      pattern: /^1(3|4|5|6|7|8|9)\d{9}$/,
-      message: "请输入正确的手机号!",
+      message: "账号不能为空!",
     },
   ],
-  code: [
-    {
+  code: [{
       required: true,
       message: "验证码不能为空!",
     },
@@ -181,7 +186,7 @@ const countdown = ref(59);
 const timer = ref(null);
 const btnLoading = ref(false);
 const formType = ref("password");
-// 表单类型  code:验证码登录    password:密码登录    forget:忘记密码
+// 表单类型  code:验证码登录    password:密码登录    update:修改密码
 const formConfig = reactive({
   code: {
     tip: "密码登录",
@@ -221,24 +226,24 @@ const formConfig = reactive({
       },
     ],
   },
-  forget: {
+  update: {
     tip: "立即登录",
     form: [
       {
-        label: "手机号码",
-        key: "account",
-        placeholder: "手机号码",
-        compoentType: "text",
+        label: "原密码",
+        key: "oldPassword",
+        placeholder: "请输入原密码",
+        compoentType: "password",
       },
-      {
-        label: "验证码",
-        key: "code",
-        placeholder: "验证码",
-        compoentType: "text",
-      },
+      // {
+      //   label: "验证码",
+      //   key: "code",
+      //   placeholder: "验证码",
+      //   compoentType: "text",
+      // },
       {
         label: "密码",
-        key: "resetPassword",
+        key: "newPassword",
         placeholder: "密码（8-20位的数字和字母）",
         compoentType: "password",
       },
@@ -261,14 +266,14 @@ function handleSwitchForm(type) {
     }
   });
 
-  if (type === "code" || type === "forget") {
+  if (type === "code" || type === "update") {
     const cachePw = Cookie.get("password");
     formType.value = "password";
     formData["password"] = cachePw ? cryptojs.decrypt(cachePw) : "";
   } else if (type === "password") {
-    formType.value = "code";
+    formType.value = "update";
   } else if (type === "forgetPassword") {
-    formType.value = "forget";
+    formType.value = "update";
   }
 
   formRef.value.clearValidate();
@@ -289,22 +294,18 @@ function handleClickBtn() {
           : null,
       };
 
-      if (formType.value === "forget") {
-        params.password = cryptojs.encrypt(formData.resetPassword);
-        delete params.resetPassword;
-        // 重置密码
+      if (formType.value === "update") {
+        params.newPassword = cryptojs.encrypt(formData.newPassword);
+        params.oldPassword = cryptojs.encrypt(formData.oldPassword);
+        // 修改密码
         btnLoading.value = true;
-        API.forgetPassword(params)
+        API.editPassword(params)
           .then((res) => {
             if (res.code == "0") {
-              // 判断当前重置的账号是否是之前记住密码的账号，是的话清空密码
-              if (params.account === Cookie.get("account")) {
-                Cookie.remove("password");
-              }
               rememberPassword.value = false;
               proxy.$message({
                 type: "success",
-                message: "重置密码成功",
+                message: "修改密码成功",
               });
               handleSwitchForm("password");
             }
@@ -339,7 +340,7 @@ function handleClickBtn() {
 }
 // 校验两次密码是否一致
 function validConfirmPassword(rule, value, callback) {
-  if (value !== formData.resetPassword) {
+  if (value !== formData.newPassword) {
     callback(false);
   }
   callback();
@@ -440,8 +441,7 @@ onUnmounted(() => {
       margin-top: -12px;
     }
     .head-msg {
-      margin-top: -20px;
-      margin-left: 12px;
+      margin: -20px 0 15px 12px;
       font-weight: 700;
       color: #68749f;
     }
@@ -454,11 +454,9 @@ onUnmounted(() => {
 
       :deep(.el-form-item) {
         width: 274px;
-        margin-bottom: 0;
         .bottom-text {
           width: 100%;
-          margin-top: 12px;
-          margin-bottom: 34px;
+          margin-bottom: 15px;
           .el-checkbox__inner {
             border: none;
             background-color: #f1f2f8 !important;
@@ -514,10 +512,6 @@ onUnmounted(() => {
           .el-input {
             width: 160px;
           }
-        }
-        .el-input {
-          margin-top: 12px;
-          margin-bottom: 8px;
         }
 
         .el-form-item__content {

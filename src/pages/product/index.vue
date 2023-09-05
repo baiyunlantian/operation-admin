@@ -10,7 +10,7 @@
                             <div class="title u-font-22 u-font-weight">{{ product.title }}</div>
                             <div class="viceTitle u-font-16">{{ product.viceTitle }}</div>
                             <div class="version-container">
-                                <div :class="[version.productVersionId === selectedVersion.productVersionId ? 'active' : '','version']" v-for="(version) in product.version" :key="version.productVersionId" @click.stop="handleSelectProduct(product, version)">
+                                <div :class="[version.productVersionId === selectedVersion.productVersionId ? 'active' : '','version']" v-for="(version) in product.versions" :key="version.productVersionId" @click.stop="handleSelectProduct(product, version)">
                                     {{ version.versionName }}
                                 </div>
                             </div>
@@ -24,7 +24,7 @@
                             </div>
                         </div>
 
-                        <el-progress :class="[`progress-${index}`,'progress']" stroke-linecap="square" :percentage="pricePercent" :show-text="false" :color="progressBarColors[index]" />
+                        <el-progress :class="[`progress-${index}`,'progress']" stroke-linecap="square" :percentage="handleComputePricePercent(product)" :show-text="false" :color="progressBarColors[index]" />
                     </div>
                 </div>
             </div>
@@ -51,6 +51,8 @@
                         </div>
                     </div>
                 </div>
+
+                <el-empty v-show="productConfigList.size === 0" :image-size="200" />
             </div>
         </div>
 
@@ -94,12 +96,12 @@
 
       ConfigList.forEach(option=>{
         option.price = Math.floor(Math.random() * 10000)
-        const {isEssential, productFeatureId, typeId, price} = option
+        const {isEssential, productFeatureId, typeName, price} = option
         _configTotalPrice += price
         if (isEssential) checkedProductConfig.set(productFeatureId, option)
-        let list = configMap.has(typeId) ? configMap.get(typeId) : [];
+        let list = configMap.has(typeName) ? configMap.get(typeName) : [];
         list.push(option)
-        configMap.set(typeId, list)
+        configMap.set(typeName, list)
       })
 
       configTotalPrice.value = _configTotalPrice
@@ -114,9 +116,9 @@
       }
       // 默认选中专业版
       else {
-        const versionList = product.version, length = versionList.length;
+        const versionList = product.versions, length = versionList.length;
         if (Array.isArray(versionList) && length > 0) {
-          _version = length > 1 ? version[1] : product.version[0]
+          _version = length > 1 ? versionList[1] : product.version[0]
         }
       }
 
@@ -134,9 +136,9 @@
     function handleChangeCheckbox(option) {
       const {productFeatureId} = option
       // 防止初次加载时，未选择产品直接选择选配
-      if (JSON.stringify(selectedProduct.value) === '{}') {
-        selectedProduct.value = productMenuList.value[0]
-      }
+      // if (JSON.stringify(selectedProduct.value) === '{}') {
+      //   selectedProduct.value = productMenuList.value[0]
+      // }
 
       if (checkedProductConfig.has(productFeatureId)) {
         checkedProductConfig.delete(productFeatureId)
@@ -190,10 +192,17 @@
       }
     }
 
-    const pricePercent = computed(() => {
-      let versionPrice = selectedVersion.value.price || 0;
-      return Math.floor(Number(totalMoney.value) / ( versionPrice + configTotalPrice.value) * 100)
-    })
+    function handleComputePricePercent(product) {
+      const { price } = selectedVersion.value
+      const { productId } = selectedProduct.value
+      const { productId: _productId } = product
+      const versionPrice = price || 0
+      if (productId === _productId) {
+        return Math.floor(Number(totalMoney.value) / ( versionPrice + configTotalPrice.value) * 100)
+      }else {
+        return 0
+      }
+    }
 
     const totalMoney = computed(() => {
       let money = 0;
