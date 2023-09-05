@@ -125,7 +125,7 @@
 
         .logo-container{
             position: relative;
-            margin: 0 50px;
+            margin: 0 2%;
             display: flex;
             align-items: center;
 

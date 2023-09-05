@@ -1,5 +1,11 @@
 <template>
   <div class="information-container">
+    <div
+      class="tipsBox"
+      v-if="agentInfo.isFreeOfCommission == 0 && agentInfo.isPayCashPledge == 0"
+    >
+      <PayMoneyTipsBox @success="handleSuccessPay" />
+    </div>
     <!-- <div class="top-card bg-fff">
       <el-row :span="24" :gutter="70">
         <template v-for="(item, index) in collectInformation" :key="index">
@@ -81,8 +87,16 @@
     </div>
 
     <el-row :gutter="28">
-      <el-col :xl="12" :lg="12" :md="24" :sm="24" :xs="24">
+      <el-col
+        v-if="userIdentity == 1"
+        :xl="12"
+        :lg="12"
+        :md="24"
+        :sm="24"
+        :xs="24"
+      >
         <Ranking
+          :is-show="userIdentity == 1"
           title="销售排名"
           :listTitle="sellListTitle"
           :tableData="sellTableData"
@@ -95,16 +109,32 @@
           :tableData="orderTableData"
         />
       </el-col>
-      <el-col :xl="12" :lg="12" :md="24" :sm="24" :xs="24">
+      <el-col
+        v-if="userIdentity == 1"
+        :xl="12"
+        :lg="12"
+        :md="24"
+        :sm="24"
+        :xs="24"
+      >
         <Ranking
           title="客户量排名"
+          :is-show="userIdentity == 1"
           :listTitle="customListTitle"
           :tableData="customTableData"
         />
       </el-col>
-      <el-col :xl="12" :lg="12" :md="24" :sm="24" :xs="24">
+      <el-col
+        v-if="roleIdentity != 20"
+        :xl="12"
+        :lg="12"
+        :md="24"
+        :sm="24"
+        :xs="24"
+      >
         <Ranking
           title="代理排名"
+          :is-show="roleIdentity != 20"
           :listTitle="agencyListTitle"
           :tableData="agencyTableData"
         />
@@ -114,9 +144,10 @@
 </template>
 
 <script setup>
-import { onMounted, ref, getCurrentInstance, computed } from "vue";
+import { onMounted, ref, getCurrentInstance, computed, watch } from "vue";
 import StatisticsTitle from "../components/statisticsTitle.vue";
 import BrokenLine from "./components/brokenLine";
+import PayMoneyTipsBox from "@/components/payMoneyTipsBox";
 // import Pie from "./components/pie.vue";
 import Ranking from "./components/ranking.vue";
 import barChart from "@/assets/images/bar_chart.png";
@@ -138,10 +169,33 @@ import utils from "@/assets/js/utils.js";
 const { proxy } = getCurrentInstance();
 const store = useStore();
 
+// 超管1 非超管0
 const userIdentity = computed(() => {
   return store.getters["user/info"].isAdmin;
 });
 
+// 10:销售 20：代理
+const roleIdentity = computed(() => {
+  return store.getters["user/info"].roleId;
+});
+
+const agentInfo = ref({});
+
+watch(
+  () => store.getters["user/agentInfo"],
+  (newVal) => {
+    console.log(newVal);
+    agentInfo.value = newVal;
+  },
+  { deep: true, immediate: true }
+);
+
+function handleSuccessPay() {
+  // 更新用户信息
+  store.dispatch("user/getAgentUserInfo");
+}
+
+// 顶部总数据
 const collectInformation = ref([
   {
     title: "全部总收入",
@@ -149,7 +203,7 @@ const collectInformation = ref([
     money: "totalIncome",
     image: barChart,
     imageStyle: "width: 104px; height: 42px",
-    isShow: userIdentity.value == 1 ? true : false,
+    isShow: true,
   },
   {
     title: "昨日收入",
@@ -157,7 +211,7 @@ const collectInformation = ref([
     money: "yesterdayIncome",
     image: barChart,
     imageStyle: "width: 104px; height: 42px",
-    isShow: userIdentity.value == 1 ? true : false,
+    isShow: true,
   },
   {
     title: "上一周收入",
@@ -165,7 +219,7 @@ const collectInformation = ref([
     money: "lastWeekIncome",
     image: barChart,
     imageStyle: "width: 104px; height: 42px",
-    isShow: userIdentity.value == 1 ? true : false,
+    isShow: true,
   },
   {
     title: "上一月收入",
@@ -173,100 +227,10 @@ const collectInformation = ref([
     money: "lastMonthIncome",
     image: barChart,
     imageStyle: "width: 104px; height: 42px",
-    isShow: userIdentity.value == 1 ? true : false,
+    isShow: true,
   },
 ]);
 
-const panelInformation = ref([
-  {
-    id: 1,
-    title: "总收入",
-    isMoney: true,
-    money: "totalIncome",
-    image: barChart,
-    imageStyle: "width: 104px; height: 42px",
-    isShow: userIdentity.value == 1 ? true : false,
-  },
-  {
-    id: 2,
-    title: "返佣金额",
-    isMoney: true,
-    money: "brokerageCommission",
-    desc: "待返金额",
-    descNum: "totalWaitBrokerageCommission",
-    isDescMoney: true,
-    descO: "已返金额",
-    descNumO: "totalBrokerageCommission",
-    isDescOMoney: true,
-    image: barChart,
-    imageStyle: "width: 104px; height: 42px",
-    isShow: userIdentity.value == 1 ? true : false,
-  },
-  {
-    id: 3,
-    title: "冻结金额",
-    isMoney: true,
-    money: "freezeAmount",
-    image: heartbeat,
-    imageStyle: "width: 96px; height: 40px",
-    isShow: userIdentity.value == 1 ? true : false, //销售不显示
-  },
-  {
-    id: 4,
-    title: "成交销售数量",
-    isMoney: false,
-    money: "transactionSalesCount",
-    desc: "销售总量",
-    descNum: "salesTotalCount",
-    image: userCount,
-    imageStyle: "width: 56px; height: 56px",
-    isShow: userIdentity.value == 1 ? true : false, //销售和代理不显示
-  },
-  {
-    id: 5,
-    title: "产生订单 (个)",
-    isMoney: false,
-    money: "createOrderCount",
-    image: file,
-    imageStyle: "width: 56px; height: 56px",
-    isShow: userIdentity.value == 1 ? true : false,
-  },
-  {
-    id: 6,
-    title: "取消订单",
-    isMoney: false,
-    money: "cancellationOrderCount",
-    desc: "订单取消率",
-    descNum: "cancellationOrderProportion",
-    image: userCount,
-    imageStyle: "width: 56px; height: 56px",
-    isShow: userIdentity.value == 1 ? true : false,
-  },
-  {
-    id: 7,
-    title: "成交客户数量",
-    isMoney: false,
-    money: "transactionCustomCount",
-    desc: "客户总量",
-    descNum: "customTotalCount",
-    image: userCount,
-    imageStyle: "width: 56px; height: 56px",
-    isShow: userIdentity.value == 1 ? true : false,
-  },
-  {
-    id: 8,
-    title: "成交代理数量",
-    isMoney: false,
-    money: "transactionAgentCount",
-    desc: "代理总量",
-    descNum: "agentTotalCount",
-    image: userCount,
-    imageStyle: "width: 56px; height: 56px",
-    isShow: userIdentity.value == 1 ? true : false, //代理不显示
-  },
-]);
-
-// 顶部总数据
 const getTopInformation = () => {
   getIncome().then((res) => {
     const { code, data, msg } = res || {};
@@ -286,9 +250,98 @@ const getTopInformation = () => {
 };
 
 // 仪表盘参数
+const panelInformation = ref([
+  {
+    id: 1,
+    title: "总收入",
+    isMoney: true,
+    money: "totalIncome",
+    image: barChart,
+    imageStyle: "width: 104px; height: 42px",
+    isShow: true,
+  },
+  {
+    id: 2,
+    title: "返佣金额",
+    isMoney: true,
+    money: "brokerageCommission",
+    desc: "待返金额",
+    descNum: "totalWaitBrokerageCommission",
+    isDescMoney: true,
+    descO: "已返金额",
+    descNumO: "totalBrokerageCommission",
+    isDescOMoney: true,
+    image: barChart,
+    imageStyle: "width: 104px; height: 42px",
+    isShow: true,
+  },
+  {
+    id: 3,
+    title: "冻结金额",
+    isMoney: true,
+    money: "freezeAmount",
+    image: heartbeat,
+    imageStyle: "width: 96px; height: 40px",
+    isShow: roleIdentity.value != 10 ? true : false, //销售不显示
+  },
+  {
+    id: 4,
+    title: "成交销售数量",
+    isMoney: false,
+    money: "transactionSalesCount",
+    desc: "销售总量",
+    descNum: "salesTotalCount",
+    image: userCount,
+    imageStyle: "width: 56px; height: 56px",
+    isShow: userIdentity.value == 1 ? true : false, //销售和代理不显示
+  },
+  {
+    id: 5,
+    title: "产生订单 (个)",
+    isMoney: false,
+    money: "createOrderCount",
+    image: file,
+    imageStyle: "width: 56px; height: 56px",
+    isShow: true,
+  },
+  {
+    id: 6,
+    title: "取消订单",
+    isMoney: false,
+    money: "cancellationOrderCount",
+    desc: "订单取消率",
+    descNum: "cancellationOrderProportion",
+    image: userCount,
+    imageStyle: "width: 56px; height: 56px",
+    isShow: true,
+  },
+  {
+    id: 7,
+    title: "成交客户数量",
+    isMoney: false,
+    money: "transactionCustomCount",
+    desc: "客户总量",
+    descNum: "customTotalCount",
+    image: userCount,
+    imageStyle: "width: 56px; height: 56px",
+    isShow: true,
+  },
+  {
+    id: 8,
+    title: "成交代理数量",
+    isMoney: false,
+    money: "transactionAgentCount",
+    desc: "代理总量",
+    descNum: "agentTotalCount",
+    image: userCount,
+    imageStyle: "width: 56px; height: 56px",
+    isShow: roleIdentity.value != 20 ? true : false, //代理不显示
+  },
+]);
+
 const searchParams = ref({
-  startDate: utils.getDateBeforeDays(7),
-  endDate: dayjs().subtract(1, "day").format("YYYY-MM-DD"),
+  startDate: utils.getDateBeforeDays(-7) + " " + "00:00:00",
+  endDate: dayjs().subtract(1, "day").format("YYYY-MM-DD") + " " + "23:59:59",
 });
 
 // 分销仪表盘
@@ -312,10 +365,7 @@ const getPanelInformation = () => {
 const handleUpdateParams = (params) => {
   searchParams.value = params;
   getPanelInformation();
-  console.log(params);
 };
-
-// 排名
 
 // 销售排名
 const sellListTitle = ref([
@@ -494,6 +544,7 @@ const handleGetAgentRanking = () => {
 
 onMounted(() => {
   getTopInformation();
+  getPanelInformation();
   handleGetSaleRanking();
   handleGetOrderList();
   handleGetCustomCountRanking();
@@ -503,6 +554,9 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .information-container {
+  .tipsBox {
+    margin-bottom: 16px;
+  }
   .echart {
     margin-bottom: 16px;
   }

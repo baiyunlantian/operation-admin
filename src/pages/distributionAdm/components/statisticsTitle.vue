@@ -155,7 +155,7 @@ const handleUpdateParams = (searchParam) => {
         font-size: 14px;
       }
       .money {
-        font-size: 36px;
+        font-size: 32px;
       }
     }
   }

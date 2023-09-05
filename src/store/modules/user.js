@@ -1,5 +1,6 @@
 // import mutations from './mutations'
 import HOME from "@/pages/home/api";
+import ACCOUNT_API from '@/pages/account/api';
 
 const user = {
     namespaced: true,
@@ -8,7 +9,8 @@ const user = {
             token: "",
             permission: [],
             filterRouter: [],
-            info: {}
+            info: {},
+            agentInfo: {},
         }
     },
     mutations: {
@@ -28,7 +30,10 @@ const user = {
         },
         SET_USER_INFO(state, val) {
             state.info = val
-        }
+        },
+        SET_AGENT_USER_INFO(state, val) {
+            state.agentInfo = val
+        },
     },
     actions: {
         getPermissionList({ commit }) {
@@ -49,12 +54,23 @@ const user = {
                     commit('SET_USER_INFO', {});
                 }
             })
-        }
+        },
+        getAgentUserInfo({commit}) {
+            ACCOUNT_API.getAgentUserInfo().then(res => {
+                if (res.code == '0') {
+                    commit('SET_AGENT_USER_INFO', res.data);
+                    window.localStorage.setItem('roleId', res.data.roleId || 10)
+                } else {
+                    commit('SET_AGENT_USER_INFO', {});
+                }
+            })
+        },
     },
     getters: {
         permissionList: state => state.permission,
         info: state => state.info,
-        filterRouter: state => state.filterRouter
+        filterRouter: state => state.filterRouter,
+        agentInfo: state => state.agentInfo,
     }
 }
 

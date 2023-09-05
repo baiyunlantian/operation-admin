@@ -20,7 +20,7 @@
               <el-select
                 v-model="searchTableParams.status"
                 placeholder=""
-                @change="handleStatusChange"
+                @change="handleStatusChange()"
               >
                 <el-option
                   v-for="item in orderStatusOptions"
@@ -45,9 +45,9 @@
             <el-form-item label="代理名称/手机号：" prop="keywords">
               <el-input
                 v-model="searchTableParams.keywords"
-                placeholder="请输入代理名称/手机号"
-                clearable
-                @change="handleStatusChange"
+                placeholder="请输入你需要搜索的内容"
+                :suffix-icon="Search"
+                @keyup.enter="handleStatusChange()"
               />
             </el-form-item>
 
@@ -189,12 +189,13 @@
             <el-form-item label="代理名称/手机号：" prop="keyWords">
               <el-input
                 v-model="searchDialogTableParams.keyWords"
-                placeholder="请输入代理名称/手机号"
-                clearable
+                placeholder="请输入你需要搜索的内容"
+                :suffix-icon="Search"
+                @keyup.enter="handleDialogStatusChange()"
               />
             </el-form-item>
 
-            <el-form-item class="">
+            <!-- <el-form-item class="">
               <el-button
                 type="primary"
                 :icon="Search"
@@ -206,7 +207,7 @@
                 @click="handleDialogSearchTable('reset')"
                 >重置</el-button
               >
-            </el-form-item>
+            </el-form-item> -->
           </div>
 
           <div class="search-form-right">
@@ -346,8 +347,8 @@ const financialInformation = ref([
 
 // 财务数据汇总
 const searchParams = ref({
-  startDate: utils.getDateBeforeDays(7),
-  endDate: dayjs().subtract(1, "day").format("YYYY-MM-DD"),
+  startDate: utils.getDateBeforeDays(-7) + " " + "00:00:00",
+  endDate: dayjs().subtract(1, "day").format("YYYY-MM-DD") + " " + "23:59:59",
 });
 // 财务数据汇总接口
 const getFinanceInformation = () => {
@@ -413,15 +414,10 @@ const tableColumnConfig = ref([
 
 // 列表接口
 const handleGetTableList = (setScrollTop = true) => {
-  // formRef.value.validate((valid) => {
-  //   if (valid) {
-
-  //   }
-  // });
   return new Promise((resolve, reject) => {
     getFinanceDataPageList(searchTableParams).then((res) => {
       const { code, msg, data } = res || {};
-      if (code == "0") {
+      if (code == 0) {
         setScrollTop && tableRef.value.setScrollTop(0);
         tableData.value = data.list;
         tableListTotal.value = data.total;
@@ -466,7 +462,7 @@ const handleGetTableList = (setScrollTop = true) => {
 //   }
 // };
 
-// 下拉触发搜索
+// 下拉搜索触发搜索
 const handleStatusChange = () => {
   handleGetTableList().then((res) => {
     proxy.$message({
@@ -492,7 +488,7 @@ const checkDispose = (row, status) => {
         getFinanceOrderAudit({ withdrawId: row.withdrawId, status }).then(
           (res) => {
             const { code, msg } = res || {};
-            if (code == "0") {
+            if (code == 0) {
               proxy.$message({
                 type: "success",
                 message: "审核状态修改成功",
@@ -515,7 +511,6 @@ const checkDispose = (row, status) => {
 
 // 排序
 const handleTableSort = (column, prop, order) => {
-  console.log(column, prop, order);
   searchTableParams.sortField = column.prop;
   if (column.order == "ascending") {
     searchTableParams.ascending = "asc";
@@ -559,38 +554,51 @@ const closeEditDialog = () => {
 
 // 弹框接口
 const handleGetDialogTableList = (withdrawId) => {
-  getFinanceOrderDataPageList({ ...searchDialogTableParams, withdrawId }).then(
-    (res) => {
+  return new Promise((resolve, reject) => {
+    getFinanceOrderDataPageList({
+      ...searchDialogTableParams,
+      withdrawId,
+    }).then((res) => {
       const { code, msg, data } = res || {};
       if (code == 0) {
         tableDialogData.value = data.list;
         tableDialogListTotal.value = data.total;
+        return resolve(res);
       } else {
         proxy.$message({
           type: "error",
           message: msg,
         });
       }
-    }
-  );
+    });
+  });
 };
 
 // 弹窗搜索重置
-const handleDialogSearchTable = (type) => {
-  if (type === "search") {
-    formDialogRef.value.validate((valid) => {
-      if (valid) {
-        searchDialogTableParams.pageIndex = 1;
-        handleGetDialogTableList(currentDialogId.value);
-      }
+// const handleDialogSearchTable = (type) => {
+//   if (type === "search") {
+//     formDialogRef.value.validate((valid) => {
+//       if (valid) {
+//         searchDialogTableParams.pageIndex = 1;
+//         handleGetDialogTableList(currentDialogId.value);
+//       }
+//     });
+//   } else if (type === "reset") {
+//     searchDialogTableParams.pageSize = 50;
+//     searchDialogTableParams.pageIndex = 1;
+//     searchDialogTableParams.keyWords = undefined;
+//     handleGetDialogTableList(currentDialogId.value);
+//     formDialogRef.value.clearValidate();
+//   }
+// };
+
+const handleDialogStatusChange = () => {
+  handleGetDialogTableList().then((res) => {
+    proxy.$message({
+      type: "success",
+      message: "查询成功",
     });
-  } else if (type === "reset") {
-    searchDialogTableParams.pageSize = 50;
-    searchDialogTableParams.pageIndex = 1;
-    searchDialogTableParams.keyWords = undefined;
-    handleGetDialogTableList(currentDialogId.value);
-    formDialogRef.value.clearValidate();
-  }
+  });
 };
 
 // 删除
@@ -604,7 +612,7 @@ const deleteOrder = (row) => {
     .then(() => {
       getFinanceOrderDelete({ orderId: row.orderId }).then((res) => {
         const { code, msg } = res;
-        if (code == "0") {
+        if (code == 0) {
           proxy.$message({
             type: "success",
             message: "删除成功",
@@ -622,6 +630,7 @@ const deleteOrder = (row) => {
 };
 
 onMounted(() => {
+  getFinanceInformation();
   handleGetTableList();
 });
 </script>
@@ -649,6 +658,22 @@ onMounted(() => {
     :deep(.el-table__cell) {
       background-color: #fff !important;
       color: rgba(0, 0, 0, 0.4) !important;
+    }
+
+    .header-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      .header-title {
+        margin-right: 5px;
+      }
+
+      .icon-arrow {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
     }
 
     .operate-btn {
