@@ -141,8 +141,6 @@ export default [
     path: "/course",
     children: [],
   },
-<<<<<<< HEAD
-=======
   {
     type: "system",
     name: "分销管理",
@@ -184,5 +182,4 @@ export default [
     path: "/product",
     children: [],
   },
->>>>>>> 6ac9760fb0f636ede91bda45a64ebe728eb2f959
 ];
