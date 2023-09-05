@@ -148,14 +148,14 @@ export default [
     menuId: "7",
     path: "",
     children: [
-      {
-        type: "system",
-        name: "数据页面",
-        descType: "text",
-        menuId: "7-1",
-        path: "/information",
-        children: [],
-      },
+      // {
+      //   type: "system",
+      //   name: "数据页面",
+      //   descType: "text",
+      //   menuId: "7-1",
+      //   path: "/information",
+      //   children: [],
+      // },
       {
         type: "system",
         name: "财务系统",
