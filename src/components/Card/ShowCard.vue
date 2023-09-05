@@ -18,14 +18,15 @@
 
     <div class="show-card-total">
       <div class="show-card-total-content">
-        {{ cardData.total.totalTitle
-        }}<span>{{ cardData.total.totalAmount }}</span>
+        {{ cardData.total?.totalTitle || " "
+        }}<span>{{ cardData.total?.totalAmount || " " }}</span>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
+import { watch } from "vue";
 const props = defineProps(["cardData"]);
 </script>
 
@@ -42,6 +43,7 @@ const props = defineProps(["cardData"]);
     display: flex;
     justify-content: space-between;
     align-items: center;
+
     .show-card-msg-content {
       // min-width: 200px;
       .show-card-msg-title {
@@ -50,10 +52,11 @@ const props = defineProps(["cardData"]);
         color: rgba(0, 0, 0, 0.6);
       }
       .show-card-msg-data {
-        font-size: 2.25rem;
+        font-size: 1.8rem;
         font-weight: 600;
         color: #333;
         margin-top: 8px;
+        overflow: hidden;
       }
     }
     .show-card-img {

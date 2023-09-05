@@ -30,6 +30,13 @@ export default [
         permission: 1,
       },
       {
+        path: "/agentDetail",
+        meta: { title: "代理详情" },
+        component: () => import("@/pages/distribution/agentDetail.vue"),
+        name: "agentDetail",
+        permission: 1,
+      },
+      {
         path: "/sales",
         meta: { title: "销售管理" },
         component: () => import("@/pages/distribution/sales.vue"),
