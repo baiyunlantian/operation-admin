@@ -46,6 +46,10 @@ export default {
   getAgentData(params) {
     return HTTP.get("/DistributionManage/GetAgentData", params);
   },
+  // 获取代理状态
+  getStatusList(params) {
+    return HTTP.get("/Common/GetStatus", params);
+  },
   // 获取代理分页列表
   getAgentList(params) {
     return HTTP.get("/SalesAgency/Agency/Page", params);

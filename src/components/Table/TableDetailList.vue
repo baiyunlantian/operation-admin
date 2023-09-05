@@ -32,7 +32,7 @@
     </div>
 
     <div class="table-title-header">
-      <div class="table-title">客户列表</div>
+      <div class="table-title">{{ tableTitle }}</div>
       <div class="pagesize-container">
         <el-pagination
           v-model:page-size="pageSize"
@@ -69,13 +69,14 @@
     </data-table>
 
     <div class="pagination-container">
-      <el-pagination background small layout="total" :total="agentDataTotal" />
+      <el-pagination :key='tableTitle' background small layout="total" :total="agentDataTotal" />
       <el-pagination
+        v-model:current-page="pageIndex"
         background
         small
         layout="prev, pager, next"
         :total="agentDataTotal"
-        @current-change="getPageIndex(val)"
+        @current-change="getPageIndex"
       />
     </div>
   </div>
@@ -94,6 +95,7 @@ const props = defineProps([
   "sortType",
   "agentDataHead",
   "agentDataTotal",
+  "tableTitle",
 ]);
 const emits = defineEmits(["searchEvent", "resetStatus"]);
 
@@ -152,11 +154,13 @@ const handleSizeChange = (val) => {
     pageIndex: pageIndex.value,
     pageSize: pageSize.value,
   };
+  console.log(listParams);
   emits("searchEvent", listParams);
 };
 
 const pageIndex = ref(1);
 const getPageIndex = (val) => {
+  console.log(val);
   pageIndex.value = val;
   const listParams = {
     ...props.searchParams,

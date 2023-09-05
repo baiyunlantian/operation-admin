@@ -76,7 +76,7 @@
         ref="tableRef"
         :column="agentDataHead"
         :data="agentDataRow"
-        :sortable="true"
+        @sort-change="handleTableSort"
         v-loading="dataLoading"
       >
         <template #totalCommission="{ row }">
@@ -94,7 +94,7 @@
           <div class="operate-container">
             <template v-for="operate in row.operate" :key="operate.func">
               <el-link
-                v-if="operate.isShow"
+                v-if="!operate.isShow.includes(row.status)"
                 type="primary"
                 @click="operate.clickEvent(row.agencyId)"
                 >{{ operate.func }}</el-link
@@ -181,8 +181,9 @@ const datePickerRef = ref();
 let selectedDate = null;
 onMounted(() => {
   selectedDate = datePickerRef.value.getDate(7);
-  getAgentData();
-  getAgentList({});
+  // getAgentData();
+  getAgentList();
+  getStatusList();
 });
 
 // 卡片的数值
@@ -190,11 +191,12 @@ const amount = ref({});
 // 获取代理数据
 const getAgentData = () => {
   const params = {
-    StartTime: selectedDate.startDate,
-    EndTime: selectedDate.endDate,
+    startTime: selectedDate.startDate,
+    endTime: selectedDate.endDate,
   };
   API.getAgentData(params).then((res) => {
     amount.value = res.data;
+    console.log(res.data);
     updateCardData();
     // console.log(amount.value);
   });
@@ -203,6 +205,7 @@ const getAgentData = () => {
 // 更新卡片数据
 const updateCardData = () => {
   cardData.value.forEach((value) => {
+    console.log(value);
     value.amount = amount.value[value.name];
   });
 };
@@ -212,13 +215,13 @@ const cardData = ref([
   {
     title: "代理总量",
     name: "completeOrderAgentCount",
-    amount: amount.value.agentCount,
+    amount: amount.value.completeOrderAgentCount,
     url: require("@/assets/images/user_count.png"),
   },
   {
     title: "订单总量",
     name: "completeOrderCount",
-    amount: amount.value.orderCount,
+    amount: amount.value.completeOrderCount,
     url: require("@/assets/images/file.png"),
   },
   {
@@ -260,41 +263,34 @@ const pageSize = ref(50);
 const handleSizeChange = (val) => {
   pageSize.value = val;
   getAgentList({
-    keyword: keyword.value,
+    keyWord: keyword.value,
     status: status.value,
     pageSize: pageSize.value,
   });
 };
 
 // 状态的选择器
-const statusOptions = [
-  {
-    value: "Option1",
-    label: "Option1",
-  },
-  {
-    value: "Option2",
-    label: "Option2",
-  },
-  {
-    value: "Option3",
-    label: "Option3",
-  },
-  {
-    value: "Option4",
-    label: "Option4",
-  },
-  {
-    value: "Option5",
-    label: "Option5",
-  },
-];
+const getStatusList = () => {
+  const params = {
+    type: "agencyUserStatus",
+  };
+  API.getStatusList(params).then((res) => {
+    statusOptions = res.data.map((val) => {
+      return {
+        value: val.key,
+        label: val.value,
+      };
+    });
+    console.log(statusOptions);
+  });
+};
+let statusOptions = [];
 
 // 状态变化
 const status = ref();
 const getStatus = (val) => {
   getAgentList({
-    keyword: keyword.value,
+    keyWord: keyword.value,
     status: status.value,
     pageSize: pageSize.value,
   });
@@ -304,43 +300,58 @@ const getStatus = (val) => {
 const keyword = ref();
 const search = (val, e) => {
   getAgentList({
-    keyword: keyword.value,
+    keyWord: keyword.value,
     status: status.value,
     pageSize: pageSize.value,
   });
 };
 
+const sortType = ref("DESC");
+const sortField = ref("OrderQty");
+
+const handleTableSort = (e) => {
+  // console.log(e);
+  ascending.value = e.order;
+  sortField.value = e.prop;
+  getCustomList({
+    keyWords: keyword.value,
+    isRemark: notes == 1 ? true : false,
+    salesName: salesName.value,
+    pageSize: pageSize.value,
+    ascending: ascending.value,
+    sortField: sortField.value,
+  });
+};
+
+// 页码
+const pageIndex = ref(1);
+const currentChange = (val) => {
+  getCustomList({
+    keyWords: keyword.value,
+    isRemark: isRemark.value,
+    salesName: salesName.value,
+    pageSize: pageSize.value,
+    pageIndex: pageIndex.value,
+  });
+};
+
 // 获取代理列表
 const dataLoading = ref(false);
-const getAgentList = ({
-  status = 1,
-  sortField = "OrderQty",
-  keyword = "",
-  sortType = "DESC",
-  pageIndex = 1,
-  pageSize = 50,
-}) => {
-  // console.log({
-  //   status,
-  //   sortField,
-  //   keyword,
-  //   sortType,
-  //   pageIndex,
-  //   pageSize,
-  // });
+const getAgentList = () => {
   dataLoading.value = true;
-  API.getAgentList({
-    status,
-    sortField,
-    keyword,
-    sortType,
-    pageIndex,
-    pageSize,
-  }).then((res) => {
+  const params = {
+    status: status.value || 1,
+    sortField: sortField.value || "OrderQty",
+    keyWord: keyword.value,
+    sortType: sortType.value || "DESC",
+    pageIndex: pageIndex.value || 1,
+    pageSize: pageSize.value || 50,
+  };
+  API.getAgentList(params).then((res) => {
     // console.log(res.data);
     dataLoading.value = false;
     agentDataRow.value = res.data;
-    agentDataRow.value.forEach((val) => {
+    agentDataRow.value?.forEach((val) => {
       val.totalCommission = totalCommission;
       val.operate = operate;
     });
@@ -351,14 +362,62 @@ const getAgentList = ({
 
 // 代理数据的表头
 const agentDataHead = [
-  { prop: "agencyName", label: "代理名称", width: "100", header: true },
-  { prop: "agencyPhone", label: "代理手机号", width: "110", header: true },
-  { prop: "agencyId", label: "代理ID", width: "110", header: true },
-  { prop: "salesName", label: "销售名称", width: "100", header: true },
-  { prop: "customerQty", label: "客户数量", width: "100", header: true },
-  { prop: "orderQty", label: "订单量", width: "100", header: true },
-  { prop: "orderAmount", label: "成交额", width: "100", header: true },
-  { prop: "avgAmount", label: "平均单价", width: "100", header: true },
+  {
+    prop: "agencyName",
+    label: "代理名称",
+    width: "120",
+    header: true,
+    sortable: true,
+  },
+  {
+    prop: "agencyPhone",
+    label: "代理手机号",
+    width: "130",
+    header: true,
+    sortable: true,
+  },
+  {
+    prop: "agencyId",
+    label: "代理ID",
+    width: "110",
+    header: true,
+    sortable: true,
+  },
+  {
+    prop: "salesName",
+    label: "销售名称",
+    width: "120",
+    header: true,
+    sortable: true,
+  },
+  {
+    prop: "customerQty",
+    label: "客户数量",
+    width: "120",
+    header: true,
+    sortable: true,
+  },
+  {
+    prop: "orderQty",
+    label: "订单量",
+    width: "100",
+    header: true,
+    sortable: true,
+  },
+  {
+    prop: "orderAmount",
+    label: "成交额",
+    width: "100",
+    header: true,
+    sortable: true,
+  },
+  {
+    prop: "avgAmount",
+    label: "平均单价",
+    width: "120",
+    header: true,
+    sortable: true,
+  },
   {
     prop: "totalCommission",
     label: "总押金",
@@ -366,8 +425,14 @@ const agentDataHead = [
     slot: true,
     header: true,
   },
-  { prop: "status", label: "状态", width: "180", header: true },
-  { prop: "createdTime", label: "创建时间", width: "180", header: true },
+  { prop: "status", label: "状态", width: "180", header: true, sortable: true },
+  {
+    prop: "createdTime",
+    label: "创建时间",
+    width: "180",
+    header: true,
+    sortable: true,
+  },
   {
     prop: "operate",
     label: "操作",
@@ -381,15 +446,15 @@ const agentDataHead = [
 const operate = [
   {
     func: "查看",
-    isShow: true,
+    isShow: "1,10,20,30",
     clickEvent: (id) => {
       console.log(id);
       router.push({ path: "/agentDetail", query: { userId: id } });
     },
   },
-  { func: "禁用", isShow: true },
-  { func: "恢复", isShow: true },
-  { func: "免佣", isShow: true },
+  { func: "禁用", isShow: "1" },
+  { func: "退款", isShow: "10" },
+  { func: "免佣", isShow: "30" },
 ];
 
 // 总押金参数

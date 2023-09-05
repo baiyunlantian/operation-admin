@@ -65,13 +65,11 @@ const emits = defineEmits(["changeMsgType", "cancelEdit"]);
 
 const cancelEvent = () => {
   console.log("cancel");
-  // props.dialogOpt.dialogVisible = false;
   emits("cancelEdit");
 };
 
 const editFormData = () => {
   console.log("edit");
-  props.dialogOpt.dialogVisible = false;
   emits("changeMsgType", { msgType: "text", editParams: props.form });
 };
 </script>

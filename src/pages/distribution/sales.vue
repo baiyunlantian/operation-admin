@@ -71,7 +71,7 @@
           <div class="operate-container">
             <template v-for="operate in row.operate" :key="operate.func">
               <el-link
-                v-if="!operate.isShow.includes(row.status)"
+                v-if="operate.isShow.includes(row.status)"
                 type="primary"
                 @click="operate.clickEvent(row.salesId, row.salesName)"
                 >{{ operate.func }}</el-link

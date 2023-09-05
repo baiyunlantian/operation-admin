@@ -52,7 +52,8 @@
           :sortType="sortType"
           :agentDataHead="agentDataHead"
           :agentDataTotal="agentDataTotal"
-          @searchEvent="getCustomerList"
+          @searchEvent="changeParams"
+          :tableTitle="'客户列表'"
         >
         </table-detail-list>
       </div>
@@ -60,13 +61,14 @@
       <div class="order-list-container">
         <table-detail-list
           :agentDataRow="orderDataRow"
-          :searchParams="searchParams"
+          :searchParams="orderParams"
           :searchWay="orderSearchWay"
           :sortType="sortType"
           :agentDataHead="orderDataHead"
           :agentDataTotal="orderDataTotal"
-          @searchEvent="getOrderList"
+          @searchEvent="changeOrderParams"
           @resetStatus="handleStatusChange"
+          :tableTitle="'订单列表'"
         >
           <template #header>
             <div class="order-status">
@@ -95,6 +97,8 @@
       :form="agentFormData"
       :formArr="formArr"
       :msgType="msgType"
+      @cancelEdit="cancelEdit"
+      @changeMsgType="changeMsgType"
     >
     </edit-dialog>
   </div>
@@ -185,6 +189,16 @@ const editMsg = () => {
   dialogOpt.dialogVisible = true;
 };
 
+//取消
+const cancelEdit = () => {
+  dialogOpt.dialogVisible = false;
+};
+
+// 改变消息类型
+const changeMsgType = (val) => {
+  dialogOpt.dialogVisible = false;
+};
+
 const dialogOpt = reactive({
   dialogVisible: false,
   title: "代理信息",
@@ -200,13 +214,13 @@ const formArr = ref([
     title: "银行卡信息",
     name: "cardName",
     isChange: true,
-    prepend: "开户银行",
+    prepend: "户主名称",
   },
-  { title: "", name: "cardNo", isChange: true, prepend: "开户银行" },
-  { title: "", name: "openingBank", isChange: true, prepend: "开户银行" },
+  { title: "", name: "cardNo", isChange: true, prepend: "银行卡号" },
+  { title: "", name: "openingBank", isChange: true, prepend: "开户行" },
 ]);
 
-// 筛选的方式
+// ------------------------------------------------------------筛选的方式
 const searchWay = [
   { prefix: "代理名称", name: "customerId" },
   { prefix: "代理手机号", name: "phone" },
@@ -272,30 +286,86 @@ const searchParams = reactive({
   phone: "",
   startTime: "",
   endTime: "",
+  sortType: "",
+  pageIndex: "",
+  pageSize: "",
 });
 const searchData = (val) => {
   searchParams[val.name] = val.input;
 };
+
+const changeParams = (val) => {
+  searchParams.customerId = val.customerId;
+  searchParams.phone = val.phone;
+  searchParams.startTime = val.startTime;
+  searchParams.endTime = val.endTime;
+  searchParams.sortType = val.sortType;
+  searchParams.pageIndex = val.pageIndex;
+  searchParams.pageSize = val.pageSize;
+  getCustomerList();
+};
+
 // 代理数据的数据行内容
 const agentDataRow = ref([]);
 const agentDataTotal = ref();
-const getCustomerList = (params) => {
-  console.log(params);
+const getCustomerList = () => {
+  const params = {
+    customName: searchParams.customerId || "",
+    phone: searchParams.phone || "",
+    startTime: searchParams.startTime || "",
+    endTime: searchParams.endTime || "",
+    sortField: "CreatedTime",
+    sortType: searchParams.sortType || "DESC",
+    pageIndex: searchParams.pageIndex || 1,
+    pageSize: searchParams.pageSize || 50,
+  };
   API.getCustomerList(params).then((res) => {
-    agentDataRow.value = res.data.list;
+    // agentDataRow.value = res.data.list;
+    agentDataRow.value = res.data;
     agentDataTotal.value = res.data.total;
+    console.log(res);
   });
+};
+
+// 搜索
+const orderParams = reactive({
+  orderId: "",
+  customerName: "",
+  startTime: "",
+  endTime: "",
+  status: "",
+  sortType: "",
+  pageIndex: "",
+  pageSize: "",
+});
+
+const changeOrderParams = (val) => {
+  console.log(val);
+  orderParams.customerId = val.customerId;
+  orderParams.phone = val.phone;
+  orderParams.startTime = val.startTime;
+  orderParams.endTime = val.endTime;
+  orderParams.sortType = val.sortType;
+  orderParams.pageIndex = val.pageIndex;
+  orderParams.pageSize = val.pageSize;
+  getOrderList();
 };
 
 const orderDataRow = ref([]);
 const orderDataTotal = ref();
-const getOrderList = (params) => {
-  const orderParams = {
-    ...params,
-    status: status.value,
+const getOrderList = () => {
+  const params = {
+    customName: orderParams.customerId || "",
+    phone: orderParams.phone || "",
+    startTime: orderParams.startTime || "",
+    endTime: orderParams.endTime || "",
+    sortField: "CreatedTime",
+    sortType: orderParams.sortType || "DESC",
+    pageIndex: orderParams.pageIndex || 1,
+    pageSize: orderParams.pageSize || 50,
+    status: status.value || 1,
   };
-  API.getOrderList(orderParams).then((res) => {
-    console.log(res);
+  API.getOrderList(params).then((res) => {
     orderDataRow.value = res.data.list;
     orderDataTotal.value = res.data.total;
   });
