@@ -57,7 +57,7 @@
       <data-table
         :selection="true"
         ref="tableRef"
-        :column="agentDataHead"
+        :column="salesDataHead"
         :data="salesDataRow"
         :sortable="true"
         v-loading="dataLoading"
@@ -107,9 +107,9 @@
     <form-dialog
       :dialogOpt="dialogOpt"
       :formTitles="formTitles"
-      :agentData="agentData"
+      :agentData="salesData"
       :form="form"
-      @getNewAgentData="getNewAgentData"
+      @getNewAgentData="getNewSalesData"
     ></form-dialog>
 
     <!-- 详情弹框 -->
@@ -236,6 +236,8 @@ const getBeforeDate = (date) => {
   // console.log(selectedDate);
 };
 
+// -------------------------销售列表
+
 // 筛选的方式
 const searchWay = reactive([
   { name: "search", prefix: "搜索", slot: "search" },
@@ -289,6 +291,7 @@ const getStatus = (val) => {
 // 搜索
 const keyword = ref();
 const search = (val, e) => {
+  // console.log(keyword.value);
   getSalesList({
     keyword: keyword.value,
     status: status.value,
@@ -297,6 +300,8 @@ const search = (val, e) => {
 };
 
 // 获取代理列表
+
+const salesDataRow = ref();
 const dataLoading = ref(false);
 const getSalesList = ({
   status = 1,
@@ -336,7 +341,7 @@ const getSalesList = ({
 };
 
 // 代理数据的表头
-const agentDataHead = [
+const salesDataHead = [
   { prop: "salesName", label: "销售名称", width: "100", header: true },
   { prop: "phone", label: "手机号码", width: "110", header: true },
   { prop: "orderCount", label: "订单数量", width: "110", header: true },
@@ -386,6 +391,7 @@ const operate = [
     clickEvent: (id) => {
       console.log(id);
       dialogDetaiOpt.dialogVisible = true;
+      getSalesInfo(id);
     },
   },
   { func: "封禁", isShow: true },
@@ -401,15 +407,12 @@ const totalCommission = [
   { title: "未返押金:", amount: "76800.00" },
 ];
 
-// 代理数据的数据行内容
-const salesDataRow = ref();
-
 // -------------------------新增代理
 // 弹框组件
 import FormDialog from "@/components/Dialog/FormDialog.vue";
 const dialogOpt = reactive({
   dialogVisible: false,
-  title: "创建代理",
+  title: "创建销售",
   width: "80vw",
 });
 const addAgent = () => {
@@ -417,45 +420,44 @@ const addAgent = () => {
 };
 
 const formTitles = [
-  { title: "基本信息", name: "baseForm" },
-  { title: "提现信息", name: "cashForm" },
+  { title: "基本信息", name: "baseForm", col: 12, flexDirection: "column" },
+  { title: "其他信息", name: "otherForm", flexDirection: "column" },
 ];
 
 //表单上传数据
-const agentData = reactive({
-  agencyName: "",
+const salesData = reactive({
+  userName: "",
   phone: "",
+  weChat: "",
   email: "",
+  notes: "",
   password: "",
-  salesId: "",
-  cardName: "",
-  cardNo: "",
-  openingBank: "",
-  bankName: "",
+  roleName: "销售",
+  creator: "超级管理员",
 });
 
 // 表单数据
 const form = reactive({
   baseForm: [
     {
-      title: "代理名称",
-      name: "agencyName",
+      title: "销售名称",
+      name: "userName",
       type: "input",
-      placeholder: "请输入代理名称",
+      placeholder: "请输入销售名称",
       isRequired: true,
     },
     {
-      title: "代理手机号",
+      title: "联系电话",
       name: "phone",
       type: "input",
       placeholder: "请输入手机号",
       isRequired: true,
     },
     {
-      title: "邮箱",
+      title: "销售账号",
       name: "email",
       type: "input",
-      placeholder: "请输入邮箱",
+      placeholder: "请输入销售账号",
       isRequired: true,
     },
     {
@@ -466,46 +468,47 @@ const form = reactive({
       isRequired: true,
     },
     {
-      title: "绑定销售",
-      name: "salesId",
+      title: "职位",
+      name: "roleName",
+      type: "text",
+      placeholder: "请输入职位",
+      isRequired: true,
+    },
+    {
+      title: "微信号",
+      name: "weChat",
       type: "input",
-      placeholder: "请输入绑定销售",
-      isRequired: false,
+      placeholder: "请输入微信号",
+      isRequired: true,
+    },
+    {
+      title: "邮箱",
+      name: "email",
+      type: "input",
+      placeholder: "请输入邮箱",
+      isRequired: true,
+      append: "@maliyaka.com",
     },
   ],
-  cashForm: [
+  otherForm: [
     {
-      title: "开户名称",
-      name: "cardName",
-      type: "input",
-      placeholder: "请输入开户名称",
-      isRequired: true,
+      title: "备注",
+      name: "notes",
+      type: "textarea",
+      placeholder: "请输入备注",
+      isRequired: false,
     },
     {
-      title: "开户账号",
-      name: "cardNo",
-      type: "input",
-      placeholder: "请输入开户账号",
-      isRequired: true,
-    },
-    {
-      title: "开户银行",
-      name: "openingBank",
-      type: "input",
-      placeholder: "请输入开户银行",
-      isRequired: true,
-    },
-    {
-      title: "开户支行",
-      name: "bankName",
-      type: "input",
-      placeholder: "请输入开户支行",
-      isRequired: true,
+      title: "创建人",
+      name: "creator",
+      type: "text",
+      placeholder: "超级管理员",
+      isRequired: false,
     },
   ],
 });
 
-const getNewAgentData = (data) => {
+const getNewSalesData = (data) => {
   console.log(data);
   API.addAgencyUser(data).then((res) => {
     console.log(res);
@@ -533,16 +536,40 @@ const dialogDetaiOpt = reactive({
 });
 
 const formArr = ref([
-  { title: "手机", name: "userName" },
-  { title: "微信", name: "account" },
+  { title: "手机", name: "account" },
+  { title: "微信", name: "weChat" },
   { title: "办公邮箱", name: "email" },
-  { title: "入职时间", name: "cardName" },
-  { title: "管理主体", name: "cardNo" },
-  { title: "直属上级", name: "openingBank" },
-  { title: "职位", name: "openingBank" },
-  { title: "离职时间", name: "openingBank" },
+  { title: "入职时间", name: "joinDate" },
+  { title: "管理主体", name: "company" },
+  { title: "直属上级", name: "appertainSalesName" },
+  { title: "职位", name: "roleName" },
+  { title: "离职时间", name: "resignationDate" },
 ]);
-const salesFormData = ref();
+const salesFormData = ref({
+  userName: " ",
+  account: "",
+  email: "",
+  joinDate: "",
+  resignationDate: "",
+  company: "",
+  roleId: "",
+  roleName: "",
+  appertainSalesId: "",
+  appertainSalesName: "",
+  appertainSalesPhone: "",
+  appertainSalesEmail: "",
+  weChat: "",
+  joinDays: "",
+  agencyCashPledge: "",
+  agencyWithdrawstatus: "",
+});
+
+const getSalesInfo = (id) => {
+  API.getSalesInfo(id).then((res) => {
+    console.log(res.data);
+    salesFormData.value = res.data;
+  });
+};
 </script>
 
 <style lang="scss" scoped>

@@ -16,25 +16,48 @@
             status-icon
             label-position="left"
           >
-            <el-form-item
-              :label="val.title"
-              v-for="val in form[item.name]"
-              :key="val.name"
-              :required="val.isRequired"
-            >
-              <el-input
-                v-model="agentData[val.name]"
-                :placeholder="val.placeholder"
-              />
-            </el-form-item>
+            <el-row :gutter="16">
+              <el-col
+                :span="item.col"
+                v-for="val in form[item.name]"
+                :key="val.name"
+              >
+                <el-form-item
+                  :label="val.title"
+                  :required="val.isRequired"
+                  :style="{ 'flex-direction': item.flexDirection }"
+                >
+                  <el-input
+                    v-if="val.type == 'input'"
+                    v-model="agentData[val.name]"
+                    :placeholder="val.placeholder"
+                  >
+                    <template #append v-if="val.append">{{
+                      val.append
+                    }}</template>
+                  </el-input>
+                  <el-text v-if="val.type == 'text'">
+                    {{ agentData[val.name] }}
+                  </el-text>
+                  <el-input
+                    v-if="val.type == 'textarea'"
+                    type="textarea"
+                    rows="4"
+                    resize="none"
+                    v-model="agentData[val.name]"
+                    :placeholder="val.placeholder"
+                  />
+                </el-form-item>
+              </el-col>
+            </el-row>
           </el-form>
         </div>
       </div>
     </template>
     <template #footer>
       <span class="dialog-footer">
-        <el-button @click="dialogOpt.dialogVisible = false">Cancel</el-button>
-        <el-button type="primary" @click="pushFormData"> Confirm </el-button>
+        <el-button @click="dialogOpt.dialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="pushFormData"> 确认 </el-button>
       </span>
     </template>
   </el-dialog>

@@ -81,8 +81,12 @@ export default {
   getSalesData(params) {
     return HTTP.get("/SalesAgency/GetSaleData", params);
   },
-  // 获取代理分页列表
+  // 获取销售分页列表
   getSalesList(params) {
     return HTTP.get("/SalesAgency/GetSaleDataPageList", params);
+  },
+  // 获取销售个人信息
+  getSalesInfo(params) {
+    return HTTP.get("/SalesAgency/UserInfo", params);
   },
 };
