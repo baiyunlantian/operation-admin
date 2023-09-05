@@ -2,10 +2,21 @@
   <div class="ranking bg-fff">
     <div class="top-title">
       <div class="total-title fw">{{ title }}</div>
+      <div class="month">月份</div>
     </div>
-    <el-table :data="tableData" style="width: 100%" :cell-style="cellStyle">
+    <el-table :data="tableData" style="width: 100%">
       <template v-for="(item, index) in listTitle" :key="index">
-        <el-table-column :prop="item.prop" :label="item.label" />
+        <el-table-column :prop="item.prop" :label="item.label">
+          <template #default="{ row }">
+            <div
+              v-if="item.insertSlot && item.prop === 'ranking'"
+              class="rankingCol"
+              :class="{ frontRanking: row.ranking <= 3 }"
+            >
+              {{ row.ranking }}
+            </div>
+          </template>
+        </el-table-column>
       </template>
     </el-table>
   </div>
@@ -34,31 +45,61 @@ defineProps({
 });
 
 // const cellStyle = ({ row, column, rowIndex, columnIndex }) => {
-//   console.log(row, column, rowIndex, columnIndex);
-//   let cellStyles;
-//   switch (columnIndex) {
-//     case 0:
-//       cellStyles = {
-//         color: "#fff",
-//       };
-//   }
+//  console.log(row, column, rowIndex, columnIndex);
+//  let cellStyles;
+//  switch (columnIndex) {
+//   case 0:
+//    cellStyles = {
+//     color: "#fff",
+//    };
+//  }
 
-//   return cellStyles;
+//  return cellStyles;
 // };
 </script>
 
 <style lang="scss" scoped>
 .ranking {
   padding: 16px 24px;
+  margin-bottom: 16px;
   box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.1);
 
-  .total-title {
+  .top-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 23px;
+
+    .month {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 60px;
+      height: 32px;
+      border: 1px solid #0052d9;
+      color: #0052d9;
+      font-size: 14px;
+    }
+  }
+
+  .total-title {
     font-size: 20px;
     color: rgba(0, 0, 0, 0.9);
-    // width: 24px;
-    // height: 24px;
-    // background-color: #bcc4d0;
+  }
+
+  .rankingCol {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-color: #bcc4d0;
+    color: #ffffff;
+  }
+
+  .frontRanking {
+    background-color: #3a55c0;
   }
 }
 </style>

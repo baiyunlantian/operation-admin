@@ -39,12 +39,17 @@ const timeRangeTags = reactive([
   { label: "昨天", key: 1 },
   { label: "最近7天", key: 7 },
   { label: "30天", key: 30 },
+  { label: "90天", key: 90 },
+  { label: "一年", key: 356 },
 ]);
-const timeRange = ref([dayjs(new Date()).format("YYYY-MM-DD"), ""]);
+const timeRange = ref([
+  dayjs().subtract(1, "day").format("YYYY-MM-DD") + " " + "23:59:59",
+  "",
+]);
 
 const searchParam = reactive({
-  startDate: utils.getDateBeforeDays(7),
-  endDate: dayjs(new Date()).format("YYYY-MM-DD"),
+  startDate: utils.getDateBeforeDays(7) + " " + "00:00:00",
+  endDate: dayjs().subtract(1, "day").format("YYYY-MM-DD") + " " + "23:59:59",
 });
 
 function getData() {
@@ -54,8 +59,8 @@ function getData() {
 function datePickerChange(dates) {
   const [start, end] = dates;
   if (start && end) {
-    const _start = dayjs(start).format("YYYY-MM-DD");
-    const _end = dayjs(end).format("YYYY-MM-DD");
+    const _start = dayjs(start).format("YYYY-MM-DD") + " " + "00:00:00";
+    const _end = dayjs(end).format("YYYY-MM-DD") + " " + "23:59:59";
     timeRange.value = [_start, _end];
     searchParam.endDate = timeRange.value[1];
 
@@ -75,8 +80,16 @@ function dateChange(dates) {
 // 点击图表上的日期tag
 function handleClickTimeTag(tagValue) {
   dateScopeType.value = tagValue;
-  searchParam.endDate = dayjs(new Date()).format("YYYY-MM-DD");
-  searchParam.startDate = utils.getDateBeforeDays(tagValue);
+  if (tagValue == 0) {
+    searchParam.startDate =
+      utils.getDateBeforeDays(tagValue) + " " + "00:00:00";
+    searchParam.endDate = utils.getDateBeforeDays(tagValue) + " " + "23:59:59";
+  } else {
+    searchParam.startDate =
+      utils.getDateBeforeDays(tagValue) + " " + "00:00:00";
+    searchParam.endDate =
+      dayjs().subtract(1, "day").format("YYYY-MM-DD") + " " + "23:59:59";
+  }
 
   timeRange.value = [];
   getData();
