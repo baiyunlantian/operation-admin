@@ -94,7 +94,9 @@
       :dialogOpt="dialogOpt"
       :form="agentFormData"
       :formArr="formArr"
-    ></edit-dialog>
+      :msgType="msgType"
+    >
+    </edit-dialog>
   </div>
 </template>
 
@@ -186,16 +188,22 @@ const editMsg = () => {
 const dialogOpt = reactive({
   dialogVisible: false,
   title: "代理信息",
-  width: "60vw",
+  width: "80vw",
+  col: 8,
 });
 
 const formArr = ref([
-  { title: "代理名称", name: "userName" },
-  { title: "联系方式", name: "account" },
-  { title: "办公邮箱", name: "email" },
-  { title: "银行卡信息", name: "cardName" },
-  { title: "", name: "cardNo" },
-  { title: "", name: "openingBank" },
+  { title: "代理名称", name: "userName", isChange: true },
+  { title: "联系方式", name: "account", isChange: true },
+  { title: "办公邮箱", name: "email", isChange: true },
+  {
+    title: "银行卡信息",
+    name: "cardName",
+    isChange: true,
+    prepend: "开户银行",
+  },
+  { title: "", name: "cardNo", isChange: true, prepend: "开户银行" },
+  { title: "", name: "openingBank", isChange: true, prepend: "开户银行" },
 ]);
 
 // 筛选的方式
@@ -292,6 +300,8 @@ const getOrderList = (params) => {
     orderDataTotal.value = res.data.total;
   });
 };
+
+const msgType = ref("input");
 </script>
 
 <style lang="scss" scoped>

@@ -62,24 +62,18 @@
         :sortable="true"
         v-loading="dataLoading"
       >
-        <template #totalCommission="{ row }">
-          <div class="totalCommission-container">
-            <div
-              class="totalCommission-title"
-              v-for="commission in row.totalCommission"
-              :key="commission.title"
-            >
-              {{ commission.title }} <span>￥{{ commission.amount }}</span>
-            </div>
+        <template #status="{ row }">
+          <div class="status-container">
+            <el-tag>{{ row.status }}</el-tag>
           </div>
         </template>
         <template #operate="{ row }">
           <div class="operate-container">
             <template v-for="operate in row.operate" :key="operate.func">
               <el-link
-                v-if="operate.isShow"
+                v-if="!operate.isShow.includes(row.status)"
                 type="primary"
-                @click="operate.clickEvent(row.salesId)"
+                @click="operate.clickEvent(row.salesId, row.salesName)"
                 >{{ operate.func }}</el-link
               >
             </template>
@@ -117,11 +111,23 @@
       :dialogOpt="dialogDetaiOpt"
       :form="salesFormData"
       :formArr="formArr"
-    ></edit-dialog>
+      :show-close="false"
+      :msgType="msgType"
+      @changeMsgType="changeMsgType"
+    >
+      <template #header>
+        <div class="header-edit">
+          <el-button link @click="editMsg"
+            ><el-icon><EditPen color="#999" /></el-icon
+          ></el-button>
+        </div>
+      </template>
+    </edit-dialog>
   </div>
 </template>
 
 <script setup>
+import { InfoFilled } from "@element-plus/icons-vue";
 import { onMounted, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
 const router = useRouter();
@@ -249,41 +255,6 @@ const handleSizeChange = (val) => {
   pageSize.value = val;
   getSalesList({
     keyword: keyword.value,
-    status: status.value,
-    pageSize: pageSize.value,
-  });
-};
-
-// 状态的选择器
-const statusOptions = [
-  {
-    value: "Option1",
-    label: "Option1",
-  },
-  {
-    value: "Option2",
-    label: "Option2",
-  },
-  {
-    value: "Option3",
-    label: "Option3",
-  },
-  {
-    value: "Option4",
-    label: "Option4",
-  },
-  {
-    value: "Option5",
-    label: "Option5",
-  },
-];
-
-// 状态变化
-const status = ref();
-const getStatus = (val) => {
-  getSalesList({
-    keyword: keyword.value,
-    status: status.value,
     pageSize: pageSize.value,
   });
 };
@@ -294,13 +265,11 @@ const search = (val, e) => {
   // console.log(keyword.value);
   getSalesList({
     keyword: keyword.value,
-    status: status.value,
     pageSize: pageSize.value,
   });
 };
 
 // 获取代理列表
-
 const salesDataRow = ref();
 const dataLoading = ref(false);
 const getSalesList = ({
@@ -332,7 +301,6 @@ const getSalesList = ({
     dataLoading.value = false;
     salesDataRow.value = res.data.list;
     salesDataRow.value.forEach((val) => {
-      val.totalCommission = totalCommission;
       val.operate = operate;
     });
     // console.log('-------------',salesDataRow.value);
@@ -359,7 +327,7 @@ const salesDataHead = [
     header: true,
   },
   { prop: "customCount", label: "客户数量", width: "100", header: true },
-  { prop: "status", label: "销售状态", width: "180", header: true },
+  { prop: "status", label: "销售状态", width: "180", slot: true, header: true },
   {
     prop: "lastPaymentTime",
     label: "最后成交时间",
@@ -384,27 +352,127 @@ const salesDataHead = [
 ];
 
 // 操作方式
+import { ElMessageBox, ElMessage } from "element-plus";
+// 状态变化  0 展示  1 状态正常时展示  2 状态封禁时展示  3 状态不为离职时展示
 const operate = [
   {
     func: "详情",
-    isShow: true,
-    clickEvent: (id) => {
+    isShow: "1,2,3",
+    clickEvent: (id, name) => {
       console.log(id);
       dialogDetaiOpt.dialogVisible = true;
       getSalesInfo(id);
     },
   },
-  { func: "封禁", isShow: true },
-  { func: "恢复", isShow: true },
-  { func: "离职", isShow: true },
-  { func: "结算佣金", isShow: true },
-];
-
-// 总押金参数
-const totalCommission = [
-  { title: "总押金:", amount: "76800.00" },
-  { title: "已返押金:", amount: "76800.00" },
-  { title: "未返押金:", amount: "76800.00" },
+  {
+    func: "封禁",
+    isShow: "1",
+    clickEvent: (id, name) => {
+      console.log(id);
+      ElMessageBox.confirm(`是否确定给 ${name} 销售ID ${id} 办理封禁`, "提示", {
+        confirmButtonText: "确认",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+        .then(() => {
+          const params = {
+            userId: id,
+            status: 0, //0 禁用
+          };
+          API.disabledSales(params).then((res) => {
+            if (res.code === 0) {
+              ElMessage({
+                type: "success",
+                message: "操作成功",
+              });
+            }
+          });
+        })
+        .catch(() => {
+          ElMessage({
+            type: "warning",
+            message: "取消操作",
+          });
+        });
+    },
+  },
+  {
+    func: "恢复",
+    isShow: "2",
+    clickEvent: (id, name) => {
+      console.log(id);
+      ElMessageBox.confirm(`是否确定给 ${name} 销售ID ${id} 办理恢复`, "提示", {
+        confirmButtonText: "确认",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+        .then(() => {
+          const params = {
+            userId: id,
+            status: 1, //0 禁用 1 启用
+          };
+          API.disabledSales(params).then((res) => {
+            if (res.code === 0) {
+              ElMessage({
+                type: "success",
+                message: "操作成功",
+              });
+            }
+          });
+        })
+        .catch(() => {
+          ElMessage({
+            type: "warning",
+            message: "取消操作",
+          });
+        });
+    },
+  },
+  {
+    func: "离职",
+    isShow: "1,2",
+    clickEvent: (id, name) => {
+      console.log(id);
+      ElMessageBox.confirm(`是否确定给 ${name} 销售ID ${id} 办理恢复`, "提示", {
+        confirmButtonText: "确认",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+        .then(() => {
+          const params = {
+            userId: id,
+          };
+          API.dimissionSales(params).then((res) => {
+            if (res.code === 0) {
+              ElMessage({
+                type: "success",
+                message: "操作成功",
+              });
+            }
+          });
+        })
+        .catch(() => {
+          ElMessage({
+            type: "warning",
+            message: "取消操作",
+          });
+        });
+    },
+  },
+  {
+    func: "结算佣金",
+    isShow: "1,2,3",
+    clickEvent: (id, name) => {
+      API.clearingCommission(id).then((res) => {
+        if (res.code === 0) {
+          ElMessage({
+            type: "success",
+            message: "操作成功",
+          });
+        }
+      });
+    },
+  },
 ];
 
 // -------------------------新增代理
@@ -523,6 +591,8 @@ const getNewSalesData = (data) => {
   });
 };
 
+// -------------------销售信息
+
 // 销售信息组件
 import EditDialog from "@/components/Dialog/EditDialog.vue";
 //  :dialogOpt="dialogDetaiOpt"
@@ -533,17 +603,18 @@ const dialogDetaiOpt = reactive({
   dialogVisible: false,
   title: "销售信息",
   width: "60vw",
+  col: 6,
 });
 
 const formArr = ref([
-  { title: "手机", name: "account" },
-  { title: "微信", name: "weChat" },
-  { title: "办公邮箱", name: "email" },
-  { title: "入职时间", name: "joinDate" },
-  { title: "管理主体", name: "company" },
-  { title: "直属上级", name: "appertainSalesName" },
-  { title: "职位", name: "roleName" },
-  { title: "离职时间", name: "resignationDate" },
+  { title: "手机", name: "account", isChange: true },
+  { title: "微信", name: "weChat", isChange: true },
+  { title: "办公邮箱", name: "email", isChange: true },
+  { title: "入职时间", name: "joinDate", isChange: false },
+  { title: "管理主体", name: "company", isChange: false },
+  { title: "直属上级", name: "appertainSalesName", isChange: false },
+  { title: "职位", name: "roleName", isChange: false },
+  { title: "离职时间", name: "resignationDate", isChange: false },
 ]);
 const salesFormData = ref({
   userName: " ",
@@ -568,6 +639,29 @@ const getSalesInfo = (id) => {
   API.getSalesInfo(id).then((res) => {
     console.log(res.data);
     salesFormData.value = res.data;
+  });
+};
+
+// 编辑个人信息
+const msgType = ref("text");
+const editMsg = () => {
+  msgType.value = "input";
+};
+
+const changeMsgType = (val) => {
+  msgType.value = val.msgType;
+  editSalesInfo(val.editParams);
+  console.log(val);
+};
+
+const editSalesInfo = (msg) => {
+  const params = {
+    phone: msg.phone,
+    weChat: msg.weChat,
+    email: msg.email,
+  };
+  API.editSalesInfo(params).then((res) => {
+    console.log(res);
   });
 };
 </script>
@@ -627,5 +721,12 @@ const getSalesInfo = (id) => {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.header-edit {
+  position: absolute;
+  padding: 20px;
+  right: 0px;
+  top: 0px;
 }
 </style>
