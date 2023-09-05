@@ -610,7 +610,6 @@ const utils = {
 
   // 获取目标日期前多少天的具体日期
   getDateBeforeDays(beforeDays = 1, targetDate) {
-    // console.log(beforeDateFormat);
     let current = targetDate || new Date();
     let currentYear = current.getFullYear(),
       currentMonth = current.getMonth() + 1,
@@ -618,8 +617,8 @@ const utils = {
     let beforeYear = currentYear,
       beforeMonth = currentMonth,
       beforeDate = currentDate - beforeDays;
-    console.log(currentYear, currentMonth, currentDate);
-    console.log(beforeYear, beforeMonth, beforeDate);
+    // console.log(currentYear, currentMonth, currentDate);
+    // console.log(beforeYear, beforeMonth, beforeDate);
 
     // 月份倒退上一月
     if (beforeDate < 1) {

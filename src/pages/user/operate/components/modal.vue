@@ -11,7 +11,7 @@
             <el-form-item v-for="(item, index) in formConfig" :prop="item.prop" :label="item.label" :key="item.prop"
                           label-position="right">
 
-                <el-input v-model="formData[item.prop]" :placeholder="item.placeholder"/>
+                <el-input v-model="formData[item.prop]" :placeholder="item.placeholder" :validate-event="false"/>
 
             </el-form-item>
         </el-form>
@@ -20,33 +20,43 @@
         <el-button style="width: 100%" type="primary" @click="handleAdd">添加</el-button>
       </span>
         </template>
+
     </el-dialog>
 </template>
 
 <script setup>
-  import {reactive, ref, defineEmits, getCurrentInstance} from 'vue';
+  import {reactive, ref, defineEmits, getCurrentInstance, watch} from 'vue';
   import API from '../api';
 
   const emit = defineEmits(['close'])
   const { proxy } = getCurrentInstance()
 
   const formConfig = ref([
-    {label:'账号：', prop:'account', placeholder:'请输入手机号'},
+    {label:'账号：', prop:'account', placeholder:'请输入账号'},
     {label:'用户名：', prop:'userName', placeholder:'请输入用户名'},
+    {label:'手机号：', prop:'phone', placeholder:'请输入手机号'},
     {label:'邮箱：', prop:'email', placeholder:'请输入邮箱'},
   ])
   const formData = reactive({
     account: '',
     userName: '',
+    phone: '',
     email: '',
   })
   const rules = {
     account: [
       {
         required: true,
-        message: '手机号不能为空!',
+        message: '账号不能为空!',
         trigger: 'blur',
       },
+      {
+        pattern: /^[a-zA-Z0-9]{4,16}$/,
+        message: '请输入4-16位数字字母！',
+        trigger: 'blur'
+      }
+    ],
+    phone: [
       {
         message: '手机号不合法!',
         trigger: 'blur',
@@ -75,8 +85,8 @@
   const dialogVisible = ref(true)
   const form = ref(null)
 
-  function handleClose(refreshTable = false) {
-    emit('close', false, refreshTable)
+  function handleClose(param = {}) {
+    emit('close', false, param)
   }
 
   function handleAdd() {
@@ -88,12 +98,16 @@
               type:'success',
               message:'添加用户成功！'
             })
-            handleClose(true)
+            handleClose({passWord:res.data.passWord})
           }
         })
       }
     })
   }
+
+  watch(formData, (newVal) => {
+    form.value.clearValidate();
+  });
 </script>
 
 <style scoped lang="scss">

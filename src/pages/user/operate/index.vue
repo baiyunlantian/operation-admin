@@ -98,6 +98,7 @@
 
 
         <Modal v-if="modalVisible" @close="handleToggleModal"/>
+        <PwdModal v-model="pwdModalVisible" :pwd="pwd" @close="handleTogglePwdModal"/>
     </div>
 </template>
 
@@ -107,6 +108,7 @@
   import dayjs from 'dayjs';
   import Modal from './components/modal';
   import LimitDatePicker from '@/components/LimitDatePicker';
+  import PwdModal from './components/copyPassword';
 
   const { proxy } = getCurrentInstance()
 
@@ -155,8 +157,10 @@
   ])
   const selectedRows = ref([])
   const modalVisible = ref(false)
+  const pwdModalVisible = ref(false)
   const tableTotal = ref(0)
   const formRef = ref(null)
+  const pwd = ref()
 
   // 限定时间选择范围
   function handleDisabledDate(time, startDate) {
@@ -265,6 +269,10 @@
               message: '操作成功'
             })
 
+            if (eventType === 'reset') {
+              pwd.value = res.data
+              handleTogglePwdModal(true)
+            }
             handleGetTableList()
           }
         })
@@ -304,9 +312,17 @@
     }
   }
 
-  function handleToggleModal(visible, refreshTable) {
+  function handleToggleModal(visible, param) {
     modalVisible.value = visible
-    refreshTable && handleGetTableList()
+    if (param && param.passWord) {
+      pwd.value = param.passWord
+      handleGetTableList()
+      handleTogglePwdModal(true)
+    }
+  }
+
+  function handleTogglePwdModal(visible = false) {
+    pwdModalVisible.value = visible
   }
 
   onMounted(() => {
