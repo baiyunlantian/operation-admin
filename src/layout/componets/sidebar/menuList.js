@@ -17,10 +17,10 @@ export default [
     children: [
       {
         type: "user",
-        name: "个人资料",
+        name: "个人中心",
         descType: "text",
         menuId: "2-1",
-        path: "/info",
+        path: "/center",
         children: [],
       },
       {
@@ -141,4 +141,40 @@ export default [
     path: "/course",
     children: [],
   },
+<<<<<<< HEAD
+=======
+  {
+    type: "system",
+    name: "分销管理",
+    descType: "text",
+    menuId: "7",
+    path: "",
+    children: [
+      {
+        type: "system",
+        name: "数据页面",
+        descType: "text",
+        menuId: "7-1",
+        path: "/information",
+        children: [],
+      },
+      {
+        type: "system",
+        name: "财务系统",
+        descType: "text",
+        menuId: "7-1",
+        path: "/financialSystem",
+        children: [],
+      },
+    ],
+  },
+  {
+    type: "system",
+    name: "商品目录",
+    descType: "text",
+    menuId: "8",
+    path: "/product",
+    children: [],
+  },
+>>>>>>> 6ac9760fb0f636ede91bda45a64ebe728eb2f959
 ];

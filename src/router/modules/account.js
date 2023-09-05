@@ -4,15 +4,15 @@ import layout from '@/layout/layout.vue'
 export default [
   {
     path: '/',
-    meta: {title: "个人资料"},
+    meta: {title: "个人中心"},
     component: layout,
-    name: "个人资料",
+    name: "个人中心",
     permission: 1,
     children: [
       {
         path: '/info',
-        meta: {title: "个人资料"},
-        component: () => import('@/pages/account/info.vue'),
+        meta: {title: "个人中心"},
+        component: () => import('@/pages/account/center.vue'),
         name: 'info',
         permission: 1
       },
