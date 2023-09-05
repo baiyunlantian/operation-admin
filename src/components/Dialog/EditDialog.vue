@@ -4,19 +4,31 @@
       <div class="dialog-header">
         <p>{{ dialogOpt.title }}</p>
       </div>
+      <slot name="header"></slot>
     </template>
     <template #default>
       <div class="dialog-body">
         <el-row :gutter="12" style="width: 100%" justify="start">
           <el-form :model="form" class="agent-form">
             <template v-for="data in formArr" :key="data.name">
-              <el-col :span="8">
+              <el-col :span="dialogOpt.col">
                 <el-form-item class="agent-item-container">
                   <p>{{ data.title }}&nbsp;</p>
                   <!-- <el-input
                   v-model="agentFormData[data.name]"
                 ></el-input> -->
-                  <el-input class="mx-1" v-model="form[data.name]"></el-input>
+                  <el-text v-if="msgType === 'text' || !data.isChange">{{
+                    form[data.name]
+                  }}</el-text>
+                  <el-input
+                    class="mx-1"
+                    v-model="form[data.name]"
+                    v-else-if="msgType === 'input' && data.isChange"
+                  >
+                    <template #prepend v-if="data.prepend">
+                      {{ data.prepend }}
+                    </template>
+                  </el-input>
                 </el-form-item>
               </el-col>
             </template>
@@ -26,8 +38,21 @@
     </template>
     <template #footer>
       <span class="dialog-footer">
-        <el-button @click="dialogOpt.dialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="editFormData"> 确认 </el-button>
+        <el-button
+          @click="dialogOpt.dialogVisible = false"
+          v-if="msgType === 'text'"
+          >关闭</el-button
+        >
+        <el-button @click="cancelEvent" v-if="msgType === 'input'"
+          >取消</el-button
+        >
+        <el-button
+          type="primary"
+          @click="editFormData"
+          v-if="msgType === 'input'"
+        >
+          确认
+        </el-button>
       </span>
     </template>
   </el-dialog>
@@ -35,10 +60,19 @@
 
 <script setup>
 import { ref } from "vue";
-const props = defineProps(["dialogOpt", "formArr", "form"]);
+const props = defineProps(["dialogOpt", "formArr", "form", "msgType"]);
+const emits = defineEmits(["changeMsgType", "cancelEdit"]);
+
+const cancelEvent = () => {
+  console.log("cancel");
+  // props.dialogOpt.dialogVisible = false;
+  emits("cancelEdit");
+};
 
 const editFormData = () => {
   console.log("edit");
+  props.dialogOpt.dialogVisible = false;
+  emits("changeMsgType", { msgType: "text", editParams: props.form });
 };
 </script>
 

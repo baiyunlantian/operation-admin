@@ -8,14 +8,14 @@ export default [
     name: "分销管理",
     permission: 1,
     children: [
-      {
-        path: "/information",
-        meta: { title: "数据页面" },
-        component: () =>
-          import("@/pages/distributionAdm/information/index.vue"),
-        name: "information",
-        permission: 1,
-      },
+      // {
+      //   path: "/information",
+      //   meta: { title: "数据页面" },
+      //   component: () =>
+      //     import("@/pages/distributionAdm/information/index.vue"),
+      //   name: "information",
+      //   permission: 1,
+      // },
       {
         path: "/financialSystem",
         meta: { title: "财务管理" },

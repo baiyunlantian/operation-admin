@@ -56,7 +56,7 @@
               </el-select>
             </el-form-item> -->
 
-            <el-form-item label="状态" prop="status">
+            <el-form-item label="状态:" prop="status">
               <el-select
                 v-model="searchTableParams.status"
                 placeholder=""
@@ -78,8 +78,8 @@
               <el-input
                 v-model="searchTableParams.keywords"
                 placeholder="请输入你需要搜索的内容"
-                clearable
-                @change="handleStatusChange()"
+                :suffix-icon="Search"
+                @keyup.enter="handleStatusChange()"
               />
             </el-form-item>
 
@@ -451,52 +451,52 @@ const financialInformation = ref([
   {
     id: 1,
     title: "订单总量",
-    money: "orderCount",
+    money: "totalOrderCount",
     isMoney: false,
     image: file,
     imageStyle: "width: 56px; height: 56px",
-    isShow: userIdentity.value == 1 ? true : false,
+    isShow: true,
   },
   {
     id: 2,
     title: "取消订单",
-    money: "cancellationOrder",
+    money: "cacanOrderCount",
     isMoney: false,
     image: file,
     imageStyle: "width: 56px; height: 56px",
-    isShow: userIdentity.value == 1 ? true : false,
+    isShow: true,
   },
   {
     id: 3,
     title: "成交金额",
-    money: "transactionAmount",
+    money: "concludeAmount",
     isMoney: true,
     image: barChart,
     imageStyle: "width: 104px; height: 42px",
-    isShow: userIdentity.value == 1 ? true : false,
+    isShow: true,
   },
   {
     id: 4,
     title: "平均单价",
-    money: "transactionAvgAmount",
+    money: "averageAmount",
     isMoney: true,
     image: heartbeat,
     imageStyle: "width: 96px; height: 40px",
-    isShow: userIdentity.value == 1 ? true : false,
+    isShow: true,
   },
   {
     id: 5,
     title: "返佣金额",
-    money: "brokerageCommission",
+    money: "commissionAmount",
     isMoney: true,
     image: barChart,
     imageStyle: "width: 104px; height: 42px",
-    isShow: userIdentity.value == 1 ? true : false,
+    isShow: true,
   },
 ]);
 
 const searchParams = ref({
-  startDate: utils.getDateBeforeDays(7) + " " + "00:00:00",
+  startDate: utils.getDateBeforeDays(-7) + " " + "00:00:00",
   endDate: dayjs().subtract(1, "day").format("YYYY-MM-DD") + " " + "23:59:59",
 });
 // 订单数据汇总接口
@@ -561,16 +561,10 @@ const tableColumnConfig = ref([
 
 // 列表接口
 const handleGetTableList = (setScrollTop = true) => {
-  // formRef.value.validate((valid) => {
-  //   if (valid) {
-
-  //   }
-  // });
-
   return new Promise((resolve, reject) => {
     getOrderPage(searchTableParams).then((res) => {
       const { code, msg, data } = res || {};
-      if (code == "0") {
+      if (code == 0) {
         setScrollTop && tableRef.value.setScrollTop(0);
         tableData.value = data.list;
         tableListTotal.value = data.total;
@@ -636,7 +630,7 @@ const editOrderOperate = (row) => {
     .then(() => {
       editOrderCancel({ orderId: row.orderId }).then((res) => {
         const { code, msg } = res || {};
-        if (code == "0") {
+        if (code == 0) {
           proxy.$message({
             type: "success",
             message: "操作成功",
@@ -664,7 +658,7 @@ const succesOrderOperate = (row) => {
     .then(() => {
       editOrderCarry({ orderId: row.orderId }).then((res) => {
         const { code, msg } = res || {};
-        if (code == "0") {
+        if (code == 0) {
           proxy.$message({
             type: "success",
             message: "操作成功",
@@ -793,12 +787,14 @@ const getSummaries = (param) => {
 // 备注弹窗
 const formRemarKDialogRef = ref();
 const formRemarKData = reactive({
-  remark: undefined,
+  orderId: "",
+  remark: "",
 });
 
 const eidtRemarkDialogVisible = ref(false);
 const openRemarkDialog = (row) => {
   eidtRemarkDialogVisible.value = true;
+  formRemarKData.orderId = row.orderId;
   formRemarKData.remark = row.remark;
 };
 
@@ -810,9 +806,9 @@ const closeRemarkEditDialog = () => {
 const submitRemarKEditForm = () => {
   formRemarKDialogRef.value.validate((valid) => {
     if (valid) {
-      getRemark(formRemarKData.value).then((res) => {
+      getRemark({ ...formRemarKData }).then((res) => {
         const { code, msg } = res || {};
-        if (code == "0") {
+        if (code == 0) {
           proxy.$message({
             type: "success",
             message: "备注修改成功",
@@ -831,6 +827,7 @@ const submitRemarKEditForm = () => {
 };
 
 onMounted(() => {
+  getOrderInformation();
   handleGetTableList();
 });
 </script>

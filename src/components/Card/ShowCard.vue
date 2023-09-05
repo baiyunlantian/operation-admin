@@ -19,7 +19,11 @@
     <div class="show-card-total">
       <div class="show-card-total-content">
         {{ cardData.total?.totalTitle || " "
-        }}<span>{{ cardData.total?.totalAmount || " " }}</span>
+        }}<span>{{
+          cardData.total?.totalAmount || cardData.total?.totalAmount == 0
+            ? "0"
+            : " "
+        }}</span>
       </div>
     </div>
   </div>

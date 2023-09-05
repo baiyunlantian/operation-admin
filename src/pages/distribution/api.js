@@ -89,4 +89,48 @@ export default {
   getSalesInfo(params) {
     return HTTP.get("/SalesAgency/UserInfo", params);
   },
+
+  //修改销售个人信息
+  editSalesInfo(params) {
+    return HTTP.post("/SalesAgency/Update/SalesUser", params);
+  },
+
+  //禁用销售
+  disabledSales(params) {
+    return HTTP.post("/SalesAgency/Sale/Enable", params);
+  },
+  //销售离职
+  dimissionSales(params) {
+    return HTTP.post("/SalesAgency/Sale/Dimission", params);
+  },
+  // 结算佣金
+  clearingCommission(params) {
+    return HTTP.post("SalesAgency/Sale/ClearingCommission", params);
+  },
+
+  // --------------------------------客户管理
+  // 获取客户数据
+  getCustomData(params) {
+    return HTTP.get("/AgencyCustom/GetCustomData", params);
+  },
+  // 获取销售列表
+  getSalers(params) {
+    return HTTP.get("/AgencyCustom/GetSalesList", params);
+  },
+  // 获取客户列表
+  getCustomList(params) {
+    return HTTP.get("/AgencyCustom/GetCustomDataPageList", params);
+  },
+  // 获取客户个人信息
+  getCustomInfo(params) {
+    return HTTP.get("/AgencyCustom/GetCustomDataPageList", params);
+  },
+  // // 修改客户个人信息
+  // getCustomInfo(params) {
+  //   return HTTP.get("/AgencyCustom/GetCustomDataPageList", params);
+  // },
+  // 删除客户个人信息
+  deleteCustomInfo(params) {
+    return HTTP.post("/AgencyCustom/Custom/Delete", params);
+  },
 };
