@@ -79,22 +79,13 @@
         @sort-change="handleTableSort"
         v-loading="dataLoading"
       >
-        <template #totalCommission="{ row }">
-          <div class="totalCommission-container">
-            <div
-              class="totalCommission-title"
-              v-for="commission in row.totalCommission"
-              :key="commission.title"
-            >
-              {{ commission.title }} <span>￥{{ commission.amount }}</span>
-            </div>
-          </div>
-        </template>
         <template #operate="{ row }">
           <div class="operate-container">
             <template v-for="operate in row.operate" :key="operate.func">
               <el-link
-                v-if="!operate.isShow.includes(row.status)"
+                v-if="
+                  !operate.isShow.includes(row.status) && operate.isPermission
+                "
                 type="primary"
                 @click="operate.clickEvent(row.agencyId)"
                 >{{ operate.func }}</el-link
@@ -132,7 +123,7 @@
 </template>
 
 <script setup>
-import { onMounted, reactive, ref } from "vue";
+import { onMounted, reactive, ref, computed } from "vue";
 import { useRouter } from "vue-router";
 const router = useRouter();
 import API from "./api";
@@ -352,13 +343,24 @@ const getAgentList = () => {
     dataLoading.value = false;
     agentDataRow.value = res.data;
     agentDataRow.value?.forEach((val) => {
-      val.totalCommission = totalCommission;
-      val.operate = operate;
+      val.operate = operate.value;
     });
     // console.log('-------------',agentDataRow.value);
     // agentDataRow.value = res.data;
   });
 };
+
+// 身份确认
+// 销售 10  代理 20
+import { useStore } from "vuex";
+const store = useStore();
+const roleIdentity = computed(() => {
+  return store.getters["user/info"].roleId;
+});
+//超管1 非超管0
+const userIdentity = computed(() => {
+  return store.getters["user/info"].isAdmin;
+});
 
 // 代理数据的表头
 const agentDataHead = [
@@ -368,6 +370,7 @@ const agentDataHead = [
     width: "120",
     header: true,
     sortable: true,
+    isPermission: true,
   },
   {
     prop: "agencyPhone",
@@ -375,6 +378,7 @@ const agentDataHead = [
     width: "130",
     header: true,
     sortable: true,
+    isPermission: true,
   },
   {
     prop: "agencyId",
@@ -382,6 +386,7 @@ const agentDataHead = [
     width: "110",
     header: true,
     sortable: true,
+    isPermission: true,
   },
   {
     prop: "salesName",
@@ -389,6 +394,7 @@ const agentDataHead = [
     width: "120",
     header: true,
     sortable: true,
+    isPermission: true,
   },
   {
     prop: "customerQty",
@@ -396,6 +402,7 @@ const agentDataHead = [
     width: "120",
     header: true,
     sortable: true,
+    isPermission: true,
   },
   {
     prop: "orderQty",
@@ -403,6 +410,7 @@ const agentDataHead = [
     width: "100",
     header: true,
     sortable: true,
+    isPermission: true,
   },
   {
     prop: "orderAmount",
@@ -410,6 +418,7 @@ const agentDataHead = [
     width: "100",
     header: true,
     sortable: true,
+    isPermission: true,
   },
   {
     prop: "avgAmount",
@@ -417,52 +426,72 @@ const agentDataHead = [
     width: "120",
     header: true,
     sortable: true,
+    isPermission: true,
   },
   {
     prop: "totalCommission",
-    label: "总押金",
+    label: "总佣金",
     width: "180",
-    slot: true,
     header: true,
+    sortable: true,
+    isPermission: roleIdentity.value == 20 || userIdentity.value == 1,
   },
-  { prop: "status", label: "状态", width: "180", header: true, sortable: true },
+  {
+    prop: "status",
+    label: "状态",
+    width: "180",
+    header: true,
+    sortable: true,
+    isPermission: true,
+  },
   {
     prop: "createdTime",
     label: "创建时间",
     width: "180",
     header: true,
     sortable: true,
+    isPermission: true,
   },
   {
     prop: "operate",
     label: "操作",
     width: "180",
     slot: true,
+    isPermission: true,
     placement: "right",
   },
 ];
 
 // 操作方式
-const operate = [
+const operate = ref([
   {
     func: "查看",
     isShow: "1,10,20,30",
+    isPermission: true,
     clickEvent: (id) => {
       console.log(id);
       router.push({ path: "/agentDetail", query: { userId: id } });
     },
   },
-  { func: "禁用", isShow: "1" },
-  { func: "退款", isShow: "10" },
-  { func: "免佣", isShow: "30" },
-];
+  {
+    func: "禁用",
+    isShow: "1",
+    isPermission: roleIdentity.value == 20 || userIdentity.value == 1,
+  },
+  {
+    func: "退款",
+    isShow: "10",
+    isPermission: roleIdentity.value == 20 || userIdentity.value == 1,
+  },
+  { func: "免佣", isShow: "30", isPermission: userIdentity.value == 1 },
+]);
 
 // 总押金参数
-const totalCommission = [
-  { title: "总押金:", amount: "76800.00" },
-  { title: "已返押金:", amount: "76800.00" },
-  { title: "未返押金:", amount: "76800.00" },
-];
+// const totalCommission = [
+//   { title: "总押金:", amount: "76800.00" },
+//   { title: "已返押金:", amount: "76800.00" },
+//   { title: "未返押金:", amount: "76800.00" },
+// ];
 
 // 代理数据的数据行内容
 const agentDataRow = ref();

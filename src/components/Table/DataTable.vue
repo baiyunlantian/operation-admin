@@ -9,6 +9,7 @@
         :label="column.label"
         :min-width="column.width"
         :fixed="column.placement ? column.placement : false"
+        v-if="column.isPermission"
       >
         <!-- 根据传递进来的 slot 判断是否需要开启插槽功能 -->
         <template v-if="column.slot" v-slot="data">
