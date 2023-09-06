@@ -18,7 +18,7 @@
           <div class="header-title">
             <h1>个人信息</h1>
           </div>
-          <div class="header-edit">
+          <div class="header-edit" v-if="userIdentity == 1">
             <el-button link @click="editMsg"
               ><el-icon><EditPen color="#999" /></el-icon
             ></el-button>
@@ -28,7 +28,7 @@
           <el-row :gutter="12" style="width: 100%" justify="start">
             <el-form :model="agentFormData" class="agent-form">
               <template v-for="data in agentDataArr" :key="data.name">
-                <el-col :span="7">
+                <el-col :span="7" v-if="data.isPermission">
                   <el-form-item class="agent-item-container">
                     <p>{{ data.title }}&nbsp;</p>
                     <!-- <el-input
@@ -105,7 +105,7 @@
 </template>
 
 <script setup>
-import { onMounted, reactive, ref } from "vue";
+import { onMounted, reactive, ref, computed } from "vue";
 import API from "./api";
 
 import ModuleCard from "@/components/Card/ModuleCard.vue";
@@ -121,6 +121,18 @@ onMounted(() => {
   getAgencyUser();
   getCustomerList();
   getOrderList();
+});
+
+// 身份确认
+// 销售 10  代理 20
+import { useStore } from "vuex";
+const store = useStore();
+const roleIdentity = computed(() => {
+  return store.getters["user/info"].roleId;
+});
+//超管1 非超管0
+const userIdentity = computed(() => {
+  return store.getters["user/info"].isAdmin;
 });
 
 const agentFormData = ref({
@@ -143,28 +155,60 @@ const agentFormData = ref({
   withdrawalCommission: "",
   cardName: "",
   cardNo: "",
-  openingBank: "",
+  bankCardId: "",
 });
 const agentDataArr = reactive([
-  { title: "联系方式", name: "account" },
-  { title: "办公邮箱", name: "email" },
-  { title: "加入时间", name: "joinDate" },
-  { title: "所属企业", name: "company" },
-  { title: "专属销售", name: "appertainSalesName" },
-  { title: "销售电话", name: "appertainSalesPhone" },
-  { title: "销售邮箱", name: "appertainSalesEmail" },
-  { title: "待付款订单", name: "notPaymentOrderQty" },
-  { title: "待付款佣金", name: "notPaymentCommission" },
-  { title: "实施中订单", name: "carryOutOrdersQty" },
-  { title: "实施中佣金", name: "carryOutCommission" },
-  { title: "冻结押金", name: "agencyCashPledge" },
-  { title: "已完成订单", name: "completedOrdersQty" },
-  { title: "待提现佣金", name: "notWithdrawalCommission" },
-  { title: "共赚取佣金", name: "totalCommission" },
-  { title: "已提现佣金", name: "withdrawalCommission" },
-  { title: "银行卡信息", name: "cardName" },
-  { title: "", name: "cardNo" },
-  { title: "", name: "openingBank" },
+  { title: "联系方式", name: "account", isPermission: true },
+  { title: "办公邮箱", name: "email", isPermission: true },
+  { title: "加入时间", name: "joinDate", isPermission: true },
+  { title: "所属企业", name: "company", isPermission: true },
+  { title: "专属销售", name: "appertainSalesName", isPermission: true },
+  { title: "销售电话", name: "appertainSalesPhone", isPermission: true },
+  { title: "销售邮箱", name: "appertainSalesEmail", isPermission: true },
+  { title: "待付款订单", name: "notPaymentOrderQty", isPermission: true },
+  {
+    title: "待付款佣金",
+    name: "notPaymentCommission",
+    isPermission: roleIdentity.value == 20 || userIdentity.value == 1,
+  },
+  { title: "实施中订单", name: "carryOutOrdersQty", isPermission: true },
+  {
+    title: "实施中佣金",
+    name: "carryOutCommission",
+    isPermission: roleIdentity.value == 20 || userIdentity.value == 1,
+  },
+  { title: "冻结押金", name: "agencyCashPledge", isPermission: true },
+  { title: "已完成订单", name: "completedOrdersQty", isPermission: true },
+  {
+    title: "待提现佣金",
+    name: "notWithdrawalCommission",
+    isPermission: roleIdentity.value == 20 || userIdentity.value == 1,
+  },
+  {
+    title: "共赚取佣金",
+    name: "totalCommission",
+    isPermission: roleIdentity.value == 20 || userIdentity.value == 1,
+  },
+  {
+    title: "已提现佣金",
+    name: "withdrawalCommission",
+    isPermission: roleIdentity.value == 20 || userIdentity.value == 1,
+  },
+  {
+    title: "银行卡信息",
+    name: "cardName",
+    isPermission: roleIdentity.value == 20 || userIdentity.value == 1,
+  },
+  {
+    title: "",
+    name: "cardNo",
+    isPermission: roleIdentity.value == 20 || userIdentity.value == 1,
+  },
+  {
+    title: "",
+    name: "bankCardId",
+    isPermission: roleIdentity.value == 20 || userIdentity.value == 1,
+  },
 ]);
 
 // 获取代理个人信息
@@ -196,6 +240,18 @@ const cancelEdit = () => {
 
 // 改变消息类型
 const changeMsgType = (val) => {
+  console.log(val);
+  const params = {
+    agencyId: val.editParams.account,
+    agencyName: val.editParams.userName,
+    phone: val.editParams.phone,
+    email: val.editParams.email,
+    cardName: val.editParams.cardName,
+    cardNo: val.editParams.cardNo,
+    bankName: val.editParams.bankCardId,
+  };
+  console.log(params);
+  // API.agencyUser(params);
   dialogOpt.dialogVisible = false;
 };
 
@@ -217,7 +273,7 @@ const formArr = ref([
     prepend: "户主名称",
   },
   { title: "", name: "cardNo", isChange: true, prepend: "银行卡号" },
-  { title: "", name: "openingBank", isChange: true, prepend: "开户行" },
+  { title: "", name: "bankCardId", isChange: true, prepend: "开户行" },
 ]);
 
 // ------------------------------------------------------------筛选的方式
@@ -262,22 +318,37 @@ const sortType = [
 
 // 代理数据的表头
 const agentDataHead = [
-  { prop: "customerName", label: "客户名称", width: "80" },
-  { prop: "phone", label: "手机号", width: "110" },
-  { prop: "orderQty", label: "订单量", width: "110" },
-  { prop: "orderAmount", label: "订单金额", width: "80" },
-  { prop: "paymentTime", label: "最后成交时间", width: "100" },
-  { prop: "registerTime", label: "注册时间", width: "100" },
+  { prop: "customerName", label: "客户名称", width: "80", isPermission: true },
+  { prop: "phone", label: "手机号", width: "110", isPermission: true },
+  { prop: "orderQty", label: "订单量", width: "110", isPermission: true },
+  { prop: "orderAmount", label: "订单金额", width: "80", isPermission: true },
+  {
+    prop: "paymentTime",
+    label: "最后成交时间",
+    width: "100",
+    isPermission: true,
+  },
+  { prop: "registerTime", label: "注册时间", width: "100", isPermission: true },
 ];
 const orderDataHead = [
-  { prop: "orderId", label: "订单ID", width: "80" },
-  { prop: "customerName", label: "客户名称", width: "110" },
-  { prop: "orderAmount", label: "订单金额", width: "110" },
-  { prop: "salesCommission", label: "销售返佣", width: "80" },
-  { prop: "agencyCommission", label: "代理返佣", width: "100" },
-  { prop: "paymentTime", label: "付款时间", width: "100" },
-  { prop: "statusName", label: "状态", width: "100" },
-  { prop: "createdTime", label: "创建时间", width: "100" },
+  { prop: "orderId", label: "订单ID", width: "80", isPermission: true },
+  { prop: "customerName", label: "客户名称", width: "110", isPermission: true },
+  { prop: "orderAmount", label: "订单金额", width: "110", isPermission: true },
+  {
+    prop: "salesCommission",
+    label: "销售返佣",
+    width: "80",
+    isPermission: true,
+  },
+  {
+    prop: "agencyCommission",
+    label: "代理返佣",
+    width: "100",
+    isPermission: true,
+  },
+  { prop: "paymentTime", label: "付款时间", width: "100", isPermission: true },
+  { prop: "statusName", label: "状态", width: "100", isPermission: true },
+  { prop: "createdTime", label: "创建时间", width: "100", isPermission: true },
 ];
 
 // 搜索
@@ -368,6 +439,7 @@ const getOrderList = () => {
   API.getOrderList(params).then((res) => {
     orderDataRow.value = res.data.list;
     orderDataTotal.value = res.data.total;
+    console.log(res);
   });
 };
 

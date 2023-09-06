@@ -80,6 +80,24 @@ export default {
     return HTTP.get("/SalesAgency/Order/Page", params);
   },
 
+  // 禁用代理
+  disabledAgent(params) {
+    return HTTP.post("/SalesAgency/DisabledAgent", params);
+  },
+
+  // 代理退款
+  refunDeposit(params) {
+    return HTTP.post("/SalesAgency/RefundDeposit", params);
+  },
+  // 代理免佣
+  agentFreeOfCommission(params) {
+    return HTTP.post("/SalesAgency/AgentFreeOfCommission", params);
+  },
+  // 编辑代理信息
+  agencyUser(params) {
+    return HTTP.post("/SalesAgency/Edit/AgencyUser", params);
+  },
+
   // ----------------销售管理
   // 获取销售数据
   getSalesData(params) {
@@ -91,12 +109,16 @@ export default {
   },
   // 获取销售个人信息
   getSalesInfo(params) {
-    return HTTP.get("/SalesAgency/UserInfo", params);
+    return HTTP.get("/SalesAgency/SaleInfo", params);
   },
 
   //修改销售个人信息
   editSalesInfo(params) {
     return HTTP.post("/SalesAgency/Update/SalesUser", params);
+  },
+
+  createSaler(params) {
+    return HTTP.post("/SalesAgency/Add/SalesUser", params);
   },
 
   //禁用销售
@@ -110,6 +132,11 @@ export default {
   // 结算佣金
   clearingCommission(params) {
     return HTTP.post("SalesAgency/Sale/ClearingCommission", params);
+  },
+
+  // 生成密码
+  generatePassword(params) {
+    return HTTP.get("/Common/GeneratePassword", params);
   },
 
   // --------------------------------客户管理
@@ -127,12 +154,12 @@ export default {
   },
   // 获取客户个人信息
   getCustomInfo(params) {
-    return HTTP.get("/AgencyCustom/GetCustomDataPageList", params);
+    return HTTP.get("/AgencyCustom/CustomInfo", params);
   },
-  // // 修改客户个人信息
-  // getCustomInfo(params) {
-  //   return HTTP.get("/AgencyCustom/GetCustomDataPageList", params);
-  // },
+  // 修改客户个人信息
+  updateCustomInfo(params) {
+    return HTTP.post("/AgencyCustom/Custom/Update", params);
+  },
   // 删除客户个人信息
   deleteCustomInfo(params) {
     return HTTP.post("/AgencyCustom/Custom/Delete", params);

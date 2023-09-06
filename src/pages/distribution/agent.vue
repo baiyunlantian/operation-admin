@@ -82,10 +82,11 @@
         <template #operate="{ row }">
           <div class="operate-container">
             <template v-for="operate in row.operate" :key="operate.func">
+              <!-- !(
+                    !operate.isShow.includes(row.status) && operate.isPermission
+                  ) -->
               <el-link
-                v-if="
-                  !operate.isShow.includes(row.status) && operate.isPermission
-                "
+                v-if="true"
                 type="primary"
                 @click="operate.clickEvent(row.agencyId)"
                 >{{ operate.func }}</el-link
@@ -118,6 +119,8 @@
       :agentData="agentData"
       :form="form"
       @getNewAgentData="getNewAgentData"
+      @cancelCreate="cancelCreate"
+      :rules="rules"
     ></form-dialog>
   </div>
 </template>
@@ -196,18 +199,25 @@ const getAgentData = () => {
 // 更新卡片数据
 const updateCardData = () => {
   cardData.value.forEach((value) => {
-    console.log(value);
     value.amount = amount.value[value.name];
+    if (value.total) {
+      value.total.totalAmount = amount.value[value.total.totalName];
+    }
   });
 };
 
 // 卡片数据
 const cardData = ref([
   {
-    title: "代理总量",
+    title: "成交代理",
     name: "completeOrderAgentCount",
     amount: amount.value.completeOrderAgentCount,
     url: require("@/assets/images/user_count.png"),
+    total: {
+      totalTitle: "代理总量",
+      totalName: "agentTotalCount",
+      totalAmount: amount.value.agentTotalCount,
+    },
   },
   {
     title: "订单总量",
@@ -463,13 +473,13 @@ const agentDataHead = [
 ];
 
 // 操作方式
+import { ElMessage } from "element-plus";
 const operate = ref([
   {
     func: "查看",
     isShow: "1,10,20,30",
     isPermission: true,
     clickEvent: (id) => {
-      console.log(id);
       router.push({ path: "/agentDetail", query: { userId: id } });
     },
   },
@@ -477,13 +487,59 @@ const operate = ref([
     func: "禁用",
     isShow: "1",
     isPermission: roleIdentity.value == 20 || userIdentity.value == 1,
+    clickEvent: (id) => {
+      const params = {
+        userId: id,
+      };
+      API.disabledAgent(params).then((res) => {
+        if (res.code == 0) {
+          ElMessage({
+            type: "success",
+            message: "操作成功",
+          });
+          getAgentList();
+        }
+      });
+    },
   },
   {
     func: "退款",
     isShow: "10",
     isPermission: roleIdentity.value == 20 || userIdentity.value == 1,
+    clickEvent: (id) => {
+      const params = {
+        userId: id,
+      };
+      API.refunDeposit(params).then((res) => {
+        if (res.code == 0) {
+          ElMessage({
+            type: "success",
+            message: "操作成功",
+          });
+          getAgentList();
+        }
+      });
+    },
   },
-  { func: "免佣", isShow: "30", isPermission: userIdentity.value == 1 },
+  {
+    func: "免佣",
+    isShow: "30",
+    isPermission: userIdentity.value == 1,
+    clickEvent: (id) => {
+      const params = {
+        userId: id,
+      };
+      API.agentFreeOfCommission(params).then((res) => {
+        if (res.code == 0) {
+          ElMessage({
+            type: "success",
+            message: "操作成功",
+          });
+          getAgentList();
+        }
+      });
+    },
+  },
 ]);
 
 // 总押金参数
@@ -506,6 +562,10 @@ const dialogOpt = reactive({
 });
 const addAgent = () => {
   dialogOpt.dialogVisible = true;
+  API.generatePassword().then((res) => {
+    console.log(res.data);
+    agentData.password = res.data;
+  });
 };
 
 const formTitles = [
@@ -516,6 +576,7 @@ const formTitles = [
 //表单上传数据
 const agentData = reactive({
   agencyName: "",
+  account: "",
   phone: "",
   email: "",
   password: "",
@@ -526,12 +587,109 @@ const agentData = reactive({
   bankName: "",
 });
 
+const cancelCreate = () => {
+  agentData.agencyName = "";
+  agentData.account = "";
+  agentData.phone = "";
+  agentData.salesId = "";
+  agentData.password = "";
+  agentData.email = "";
+  agentData.cardName = "";
+  agentData.cardNo = "";
+  agentData.openingBank = "";
+  agentData.bankName = "";
+  dialogOpt.dialogVisible = false;
+};
+
+// 规则
+const rules = reactive({
+  agencyName: [
+    {
+      required: true,
+      message: "代理名称不能为空!",
+      trigger: "blur",
+    },
+  ],
+  account: [
+    {
+      required: true,
+      message: "代理账号不能为空!",
+      trigger: "blur",
+    },
+    {
+      pattern: /^[0-9A-Za-z]{4,16}$/,
+      message: "请输入4-16位的数字和字母!",
+      trigger: "blur",
+    },
+  ],
+  phone: [
+    {
+      required: true,
+      message: "手机号码不能为空!",
+      trigger: "blur",
+    },
+    {
+      pattern: /^1(3|4|5|6|7|8|9)\d{9}$/,
+      message: "请输入正确的手机号!",
+      trigger: "blur",
+    },
+  ],
+  email: [
+    {
+      required: true,
+      message: "邮箱不能为空!",
+      trigger: "blur",
+    },
+    {
+      pattern: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/,
+      message: "请输入正确的邮箱!",
+      trigger: "blur",
+    },
+  ],
+  cardName: [
+    {
+      required: true,
+      message: "开户名称不能为空!",
+      trigger: "blur",
+    },
+  ],
+  cardNo: [
+    {
+      required: true,
+      message: "开户账号不能为空!",
+      trigger: "blur",
+    },
+  ],
+  openingBank: [
+    {
+      required: true,
+      message: "开户支行不能为空!",
+      trigger: "blur",
+    },
+  ],
+  bankName: [
+    {
+      required: true,
+      message: "开户银行不能为空!",
+      trigger: "blur",
+    },
+  ],
+});
+
 // 表单数据
+// 解密和编码
+import Crypto from "@/assets/js/cryptojs";
 const form = reactive({
   baseForm: [
     {
       title: "代理名称",
       name: "agencyName",
+      type: "input",
+      placeholder: "请输入代理名称",
+    },
+    {
+      title: "代理账号",
+      name: "account",
       type: "input",
       placeholder: "请输入代理名称",
       isRequired: true,
@@ -553,14 +711,13 @@ const form = reactive({
     {
       title: "账号密码",
       name: "password",
-      type: "input",
+      type: "text",
       placeholder: "请输入账号密码",
-      isRequired: true,
     },
     {
       title: "绑定销售",
       name: "salesId",
-      type: "input",
+      type: userIdentity.value == 1 ? "input" : "text",
       placeholder: "请输入绑定销售",
       isRequired: false,
     },
@@ -599,7 +756,11 @@ const form = reactive({
 
 const getNewAgentData = (data) => {
   console.log(data);
-  API.addAgencyUser(data).then((res) => {
+  const params = {
+    ...data,
+    password: Crypto.encrypt(data.password),
+  };
+  API.addAgencyUser(params).then((res) => {
     console.log(res);
     getAgentList({
       status: 1,
