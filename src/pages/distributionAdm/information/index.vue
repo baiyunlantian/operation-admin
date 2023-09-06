@@ -171,7 +171,6 @@ import {
 } from "./api";
 import { useStore, mapGetters } from "vuex";
 import API from "@/pages/account/api";
-import { useStore } from "vuex";
 import dayjs from "dayjs";
 import utils from "@/assets/js/utils.js";
 
