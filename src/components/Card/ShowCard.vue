@@ -5,7 +5,7 @@
         <el-col :md="14" :lg="14" :xl="12">
           <div class="show-card-msg-content">
             <div class="show-card-msg-title">{{ cardData.title }}</div>
-            <div class="show-card-msg-data">{{ cardData.amount }}</div>
+            <div class="show-card-msg-data">{{ cardData.amount || 0 }}</div>
           </div>
         </el-col>
         <el-col :md="10" :lg="10" :xl="12">

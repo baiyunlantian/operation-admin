@@ -786,30 +786,13 @@ const formArr = ref([
   { title: "手机", name: "phone", isChange: true },
   { title: "微信", name: "weChat", isChange: true },
   { title: "办公邮箱", name: "email", isChange: true },
-  { title: "入职时间", name: "joinDate", isChange: false },
-  { title: "管理主体", name: "company", isChange: false },
-  { title: "直属上级", name: "appertainSalesName", isChange: false },
+  { title: "入职时间", name: "entryTime", isChange: false },
+  { title: "管理主体", name: "companyName", isChange: false },
+  { title: "直属上级", name: "superiorsEmail", isChange: false },
   { title: "职位", name: "roleName", isChange: false },
-  { title: "离职时间", name: "resignationDate", isChange: false },
+  { title: "离职时间", name: "dimissionTime", isChange: false },
 ]);
-const salesFormData = ref({
-  userName: " ",
-  account: "",
-  email: "",
-  joinDate: "",
-  resignationDate: "",
-  company: "",
-  roleId: "",
-  roleName: "",
-  appertainSalesId: "",
-  appertainSalesName: "",
-  appertainSalesPhone: "",
-  appertainSalesEmail: "",
-  weChat: "",
-  joinDays: "",
-  agencyCashPledge: "",
-  agencyWithdrawstatus: "",
-});
+const salesFormData = ref();
 
 const getSalesInfo = (id) => {
   const params = {

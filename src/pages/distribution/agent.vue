@@ -65,7 +65,7 @@
             v-model:page-size="pageSize"
             :page-sizes="[50, 100, 200]"
             layout="sizes"
-            :total="1000"
+            :total="agentDataLength"
             @size-change="handleSizeChange"
           />
         </div>
@@ -82,11 +82,11 @@
         <template #operate="{ row }">
           <div class="operate-container">
             <template v-for="operate in row.operate" :key="operate.func">
-              <!-- !(
-                    !operate.isShow.includes(row.status) && operate.isPermission
-                  ) -->
               <el-link
-                v-if="true"
+                v-if="
+                  operate.isShow.includes(`[${row.status}]`) &&
+                  operate.isPermission
+                "
                 type="primary"
                 @click="operate.clickEvent(row.agencyId)"
                 >{{ operate.func }}</el-link
@@ -101,13 +101,13 @@
           background
           small
           layout="total"
-          :total="agentDataRow?.length"
+          :total="agentDataLength"
         />
         <el-pagination
           background
           small
           layout="prev, pager, next"
-          :total="agentDataRow?.length"
+          :total="agentDataLength"
         />
       </div>
     </module-card>
@@ -340,10 +340,11 @@ const currentChange = (val) => {
 
 // 获取代理列表
 const dataLoading = ref(false);
+const agentDataLength = ref();
 const getAgentList = () => {
   dataLoading.value = true;
   const params = {
-    status: status.value || 1,
+    // status: status.value || 1,
     sortField: sortField.value || "OrderQty",
     keyWord: keyword.value,
     sortType: sortType.value || "DESC",
@@ -351,9 +352,10 @@ const getAgentList = () => {
     pageSize: pageSize.value || 50,
   };
   API.getAgentList(params).then((res) => {
-    // console.log(res.data);
+    console.log(res.data);
     dataLoading.value = false;
-    agentDataRow.value = res.data;
+    agentDataRow.value = res.data.list;
+    agentDataLength.value = res.data.total;
     agentDataRow.value?.forEach((val) => {
       val.operate = operate.value;
     });
@@ -451,7 +453,7 @@ const agentDataHead = [
     }),
   },
   {
-    prop: "status",
+    prop: "statusName",
     label: "状态",
     width: "180",
     header: true,
@@ -481,7 +483,7 @@ import { ElMessage } from "element-plus";
 const operate = ref([
   {
     func: "查看",
-    isShow: "1,10,20,30",
+    isShow: "[1],[10],[20],[30]",
     isPermission: true,
     clickEvent: (id) => {
       router.push({ path: "/agentDetail", query: { userId: id } });
@@ -489,7 +491,7 @@ const operate = ref([
   },
   {
     func: "禁用",
-    isShow: "1",
+    isShow: "[1]",
     isPermission: computed(() => {
       return roleIdentity.value == 20 || userIdentity.value == 1;
     }),
@@ -510,7 +512,7 @@ const operate = ref([
   },
   {
     func: "退款",
-    isShow: "10",
+    isShow: "[10]",
     isPermission: computed(() => {
       return roleIdentity.value == 20 || userIdentity.value == 1;
     }),
@@ -531,7 +533,7 @@ const operate = ref([
   },
   {
     func: "免佣",
-    isShow: "30",
+    isShow: "[30]",
     isPermission: computed(() => {
       return userIdentity.value == 1;
     }),

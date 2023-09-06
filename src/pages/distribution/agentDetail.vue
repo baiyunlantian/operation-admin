@@ -34,9 +34,10 @@
                     <!-- <el-input
                   v-model="agentFormData[data.name]"
                 ></el-input> -->
-                    <el-text class="mx-1">{{
-                      agentFormData[data.name]
-                    }}</el-text>
+                    <el-text class="mx-1">
+                      <span>{{ data.aliasName }}</span
+                      >{{ agentFormData[data.name] }}</el-text
+                    >
                   </el-form-item>
                 </el-col>
               </template>
@@ -210,6 +211,7 @@ const agentDataArr = reactive([
     isPermission: computed(() => {
       return roleIdentity.value == 20 || userIdentity.value == 1;
     }),
+    aliasName: "户主名称:",
   },
   {
     title: "",
@@ -217,6 +219,7 @@ const agentDataArr = reactive([
     isPermission: computed(() => {
       return roleIdentity.value == 20 || userIdentity.value == 1;
     }),
+    aliasName: "银行卡号:",
   },
   {
     title: "",
@@ -224,6 +227,7 @@ const agentDataArr = reactive([
     isPermission: computed(() => {
       return roleIdentity.value == 20 || userIdentity.value == 1;
     }),
+    aliasName: "开户行:",
   },
 ]);
 
