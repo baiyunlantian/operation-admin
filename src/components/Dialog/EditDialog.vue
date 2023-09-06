@@ -22,7 +22,7 @@
                   }}</el-text>
                   <el-input
                     class="mx-1"
-                    v-model="form[data.name]"
+                    v-model="editParams[data.name]"
                     v-else-if="msgType === 'input' && data.isChange"
                   >
                     <template #prepend v-if="data.prepend">
@@ -59,20 +59,28 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, watch } from "vue";
 const props = defineProps(["dialogOpt", "formArr", "form", "msgType"]);
 const emits = defineEmits(["changeMsgType", "cancelEdit"]);
 
+const editParams = ref();
+watch(
+  () => props.form,
+  () => {
+    editParams.value = { ...props.form };
+  },
+  { immediate: true }
+);
+
 const cancelEvent = () => {
   console.log("cancel");
-  // props.dialogOpt.dialogVisible = false;
+  editParams.value = { ...props.form };
   emits("cancelEdit");
 };
 
 const editFormData = () => {
   console.log("edit");
-  props.dialogOpt.dialogVisible = false;
-  emits("changeMsgType", { msgType: "text", editParams: props.form });
+  emits("changeMsgType", { msgType: "text", editParams: editParams.value });
 };
 </script>
 

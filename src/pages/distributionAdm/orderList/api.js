@@ -27,7 +27,7 @@ const getOrderDetails = (params) => {
 
 // 修改备注
 const getRemark = (params) => {
-  return HTTP.post("/Order/Remark", params);
+  return HTTP.post("/AgencyOrder/Order/Remark", params);
 };
 
 export {

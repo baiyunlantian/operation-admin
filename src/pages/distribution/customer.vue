@@ -152,7 +152,7 @@
       @cancelEdit="cancelEdit"
     >
       <template #header>
-        <div class="header-edit">
+        <div class="header-edit" v-if="userIdentity == 1">
           <el-button link @click="editMsg"
             ><el-icon><EditPen color="#999" /></el-icon
           ></el-button>
@@ -164,7 +164,7 @@
 
 <script setup>
 import { InfoFilled } from "@element-plus/icons-vue";
-import { onMounted, reactive, ref } from "vue";
+import { onMounted, reactive, ref, computed, nextTick } from "vue";
 import { useRouter } from "vue-router";
 const router = useRouter();
 import API from "./api";
@@ -180,6 +180,18 @@ import DataTable from "@/components/Table/DataTable.vue";
 
 // 搜索图标
 import { Search } from "@element-plus/icons-vue";
+
+// 身份确认
+// 销售 10  代理 20
+import { useStore } from "vuex";
+const store = useStore();
+const roleIdentity = computed(() => {
+  return store.getters["user/info"].roleId;
+});
+//超管1 非超管0
+const userIdentity = computed(() => {
+  return store.getters["user/info"].isAdmin;
+});
 
 // 选择日期的数据
 const daysData = [
@@ -214,7 +226,8 @@ let selectedDate = null;
 onMounted(() => {
   selectedDate = datePickerRef.value.getDate(7);
   getCustomData();
-  getCustomList({});
+  getCustomList();
+  getSalers();
 });
 
 // 卡片的数值
@@ -291,16 +304,16 @@ const searchWay = reactive([
 ]);
 
 const ascending = ref("DESC");
-const sortField = ref("orderCount");
+const sortField = ref("OrderCount");
 
 const handleTableSort = (e) => {
-  // console.log(e);
-  ascending.value = e.order;
+  console.log(e);
+  ascending.value = e.order == "ascending" ? "ASC" : "DESC";
   sortField.value = e.prop;
   getCustomList({
     keyWords: keyword.value,
-    isRemark: notes == 1 ? true : false,
-    salesName: salesName.value,
+    isRemark: isRemark.value,
+    salesId: salesName.value,
     pageSize: pageSize.value,
     ascending: ascending.value,
     sortField: sortField.value,
@@ -319,12 +332,14 @@ const notesOptions = [
 const getNotes = (val) => {
   pageIndex.value = 1;
   notes.value = val;
-  isRemark.value = notes.value == 1 ? true : false;
+  isRemark.value = notes.value;
   getCustomList({
     keyWords: keyword.value,
     isRemark: isRemark.value,
-    salesName: salesName.value,
+    salesId: salesName.value,
     pageSize: pageSize.value,
+    ascending: ascending.value,
+    sortField: sortField.value,
   });
 };
 
@@ -338,20 +353,21 @@ const salesOptions = ref([
 const getSalesName = (val) => {
   pageIndex.value = 1;
   salesName.value = val;
-
   getCustomList({
     keyWords: keyword.value,
     isRemark: isRemark.value,
-    salesName: salesName.value,
+    salesId: salesName.value,
     pageSize: pageSize.value,
+    ascending: ascending.value,
+    sortField: sortField.value,
   });
 };
 const getSalers = (val) => {
   API.getSalers().then((res) => {
     const salesOptionsArr = res.data.map((item) => {
       return {
-        value: item.userId,
-        label: item.userName,
+        value: item.UserId,
+        label: item.UserName,
       };
     });
     salesOptions.value = [...salesOptions.value, ...salesOptionsArr];
@@ -366,8 +382,10 @@ const handleSizeChange = (val) => {
   getCustomList({
     keyWords: keyword.value,
     isRemark: isRemark.value,
-    salesName: salesName.value,
+    salesId: salesName.value,
     pageSize: pageSize.value,
+    ascending: ascending.value,
+    sortField: sortField.value,
   });
 };
 
@@ -379,8 +397,10 @@ const search = () => {
   getCustomList({
     keyWords: keyword.value,
     isRemark: isRemark.value,
-    salesName: salesName.value,
+    salesId: salesName.value,
     pageSize: pageSize.value,
+    ascending: ascending.value,
+    sortField: sortField.value,
   });
 };
 
@@ -390,9 +410,10 @@ const currentChange = (val) => {
   getCustomList({
     keyWords: keyword.value,
     isRemark: isRemark.value,
-    salesName: salesName.value,
+    salesId: salesName.value,
     pageSize: pageSize.value,
-    pageIndex: pageIndex.value,
+    ascending: ascending.value,
+    sortField: sortField.value,
   });
 };
 
@@ -400,33 +421,18 @@ const currentChange = (val) => {
 const customDataRow = ref();
 const customDataLength = ref();
 const dataLoading = ref(false);
-const getCustomList = ({
-  isRemark,
-  salesId,
-  sortField,
-  keyWords,
-  ascending,
-  pageIndex,
-  pageSize,
-}) => {
-  // console.log({
-  //   status,
-  //   sortField,
-  //   keyword,
-  //   sortType,
-  //   pageIndex,
-  //   pageSize,
-  // });
+const getCustomList = () => {
   dataLoading.value = true;
-  API.getCustomList({
-    isRemark,
-    salesId,
-    sortField,
-    keyWords,
-    ascending,
-    pageIndex,
-    pageSize,
-  }).then((res) => {
+  const params = {
+    keyWords: keyword.value || "",
+    ascending: ascending.value || "DESC",
+    sortField: sortField.value || "OrderCount",
+    isRemark: isRemark.value || "-1",
+    salesId: salesName.value || "-1",
+    pageSize: pageSize.value || 50,
+    pageIndex: pageIndex.value || 1,
+  };
+  API.getCustomList(params).then((res) => {
     // console.log(res.data);
     dataLoading.value = false;
     customDataLength.value = res.data.total;
@@ -447,6 +453,7 @@ const customDataHead = [
     width: "120",
     header: true,
     sortable: true,
+    isPermission: true,
   },
   {
     prop: "phone",
@@ -454,6 +461,7 @@ const customDataHead = [
     width: "110",
     header: true,
     sortable: true,
+    isPermission: true,
   },
   {
     prop: "agencyName",
@@ -461,6 +469,7 @@ const customDataHead = [
     width: "110",
     header: true,
     sortable: true,
+    isPermission: true,
   },
   {
     prop: "salesName",
@@ -468,6 +477,7 @@ const customDataHead = [
     width: "200",
     header: true,
     sortable: true,
+    isPermission: true,
   },
   {
     prop: "orderCount",
@@ -475,6 +485,7 @@ const customDataHead = [
     width: "200",
     header: true,
     sortable: true,
+    isPermission: true,
   },
   {
     prop: "orderAmount",
@@ -482,6 +493,7 @@ const customDataHead = [
     width: "200",
     header: true,
     sortable: true,
+    isPermission: true,
   },
   {
     prop: "lastPaymentTime",
@@ -489,12 +501,14 @@ const customDataHead = [
     width: "200",
     header: true,
     sortable: true,
+    isPermission: true,
   },
   {
     prop: "remark",
     label: "客户备注",
     width: "180",
     slot: true,
+    isPermission: true,
   },
 
   {
@@ -503,6 +517,7 @@ const customDataHead = [
     width: "180",
     slot: true,
     placement: "right",
+    isPermission: true,
   },
 ];
 
@@ -529,8 +544,7 @@ const operate = [
       })
         .then(() => {
           const params = {
-            userId: id,
-            status: 0, //0 禁用
+            customId: id,
           };
           API.deleteCustomInfo(params).then((res) => {
             if (res.code === 0) {
@@ -553,8 +567,10 @@ const operate = [
 ];
 
 const getCustomInfo = (id) => {
-  API.getCustomInfo(id).then((res) => {
-    console.log(res.data);
+  const params = {
+    customId: id,
+  };
+  API.getCustomInfo(params).then((res) => {
     salesFormData.value = res.data;
   });
 };
@@ -570,17 +586,17 @@ import EditDialog from "@/components/Dialog/EditDialog.vue";
 const dialogDetaiOpt = reactive({
   dialogVisible: false,
   title: "客户信息",
-  width: "60vw",
+  width: "80vw",
   col: 6,
 });
 
 const formArr = ref([
-  { title: "手机", name: "account", isChange: true },
-  { title: "微信", name: "weChat", isChange: true },
+  { title: "手机", name: "phone", isChange: true, prepend:'+86' },
+  { title: "微信", name: "wechat", isChange: true },
   { title: "客户邮箱", name: "email", isChange: true },
-  { title: "注册时间", name: "joinDate", isChange: false },
-  { title: "管理主体", name: "company", isChange: false },
-  { title: "直属代理/销售", name: "appertainSalesName", isChange: false },
+  { title: "注册时间", name: "createdTime", isChange: false },
+  { title: "管理主体", name: "companyName", isChange: false },
+  { title: "直属代理/销售", name: "agencyName", isChange: false },
 ]);
 const salesFormData = ref({});
 
@@ -591,22 +607,29 @@ const editMsg = () => {
 };
 
 const changeMsgType = (val) => {
-  msgType.value = val.msgType;
-  editSalesInfo(val.editParams);
+  updateCustomInfo(val);
   console.log(val);
 };
 const cancelEdit = (val) => {
   msgType.value = "text";
 };
 
-const editSalesInfo = (msg) => {
+const updateCustomInfo = (msg) => {
   const params = {
-    phone: msg.phone,
-    weChat: msg.weChat,
-    email: msg.email,
+    customId: msg.editParams.agencyCustomId,
+    phone: msg.editParams.phone,
+    weChat: msg.editParams.wechat,
+    email: msg.editParams.email,
   };
-  API.editSalesInfo(params).then((res) => {
-    console.log(res);
+  API.updateCustomInfo(params).then((res) => {
+    if (res.code == 0) {
+      getCustomInfo(msg.editParams.agencyCustomId);
+      nextTick(() => {
+        msgType.value = msg.msgType;
+      });
+
+      console.log(res);
+    }
   });
 };
 </script>

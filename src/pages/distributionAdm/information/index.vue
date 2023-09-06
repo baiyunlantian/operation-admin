@@ -88,7 +88,7 @@
 
     <el-row :gutter="28">
       <el-col
-        v-if="userIdentity == 1"
+        v-if="userIdentity.isAdmin == 1"
         :xl="12"
         :lg="12"
         :md="24"
@@ -96,7 +96,7 @@
         :xs="24"
       >
         <Ranking
-          :is-show="userIdentity == 1"
+          :is-show="userIdentity.isAdmin == 1"
           title="销售排名"
           :listTitle="sellListTitle"
           :tableData="sellTableData"
@@ -110,7 +110,7 @@
         />
       </el-col>
       <el-col
-        v-if="userIdentity == 1"
+        v-if="userIdentity.isAdmin == 1"
         :xl="12"
         :lg="12"
         :md="24"
@@ -119,13 +119,13 @@
       >
         <Ranking
           title="客户量排名"
-          :is-show="userIdentity == 1"
+          :is-show="userIdentity.isAdmin == 1"
           :listTitle="customListTitle"
           :tableData="customTableData"
         />
       </el-col>
       <el-col
-        v-if="roleIdentity != 20"
+        v-if="roleIdentity.roleId != 20"
         :xl="12"
         :lg="12"
         :md="24"
@@ -134,7 +134,7 @@
       >
         <Ranking
           title="代理排名"
-          :is-show="roleIdentity != 20"
+          :is-show="roleIdentity.roleId != 20"
           :listTitle="agencyListTitle"
           :tableData="agencyTableData"
         />
@@ -144,7 +144,14 @@
 </template>
 
 <script setup>
-import { onMounted, ref, getCurrentInstance, computed, watch } from "vue";
+import {
+  onMounted,
+  ref,
+  getCurrentInstance,
+  computed,
+  watch,
+  reactive,
+} from "vue";
 import StatisticsTitle from "../components/statisticsTitle.vue";
 import BrokenLine from "./components/brokenLine";
 import PayMoneyTipsBox from "@/components/payMoneyTipsBox";
@@ -162,6 +169,7 @@ import {
   getCustomCountRanking,
   getAgentRanking,
 } from "./api";
+import { useStore, mapGetters } from "vuex";
 import API from "@/pages/account/api";
 import { useStore } from "vuex";
 import dayjs from "dayjs";
@@ -172,12 +180,12 @@ const store = useStore();
 
 // 超管1 非超管0
 const userIdentity = computed(() => {
-  return store.getters["user/info"].isAdmin;
+  return store.getters["user/info"];
 });
 
 // 10:销售 20：代理
 const roleIdentity = computed(() => {
-  return store.getters["user/info"].roleId;
+  return store.getters["user/agentInfo"];
 });
 
 const payCallback = ref(API.getDepositPaymentRecord)
@@ -202,49 +210,49 @@ const collectInformation = ref([
   {
     title: "全部总收入",
     isMoney: true,
-    money: "totalIncome",
+    money: 0,
     image: barChart,
     imageStyle: "width: 104px; height: 42px",
     isShow: true,
+    propMoney: "totalIncome",
   },
   {
     title: "昨日收入",
     isMoney: true,
-    money: "yesterdayIncome",
+    money: 0,
     image: barChart,
     imageStyle: "width: 104px; height: 42px",
     isShow: true,
+    propMoney: "yesterdayIncome",
   },
   {
     title: "上一周收入",
     isMoney: true,
-    money: "lastWeekIncome",
+    money: 0,
     image: barChart,
     imageStyle: "width: 104px; height: 42px",
     isShow: true,
+    propMoney: "lastWeekIncome",
   },
   {
     title: "上一月收入",
     isMoney: true,
-    money: "lastMonthIncome",
+    money: 0,
     image: barChart,
     imageStyle: "width: 104px; height: 42px",
     isShow: true,
+    propMoney: "lastMonthIncome",
   },
 ]);
 
 const getTopInformation = () => {
   getIncome().then((res) => {
     const { code, data, msg } = res || {};
-    if (code != 0) {
+    if (code == 0) {
       collectInformation.value.forEach((item) => {
-        item.money = data[item.money] || 0;
+        item.money = data[item.propMoney] || 0;
       });
-      console.log(collectInformation.value);
     } else {
-      collectInformation.value.forEach((item) => {
-        item.money = 0;
-      });
       proxy.$message({
         type: "error",
         message: msg,
@@ -254,98 +262,113 @@ const getTopInformation = () => {
 };
 
 // 仪表盘参数
-const panelInformation = ref([
-  {
-    id: 1,
-    title: "总收入",
-    isMoney: true,
-    money: "totalIncome",
-    image: barChart,
-    imageStyle: "width: 104px; height: 42px",
-    isShow: true,
-  },
-  {
-    id: 2,
-    title: "返佣金额",
-    isMoney: true,
-    money: "brokerageCommission",
-    desc: "待返金额",
-    descNum: "totalWaitBrokerageCommission",
-    isDescMoney: true,
-    descO: "已返金额",
-    descNumO: "totalBrokerageCommission",
-    isDescOMoney: true,
-    image: barChart,
-    imageStyle: "width: 104px; height: 42px",
-    isShow: true,
-  },
-  {
-    id: 3,
-    title: "冻结金额",
-    isMoney: true,
-    money: "freezeAmount",
-    image: heartbeat,
-    imageStyle: "width: 96px; height: 40px",
-    isShow: roleIdentity.value != 10 ? true : false, //销售不显示
-  },
-  {
-    id: 4,
-    title: "成交销售数量",
-    isMoney: false,
-    money: "transactionSalesCount",
-    desc: "销售总量",
-    descNum: "salesTotalCount",
-    image: userCount,
-    imageStyle: "width: 56px; height: 56px",
-    isShow: userIdentity.value == 1 ? true : false, //销售和代理不显示
-  },
-  {
-    id: 5,
-    title: "产生订单 (个)",
-    isMoney: false,
-    money: "createOrderCount",
-    image: file,
-    imageStyle: "width: 56px; height: 56px",
-    isShow: true,
-  },
-  {
-    id: 6,
-    title: "取消订单",
-    isMoney: false,
-    money: "cancellationOrderCount",
-    desc: "订单取消率",
-    descNum: "cancellationOrderProportion",
-    image: userCount,
-    imageStyle: "width: 56px; height: 56px",
-    isShow: true,
-  },
-  {
-    id: 7,
-    title: "成交客户数量",
-    isMoney: false,
-    money: "transactionCustomCount",
-    desc: "客户总量",
-    descNum: "customTotalCount",
-    image: userCount,
-    imageStyle: "width: 56px; height: 56px",
-    isShow: true,
-  },
-  {
-    id: 8,
-    title: "成交代理数量",
-    isMoney: false,
-    money: "transactionAgentCount",
-    desc: "代理总量",
-    descNum: "agentTotalCount",
-    image: userCount,
-    imageStyle: "width: 56px; height: 56px",
-    isShow: roleIdentity.value != 20 ? true : false, //代理不显示
-  },
-]);
+let panelInformation = computed(() => {
+  let _roleIdentity = store.getters["user/agentInfo"];
+  let _userIdentity = store.getters["user/info"];
+  return [
+    {
+      id: 1,
+      title: "总收入",
+      isMoney: true,
+      money: "",
+      image: barChart,
+      imageStyle: "width: 104px; height: 42px",
+      isShow: true,
+      propMoney: "totalIncome",
+    },
+    {
+      id: 2,
+      title: "返佣金额",
+      isMoney: true,
+      money: 0,
+      desc: "待返金额",
+      descNum: 0,
+      isDescMoney: true,
+      descO: "已返金额",
+      descNumO: 0,
+      isDescOMoney: true,
+      image: barChart,
+      imageStyle: "width: 104px; height: 42px",
+      isShow: true,
+      propMoney: "brokerageCommission",
+      propDescNum: "totalWaitBrokerageCommission",
+      proDescNumO: "totalBrokerageCommission",
+    },
+    {
+      id: 3,
+      title: "冻结金额",
+      isMoney: true,
+      money: 0,
+      image: heartbeat,
+      imageStyle: "width: 96px; height: 40px",
+      isShow: _roleIdentity.roleId != 10 ? true : false, //销售不显示
+      propMoney: "freezeAmount",
+    },
+    {
+      id: 4,
+      title: "成交销售数量",
+      isMoney: false,
+      money: 0,
+      desc: "销售总量",
+      descNum: 0,
+      image: userCount,
+      imageStyle: "width: 56px; height: 56px",
+      isShow: _userIdentity.isAdmin == 1 ? true : false, //销售和代理不显示
+      propMoney: "transactionSalesCount",
+      propDescNum: "salesTotalCount",
+    },
+    {
+      id: 5,
+      title: "产生订单 (个)",
+      isMoney: false,
+      money: 0,
+      image: file,
+      imageStyle: "width: 56px; height: 56px",
+      isShow: true,
+      propMoney: "createOrderCount",
+    },
+    {
+      id: 6,
+      title: "取消订单",
+      isMoney: false,
+      money: 0,
+      image: userCount,
+      imageStyle: "width: 56px; height: 56px",
+      isShow: true,
+      propMoney: "cancellationOrderCount",
+    },
+    {
+      id: 7,
+      title: "成交客户数量",
+      isMoney: false,
+      money: 0,
+      desc: "客户总量",
+      descNum: 0,
+      image: userCount,
+      imageStyle: "width: 56px; height: 56px",
+      isShow: true,
+      propMoney: "transactionCustomCount",
+      propDescNum: "customTotalCount",
+    },
+    {
+      id: 8,
+      title: "成交代理数量",
+      isMoney: false,
+      money: 0,
+      desc: "代理总量",
+      descNum: 0,
+      image: userCount,
+      imageStyle: "width: 56px; height: 56px",
+      isShow: _roleIdentity.roleId != 20 ? true : false, //代理不显示
+      propMoney: "transactionAgentCount",
+      propDescNum: "agentTotalCount",
+    },
+  ];
+});
 
 const searchParams = ref({
-  startDate: utils.getDateBeforeDays(-7) + " " + "00:00:00",
-  endDate: dayjs().subtract(1, "day").format("YYYY-MM-DD") + " " + "23:59:59",
+  startTime: utils.getNextDate(-7) + " " + "00:00:00",
+  endTime: dayjs().subtract(1, "day").format("YYYY-MM-DD") + " " + "23:59:59",
 });
 
 // 分销仪表盘
@@ -354,24 +377,15 @@ const getPanelInformation = () => {
     const { code, data, msg } = res || {};
     if (code == 0) {
       panelInformation.value.forEach((item) => {
-        item.money = data[item.money] || 0;
+        item.money = data[item.propMoney] || 0;
         if (item.descNum) {
-          item.descNum = data[item.descNum] || 0;
+          item.descNum = data[item.propDescNum] || 0;
         }
         if (item.descNumO) {
-          item.descNumO = data[item.descNumO] || 0;
+          item.descNumO = data[item.proDescNumO] || 0;
         }
       });
     } else {
-      panelInformation.value.forEach((item) => {
-        item.money = 0;
-        if (item.descNum) {
-          item.descNum = 0;
-        }
-        if (item.descNumO) {
-          item.descNumO = 0;
-        }
-      });
       proxy.$message({
         type: "error",
         message: msg,
@@ -403,10 +417,6 @@ const sellListTitle = ref([
   {
     prop: "orderAmount",
     label: "订单金额",
-  },
-  {
-    prop: "transactionCustomCount",
-    label: "客户数量",
   },
 ]);
 const sellTableData = ref([]);
@@ -492,7 +502,7 @@ const customListTitle = ref([
     label: "订单金额",
   },
   {
-    prop: "TransactionCustomCount",
+    prop: "transactionCustomCount",
     label: "客户数量",
   },
 ]);
@@ -528,16 +538,16 @@ const agencyListTitle = ref([
     label: "代理名称",
   },
   {
-    prop: "orderCount",
-    label: "代理下的订单数量",
+    prop: "completeOrderCount",
+    label: "订单量",
   },
   {
     prop: "orderAmount",
     label: "订单金额",
   },
   {
-    prop: "customName",
-    label: "客户名称",
+    prop: "transactionCustomCount",
+    label: "客户数量",
   },
 ]);
 const agencyTableData = ref([]);

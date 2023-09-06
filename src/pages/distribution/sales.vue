@@ -48,7 +48,7 @@
             v-model:page-size="pageSize"
             :page-sizes="[50, 100, 200]"
             layout="sizes"
-            :total="1000"
+            :total="salesDataLength"
             @size-change="handleSizeChange"
           />
         </div>
@@ -60,18 +60,29 @@
         :column="salesDataHead"
         :data="salesDataRow"
         :sortable="true"
+        @sort-change="handleTableSort"
         v-loading="dataLoading"
       >
         <template #status="{ row }">
           <div class="status-container">
-            <el-tag>{{ row.status }}</el-tag>
+            <el-tag type="success" v-if="row.status == 1">{{
+              row.statusName
+            }}</el-tag>
+            <el-tag type="danger" v-else-if="row.status == 2">{{
+              row.statusName
+            }}</el-tag>
+            <el-tag type="info" v-else-if="row.status == 3">{{
+              row.statusName
+            }}</el-tag>
           </div>
         </template>
         <template #operate="{ row }">
           <div class="operate-container">
             <template v-for="operate in row.operate" :key="operate.func">
               <el-link
-                v-if="!operate.isShow.includes(row.status)"
+                v-if="
+                  operate.isShow.includes(row.status) && operate.isPermission
+                "
                 type="primary"
                 @click="operate.clickEvent(row.salesId, row.salesName)"
                 >{{ operate.func }}</el-link
@@ -86,13 +97,13 @@
           background
           small
           layout="total"
-          :total="salesDataRow?.length"
+          :total="salesDataLength"
         />
         <el-pagination
           background
           small
           layout="prev, pager, next"
-          :total="salesDataRow?.length"
+          :total="salesDataLength"
         />
       </div>
     </module-card>
@@ -104,6 +115,8 @@
       :agentData="salesData"
       :form="form"
       @getNewAgentData="getNewSalesData"
+      @cancelCreate="cancelCreate"
+      :rules="rules"
     ></form-dialog>
 
     <!-- 详情弹框 -->
@@ -114,6 +127,7 @@
       :show-close="false"
       :msgType="msgType"
       @changeMsgType="changeMsgType"
+      @cancelEdit="cancelEdit"
     >
       <template #header>
         <div class="header-edit">
@@ -144,6 +158,9 @@ import DataTable from "@/components/Table/DataTable.vue";
 
 // 搜索图标
 import { Search } from "@element-plus/icons-vue";
+
+// 解密和编码
+import Crypto from "@/assets/js/cryptojs";
 
 // 选择日期的数据
 const daysData = [
@@ -178,7 +195,7 @@ let selectedDate = null;
 onMounted(() => {
   selectedDate = datePickerRef.value.getDate(7);
   getSalesData();
-  getSalesList({});
+  getSalesList();
 });
 
 // 卡片的数值
@@ -186,8 +203,8 @@ const amount = ref({});
 // 获取代理数据
 const getSalesData = () => {
   const params = {
-    StartTime: selectedDate.startDate,
-    EndTime: selectedDate.endDate,
+    startTime: selectedDate.startDate,
+    endTime: selectedDate.endDate,
   };
   API.getSalesData(params).then((res) => {
     amount.value = res.data;
@@ -211,25 +228,25 @@ const updateCardData = () => {
 const cardData = ref([
   {
     title: "成交销售数量",
-    name: "completeOrderSale",
-    amount: amount.value.agentCount,
+    name: "completeOrderSaleCount",
+    amount: amount.value.completeOrderSaleCount,
     url: require("@/assets/images/user_count.png"),
     total: {
       totalTitle: "销售总量",
       totalName: "saleTotal",
-      totalAmount: amount.value.agentCount,
+      totalAmount: amount.value.saleTotal,
     },
   },
   {
     title: "成交金额",
     name: "orderTotalAmount",
-    amount: amount.value.transactionAmount,
+    amount: amount.value.orderTotalAmount,
     url: require("@/assets/images/bar_chart.png"),
   },
   {
     title: "平均价",
-    name: "orderAvgAmoun",
-    amount: amount.value.transactionAvgAmount,
+    name: "orderAvgAmount",
+    amount: amount.value.orderAvgAmount,
     url: require("@/assets/images/bar_chart.png"),
   },
 ]);
@@ -254,7 +271,10 @@ const pageSize = ref(50);
 const handleSizeChange = (val) => {
   pageSize.value = val;
   getSalesList({
-    keyword: keyword.value,
+    sortField: sortField.value,
+    keyWords: keyword.value,
+    ascending: ascending.value,
+    pageIndex: pageIndex.value,
     pageSize: pageSize.value,
   });
 };
@@ -262,44 +282,61 @@ const handleSizeChange = (val) => {
 // 搜索
 const keyword = ref();
 const search = (val, e) => {
-  // console.log(keyword.value);
   getSalesList({
-    keyword: keyword.value,
+    sortField: sortField.value,
+    keyWords: keyword.value,
+    ascending: ascending.value,
+    pageIndex: pageIndex.value,
+    pageSize: pageSize.value,
+  });
+};
+
+const ascending = ref("DESC");
+const sortField = ref("OrderCount");
+
+const handleTableSort = (e) => {
+  // console.log(e);
+  ascending.value = e.order == "ascending" ? "ASC" : "DESC";
+  sortField.value = e.prop;
+  getSalesList({
+    sortField: sortField.value,
+    keyWords: keyword.value,
+    ascending: ascending.value,
+    pageIndex: pageIndex.value,
+    pageSize: pageSize.value,
+  });
+};
+
+// 页码
+const pageIndex = ref(1);
+const currentChange = (val) => {
+  getSalesList({
+    sortField: sortField.value,
+    keyWords: keyword.value,
+    ascending: ascending.value,
+    pageIndex: pageIndex.value,
     pageSize: pageSize.value,
   });
 };
 
 // 获取代理列表
 const salesDataRow = ref();
+const salesDataLength = ref();
 const dataLoading = ref(false);
-const getSalesList = ({
-  status = 1,
-  sortField = "OrderQty",
-  keyword = "",
-  sortType = "DESC",
-  pageIndex = 1,
-  pageSize = 50,
-}) => {
-  // console.log({
-  //   status,
-  //   sortField,
-  //   keyword,
-  //   sortType,
-  //   pageIndex,
-  //   pageSize,
-  // });
+const getSalesList = () => {
   dataLoading.value = true;
-  API.getSalesList({
-    status,
-    sortField,
-    keyword,
-    sortType,
-    pageIndex,
-    pageSize,
-  }).then((res) => {
-    // console.log(res.data);
+  const params = {
+    sortField: sortField.value || "OrderCount",
+    keyWords: keyword.value,
+    ascending: ascending.value || "DESC",
+    pageIndex: pageIndex.value || 1,
+    pageSize: pageSize.value || 50,
+  };
+  API.getSalesList(params).then((res) => {
+    console.log(res.data);
     dataLoading.value = false;
     salesDataRow.value = res.data.list;
+    salesDataLength.value = res.data.total;
     salesDataRow.value.forEach((val) => {
       val.operate = operate;
     });
@@ -310,36 +347,86 @@ const getSalesList = ({
 
 // 代理数据的表头
 const salesDataHead = [
-  { prop: "salesName", label: "销售名称", width: "100", header: true },
-  { prop: "phone", label: "手机号码", width: "110", header: true },
-  { prop: "orderCount", label: "订单数量", width: "110", header: true },
-  { prop: "orderAmount", label: "订单金额（元）", width: "200", header: true },
+  {
+    prop: "salesName",
+    label: "销售名称",
+    width: "120",
+    header: true,
+    sortable: true,
+    isPermission: true,
+  },
+  {
+    prop: "phone",
+    label: "手机号码",
+    width: "110",
+    header: true,
+    sortable: true,
+    isPermission: true,
+  },
+  {
+    prop: "orderCount",
+    label: "订单数量",
+    width: "110",
+    header: true,
+    sortable: true,
+    isPermission: true,
+  },
+  {
+    prop: "orderAmount",
+    label: "订单金额（元）",
+    width: "200",
+    header: true,
+    sortable: true,
+    isPermission: true,
+  },
   {
     prop: "stayCommission",
     label: "待结佣金金额（元）",
     width: "200",
     header: true,
+    sortable: true,
+    isPermission: true,
   },
   {
     prop: "withdrawCommission",
     label: "已结佣金金额（元）",
     width: "200",
     header: true,
+    sortable: true,
+    isPermission: true,
   },
-  { prop: "customCount", label: "客户数量", width: "100", header: true },
-  { prop: "status", label: "销售状态", width: "180", slot: true, header: true },
+  {
+    prop: "customCount",
+    label: "客户数量",
+    width: "120",
+    header: true,
+    sortable: true,
+    isPermission: true,
+  },
+  {
+    prop: "status",
+    label: "销售状态",
+    width: "180",
+    slot: true,
+    header: true,
+    sortable: true,
+    isPermission: true,
+  },
   {
     prop: "lastPaymentTime",
     label: "最后成交时间",
     width: "200",
     header: true,
+    sortable: true,
+    isPermission: true,
   },
   {
     prop: "lastCommissionTime",
     label: "最后结佣时间",
     width: "180",
-    slot: true,
     header: true,
+    sortable: true,
+    isPermission: true,
   },
 
   {
@@ -348,16 +435,18 @@ const salesDataHead = [
     width: "180",
     slot: true,
     placement: "right",
+    isPermission: true,
   },
 ];
 
 // 操作方式
 import { ElMessageBox, ElMessage } from "element-plus";
 // 状态变化  0 展示  1 状态正常时展示  2 状态封禁时展示  3 状态不为离职时展示
-const operate = [
+const operate = reactive([
   {
     func: "详情",
-    isShow: "1,2,3",
+    isShow: "1,0,3",
+    isPermission: true,
     clickEvent: (id, name) => {
       console.log(id);
       dialogDetaiOpt.dialogVisible = true;
@@ -367,6 +456,7 @@ const operate = [
   {
     func: "封禁",
     isShow: "1",
+    isPermission: true,
     clickEvent: (id, name) => {
       console.log(id);
       ElMessageBox.confirm(`是否确定给 ${name} 销售ID ${id} 办理封禁`, "提示", {
@@ -381,6 +471,7 @@ const operate = [
           };
           API.disabledSales(params).then((res) => {
             if (res.code === 0) {
+              getSalesList();
               ElMessage({
                 type: "success",
                 message: "操作成功",
@@ -398,7 +489,8 @@ const operate = [
   },
   {
     func: "恢复",
-    isShow: "2",
+    isShow: "0",
+    isPermission: true,
     clickEvent: (id, name) => {
       console.log(id);
       ElMessageBox.confirm(`是否确定给 ${name} 销售ID ${id} 办理恢复`, "提示", {
@@ -413,6 +505,7 @@ const operate = [
           };
           API.disabledSales(params).then((res) => {
             if (res.code === 0) {
+              getSalesList();
               ElMessage({
                 type: "success",
                 message: "操作成功",
@@ -430,7 +523,8 @@ const operate = [
   },
   {
     func: "离职",
-    isShow: "1,2",
+    isShow: "1,0",
+    isPermission: true,
     clickEvent: (id, name) => {
       console.log(id);
       ElMessageBox.confirm(`是否确定给 ${name} 销售ID ${id} 办理恢复`, "提示", {
@@ -444,6 +538,7 @@ const operate = [
           };
           API.dimissionSales(params).then((res) => {
             if (res.code === 0) {
+              getSalesList();
               ElMessage({
                 type: "success",
                 message: "操作成功",
@@ -461,10 +556,15 @@ const operate = [
   },
   {
     func: "结算佣金",
-    isShow: "1,2,3",
+    isShow: "1,0,3",
+    isPermission: true,
     clickEvent: (id, name) => {
-      API.clearingCommission(id).then((res) => {
+      const params = {
+        userId: id,
+      };
+      API.clearingCommission(params).then((res) => {
         if (res.code === 0) {
+          getSalesList();
           ElMessage({
             type: "success",
             message: "操作成功",
@@ -473,11 +573,64 @@ const operate = [
       });
     },
   },
-];
+]);
 
 // -------------------------新增代理
 // 弹框组件
 import FormDialog from "@/components/Dialog/FormDialog.vue";
+
+const rules = reactive({
+  userName: [
+    {
+      required: true,
+      message: "销售名称不能为空!",
+      trigger: "blur",
+    },
+  ],
+  account: [
+    {
+      required: true,
+      message: "销售账号不能为空!",
+      trigger: "blur",
+    },
+    {
+      pattern: /^[0-9A-Za-z]{4,16}$/,
+      message: "请输入4-16位的数字和字母!",
+      trigger: "blur",
+    },
+  ],
+  phone: [
+    {
+      required: true,
+      message: "手机号码不能为空!",
+      trigger: "blur",
+    },
+    {
+      pattern: /^1(3|4|5|6|7|8|9)\d{9}$/,
+      message: "请输入正确的手机号!",
+      trigger: "blur",
+    },
+  ],
+  weChat: [
+    {
+      required: true,
+      message: "微信号不能为空!",
+      trigger: "blur",
+    },
+  ],
+  email: [
+    {
+      required: true,
+      message: "邮箱不能为空!",
+      trigger: "blur",
+    },
+    {
+      pattern: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/,
+      message: "请输入正确的邮箱!",
+      trigger: "blur",
+    },
+  ],
+});
 const dialogOpt = reactive({
   dialogVisible: false,
   title: "创建销售",
@@ -485,6 +638,10 @@ const dialogOpt = reactive({
 });
 const addAgent = () => {
   dialogOpt.dialogVisible = true;
+  API.generatePassword().then((res) => {
+    console.log(res.data);
+    salesData.password = res.data;
+  });
 };
 
 const formTitles = [
@@ -494,10 +651,11 @@ const formTitles = [
 
 //表单上传数据
 const salesData = reactive({
+  account: "",
   userName: "",
   phone: "",
   weChat: "",
-  email: "",
+  email: "" + "@maliyaka.com",
   notes: "",
   password: "",
   roleName: "销售",
@@ -523,7 +681,7 @@ const form = reactive({
     },
     {
       title: "销售账号",
-      name: "email",
+      name: "account",
       type: "input",
       placeholder: "请输入销售账号",
       isRequired: true,
@@ -531,16 +689,14 @@ const form = reactive({
     {
       title: "账号密码",
       name: "password",
-      type: "input",
+      type: "text",
       placeholder: "请输入账号密码",
-      isRequired: true,
     },
     {
       title: "职位",
       name: "roleName",
       type: "text",
       placeholder: "请输入职位",
-      isRequired: true,
     },
     {
       title: "微信号",
@@ -555,7 +711,6 @@ const form = reactive({
       type: "input",
       placeholder: "请输入邮箱",
       isRequired: true,
-      append: "@maliyaka.com",
     },
   ],
   otherForm: [
@@ -577,18 +732,39 @@ const form = reactive({
 });
 
 const getNewSalesData = (data) => {
-  console.log(data);
-  API.addAgencyUser(data).then((res) => {
+  // console.log(data);
+  const params = {
+    ...data,
+    password: Crypto.encrypt(data.password),
+    email: data.email,
+  };
+  API.createSaler(params).then((res) => {
     console.log(res);
-    getSalesList({
-      status: 1,
-      sortField: "OrderQty",
-      keyword: "",
-      sortType: "DESC",
-      pageIndex: 1,
-      pageSize: 50,
-    });
+    if (res.code == 0) {
+      salesData.account = "";
+      salesData.userName = "";
+      salesData.phone = "";
+      salesData.weChat = "";
+      salesData.email = "";
+      salesData.notes = "";
+      salesData.password = "";
+      getSalesList();
+      dialogOpt.dialogVisible = false;
+    } else {
+      dialogOpt.dialogVisible = true;
+    }
   });
+};
+
+const cancelCreate = () => {
+  salesData.account = "";
+  salesData.userName = "";
+  salesData.phone = "";
+  salesData.weChat = "";
+  salesData.email = "" + "@maliyaka.com";
+  salesData.notes = "";
+  salesData.password = "";
+  dialogOpt.dialogVisible = false;
 };
 
 // -------------------销售信息
@@ -607,7 +783,7 @@ const dialogDetaiOpt = reactive({
 });
 
 const formArr = ref([
-  { title: "手机", name: "account", isChange: true },
+  { title: "手机", name: "phone", isChange: true },
   { title: "微信", name: "weChat", isChange: true },
   { title: "办公邮箱", name: "email", isChange: true },
   { title: "入职时间", name: "joinDate", isChange: false },
@@ -636,7 +812,10 @@ const salesFormData = ref({
 });
 
 const getSalesInfo = (id) => {
-  API.getSalesInfo(id).then((res) => {
+  const params = {
+    userId: id,
+  };
+  API.getSalesInfo(params).then((res) => {
     console.log(res.data);
     salesFormData.value = res.data;
   });
@@ -650,15 +829,20 @@ const editMsg = () => {
 
 const changeMsgType = (val) => {
   msgType.value = val.msgType;
-  editSalesInfo(val.editParams);
+  editSalesInfo(val);
   console.log(val);
 };
 
+const cancelEdit = (val) => {
+  msgType.value = "text";
+};
+
 const editSalesInfo = (msg) => {
+  console.log(msg);
   const params = {
-    phone: msg.phone,
-    weChat: msg.weChat,
-    email: msg.email,
+    phone: msg.editParams.phone,
+    weChat: msg.editParams.weChat,
+    email: msg.editParams.email,
   };
   API.editSalesInfo(params).then((res) => {
     console.log(res);
@@ -682,6 +866,7 @@ const editSalesInfo = (msg) => {
 
   .agent-data-show {
     display: flex;
+
     // flex-wrap: wrap;
     justify-content: center;
     .el-col-5 {

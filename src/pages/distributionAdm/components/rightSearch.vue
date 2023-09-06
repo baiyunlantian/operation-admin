@@ -43,16 +43,16 @@ const timeRangeTags = reactive([
   { label: "一年", key: -365 },
 ]);
 
-const endTime = "23:59:59";
-const startTime = "00:00:00";
+const endTimeStr = "23:59:59";
+const startTimeStr = "00:00:00";
 const timeRange = ref([
-  dayjs().subtract(1, "day").format("YYYY-MM-DD") + " " + endTime,
+  dayjs().subtract(1, "day").format("YYYY-MM-DD") + " " + endTimeStr,
   "",
 ]);
 
 const searchParam = reactive({
-  startDate: utils.getNextDate(-7) + " " + startTime,
-  endDate: dayjs().subtract(1, "day").format("YYYY-MM-DD") + " " + endTime,
+  startTime: utils.getNextDate(-7) + " " + startTimeStr,
+  endTime: dayjs().subtract(1, "day").format("YYYY-MM-DD") + " " + endTimeStr,
 });
 
 function getData() {
@@ -62,10 +62,10 @@ function getData() {
 function datePickerChange(dates) {
   const [start, end] = dates;
   if (start && end) {
-    const _start = dayjs(start).format("YYYY-MM-DD") + " " + startTime;
-    const _end = dayjs(end).format("YYYY-MM-DD") + " " + endTime;
+    const _start = dayjs(start).format("YYYY-MM-DD") + " " + startTimeStr;
+    const _end = dayjs(end).format("YYYY-MM-DD") + " " + endTimeStr;
     timeRange.value = [_start, _end];
-    searchParam.endDate = timeRange.value[1];
+    searchParam.endTime = timeRange.value[1];
 
     // 选择时间范围时，清空左侧tag样式
     dateScopeType.value = null;
@@ -73,8 +73,8 @@ function datePickerChange(dates) {
 }
 
 function dateChange(dates) {
-  searchParam.startDate = dates[0];
-  searchParam.endDate = dates[1];
+  searchParam.startTime = dates[0];
+  searchParam.endTime = dates[1];
   getData();
 }
 
@@ -82,13 +82,13 @@ function dateChange(dates) {
 function handleClickTimeTag(tagValue) {
   dateScopeType.value = tagValue;
   if (tagValue == 0) {
-    searchParam.startDate = utils.getNextDate(tagValue) + " " + startTime;
-    searchParam.endDate = utils.getNextDate(tagValue) + " " + endTime;
+    searchParam.startTime = utils.getNextDate(tagValue) + " " + startTimeStr;
+    searchParam.endTime = utils.getNextDate(tagValue) + " " + endTimeStr;
     getData();
   } else {
-    searchParam.startDate = utils.getNextDate(tagValue) + " " + startTime;
-    searchParam.endDate =
-      dayjs().subtract(1, "day").format("YYYY-MM-DD") + " " + endTime;
+    searchParam.startTime = utils.getNextDate(tagValue) + " " + startTimeStr;
+    searchParam.endTime =
+      dayjs().subtract(1, "day").format("YYYY-MM-DD") + " " + endTimeStr;
     getData();
   }
 

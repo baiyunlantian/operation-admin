@@ -1,6 +1,6 @@
 <template>
   <div class="brokenLine bg-fff">
-    <el-row>
+    <el-row class="brokenLine-title">
       <el-col :xl="4" :lg="4" :md="24" :sm="24" :xs="24">
         <div class="top-title">
           <div class="total-title fw">统计数据</div>
@@ -34,8 +34,8 @@ import utils from "@/assets/js/utils.js";
 const { proxy } = getCurrentInstance();
 
 const searchParams = ref({
-  startDate: utils.getDateBeforeDays(-7) + " " + "00:00:00",
-  endDate: dayjs().subtract(1, "day").format("YYYY-MM-DD") + " " + "23:59:59",
+  startTime: utils.getNextDate(-7) + " " + "00:00:00",
+  endTime: dayjs().subtract(1, "day").format("YYYY-MM-DD") + " " + "23:59:59",
 });
 
 const lineData = ref([]);
@@ -60,7 +60,7 @@ const echartsOptions = reactive({
 function handleGetUserStatistic() {
   getTotalIncomeToDay(searchParams.value).then((res) => {
     const { code, data, msg } = res || {};
-    if (code == "0") {
+    if (code == 0) {
       formatLineData(data);
     } else {
       proxy.$message({
@@ -102,7 +102,10 @@ function formatLineData(list) {
         smooth: true,
       },
     ]);
-  let tooltip = { trigger: "axis", formatter: "{b}<br />" };
+  let tooltip = {
+    trigger: "axis",
+    formatter: "{b}<br />",
+  };
   _seriesData.value.forEach((item, index) => {
     tooltip.formatter += `{a${index}}：{c${index}}<br />`;
   });
@@ -127,9 +130,15 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .brokenLine {
-  padding: 16px 24px;
+  height: 451px;
+  box-sizing: border-box;
+  padding: 16px 24px 32px 24px;
   // margin-right: 16px;
   box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.1);
+
+  .brokenLine-title {
+    margin-bottom: 16px;
+  }
 
   .top-title {
     display: flex;
