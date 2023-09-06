@@ -120,6 +120,25 @@ export default [
         children: [],
         permission:[10, 1],
       },
+    ],
+  },
+  {
+    type: "system",
+    name: "课程用户",
+    descType: "text",
+    menuId: "6",
+    path: "/course",
+    children: [],
+    permission:[10, 0, 1],
+  },
+  {
+    type: "system",
+    name: "分销管理",
+    descType: "text",
+    menuId: "7",
+    path: "",
+    permission:[10, 20, 0, 1],
+    children: [
       {
         type: "system",
         name: "代理管理",
@@ -147,25 +166,6 @@ export default [
         children: [],
         permission:[10, 20, 1],
       },
-    ],
-  },
-  {
-    type: "system",
-    name: "课程用户",
-    descType: "text",
-    menuId: "6",
-    path: "/course",
-    children: [],
-    permission:[10, 0, 1],
-  },
-  {
-    type: "system",
-    name: "分销管理",
-    descType: "text",
-    menuId: "7",
-    path: "",
-    permission:[10, 20, 0, 1],
-    children: [
       {
         type: "system",
         name: "财务系统",
