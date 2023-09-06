@@ -32,8 +32,8 @@ export default {
     return HTTP.post("/SalesAgency/WithdrawalDeposit", params );
   },
 
-  // 查询订单支付状态
-  queryPayStatus(params) {
-    return HTTP.post("/SalesAgency/WithdrawalDeposit", params );
+  // 查询押金支付状态
+  getDepositPaymentRecord(params) {
+    return HTTP.post("/SalesAgency/DepositPaymentRecord", params );
   },
 }

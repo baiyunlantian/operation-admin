@@ -128,7 +128,7 @@
           @selection-change="handleSelectionChange"
           @sort-change="handleTableSort"
         >
-          <el-table-column type="selection" width="55" />
+          <el-table-column type="selection" width="35" />
           <el-table-column
             v-for="(item, index) in tableColumnConfig"
             :key="index"
@@ -140,7 +140,10 @@
           >
             <template #default="{ row }">
               <div v-if="item.insertSlot && item.prop === 'status'">
-                <el-button v-if="row.status == 30" size="small" type="success"
+                <el-button
+                  v-if="row.status == 30 || row.status == 31"
+                  size="small"
+                  type="success"
                   >已完成</el-button
                 >
                 <el-button v-if="row.status == 0" size="small" type="warning"
@@ -149,7 +152,10 @@
                 <el-button v-if="row.status == 20" size="small" type="info"
                   >实施中</el-button
                 >
-                <el-button v-if="row.status == -1" size="small" type="danger"
+                <el-button
+                  v-if="row.status == 40 || row.status == 41"
+                  size="small"
+                  type="danger"
                   >已取消</el-button
                 >
               </div>
@@ -370,7 +376,11 @@
                 v-for="(item, index) in tableDetailColumnConfig"
                 :key="index"
               >
-                <el-table-column :prop="item.prop" :label="item.label" />
+                <el-table-column
+                  :prop="item.prop"
+                  :label="item.label"
+                  align="center"
+                />
               </template>
             </el-table>
           </el-form>
@@ -451,53 +461,58 @@ const financialInformation = ref([
   {
     id: 1,
     title: "订单总量",
-    money: "totalOrderCount",
+    money: 0,
     isMoney: false,
     image: file,
     imageStyle: "width: 56px; height: 56px",
     isShow: true,
+    propMoney: "totalOrderCount",
   },
   {
     id: 2,
     title: "取消订单",
-    money: "cacanOrderCount",
+    money: 0,
     isMoney: false,
     image: file,
     imageStyle: "width: 56px; height: 56px",
     isShow: true,
+    propMoney: "cacanOrderCount",
   },
   {
     id: 3,
     title: "成交金额",
-    money: "concludeAmount",
+    money: 0,
     isMoney: true,
     image: barChart,
     imageStyle: "width: 104px; height: 42px",
     isShow: true,
+    propMoney: "concludeAmount",
   },
   {
     id: 4,
     title: "平均单价",
-    money: "averageAmount",
+    money: 0,
     isMoney: true,
     image: heartbeat,
     imageStyle: "width: 96px; height: 40px",
     isShow: true,
+    propMoney: "averageAmount",
   },
   {
     id: 5,
     title: "返佣金额",
-    money: "commissionAmount",
+    money: 0,
     isMoney: true,
     image: barChart,
     imageStyle: "width: 104px; height: 42px",
     isShow: true,
+    propMoney: "commissionAmount",
   },
 ]);
 
 const searchParams = ref({
-  startDate: utils.getDateBeforeDays(-7) + " " + "00:00:00",
-  endDate: dayjs().subtract(1, "day").format("YYYY-MM-DD") + " " + "23:59:59",
+  startTime: utils.getNextDate(-7) + " " + "00:00:00",
+  endTime: dayjs().subtract(1, "day").format("YYYY-MM-DD") + " " + "23:59:59",
 });
 // 订单数据汇总接口
 const getOrderInformation = () => {
@@ -505,8 +520,7 @@ const getOrderInformation = () => {
     const { code, data, msg } = res || {};
     if (code == 0) {
       financialInformation.value.forEach((item) => {
-        item.money = data[item.money];
-        item.descNum = data[item.descNum];
+        item.money = data[item.propMoney] || 0;
       });
     } else {
       proxy.$message({
@@ -529,7 +543,7 @@ const orderStatusOptions = ref([
   { label: "未成交", value: 0 },
   { label: "实施中", value: 20 },
   { label: "已完成", value: 30 },
-  { label: "已取消", value: -1 },
+  { label: "已取消", value: 40 },
 ]);
 // 搜索
 let searchTableParams = reactive({
@@ -736,7 +750,7 @@ const closeEditDialog = () => {
 const handleGetOrderDetails = (orderId) => {
   getOrderDetails({ orderId }).then((res) => {
     const { code, data, msg } = res || {};
-    if (code != 0) {
+    if (code == 0) {
       formData.value = data;
       console.log(formData.value);
     } else {

@@ -52,12 +52,11 @@
 <script setup>
   import {reactive, ref, defineEmits, defineProps, watch, getCurrentInstance, onUnmounted} from 'vue';
   import QRCodeVue3 from "qrcode-vue3";
-  import API from '@/pages/product/api';
 
   const { proxy } = getCurrentInstance()
   const emits = defineEmits(['update:modelValue', 'success'])
   const props = defineProps({
-    modelValue: {
+    modelValue:{
       required: true,
       type: Boolean,
     },
@@ -69,7 +68,7 @@
       required: true,
       type: String,
     },
-    formItemsConfig: {
+    formItemsConfig:{
       required: true,
       type: Array,
       default: () => []
@@ -79,6 +78,13 @@
       type: Object,
       default: () => {}
     },
+    payCallback:{
+      required: true,
+      type: Function,
+      default: () => {
+        return new Function()
+      }
+    }
   })
 
   const visible = ref(false)
@@ -96,7 +102,7 @@
 
   function queryPayStatus() {
     if (props.formData.orderId) {
-      API.getPaymentRecord({orderId: props.formData.orderId}).then(res=>{
+      props.payCallback({orderId: props.formData.orderId}).then(res=>{
         if (res.code == '0') {
           if (res.data.status == '1') {
             proxy.$message({

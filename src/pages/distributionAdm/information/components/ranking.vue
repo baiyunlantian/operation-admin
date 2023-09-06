@@ -64,7 +64,9 @@ defineProps({
 
 <style lang="scss" scoped>
 .ranking {
+  height: 440px;
   padding: 16px 24px;
+  box-sizing: border-box;
   margin-bottom: 16px;
   box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.1);
 

@@ -44,7 +44,7 @@
                         </div>
                     </div>
 
-                    <div class="bank-container">
+                    <div class="bank-container" v-if="agentInfo.roleId == 20">
                         <div class="left">
                             <div class="header">
                                 <div class="title">银行卡信息</div>

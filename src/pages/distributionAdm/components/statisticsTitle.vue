@@ -18,7 +18,7 @@
             :md="12"
             :sm="12"
             :xs="24"
-            v-if="item.isShow & severalRow"
+            v-if="item.isShow && severalRow"
           >
             <el-card class="box-card">
               <div class="item common-item">
@@ -58,7 +58,7 @@
                   <div class="left-box">
                     <div class="title fw">{{ item.title }}</div>
                     <div class="money fw">
-                      <span v-if="item.isMoney">¥ </span>
+                      <span v-if="item.isMoney">¥&nbsp;</span>
                       <span>{{ item.money }}</span>
                     </div>
                   </div>
@@ -155,7 +155,9 @@ const handleUpdateParams = (searchParam) => {
         font-size: 14px;
       }
       .money {
-        font-size: 32px;
+        display: flex;
+        align-items: center;
+        font-size: 30px;
       }
     }
   }
@@ -183,7 +185,7 @@ const handleUpdateParams = (searchParam) => {
     }
 
     .text {
-      margin-right: 16px;
+      margin-right: 6px;
     }
   }
 }

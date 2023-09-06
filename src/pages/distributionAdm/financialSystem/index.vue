@@ -302,53 +302,61 @@ const financialInformation = ref([
   {
     id: 1,
     title: "待审提现单",
-    money: "waitVerifyWithdrawOrderCount",
+    money: 0,
     desc: "提现总额",
     isDescMoney: true,
-    descNum: "waitVerifyWithdrawOrderAmount",
+    descNum: 0,
     image: userCount,
     imageStyle: "width: 56px; height: 56px",
-    isShow: userIdentity.value == 1 ? true : false,
+    isShow: true,
+    propMoney: "waitVerifyWithdrawOrderCount",
+    propDescNum: "waitVerifyWithdrawOrderAmount",
   },
   {
     id: 2,
     title: "等待打款现单",
-    money: "waitPaymentWithdrawOrderCount",
+    money: 0,
     desc: "等待打款总额",
     isDescMoney: true,
-    descNum: "waitPaymentWithdrawOrderAmount",
+    descNum: 0,
     image: barChart,
     imageStyle: "width: 104px; height: 42px",
-    isShow: userIdentity.value == 1 ? true : false,
+    isShow: true,
+    propMoney: "waitPaymentWithdrawOrderCount",
+    propDescNum: "waitPaymentWithdrawOrderAmount",
   },
   {
     id: 3,
     title: "已打款提现单",
-    money: "paidWithdrawOrderCount",
+    money: 0,
     desc: "已打款总额",
     isDescMoney: true,
-    descNum: "paidWithdrawOrderAmount",
+    descNum: 0,
     image: barChart,
     imageStyle: "width: 104px; height: 42px",
-    isShow: userIdentity.value == 1 ? true : false,
+    isShow: true,
+    propMoney: "paidWithdrawOrderCount",
+    propDescNum: "paidWithdrawOrderAmount",
   },
   {
     id: 4,
     title: "已拒提现单",
-    money: "rejectedWithdrawOrderCount",
+    money: 0,
     desc: "拒绝提现总额",
     isDescMoney: true,
-    descNum: "rejectedWithdrawOrderAmount",
+    descNum: 0,
     image: barChart,
     imageStyle: "width: 104px; height: 42px",
-    isShow: userIdentity.value == 1 ? true : false,
+    isShow: true,
+    propMoney: "rejectedWithdrawOrderCount",
+    propDescNum: "rejectedWithdrawOrderAmount",
   },
 ]);
 
 // 财务数据汇总
 const searchParams = ref({
-  startDate: utils.getDateBeforeDays(-7) + " " + "00:00:00",
-  endDate: dayjs().subtract(1, "day").format("YYYY-MM-DD") + " " + "23:59:59",
+  startTime: utils.getNextDate(-7) + " " + "00:00:00",
+  endTime: dayjs().subtract(1, "day").format("YYYY-MM-DD") + " " + "23:59:59",
 });
 // 财务数据汇总接口
 const getFinanceInformation = () => {
@@ -356,8 +364,10 @@ const getFinanceInformation = () => {
     const { code, data, msg } = res || {};
     if (code == 0) {
       financialInformation.value.forEach((item) => {
-        item.money = data[item.money];
-        item.descNum = data[item.descNum];
+        item.money = data[item.propMoney] || 0;
+        if (item.descNum) {
+          item.descNum = data[item.propDescNum] || 0;
+        }
       });
     } else {
       proxy.$message({
