@@ -22,14 +22,14 @@
 
                     <template v-if="menuItems === 'left'">
                         <template v-for="(menu, index) in leftMenuList" :key="menu.menuId">
-                            <el-menu-item v-if="menu.children.length === 0 && permissionList.includes(menu.path) === false || (permissionList.includes(menu.path) && userInfo.isAdmin === 1)" class="menu-item"  :index="menu.path">
+                            <el-menu-item v-if="menu.children.length === 0 && menu.permission.includes(userInfo.roleId)" class="menu-item"  :index="menu.path">
                                 {{menu.name}}
                             </el-menu-item>
 
-                            <el-sub-menu v-else-if="menu.children.length > 0 && permissionList.includes(menu.path) === false || (permissionList.includes(menu.path) && userInfo.isAdmin === 1)" class="sub-menu-item" :index="index+'b'">
+                            <el-sub-menu v-else-if="menu.children.length > 0 && menu.permission.includes(userInfo.roleId)" class="sub-menu-item" :index="index+'b'">
                                 <template #title>{{menu.name}}</template>
                                 <template v-for="(secondMenu, sIndex) in menu.children" :key="secondMenu.menuId">
-                                    <el-menu-item v-if="permissionList.includes(secondMenu.path) === false || (permissionList.includes(secondMenu.path) && userInfo.isAdmin === 1)" :index="secondMenu.path">{{secondMenu.name}}</el-menu-item>
+                                    <el-menu-item v-if="secondMenu.permission.includes(userInfo.roleId)" :index="secondMenu.path">{{secondMenu.name}}</el-menu-item>
                                 </template>
                             </el-sub-menu>
                         </template>
@@ -46,7 +46,7 @@
                                     </div>
                                 </template>
                                 <template v-for="(secondMenu, sIndex) in menu.children" :key="secondMenu.menuId">
-                                    <el-menu-item v-if="permissionList.includes(secondMenu.path) === false || (permissionList.includes(secondMenu.path) && userInfo.isAdmin === 1)" :index="secondMenu.path">{{secondMenu.name}}</el-menu-item>
+                                    <el-menu-item v-if="secondMenu.permission.includes(userInfo.roleId)" :index="secondMenu.path">{{secondMenu.name}}</el-menu-item>
                                 </template>
                             </el-sub-menu>
                         </template>
@@ -82,6 +82,7 @@
   })
 
   function handleSelect(index, indexPath, item) {
+    console.log('handleSelect', index)
     if (!index) {
       // 退出登录
       localStorage.removeItem('token')
@@ -93,7 +94,18 @@
   }
 
   const userInfo = computed(() => {
-    return store.getters["user/info"];
+    const userInfo = store.getters["user/info"]
+    const agentInfo = store.getters["user/agentInfo"]
+    let obj = {...userInfo}
+
+    if (userInfo.isAdmin == 1) {
+      obj.roleId = 1
+    }else {
+      obj.roleId = agentInfo.roleId
+    }
+
+    localStorage.setItem('roleId', obj.roleId)
+    return obj
   });
 
   watch(

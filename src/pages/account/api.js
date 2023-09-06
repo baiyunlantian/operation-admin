@@ -34,6 +34,6 @@ export default {
 
   // 查询押金支付状态
   getDepositPaymentRecord(params) {
-    return HTTP.post("/SalesAgency/DepositPaymentRecord", params );
+    return HTTP.get("/SalesAgency/DepositPaymentRecord", params );
   },
 }

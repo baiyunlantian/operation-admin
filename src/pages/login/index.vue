@@ -211,9 +211,9 @@ const formConfig = reactive({
     tip: "验证码登录",
     form: [
       {
-        label: "手机号码",
+        label: "账号",
         key: "account",
-        placeholder: "手机号码",
+        placeholder: "账号",
         compoentType: "text",
         icon: Iphone,
       },

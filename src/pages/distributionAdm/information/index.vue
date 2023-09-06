@@ -4,7 +4,7 @@
       class="tipsBox"
       v-if="agentInfo.isFreeOfCommission == 0 && agentInfo.isPayCashPledge == 0"
     >
-      <PayMoneyTipsBox @success="handleSuccessPay" />
+      <PayMoneyTipsBox :payCallback="payCallback" @success="handleSuccessPay" />
     </div>
     <!-- <div class="top-card bg-fff">
       <el-row :span="24" :gutter="70">
@@ -162,6 +162,7 @@ import {
   getCustomCountRanking,
   getAgentRanking,
 } from "./api";
+import API from "@/pages/account/api";
 import { useStore } from "vuex";
 import dayjs from "dayjs";
 import utils from "@/assets/js/utils.js";
@@ -179,12 +180,13 @@ const roleIdentity = computed(() => {
   return store.getters["user/info"].roleId;
 });
 
+const payCallback = ref(API.getDepositPaymentRecord)
+
 const agentInfo = ref({});
 
 watch(
   () => store.getters["user/agentInfo"],
   (newVal) => {
-    console.log(newVal);
     agentInfo.value = newVal;
   },
   { deep: true, immediate: true }

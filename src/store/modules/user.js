@@ -47,9 +47,7 @@ const user = {
         getUserInfo({ commit }) {
             HOME.getUserInfo().then(res=>{
                 if (res.code == '0') {
-                    // res.data.isAdmin = 1
                     commit('SET_USER_INFO', res.data);
-                    window.localStorage.setItem('isAdmin', res.data.isAdmin || 0)
                 }else {
                     commit('SET_USER_INFO', {});
                 }
@@ -59,7 +57,6 @@ const user = {
             ACCOUNT_API.getAgentUserInfo().then(res => {
                 if (res.code == '0') {
                     commit('SET_AGENT_USER_INFO', res.data);
-                    window.localStorage.setItem('roleId', res.data.roleId || 10)
                 } else {
                     commit('SET_AGENT_USER_INFO', {});
                 }

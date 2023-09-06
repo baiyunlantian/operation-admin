@@ -10,33 +10,14 @@
                             <div class="title u-font-22 u-font-weight">{{ product.title }}</div>
                             <div class="viceTitle u-font-16">{{ product.viceTitle }}</div>
                             <div class="version-container">
-                                <el-tabs
-                                        v-model="activeName"
-                                        type="card"
-                                        class="demo-tabs"
-                                        @tab-click="handleClick"
-                                >
-                                    <el-tab-pane
-                                            v-for="({versionName, productVersionId, description, price}) in product.versions"
-                                            :key="productVersionId"
-                                            :name="productVersionId"
-                                    >
-                                        <template #label>
-                                            <div :class="[productVersionId === selectedVersion.productVersionId ? 'active' : '','version']">{{ versionName }}</div>
-                                        </template>
-
-                                        <template>
-                                            <div class="pane-content">
-                                                <div class="description u-font-weight">{{ description }}</div>
-                                                <div class="price u-font-weight">售价：{{ price }} 元</div>
-                                            </div>
-                                        </template>
-                                    </el-tab-pane>
-                                </el-tabs>
-<!--                                <div   @click.stop="handleSelectProduct(product, version)">-->
-<!--                                    {{ version.versionName }}-->
-<!--                                </div>-->
+                                <div :class="[version.productVersionId === selectedProduct.version.productVersionId ? 'active' : '','version']" v-for="(version) in product.versions" :key="version.productVersionId" @click.stop="handleSelectProduct(product, version)">
+                                    {{ version.versionName }}
+                                </div>
                             </div>
+
+                            <div class="description u-font-weight">{{ handleFormatVersionInfo(product, 'description') }}</div>
+                            <div class="price u-font-weight">售价：{{ handleFormatVersionInfo(product, 'price') }} 元</div>
+
                         </div>
 
                         <div class="right">
@@ -62,10 +43,12 @@
                                 <div class="left">
                                     <div class="title u-font-22 u-font-weight">{{ option.title }}</div>
                                     <div class="viceTitle u-font-16">{{ option.viceTitle }}</div>
-                                    <div class="price u-font-weight">售价：{{ option.price }} 元</div>
+                                    <div class="m-t-b viceTitle" :class="{price: option.price > 0}">
+                                        {{ option.price === 0 ? option.description : `售价：${option.price} 元` }}
+                                    </div>
                                 </div>
 
-                                <div class="right">
+                                <div class="right" v-if="option.price > 0">
                                     <el-checkbox @change="handleChangeCheckbox(option)" :checked="option.isEssential" :disabled="option.isEssential" size="large"/>
                                 </div>
                             </div>
@@ -81,13 +64,13 @@
             <div class="left" :style="{opacity: selectedProduct.productId ? 1 : 0}">
                 <div class="product-option">
                     <div class="text">{{ selectedProduct.title }}</div>
-                    <div class="version">{{ selectedVersion.versionName }}</div>
+                    <div class="version">{{ selectedProduct.version.versionName }}</div>
                     <div class="count">x 1</div>
                 </div>
                 <div class="product-option">选配产品 x {{ checkedProductConfig.size }}</div>
             </div>
             <div class="right">
-                <div class="total-money">共计<span>{{totalMoney}}</span>元</div>
+                <div class="total-money">共计<span>{{totalPayMoney}}</span>元</div>
                 <div class="btn" @click="handleClickFooterBtn">结算</div>
             </div>
         </div>
@@ -106,10 +89,24 @@
     const productMenuList = ref([])
     const productConfigList = ref(new Map())
     const checkedProductConfig = reactive(new Map())
-    const selectedProduct = ref({})
-    const selectedVersion = ref({})
+    const selectedProduct = ref({
+      version:{}
+    })
     const configTotalPrice = ref(0)
     const progressBarColors = ref(['#0052d9','#e24d59','#00a870'])
+
+    function handleFormatVersionInfo(product, prop) {
+      const { version, productId } = selectedProduct.value;
+      // 选中的商品展示对应 选中的版本
+      if (productId === product.productId) {
+        return version[prop] || ''
+      }
+      // 没有选中的商品 默认展示专业版信息
+      else {
+        let _version = handleGetProductDefaultVersion(product.versions);
+        return _version[prop] || ''
+      }
+    }
 
     function handleFormatConfigList(ConfigList) {
       let configMap = new Map(), _configTotalPrice = 0;
@@ -128,37 +125,34 @@
       productConfigList.value = configMap
     }
 
-    function handleSelectProduct(product, version, initPage = false) {
-      let _version = {};
+    function handleSelectProduct(product, selectedVersion) {
+      let _version = handleGetProductDefaultVersion(product.versions);
 
-      if (version) {
-        _version = version
-      }
-      // 默认选中专业版
-      else {
-        const versionList = product.versions, length = versionList.length;
-        if (Array.isArray(versionList) && length > 0) {
-          _version = length > 1 ? versionList[1] : product.version[0]
-        }
+      if (selectedVersion) {
+        _version = selectedVersion
       }
 
+      const {productId, version: proVersion} = selectedProduct.value
       // 优化---点击同个产品同个版本时，不发送新请求
-      if (!(product.productId === selectedProduct.value.productId && _version.productVersionId === selectedVersion.value.productVersionId)) {
+      if (!(product.productId === productId && _version.productVersionId === proVersion.productVersionId)) {
         checkedProductConfig.clear()
         handleGetProductSelection(_version.productVersionId)
       }
 
-      selectedVersion.value = _version
-      selectedProduct.value = initPage ? {} : product
-      console.log('handleSelectProduct', productMenuList.value)
+      selectedProduct.value = {...product, version:_version}
     }
 
     function handleChangeCheckbox(option) {
       const {productFeatureId} = option
       // 防止初次加载时，未选择产品直接选择选配
-      // if (JSON.stringify(selectedProduct.value) === '{}') {
-      //   selectedProduct.value = productMenuList.value[0]
-      // }
+      if (!selectedProduct.value.productId) {
+
+        if (Array.isArray(productMenuList.value) && productMenuList.value.length > 0) {
+          const firstProduct = productMenuList.value[0];
+          const version = handleGetProductDefaultVersion(firstProduct.versions);
+          selectedProduct.value = {...firstProduct, version}
+        }
+      }
 
       if (checkedProductConfig.has(productFeatureId)) {
         checkedProductConfig.delete(productFeatureId)
@@ -168,8 +162,8 @@
     }
 
     function handleClickFooterBtn() {
-      const {productId, title} = selectedProduct.value;
-      const {price, productVersionId} = selectedVersion.value;
+      const {productId, title, version} = selectedProduct.value;
+      const {price, productVersionId} = version || {};
       // 没有选中商品不可跳转
       if (productId) {
         let params = [{title, price, productMarking:1, count:1, productId: productVersionId}]
@@ -189,14 +183,28 @@
       }
     }
 
+    // 获取产品默认版本---专业版
+    function handleGetProductDefaultVersion(versionList) {
+      if (Array.isArray(versionList) && versionList.length > 0) {
+        return versionList.length > 1 ? versionList[1] : versionList[0]
+      }else {
+        return {}
+      }
+    }
+
     function handleGetProductMenu() {
       API.getProductMenu().then(res=>{
         if (res.code == 0) {
           productMenuList.value = res.data || [];
 
           if (Array.isArray(res.data) && res.data.length > 0) {
-            const firstProduct = res.data[0]
-            handleSelectProduct(firstProduct, null, true)
+            const firstProduct = res.data[0];
+            const version = handleGetProductDefaultVersion(firstProduct.versions);
+
+            // 默认 展示 第一个产品的 专业版 产品选配列表
+            if (version.productVersionId) {
+              handleGetProductSelection(version.productVersionId)
+            }
           }
         }
       })
@@ -213,26 +221,21 @@
     }
 
     function handleComputePricePercent(product) {
-      const { price } = selectedVersion.value
-      const { productId } = selectedProduct.value
+      const { productId, version } = selectedProduct.value
       const { productId: _productId } = product
-      const versionPrice = price || 0
+      const versionPrice = version.price || 0
       if (productId === _productId) {
-        return Math.floor(Number(totalMoney.value) / ( versionPrice + configTotalPrice.value) * 100)
+        return Math.floor(Number(totalPayMoney.value) / ( versionPrice + configTotalPrice.value) * 100)
       }else {
         return 0
       }
     }
 
-    function handleClick(a, b) {
-      console.log('a',a)
-      console.log('b',b)
-    }
-
-    const totalMoney = computed(() => {
+    const totalPayMoney = computed(() => {
       let money = 0;
-      if (JSON.stringify(selectedProduct.value) !== '{}' && selectedVersion.value.price) {
-        money += selectedVersion.value.price
+      let { version = {}} = selectedProduct.value;
+      if (JSON.stringify(selectedProduct.value) !== '{}' && version.price >= 0) {
+        money += version.price
 
         checkedProductConfig.forEach(product=>{
           money += product.price
@@ -281,7 +284,6 @@
         .product-menu{
             position: relative;
             display: flex;
-            align-items: center;
             justify-content: space-between;
             margin-top: 1%;
 
@@ -424,7 +426,7 @@
                             display: flex;
                             justify-content: space-between;
 
-                            .price{
+                            .m-t-b{
                                 margin: 1vh 0;
                             }
                         }

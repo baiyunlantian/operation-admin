@@ -18,13 +18,12 @@ const router = createRouter({
       path: "/",
       name: "首页",
       meta: { title: "首页" },
-      permission: "1",
       component: layout,
       redirect: { path: "/home" },
       children: [
         {
           path: "home",
-          meta: { title: "首页", tagsDisabled: true },
+          meta: { title: "首页", tagsDisabled: true, permission: [10, 20, 0, 1] },
           name: "home",
           permission: "1",
           component: () =>
@@ -35,12 +34,13 @@ const router = createRouter({
     {
       path: "/login",
       name: "login",
-      meta: { title: "登录页" },
+      meta: { title: "登录页", permission: [10, 20, 0, 1] },
       component: Login,
     },
     {
       path: "/404",
-      meta: { title: "登录页" },
+      name: "404",
+      meta: { title: "登录页", permission: [10, 20, 0, 1] },
       component: layout,
     },
   ],
@@ -64,8 +64,6 @@ const asyncRouterMap = modulesFiles.keys().reduce((modules, modulePath) => {
 
 // 白名单
 const white = ["login", "register", "404"];
-// 权限路由（临时）
-const permissionList = ["/operate", "/distribution"];
 
 router.beforeResolve((to, from, next) => {
   next();
@@ -74,8 +72,9 @@ router.beforeResolve((to, from, next) => {
 
 router.beforeEach(async (to, from, next) => {
   // console.log("beforeEach")
-  let token = window.localStorage.getItem("token") || "";
-  const isAdmin = window.localStorage.getItem("isAdmin") || 0;
+  const token = window.localStorage.getItem("token") || "";
+  const roleId = window.localStorage.getItem("roleId") || '0';
+  const permissionList = to.meta.permission;
   const productList = JSON.parse(sessionStorage.getItem("product"));
 
   if (token) {
@@ -96,11 +95,9 @@ router.beforeEach(async (to, from, next) => {
       if (to.meta.title) {
         document.title = to.meta.title;
       }
-      // 非超管不能跳转
-      if (isAdmin === 1 && permissionList.includes(to.path) === true) {
-        next({
-          path: "/",
-        });
+
+      if (permissionList.includes(Number(roleId)) === false) {
+        next({path: "/"});
       } else {
         if (to.path === "/settleAccount") {
           if (from.path === "/product") {
@@ -167,9 +164,6 @@ function addRouterList(permissionList) {
 function filterRouter(routerList, permissionList, fullPath = "") {
   let filterRouterList = routerList.filter((item) => {
     item.fullPath = fullPath + item.path;
-    if (!permissionList.includes(item.permission)) {
-      return false;
-    }
     if (item.children) {
       let children = [];
 
