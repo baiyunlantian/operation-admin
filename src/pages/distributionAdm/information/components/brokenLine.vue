@@ -74,7 +74,10 @@ function handleGetUserStatistic() {
 
 // 格式化数据
 function formatLineData(list) {
-  // if (list.length <= 0) return;
+  if (list.length == 0) {
+    lineData.value = [];
+    return;
+  }
   if (currentClick.value == 0 || currentClick.value == -1) {
     list = list.map((item) => {
       return {
@@ -127,7 +130,6 @@ function formatLineData(list) {
   echartsOptions.tooltip = { ...echartsOptions.tooltip, ...tooltip };
   xAxisData.value = _xAxisData;
   lineData.value = _seriesData.value;
-  console.log(lineData.value);
 }
 
 function handleUpdateParams(params, tagValue) {
