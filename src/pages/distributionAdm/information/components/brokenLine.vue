@@ -83,7 +83,7 @@ function formatLineData(list) {
   const dataT = computed(() => {
     const dT = ref([]);
     list.filter((item) => {
-      dT.value.push(item.totalIncome);
+      dT.value.push(item.orderCount);
     });
     return dT.value;
   });
