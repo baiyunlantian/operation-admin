@@ -7,22 +7,19 @@ export default [
     meta: {title: "个人中心"},
     component: layout,
     name: "个人中心",
-    permission: 1,
     children: [
       {
         path: '/center',
-        meta: {title: "个人中心"},
+        meta: {title: "个人中心", permission: [10, 20, 0, 1]},
         component: () => import('@/pages/account/center.vue'),
         name: 'info',
-        permission: 1
       },
-      {
-        path: '/updatePassword',
-        meta: {title: "修改密码"},
-        component: () => import('@/pages/account/updatePassword.vue'),
-        name: 'updatePassword',
-        permission: 1
-      },
+      // {
+      //   path: '/updatePassword',
+      //   meta: {title: "修改密码"},
+      //   component: () => import('@/pages/account/updatePassword.vue'),
+      //   name: 'updatePassword',
+      // },
     ]
   }
 ]

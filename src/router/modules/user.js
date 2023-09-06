@@ -7,21 +7,19 @@ export default [
         meta: {title: "用户管理"},
         component: layout,
         name: "用户管理",
-        permission: 1,
         children: [
             {
                 path: '/member',
-                meta: {title: "会员用户列表"},
+                meta: {title: "会员用户列表", permission: [10, 0, 1]},
                 component: () => import('@/pages/user/member/index.vue'),
                 name: 'member',
                 permission: 1,
             },
             {
                 path: '/operate',
-                meta: {title: "后台用户列表"},
+                meta: {title: "后台用户列表", permission: [1]},
                 component: () => import('@/pages/user/operate/index.vue'),
                 name: 'operate',
-                permission: 1
             },
         ]
     }

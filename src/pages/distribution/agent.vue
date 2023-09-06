@@ -76,25 +76,17 @@
         ref="tableRef"
         :column="agentDataHead"
         :data="agentDataRow"
-        :sortable="true"
+        @sort-change="handleTableSort"
         v-loading="dataLoading"
       >
-        <template #totalCommission="{ row }">
-          <div class="totalCommission-container">
-            <div
-              class="totalCommission-title"
-              v-for="commission in row.totalCommission"
-              :key="commission.title"
-            >
-              {{ commission.title }} <span>￥{{ commission.amount }}</span>
-            </div>
-          </div>
-        </template>
         <template #operate="{ row }">
           <div class="operate-container">
             <template v-for="operate in row.operate" :key="operate.func">
+              <!-- !(
+                    !operate.isShow.includes(row.status) && operate.isPermission
+                  ) -->
               <el-link
-                v-if="operate.isShow"
+                v-if="true"
                 type="primary"
                 @click="operate.clickEvent(row.agencyId)"
                 >{{ operate.func }}</el-link
@@ -127,12 +119,14 @@
       :agentData="agentData"
       :form="form"
       @getNewAgentData="getNewAgentData"
+      @cancelCreate="cancelCreate"
+      :rules="rules"
     ></form-dialog>
   </div>
 </template>
 
 <script setup>
-import { onMounted, reactive, ref } from "vue";
+import { onMounted, reactive, ref, computed } from "vue";
 import { useRouter } from "vue-router";
 const router = useRouter();
 import API from "./api";
@@ -181,8 +175,9 @@ const datePickerRef = ref();
 let selectedDate = null;
 onMounted(() => {
   selectedDate = datePickerRef.value.getDate(7);
-  getAgentData();
-  getAgentList({});
+  // getAgentData();
+  getAgentList();
+  getStatusList();
 });
 
 // 卡片的数值
@@ -190,11 +185,12 @@ const amount = ref({});
 // 获取代理数据
 const getAgentData = () => {
   const params = {
-    StartTime: selectedDate.startDate,
-    EndTime: selectedDate.endDate,
+    startTime: selectedDate.startDate,
+    endTime: selectedDate.endDate,
   };
   API.getAgentData(params).then((res) => {
     amount.value = res.data;
+    console.log(res.data);
     updateCardData();
     // console.log(amount.value);
   });
@@ -204,21 +200,29 @@ const getAgentData = () => {
 const updateCardData = () => {
   cardData.value.forEach((value) => {
     value.amount = amount.value[value.name];
+    if (value.total) {
+      value.total.totalAmount = amount.value[value.total.totalName];
+    }
   });
 };
 
 // 卡片数据
 const cardData = ref([
   {
-    title: "代理总量",
+    title: "成交代理",
     name: "completeOrderAgentCount",
-    amount: amount.value.agentCount,
+    amount: amount.value.completeOrderAgentCount,
     url: require("@/assets/images/user_count.png"),
+    total: {
+      totalTitle: "代理总量",
+      totalName: "agentTotalCount",
+      totalAmount: amount.value.agentTotalCount,
+    },
   },
   {
     title: "订单总量",
     name: "completeOrderCount",
-    amount: amount.value.orderCount,
+    amount: amount.value.completeOrderCount,
     url: require("@/assets/images/file.png"),
   },
   {
@@ -260,41 +264,34 @@ const pageSize = ref(50);
 const handleSizeChange = (val) => {
   pageSize.value = val;
   getAgentList({
-    keyword: keyword.value,
+    keyWord: keyword.value,
     status: status.value,
     pageSize: pageSize.value,
   });
 };
 
 // 状态的选择器
-const statusOptions = [
-  {
-    value: "Option1",
-    label: "Option1",
-  },
-  {
-    value: "Option2",
-    label: "Option2",
-  },
-  {
-    value: "Option3",
-    label: "Option3",
-  },
-  {
-    value: "Option4",
-    label: "Option4",
-  },
-  {
-    value: "Option5",
-    label: "Option5",
-  },
-];
+const getStatusList = () => {
+  const params = {
+    type: "agencyUserStatus",
+  };
+  API.getStatusList(params).then((res) => {
+    statusOptions = res.data.map((val) => {
+      return {
+        value: val.key,
+        label: val.value,
+      };
+    });
+    console.log(statusOptions);
+  });
+};
+let statusOptions = [];
 
 // 状态变化
 const status = ref();
 const getStatus = (val) => {
   getAgentList({
-    keyword: keyword.value,
+    keyWord: keyword.value,
     status: status.value,
     pageSize: pageSize.value,
   });
@@ -304,100 +301,253 @@ const getStatus = (val) => {
 const keyword = ref();
 const search = (val, e) => {
   getAgentList({
-    keyword: keyword.value,
+    keyWord: keyword.value,
     status: status.value,
     pageSize: pageSize.value,
   });
 };
 
+const sortType = ref("DESC");
+const sortField = ref("OrderQty");
+
+const handleTableSort = (e) => {
+  // console.log(e);
+  ascending.value = e.order;
+  sortField.value = e.prop;
+  getCustomList({
+    keyWords: keyword.value,
+    isRemark: notes == 1 ? true : false,
+    salesName: salesName.value,
+    pageSize: pageSize.value,
+    ascending: ascending.value,
+    sortField: sortField.value,
+  });
+};
+
+// 页码
+const pageIndex = ref(1);
+const currentChange = (val) => {
+  getCustomList({
+    keyWords: keyword.value,
+    isRemark: isRemark.value,
+    salesName: salesName.value,
+    pageSize: pageSize.value,
+    pageIndex: pageIndex.value,
+  });
+};
+
 // 获取代理列表
 const dataLoading = ref(false);
-const getAgentList = ({
-  status = 1,
-  sortField = "OrderQty",
-  keyword = "",
-  sortType = "DESC",
-  pageIndex = 1,
-  pageSize = 50,
-}) => {
-  // console.log({
-  //   status,
-  //   sortField,
-  //   keyword,
-  //   sortType,
-  //   pageIndex,
-  //   pageSize,
-  // });
+const getAgentList = () => {
   dataLoading.value = true;
-  API.getAgentList({
-    status,
-    sortField,
-    keyword,
-    sortType,
-    pageIndex,
-    pageSize,
-  }).then((res) => {
+  const params = {
+    status: status.value || 1,
+    sortField: sortField.value || "OrderQty",
+    keyWord: keyword.value,
+    sortType: sortType.value || "DESC",
+    pageIndex: pageIndex.value || 1,
+    pageSize: pageSize.value || 50,
+  };
+  API.getAgentList(params).then((res) => {
     // console.log(res.data);
     dataLoading.value = false;
     agentDataRow.value = res.data;
-    agentDataRow.value.forEach((val) => {
-      val.totalCommission = totalCommission;
-      val.operate = operate;
+    agentDataRow.value?.forEach((val) => {
+      val.operate = operate.value;
     });
     // console.log('-------------',agentDataRow.value);
     // agentDataRow.value = res.data;
   });
 };
 
+// 身份确认
+// 销售 10  代理 20
+import { useStore } from "vuex";
+const store = useStore();
+const roleIdentity = computed(() => {
+  return store.getters["user/info"].roleId;
+});
+//超管1 非超管0
+const userIdentity = computed(() => {
+  return store.getters["user/info"].isAdmin;
+});
+
 // 代理数据的表头
 const agentDataHead = [
-  { prop: "agencyName", label: "代理名称", width: "100", header: true },
-  { prop: "agencyPhone", label: "代理手机号", width: "110", header: true },
-  { prop: "agencyId", label: "代理ID", width: "110", header: true },
-  { prop: "salesName", label: "销售名称", width: "100", header: true },
-  { prop: "customerQty", label: "客户数量", width: "100", header: true },
-  { prop: "orderQty", label: "订单量", width: "100", header: true },
-  { prop: "orderAmount", label: "成交额", width: "100", header: true },
-  { prop: "avgAmount", label: "平均单价", width: "100", header: true },
+  {
+    prop: "agencyName",
+    label: "代理名称",
+    width: "120",
+    header: true,
+    sortable: true,
+    isPermission: true,
+  },
+  {
+    prop: "agencyPhone",
+    label: "代理手机号",
+    width: "130",
+    header: true,
+    sortable: true,
+    isPermission: true,
+  },
+  {
+    prop: "agencyId",
+    label: "代理ID",
+    width: "110",
+    header: true,
+    sortable: true,
+    isPermission: true,
+  },
+  {
+    prop: "salesName",
+    label: "销售名称",
+    width: "120",
+    header: true,
+    sortable: true,
+    isPermission: true,
+  },
+  {
+    prop: "customerQty",
+    label: "客户数量",
+    width: "120",
+    header: true,
+    sortable: true,
+    isPermission: true,
+  },
+  {
+    prop: "orderQty",
+    label: "订单量",
+    width: "100",
+    header: true,
+    sortable: true,
+    isPermission: true,
+  },
+  {
+    prop: "orderAmount",
+    label: "成交额",
+    width: "100",
+    header: true,
+    sortable: true,
+    isPermission: true,
+  },
+  {
+    prop: "avgAmount",
+    label: "平均单价",
+    width: "120",
+    header: true,
+    sortable: true,
+    isPermission: true,
+  },
   {
     prop: "totalCommission",
-    label: "总押金",
+    label: "总佣金",
     width: "180",
-    slot: true,
     header: true,
+    sortable: true,
+    isPermission: roleIdentity.value == 20 || userIdentity.value == 1,
   },
-  { prop: "status", label: "状态", width: "180", header: true },
-  { prop: "createdTime", label: "创建时间", width: "180", header: true },
+  {
+    prop: "status",
+    label: "状态",
+    width: "180",
+    header: true,
+    sortable: true,
+    isPermission: true,
+  },
+  {
+    prop: "createdTime",
+    label: "创建时间",
+    width: "180",
+    header: true,
+    sortable: true,
+    isPermission: true,
+  },
   {
     prop: "operate",
     label: "操作",
     width: "180",
     slot: true,
+    isPermission: true,
     placement: "right",
   },
 ];
 
 // 操作方式
-const operate = [
+import { ElMessage } from "element-plus";
+const operate = ref([
   {
     func: "查看",
-    isShow: true,
+    isShow: "1,10,20,30",
+    isPermission: true,
     clickEvent: (id) => {
-      console.log(id);
       router.push({ path: "/agentDetail", query: { userId: id } });
     },
   },
-  { func: "禁用", isShow: true },
-  { func: "恢复", isShow: true },
-  { func: "免佣", isShow: true },
-];
+  {
+    func: "禁用",
+    isShow: "1",
+    isPermission: roleIdentity.value == 20 || userIdentity.value == 1,
+    clickEvent: (id) => {
+      const params = {
+        userId: id,
+      };
+      API.disabledAgent(params).then((res) => {
+        if (res.code == 0) {
+          ElMessage({
+            type: "success",
+            message: "操作成功",
+          });
+          getAgentList();
+        }
+      });
+    },
+  },
+  {
+    func: "退款",
+    isShow: "10",
+    isPermission: roleIdentity.value == 20 || userIdentity.value == 1,
+    clickEvent: (id) => {
+      const params = {
+        userId: id,
+      };
+      API.refunDeposit(params).then((res) => {
+        if (res.code == 0) {
+          ElMessage({
+            type: "success",
+            message: "操作成功",
+          });
+          getAgentList();
+        }
+      });
+    },
+  },
+  {
+    func: "免佣",
+    isShow: "30",
+    isPermission: userIdentity.value == 1,
+    clickEvent: (id) => {
+      const params = {
+        userId: id,
+      };
+      API.agentFreeOfCommission(params).then((res) => {
+        if (res.code == 0) {
+          ElMessage({
+            type: "success",
+            message: "操作成功",
+          });
+          getAgentList();
+        }
+      });
+    },
+  },
+]);
 
 // 总押金参数
-const totalCommission = [
-  { title: "总押金:", amount: "76800.00" },
-  { title: "已返押金:", amount: "76800.00" },
-  { title: "未返押金:", amount: "76800.00" },
-];
+// const totalCommission = [
+//   { title: "总押金:", amount: "76800.00" },
+//   { title: "已返押金:", amount: "76800.00" },
+//   { title: "未返押金:", amount: "76800.00" },
+// ];
 
 // 代理数据的数据行内容
 const agentDataRow = ref();
@@ -412,6 +562,10 @@ const dialogOpt = reactive({
 });
 const addAgent = () => {
   dialogOpt.dialogVisible = true;
+  API.generatePassword().then((res) => {
+    console.log(res.data);
+    agentData.password = res.data;
+  });
 };
 
 const formTitles = [
@@ -422,6 +576,7 @@ const formTitles = [
 //表单上传数据
 const agentData = reactive({
   agencyName: "",
+  account: "",
   phone: "",
   email: "",
   password: "",
@@ -432,12 +587,109 @@ const agentData = reactive({
   bankName: "",
 });
 
+const cancelCreate = () => {
+  agentData.agencyName = "";
+  agentData.account = "";
+  agentData.phone = "";
+  agentData.salesId = "";
+  agentData.password = "";
+  agentData.email = "";
+  agentData.cardName = "";
+  agentData.cardNo = "";
+  agentData.openingBank = "";
+  agentData.bankName = "";
+  dialogOpt.dialogVisible = false;
+};
+
+// 规则
+const rules = reactive({
+  agencyName: [
+    {
+      required: true,
+      message: "代理名称不能为空!",
+      trigger: "blur",
+    },
+  ],
+  account: [
+    {
+      required: true,
+      message: "代理账号不能为空!",
+      trigger: "blur",
+    },
+    {
+      pattern: /^[0-9A-Za-z]{4,16}$/,
+      message: "请输入4-16位的数字和字母!",
+      trigger: "blur",
+    },
+  ],
+  phone: [
+    {
+      required: true,
+      message: "手机号码不能为空!",
+      trigger: "blur",
+    },
+    {
+      pattern: /^1(3|4|5|6|7|8|9)\d{9}$/,
+      message: "请输入正确的手机号!",
+      trigger: "blur",
+    },
+  ],
+  email: [
+    {
+      required: true,
+      message: "邮箱不能为空!",
+      trigger: "blur",
+    },
+    {
+      pattern: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/,
+      message: "请输入正确的邮箱!",
+      trigger: "blur",
+    },
+  ],
+  cardName: [
+    {
+      required: true,
+      message: "开户名称不能为空!",
+      trigger: "blur",
+    },
+  ],
+  cardNo: [
+    {
+      required: true,
+      message: "开户账号不能为空!",
+      trigger: "blur",
+    },
+  ],
+  openingBank: [
+    {
+      required: true,
+      message: "开户支行不能为空!",
+      trigger: "blur",
+    },
+  ],
+  bankName: [
+    {
+      required: true,
+      message: "开户银行不能为空!",
+      trigger: "blur",
+    },
+  ],
+});
+
 // 表单数据
+// 解密和编码
+import Crypto from "@/assets/js/cryptojs";
 const form = reactive({
   baseForm: [
     {
       title: "代理名称",
       name: "agencyName",
+      type: "input",
+      placeholder: "请输入代理名称",
+    },
+    {
+      title: "代理账号",
+      name: "account",
       type: "input",
       placeholder: "请输入代理名称",
       isRequired: true,
@@ -459,14 +711,13 @@ const form = reactive({
     {
       title: "账号密码",
       name: "password",
-      type: "input",
+      type: "text",
       placeholder: "请输入账号密码",
-      isRequired: true,
     },
     {
       title: "绑定销售",
       name: "salesId",
-      type: "input",
+      type: userIdentity.value == 1 ? "input" : "text",
       placeholder: "请输入绑定销售",
       isRequired: false,
     },
@@ -505,7 +756,11 @@ const form = reactive({
 
 const getNewAgentData = (data) => {
   console.log(data);
-  API.addAgencyUser(data).then((res) => {
+  const params = {
+    ...data,
+    password: Crypto.encrypt(data.password),
+  };
+  API.addAgencyUser(params).then((res) => {
     console.log(res);
     getAgentList({
       status: 1,

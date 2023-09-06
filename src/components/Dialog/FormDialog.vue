@@ -11,10 +11,11 @@
           <h4>{{ item.title }}</h4>
           <el-form
             ref="formRef"
-            :model="form[item.name]"
+            :model="agentData"
             label-width="100px"
             status-icon
             label-position="left"
+            :rules="rules"
           >
             <el-row :gutter="16">
               <el-col
@@ -24,6 +25,7 @@
               >
                 <el-form-item
                   :label="val.title"
+                  :prop="val.name"
                   :required="val.isRequired"
                   :style="{ 'flex-direction': item.flexDirection }"
                 >
@@ -56,8 +58,10 @@
     </template>
     <template #footer>
       <span class="dialog-footer">
-        <el-button @click="dialogOpt.dialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="pushFormData"> 确认 </el-button>
+        <el-button @click="cancelData">取消</el-button>
+        <el-button type="primary" @click="pushFormData(formRef)">
+          确认
+        </el-button>
       </span>
     </template>
   </el-dialog>
@@ -65,14 +69,40 @@
 
 <script setup>
 import { ref } from "vue";
-const props = defineProps(["dialogOpt", "form", "formTitles", "agentData"]);
-const emits = defineEmits(["getNewAgentData"]);
+const props = defineProps([
+  "dialogOpt",
+  "form",
+  "formTitles",
+  "agentData",
+  "rules",
+]);
+const emits = defineEmits(["getNewAgentData", "cancelCreate"]);
 const formRef = ref();
 
-const pushFormData = () => {
-  props.dialogOpt.dialogVisible = false;
-  emits("getNewAgentData", props.agentData);
+const pushFormData = async (data) => {
+  console.log(data);
+  if (!data[0]) return;
+  await data[0].validate((valid, fields) => {
+    if (valid) {
+      console.log("submit!");
+    } else {
+      console.log("error submit!", fields);
+    }
+  });
+  if (!data[1]) return;
+  await data[1].validate((valid, fields) => {
+    if (valid) {
+      console.log("submit!");
+      emits("getNewAgentData", props.agentData);
+    } else {
+      console.log("error submit!", fields);
+    }
+  });
   // console.log(props.agentData);
+};
+
+const cancelData = () => {
+  emits("cancelCreate");
 };
 </script>
 
@@ -84,7 +114,7 @@ const pushFormData = () => {
   border-bottom: 1px solid #ddd;
 }
 .dialog-body {
-  width: 40vw;
+  width: 50vw;
   margin: 0 auto;
   h4 {
     font-size: 16px;
