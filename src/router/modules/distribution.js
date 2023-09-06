@@ -19,30 +19,6 @@ export default [
         component: () => import("@/pages/distribution/distribution.vue"),
         name: "distribution",
       },
-      {
-        path: "/agent",
-        meta: { title: "代理管理" , permission: [10, 1]},
-        component: () => import("@/pages/distribution/agent.vue"),
-        name: "agent",
-      },
-      {
-        path: "/agentDetail",
-        meta: { title: "代理详情", permission: [10, 1] },
-        component: () => import("@/pages/distribution/agentDetail.vue"),
-        name: "agentDetail",
-      },
-      {
-        path: "/sales",
-        meta: { title: "销售管理", permission: [10, 1] },
-        component: () => import("@/pages/distribution/sales.vue"),
-        name: "sales",
-      },
-      {
-        path: "/customer",
-        meta: { title: "客户管理", permission: [10, 20, 1] },
-        component: () => import("@/pages/distribution/customer.vue"),
-        name: "customer",
-      },
     ],
   },
 ];

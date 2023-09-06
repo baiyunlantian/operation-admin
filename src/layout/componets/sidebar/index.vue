@@ -70,8 +70,6 @@
   const store = useStore();
 
   const menuList = reactive(MENULIST)
-  // 权限路由（临时）
-  const permissionList = ref(['/operate', '/distribution']);
   const activeIndex = ref('/home')
 
   const leftMenuList = computed(() => {
@@ -82,7 +80,6 @@
   })
 
   function handleSelect(index, indexPath, item) {
-    console.log('handleSelect', index)
     if (!index) {
       // 退出登录
       localStorage.removeItem('token')
