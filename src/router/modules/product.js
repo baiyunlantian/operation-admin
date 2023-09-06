@@ -7,21 +7,18 @@ export default [
     meta: {title: "商品目录"},
     component: layout,
     name: "商品目录",
-    permission: 1,
     children: [
       {
         path: '/product',
-        meta: {title: "商品目录"},
+        meta: {title: "商品目录", permission: [10, 20, 0, 1]},
         component: () => import('@/pages/product/index.vue'),
         name: 'product',
-        permission: 1
       },
       {
         path: '/settleAccount',
-        meta: {title: "结算商品"},
+        meta: {title: "结算商品", permission: [10, 20, 0, 1]},
         component: () => import('@/pages/product/settleAccount.vue'),
         name: 'settleAccount',
-        permission: 1
       }
     ]
   }

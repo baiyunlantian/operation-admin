@@ -11,6 +11,7 @@
             v-model="dialogVisible"
             title="押金缴纳"
             mainText="押金缴纳提交成功，请尽快付款！"
+            dialogType="1"
             :formItemsConfig="dialogFormItemsConfig"
             :formData="dialogFormData"
             :payCallback="payCallback"
@@ -20,7 +21,7 @@
 </template>
 
 <script setup>
-  import { ref, useAttrs } from 'vue';
+  import { ref, useAttrs, defineExpose } from 'vue';
   import PayMoneyDialog from '@/components/payMoneyDialog';
   import API from '@/pages/account/api';
 
@@ -36,13 +37,17 @@
   const payCallback = ref(API.getDepositPaymentRecord)
 
   function handleRecharge() {
-    API.CashPledgePayment().then(res=>{
+    API.CashPledgePayment({payType:'1'}).then(res=>{
       if (res.code == 0) {
         dialogFormData.value = res.data
         dialogVisible.value = true
       }
     })
   }
+
+  defineExpose({
+    handleRecharge
+  })
 
 </script>
 

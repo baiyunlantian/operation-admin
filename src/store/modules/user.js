@@ -59,7 +59,7 @@ const user = {
       ACCOUNT_API.getAgentUserInfo().then((res) => {
         if (res.code == "0") {
           commit("SET_AGENT_USER_INFO", res.data);
-          window.localStorage.setItem("roleId", res.data.roleId || 10);
+          window.localStorage.setItem("roleId", res.data.roleId);
         } else {
           commit("SET_AGENT_USER_INFO", {});
         }

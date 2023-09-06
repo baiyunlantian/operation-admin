@@ -7,6 +7,7 @@ export default [
     path: "/home",
     menuData: "indexAdmin",
     children: [],
+    permission:[10, 20, 0, 1],
   },
   {
     type: "user",
@@ -14,6 +15,7 @@ export default [
     descType: "img",
     menuId: "2",
     path: "",
+    permission:[10, 20, 0, 1],
     children: [
       {
         type: "user",
@@ -22,6 +24,7 @@ export default [
         menuId: "2-1",
         path: "/center",
         children: [],
+        permission:[10, 20, 0, 1],
       },
       {
         type: "user",
@@ -30,6 +33,7 @@ export default [
         menuId: "2-2",
         path: "/operate",
         children: [],
+        permission:[1],
       },
       {
         type: "logout",
@@ -38,6 +42,7 @@ export default [
         menuId: "2-3",
         path: "",
         children: [],
+        permission:[10, 20, 0, 1],
       },
     ],
   },
@@ -47,6 +52,7 @@ export default [
     descType: "text",
     menuId: "3",
     path: "",
+    permission:[10, 0, 1],
     children: [
       {
         type: "system",
@@ -56,6 +62,7 @@ export default [
         path: "/member",
         children: [],
         meta: { level: "用户中心" },
+        permission:[10, 0, 1],
       },
     ],
   },
@@ -65,6 +72,7 @@ export default [
     descType: "text",
     menuId: "4",
     path: "",
+    permission:[10, 0, 1],
     children: [
       {
         type: "system",
@@ -73,6 +81,7 @@ export default [
         menuId: "4-1",
         path: "/userStatistic",
         children: [],
+        permission:[10, 0, 1],
       },
       {
         type: "system",
@@ -81,6 +90,7 @@ export default [
         menuId: "4-2",
         path: "/tradingStatistic",
         children: [],
+        permission:[10, 0, 1],
       },
     ],
   },
@@ -90,6 +100,7 @@ export default [
     descType: "text",
     menuId: "5",
     path: "",
+    permission:[10, 20, 0, 1],
     children: [
       {
         type: "system",
@@ -98,6 +109,7 @@ export default [
         menuId: "5-1",
         path: "/invite",
         children: [],
+        permission:[10, 0, 1],
       },
       {
         type: "system",
@@ -106,30 +118,7 @@ export default [
         menuId: "5-2",
         path: "/distribution",
         children: [],
-      },
-      {
-        type: "system",
-        name: "代理管理",
-        descType: "text",
-        menuId: "5-3",
-        path: "/agent",
-        children: [],
-      },
-      {
-        type: "system",
-        name: "销售管理",
-        descType: "text",
-        menuId: "5-4",
-        path: "/sales",
-        children: [],
-      },
-      {
-        type: "system",
-        name: "客户管理",
-        descType: "text",
-        menuId: "5-5",
-        path: "/customer",
-        children: [],
+        permission:[10, 1],
       },
     ],
   },
@@ -140,6 +129,7 @@ export default [
     menuId: "6",
     path: "/course",
     children: [],
+    permission:[10, 0, 1],
   },
   {
     type: "system",
@@ -147,15 +137,35 @@ export default [
     descType: "text",
     menuId: "7",
     path: "",
+    permission:[10, 20, 0, 1],
     children: [
-      // {
-      //   type: "system",
-      //   name: "数据页面",
-      //   descType: "text",
-      //   menuId: "7-1",
-      //   path: "/information",
-      //   children: [],
-      // },
+      {
+        type: "system",
+        name: "代理管理",
+        descType: "text",
+        menuId: "5-3",
+        path: "/agent",
+        children: [],
+        permission:[10, 1],
+      },
+      {
+        type: "system",
+        name: "销售管理",
+        descType: "text",
+        menuId: "5-4",
+        path: "/sales",
+        children: [],
+        permission:[10, 1],
+      },
+      {
+        type: "system",
+        name: "客户管理",
+        descType: "text",
+        menuId: "5-5",
+        path: "/customer",
+        children: [],
+        permission:[10, 20, 1],
+      },
       {
         type: "system",
         name: "财务系统",
@@ -163,6 +173,7 @@ export default [
         menuId: "7-2",
         path: "/financialSystem",
         children: [],
+        permission:[1],
       },
       {
         type: "system",
@@ -171,6 +182,7 @@ export default [
         menuId: "7-3",
         path: "/orderList",
         children: [],
+        permission:[10, 20, 0, 1],
       },
     ],
   },
@@ -181,5 +193,6 @@ export default [
     menuId: "8",
     path: "/product",
     children: [],
+    permission:[10, 20, 0, 1],
   },
 ];

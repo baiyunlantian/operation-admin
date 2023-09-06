@@ -55,8 +55,8 @@ const searchParam = reactive({
   endTime: dayjs().subtract(1, "day").format("YYYY-MM-DD") + " " + endTimeStr,
 });
 
-function getData() {
-  emit("updateParams", searchParam);
+function getData(tagValue) {
+  emit("updateParams", searchParam, tagValue);
 }
 
 function datePickerChange(dates) {
@@ -84,12 +84,12 @@ function handleClickTimeTag(tagValue) {
   if (tagValue == 0) {
     searchParam.startTime = utils.getNextDate(tagValue) + " " + startTimeStr;
     searchParam.endTime = utils.getNextDate(tagValue) + " " + endTimeStr;
-    getData();
+    getData(tagValue);
   } else {
     searchParam.startTime = utils.getNextDate(tagValue) + " " + startTimeStr;
     searchParam.endTime =
       dayjs().subtract(1, "day").format("YYYY-MM-DD") + " " + endTimeStr;
-    getData();
+    getData(tagValue);
   }
 
   timeRange.value = [];

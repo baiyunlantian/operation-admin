@@ -85,6 +85,7 @@
                 v-model="dialogVisible"
                 title="支付订单"
                 mainText="订单提交成功，请尽快付款！"
+                dialogType="2"
                 :formItemsConfig="orderFormConfig"
                 :formData="orderFormData"
                 :payCallback="payCallback"
@@ -195,6 +196,8 @@
       })
     }
 
+    // 移出最后一条假数据
+    params.settlements.pop()
     if (params.settlements.length === 0) {
       proxy.$message({
         type: 'warning',
@@ -227,7 +230,7 @@
       return
     }
 
-    // console.log('params', params)
+    console.log('params', params)
     API.SettlementOrder(params).then(res=>{
       if (res.code == 0) {
         orderFormData.value = res.data
@@ -243,6 +246,7 @@
       _count += Number(count)
     })
 
+    _price = _price.toFixed(2)
     let lastRowData = {price:_price, count:_count}
     tableData.value = list.concat([lastRowData])
     totalMoney.value = _price

@@ -37,6 +37,7 @@ const searchParams = ref({
   startTime: utils.getNextDate(-7) + " " + "00:00:00",
   endTime: dayjs().subtract(1, "day").format("YYYY-MM-DD") + " " + "23:59:59",
 });
+const currentClick = ref();
 
 const lineData = ref([]);
 const xAxisData = ref([]);
@@ -73,6 +74,16 @@ function handleGetUserStatistic() {
 
 // 格式化数据
 function formatLineData(list) {
+  // if (list.length <= 0) return;
+  if (currentClick.value == 0 || currentClick.value == -1) {
+    list = list.map((item) => {
+      return {
+        orderCount: item.orderCount,
+        time: dayjs(item.time).hour(),
+        totalIncome: item.totalIncome,
+      };
+    });
+  }
   const dataO = computed(() => {
     const dO = ref([]);
     list.filter((item) => {
@@ -83,7 +94,7 @@ function formatLineData(list) {
   const dataT = computed(() => {
     const dT = ref([]);
     list.filter((item) => {
-      dT.value.push(item.totalIncome);
+      dT.value.push(item.orderCount);
     });
     return dT.value;
   });
@@ -116,10 +127,12 @@ function formatLineData(list) {
   echartsOptions.tooltip = { ...echartsOptions.tooltip, ...tooltip };
   xAxisData.value = _xAxisData;
   lineData.value = _seriesData.value;
+  console.log(lineData.value);
 }
 
-function handleUpdateParams(params) {
+function handleUpdateParams(params, tagValue) {
   searchParams.value = params;
+  currentClick.value = tagValue;
   handleGetUserStatistic();
 }
 

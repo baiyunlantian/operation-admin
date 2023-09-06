@@ -1,6 +1,6 @@
 <template>
     <div class="center-container">
-        <payMoneyTipsBox v-if="agentInfo.isFreeOfCommission == 0 && agentInfo.isPayCashPledge == 0" @success="handleSuccessPay"/>
+        <payMoneyTipsBox ref="payMoneyRef" v-if="agentInfo.isFreeOfCommission == 0 && agentInfo.isPayCashPledge == 0" @success="handleSuccessPay"/>
 
         <div class="main-content">
             <div class="header-container u-m-t-15">
@@ -38,7 +38,7 @@
                     <div class="withdraw-container">
                         <div class="content-box" :class="item.className" v-for="(item, index) in withdrawConfig" :key="index">
                             <div class="label-color u-font-18">{{ item.label }}</div>
-                            <div :class="[handleFormatWithDrawText(item) === '立即缴纳' ? 'u-cursor blue-color' : '']" class="prop-color u-font-weight u-font-18">
+                            <div :class="[handleFormatWithDrawText(item) === '立即缴纳' ? 'u-cursor blue-color' : '']" class="prop-color u-font-weight u-font-18" @click="handlePayMoney">
                                 {{ handleFormatWithDrawText(item) }}
                             </div>
                         </div>
@@ -127,11 +127,17 @@
       ]
     })
     const formRef = ref()
+    const payMoneyRef = ref()
     const time = ref('')
 
+    function handlePayMoney() {
+      const {isFreeOfCommission, isPayCashPledge} = agentInfo.value;
+      if (isFreeOfCommission == 0 && isPayCashPledge == 0) {
+        payMoneyRef.value.handleRecharge()
+      }
+    }
+
     function handleClickFormBtn(eventType) {
-      // 未交押金
-      if (agentInfo.value.isFreeOfCommission == 0 && agentInfo.value.isPayCashPledge == 0) return
       /**
        * eventType:
        *    true:点击编辑
@@ -144,7 +150,9 @@
       }else if (eventType === false) {
         formRef.value.validate(valid=>{
           setTimeEscalationClone(() => {
-              API.editBankCardInfo(bankInfo).then(res=>{
+              if (!valid) return
+
+              API.editBankCardInfo(bankInfo).then(res => {
                 if (res.code == 0) {
                   proxy.$message({
                     type: 'success',
@@ -274,8 +282,9 @@
        *    时间：1和15号
        *    身份：代理
        *    提现状态：未提现
+       *    提现佣金：大于0
        * */
-      if ((date.getDate() === 1 || date.getDate() === 15) && agentInfo.value.roleId == 20 && agentInfo.value.agencyWithdrawstatus == 0) {
+      if ((date.getDate() === 1 || date.getDate() === 15) && agentInfo.value.roleId == 20 && agentInfo.value.agencyWithdrawstatus == 0 && withdrawInfo.value.drawBtnStatus > 0) {
         btnStatus = true
       }
 
@@ -285,6 +294,7 @@
     watch(
       () => store.getters["user/agentInfo"],
       (newVal) => {
+        if (newVal.roleId == 20) handleGetBankCardInfo()
         agentInfo.value = newVal
         handleFormatConfig()
       },
@@ -293,7 +303,6 @@
 
     onMounted(() => {
       handleGetOrderCommissionInfo()
-      handleGetBankCardInfo()
 
       const date = new Date()
       /**

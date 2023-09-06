@@ -13,9 +13,8 @@ module.exports = defineConfig({
     open: true,
     proxy: {
       "/api": {
-        // target: `https://console-mock.apipost.cn/mock/bdab25f6-7f13-48a1-9dd1-e6bbb249739a`,
-        // target: `https://test-api-adm.maliyaka.com`,
         target: `http://192.168.194.33:8888`,
+        // target: `https://test-api-adm.maliyaka.com`,
         changeOrigin: true,
         pathRewrite: {
           "^/api": "/",

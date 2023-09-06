@@ -13,7 +13,7 @@
                     <el-icon color="#00a870" size="24"><CircleCheckFilled /></el-icon>
                     <div class="main-text u-font-weight u-font-18 u-m-l-15">{{ mainText }}</div>
                 </div>
-                <div class="sub-text">{{ formData.ExpirationTime ? `请在${formData.ExpirationTime}内完成支付，否则订单会被自动取消！` : '' }}</div>
+                <div class="sub-text">{{ dialogType === '2' ? `请在${formData.expirationTime}内完成支付，否则订单会被自动取消！` : '' }}</div>
             </div>
 
             <div class="form">
@@ -24,15 +24,15 @@
 
                 <div class="form-item">
                     <div class="form-item-label">支付方式</div>
-                    <div class="pay-way-option">{{ formData.payType || '微信支付' }}</div>
+                    <div class="pay-way-option">微信支付</div>
                 </div>
             </div>
 
             <div class="bottom-container">
                 <div class="left">
                     <QRCodeVue3
-                            :value="formData.qRCodeUrl"
-                            v-if="formData.qRCodeUrl"
+                            v-if="formData.qrCodeUrl"
+                            :value="formData.qrCodeUrl"
                             :width="200"
                             :height="200"
                             :dotsOptions="{type: 'classy'}"
@@ -52,6 +52,8 @@
 <script setup>
   import {reactive, ref, defineEmits, defineProps, watch, getCurrentInstance, onUnmounted} from 'vue';
   import QRCodeVue3 from "qrcode-vue3";
+  import ACCOUNTAPI from '@/pages/account/api';
+  import PRODUCTAPI from '@/pages/product/api';
 
   const { proxy } = getCurrentInstance()
   const emits = defineEmits(['update:modelValue', 'success'])
@@ -79,11 +81,17 @@
       default: () => {}
     },
     payCallback:{
-      required: true,
+      required: false,
       type: Function,
       default: () => {
         return new Function()
       }
+    },
+    // 1:押金  2:结算商品呢
+    dialogType:{
+      required: false,
+      type: String,
+      default: '1'
     }
   })
 
@@ -102,9 +110,10 @@
 
   function queryPayStatus() {
     if (props.formData.orderId) {
+
       props.payCallback({orderId: props.formData.orderId}).then(res=>{
         if (res.code == '0') {
-          if (res.data.status == '1') {
+          if (res.data.payResultStatus == '10') {
             proxy.$message({
               type: 'success',
               message: '支付成功',
@@ -133,6 +142,13 @@
       visible.value = newVal
     }
   )
+
+  // watch(
+  //   () => props.formData,
+  //   (newVal) => {
+  //     FormData.value = newVal
+  //   }
+  // )
 
   onUnmounted(() => {
     clearInterval(timer.value)
