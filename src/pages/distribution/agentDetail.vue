@@ -169,45 +169,61 @@ const agentDataArr = reactive([
   {
     title: "待付款佣金",
     name: "notPaymentCommission",
-    isPermission: roleIdentity.value == 20 || userIdentity.value == 1,
+    isPermission: computed(() => {
+      return roleIdentity.value == 20 || userIdentity.value == 1;
+    }),
   },
   { title: "实施中订单", name: "carryOutOrdersQty", isPermission: true },
   {
     title: "实施中佣金",
     name: "carryOutCommission",
-    isPermission: roleIdentity.value == 20 || userIdentity.value == 1,
+    isPermission: computed(() => {
+      return roleIdentity.value == 20 || userIdentity.value == 1;
+    }),
   },
   { title: "冻结押金", name: "agencyCashPledge", isPermission: true },
   { title: "已完成订单", name: "completedOrdersQty", isPermission: true },
   {
     title: "待提现佣金",
     name: "notWithdrawalCommission",
-    isPermission: roleIdentity.value == 20 || userIdentity.value == 1,
+    isPermission: computed(() => {
+      return roleIdentity.value == 20 || userIdentity.value == 1;
+    }),
   },
   {
     title: "共赚取佣金",
     name: "totalCommission",
-    isPermission: roleIdentity.value == 20 || userIdentity.value == 1,
+    isPermission: computed(() => {
+      return roleIdentity.value == 20 || userIdentity.value == 1;
+    }),
   },
   {
     title: "已提现佣金",
     name: "withdrawalCommission",
-    isPermission: roleIdentity.value == 20 || userIdentity.value == 1,
+    isPermission: computed(() => {
+      return roleIdentity.value == 20 || userIdentity.value == 1;
+    }),
   },
   {
     title: "银行卡信息",
     name: "cardName",
-    isPermission: roleIdentity.value == 20 || userIdentity.value == 1,
+    isPermission: computed(() => {
+      return roleIdentity.value == 20 || userIdentity.value == 1;
+    }),
   },
   {
     title: "",
     name: "cardNo",
-    isPermission: roleIdentity.value == 20 || userIdentity.value == 1,
+    isPermission: computed(() => {
+      return roleIdentity.value == 20 || userIdentity.value == 1;
+    }),
   },
   {
     title: "",
     name: "bankCardId",
-    isPermission: roleIdentity.value == 20 || userIdentity.value == 1,
+    isPermission: computed(() => {
+      return roleIdentity.value == 20 || userIdentity.value == 1;
+    }),
   },
 ]);
 

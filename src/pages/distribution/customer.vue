@@ -56,7 +56,6 @@
                 <el-select
                   v-model="salesName"
                   @change="getSalesName"
-                  @focus="getSalers"
                   class="m-2"
                   placeholder="全部"
                 >
