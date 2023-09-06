@@ -171,7 +171,6 @@ import {
 } from "./api";
 import { useStore, mapGetters } from "vuex";
 import API from "@/pages/account/api";
-import { useStore } from "vuex";
 import dayjs from "dayjs";
 import utils from "@/assets/js/utils.js";
 
@@ -188,7 +187,7 @@ const roleIdentity = computed(() => {
   return store.getters["user/agentInfo"];
 });
 
-const payCallback = ref(API.getDepositPaymentRecord)
+const payCallback = ref(API.getDepositPaymentRecord);
 
 const agentInfo = ref({});
 
@@ -270,7 +269,7 @@ let panelInformation = computed(() => {
       id: 1,
       title: "总收入",
       isMoney: true,
-      money: "",
+      money: 0,
       image: barChart,
       imageStyle: "width: 104px; height: 42px",
       isShow: true,
