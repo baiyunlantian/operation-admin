@@ -49,6 +49,20 @@
                     v-model="agentData[val.name]"
                     :placeholder="val.placeholder"
                   />
+
+                  <el-select
+                    v-if="val.type == 'select'"
+                    v-model="agentData[val.name]"
+                    class="m-2"
+                    placeholder="全部"
+                  >
+                    <el-option
+                      v-for="item in options"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value"
+                    />
+                  </el-select>
                 </el-form-item>
               </el-col>
             </el-row>
@@ -68,15 +82,21 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, watch } from "vue";
 const props = defineProps([
   "dialogOpt",
   "form",
   "formTitles",
   "agentData",
   "rules",
+  "options",
 ]);
-const emits = defineEmits(["getNewAgentData", "cancelCreate"]);
+
+const emits = defineEmits([
+  "getNewAgentData",
+  "cancelCreate",
+  "changeSalesName",
+]);
 const formRef = ref();
 
 const pushFormData = async (data) => {

@@ -121,12 +121,13 @@
       @getNewAgentData="getNewAgentData"
       @cancelCreate="cancelCreate"
       :rules="rules"
+      :options="salesOptions"
     ></form-dialog>
   </div>
 </template>
 
 <script setup>
-import { onMounted, reactive, ref, computed } from "vue";
+import { onMounted, reactive, ref, computed, watch } from "vue";
 import { useRouter } from "vue-router";
 const router = useRouter();
 import API from "./api";
@@ -178,6 +179,7 @@ onMounted(() => {
   // getAgentData();
   getAgentList();
   getStatusList();
+  getSalers();
 });
 
 // 卡片的数值
@@ -444,7 +446,9 @@ const agentDataHead = [
     width: "180",
     header: true,
     sortable: true,
-    isPermission: roleIdentity.value == 20 || userIdentity.value == 1,
+    isPermission: computed(() => {
+      return roleIdentity.value == 20 || userIdentity.value == 1;
+    }),
   },
   {
     prop: "status",
@@ -486,7 +490,9 @@ const operate = ref([
   {
     func: "禁用",
     isShow: "1",
-    isPermission: roleIdentity.value == 20 || userIdentity.value == 1,
+    isPermission: computed(() => {
+      return roleIdentity.value == 20 || userIdentity.value == 1;
+    }),
     clickEvent: (id) => {
       const params = {
         userId: id,
@@ -505,7 +511,9 @@ const operate = ref([
   {
     func: "退款",
     isShow: "10",
-    isPermission: roleIdentity.value == 20 || userIdentity.value == 1,
+    isPermission: computed(() => {
+      return roleIdentity.value == 20 || userIdentity.value == 1;
+    }),
     clickEvent: (id) => {
       const params = {
         userId: id,
@@ -524,7 +532,9 @@ const operate = ref([
   {
     func: "免佣",
     isShow: "30",
-    isPermission: userIdentity.value == 1,
+    isPermission: computed(() => {
+      return userIdentity.value == 1;
+    }),
     clickEvent: (id) => {
       const params = {
         userId: id,
@@ -551,8 +561,21 @@ const operate = ref([
 
 // 代理数据的数据行内容
 const agentDataRow = ref();
-
+const salesOptions = ref([]);
 // -------------------------新增代理
+
+const getSalers = (val) => {
+  API.getSalers().then((res) => {
+    const salesOptionsArr = res.data.map((item) => {
+      return {
+        value: item.userId,
+        label: item.userName,
+      };
+    });
+    salesOptions.value = [...salesOptions.value, ...salesOptionsArr];
+    console.log(salesOptions.value);
+  });
+};
 // 弹框组件
 import FormDialog from "@/components/Dialog/FormDialog.vue";
 const dialogOpt = reactive({
@@ -717,7 +740,9 @@ const form = reactive({
     {
       title: "绑定销售",
       name: "salesId",
-      type: userIdentity.value == 1 ? "input" : "text",
+      type: computed(() => {
+        return userIdentity.value == 1 ? "select" : "text";
+      }),
       placeholder: "请输入绑定销售",
       isRequired: false,
     },
@@ -761,15 +786,22 @@ const getNewAgentData = (data) => {
     password: Crypto.encrypt(data.password),
   };
   API.addAgencyUser(params).then((res) => {
-    console.log(res);
-    getAgentList({
-      status: 1,
-      sortField: "OrderQty",
-      keyword: "",
-      sortType: "DESC",
-      pageIndex: 1,
-      pageSize: 50,
-    });
+    if (res.code == 0) {
+      dialogOpt.dialogVisible = false;
+      console.log(res);
+      ElMessage({
+        type: "success",
+        message: "操作成功",
+      });
+      getAgentList({
+        status: 1,
+        sortField: "OrderQty",
+        keyword: "",
+        sortType: "DESC",
+        pageIndex: 1,
+        pageSize: 50,
+      });
+    }
   });
 };
 </script>
