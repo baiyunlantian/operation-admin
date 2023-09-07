@@ -549,7 +549,7 @@ const orderStatusOptions = ref([
 let searchTableParams = reactive({
   pageSize: 50,
   pageIndex: 1,
-  status: undefined,
+  status: -1,
   sortField: undefined,
   ascending: undefined,
 });
