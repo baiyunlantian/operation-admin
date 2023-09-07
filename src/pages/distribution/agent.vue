@@ -116,6 +116,7 @@
 
     <!-- 新增代理弹框 -->
     <form-dialog
+      ref="formRef"
       :dialogOpt="dialogOpt"
       :formTitles="formTitles"
       :agentData="agentData"
@@ -383,7 +384,7 @@ const getAgentList = () => {
 import { useStore } from "vuex";
 const store = useStore();
 const roleIdentity = computed(() => {
-  return store.getters["user/info"].roleId;
+  return store.getters["user/agentInfo"].roleId;
 });
 //超管1 非超管0
 const userIdentity = computed(() => {
@@ -795,6 +796,8 @@ const form = reactive({
   ],
 });
 
+const formRef = ref();
+
 const getNewAgentData = (data) => {
   console.log(data);
   const params = {
@@ -817,6 +820,8 @@ const getNewAgentData = (data) => {
         pageIndex: 1,
         pageSize: 50,
       });
+      formRef.value.formRef[0].resetFields();
+      formRef.value.formRef[1].resetFields();
     }
   });
 };

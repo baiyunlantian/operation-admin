@@ -129,7 +129,7 @@ onMounted(() => {
 import { useStore } from "vuex";
 const store = useStore();
 const roleIdentity = computed(() => {
-  return store.getters["user/info"].roleId;
+  return store.getters["user/agentInfo"].roleId;
 });
 //超管1 非超管0
 const userIdentity = computed(() => {
@@ -159,7 +159,7 @@ const agentFormData = ref({
   bankCardId: "",
 });
 const agentDataArr = reactive([
-  { title: "联系方式", name: "account", isPermission: true },
+  { title: "联系方式", name: "phone", isPermission: true },
   { title: "办公邮箱", name: "email", isPermission: true },
   { title: "加入时间", name: "joinDate", isPermission: true },
   { title: "所属企业", name: "company", isPermission: true },
@@ -223,7 +223,7 @@ const agentDataArr = reactive([
   },
   {
     title: "",
-    name: "bankCardId",
+    name: "openingBank",
     isPermission: computed(() => {
       return roleIdentity.value == 20 || userIdentity.value == 1;
     }),
@@ -245,6 +245,7 @@ const getAgencyUser = () => {
     agentFormData.value = res.reduce((prev, curr) => {
       return Object.assign(prev, curr.data);
     }, {});
+    console.log(agentFormData.value);
   });
 };
 
@@ -262,7 +263,7 @@ const cancelEdit = () => {
 const changeMsgType = (val) => {
   console.log(val);
   const params = {
-    agencyId: val.editParams.account,
+    agencyId: route.query.userId,
     agencyName: val.editParams.userName,
     phone: val.editParams.phone,
     email: val.editParams.email,
@@ -287,7 +288,7 @@ const dialogOpt = reactive({
 
 const formArr = ref([
   { title: "代理名称", name: "userName", isChange: true },
-  { title: "联系方式", name: "account", isChange: true },
+  { title: "联系方式", name: "phone", isChange: true },
   { title: "办公邮箱", name: "email", isChange: true },
   {
     title: "银行卡信息",
