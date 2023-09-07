@@ -303,6 +303,13 @@ function handleClickBtn() {
       };
 
       if (formType.value === "update") {
+        if (formData.newPassword === formData.oldPassword) {
+          proxy.$message({
+            type: "warning",
+            message: "新旧密码须不同",
+          });
+          return
+        }
         params.newPassword = cryptojs.encrypt(formData.newPassword);
         params.oldPassword = cryptojs.encrypt(formData.oldPassword);
         // 修改密码
