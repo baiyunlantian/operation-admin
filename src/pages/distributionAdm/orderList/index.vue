@@ -465,7 +465,7 @@ const financialInformation = ref([
     isMoney: false,
     image: file,
     imageStyle: "width: 56px; height: 56px",
-    isShow: true,
+    isShow: [1, 10, 20],
     propMoney: "totalOrderCount",
   },
   {
@@ -475,7 +475,7 @@ const financialInformation = ref([
     isMoney: false,
     image: file,
     imageStyle: "width: 56px; height: 56px",
-    isShow: true,
+    isShow: [1, 10, 20],
     propMoney: "cacanOrderCount",
   },
   {
@@ -485,7 +485,7 @@ const financialInformation = ref([
     isMoney: true,
     image: barChart,
     imageStyle: "width: 104px; height: 42px",
-    isShow: true,
+    isShow: [1, 10, 20],
     propMoney: "concludeAmount",
   },
   {
@@ -495,7 +495,7 @@ const financialInformation = ref([
     isMoney: true,
     image: heartbeat,
     imageStyle: "width: 96px; height: 40px",
-    isShow: true,
+    isShow: [1, 10, 20],
     propMoney: "averageAmount",
   },
   {
@@ -505,7 +505,7 @@ const financialInformation = ref([
     isMoney: true,
     image: barChart,
     imageStyle: "width: 104px; height: 42px",
-    isShow: true,
+    isShow: [1, 10, 20],
     propMoney: "commissionAmount",
   },
 ]);

@@ -18,7 +18,11 @@
             :md="12"
             :sm="12"
             :xs="24"
-            v-if="item.isShow && severalRow"
+            v-if="
+              (item.isShow.includes(userIdentity) ||
+                item.isShow.includes(roleIdentity)) &&
+              severalRow
+            "
           >
             <el-card class="box-card">
               <div class="item common-item">
@@ -51,7 +55,14 @@
               </div>
             </el-card>
           </el-col>
-          <el-col class="xl-5" v-if="!severalRow">
+          <el-col
+            class="xl-5"
+            v-if="
+              (item.isShow.includes(userIdentity) ||
+                item.isShow.includes(roleIdentity)) &&
+              !severalRow
+            "
+          >
             <el-card class="box-card">
               <div class="item common-item">
                 <div class="top-item">
@@ -90,11 +101,24 @@
 </template>
 
 <script setup>
-import { ref, defineProps, defineEmits, toRefs, watch } from "vue";
+import { defineProps, defineEmits, computed } from "vue";
 import RightSearch from "./rightSearch";
+import { useStore } from "vuex";
+
+const store = useStore();
+
+// 超管1 非超管0
+const userIdentity = computed(() => {
+  return store.getters["user/info"].isAdmin;
+});
+
+// 10:销售 20：代理
+const roleIdentity = computed(() => {
+  return store.getters["user/agentInfo"].roleId;
+});
 
 const emit = defineEmits(["updateParams"]);
-const props = defineProps({
+defineProps({
   isSearch: {
     type: Boolean,
     default: true,
