@@ -96,7 +96,6 @@
         :xs="24"
       >
         <Ranking
-          :is-show="userIdentity.isAdmin == 1"
           title="销售排名"
           :listTitle="sellListTitle"
           :tableData="sellTableData"
@@ -119,7 +118,6 @@
       >
         <Ranking
           title="客户量排名"
-          :is-show="userIdentity.isAdmin == 1"
           :listTitle="customListTitle"
           :tableData="customTableData"
         />
@@ -134,7 +132,6 @@
       >
         <Ranking
           title="代理排名"
-          :is-show="roleIdentity.roleId != 20"
           :listTitle="agencyListTitle"
           :tableData="agencyTableData"
         />
@@ -169,7 +166,7 @@ import {
   getCustomCountRanking,
   getAgentRanking,
 } from "./api";
-import { useStore, mapGetters } from "vuex";
+import { useStore } from "vuex";
 import API from "@/pages/account/api";
 import dayjs from "dayjs";
 import utils from "@/assets/js/utils.js";
@@ -212,7 +209,7 @@ const collectInformation = ref([
     money: 0,
     image: barChart,
     imageStyle: "width: 104px; height: 42px",
-    isShow: true,
+    isShow: [1, 10, 20],
     propMoney: "totalIncome",
   },
   {
@@ -221,7 +218,7 @@ const collectInformation = ref([
     money: 0,
     image: barChart,
     imageStyle: "width: 104px; height: 42px",
-    isShow: true,
+    isShow: [1, 10, 20],
     propMoney: "yesterdayIncome",
   },
   {
@@ -230,7 +227,7 @@ const collectInformation = ref([
     money: 0,
     image: barChart,
     imageStyle: "width: 104px; height: 42px",
-    isShow: true,
+    isShow: [1, 10, 20],
     propMoney: "lastWeekIncome",
   },
   {
@@ -239,7 +236,7 @@ const collectInformation = ref([
     money: 0,
     image: barChart,
     imageStyle: "width: 104px; height: 42px",
-    isShow: true,
+    isShow: [1, 10, 20],
     propMoney: "lastMonthIncome",
   },
 ]);
@@ -261,7 +258,7 @@ const getTopInformation = () => {
 };
 
 // 仪表盘参数
-// let panelInformation = computed(() => {
+// const panelInformation = computed(() => {
 //   let _roleIdentity = store.getters["user/agentInfo"];
 //   let _userIdentity = store.getters["user/info"];
 //   return [
@@ -272,7 +269,7 @@ const getTopInformation = () => {
 //       money: 0,
 //       image: barChart,
 //       imageStyle: "width: 104px; height: 42px",
-//       isShow: true,
+//       isShow: [1, 10, 20],
 //       propMoney: "totalIncome",
 //     },
 //     {
@@ -288,7 +285,7 @@ const getTopInformation = () => {
 //       isDescOMoney: true,
 //       image: barChart,
 //       imageStyle: "width: 104px; height: 42px",
-//       isShow: true,
+//       isShow: [1, 10, 20],
 //       propMoney: "brokerageCommission",
 //       propDescNum: "totalWaitBrokerageCommission",
 //       proDescNumO: "totalBrokerageCommission",
@@ -323,7 +320,7 @@ const getTopInformation = () => {
 //       money: 0,
 //       image: file,
 //       imageStyle: "width: 56px; height: 56px",
-//       isShow: true,
+//       isShow: [1, 10, 20],
 //       propMoney: "createOrderCount",
 //     },
 //     {
@@ -333,7 +330,7 @@ const getTopInformation = () => {
 //       money: 0,
 //       image: userCount,
 //       imageStyle: "width: 56px; height: 56px",
-//       isShow: true,
+//       isShow: [1, 10, 20],
 //       propMoney: "cancellationOrderCount",
 //     },
 //     {
@@ -345,7 +342,7 @@ const getTopInformation = () => {
 //       descNum: 0,
 //       image: userCount,
 //       imageStyle: "width: 56px; height: 56px",
-//       isShow: true,
+//       isShow: [1, 10, 20],
 //       propMoney: "transactionCustomCount",
 //       propDescNum: "customTotalCount",
 //     },
@@ -373,7 +370,7 @@ const panelInformation = ref([
     money: 0,
     image: barChart,
     imageStyle: "width: 104px; height: 42px",
-    isShow: true,
+    isShow: [1, 10, 20],
     propMoney: "totalIncome",
   },
   {
@@ -389,7 +386,7 @@ const panelInformation = ref([
     isDescOMoney: true,
     image: barChart,
     imageStyle: "width: 104px; height: 42px",
-    isShow: true,
+    isShow: [1, 10, 20],
     propMoney: "brokerageCommission",
     propDescNum: "totalWaitBrokerageCommission",
     proDescNumO: "totalBrokerageCommission",
@@ -424,7 +421,7 @@ const panelInformation = ref([
     money: 0,
     image: file,
     imageStyle: "width: 56px; height: 56px",
-    isShow: true,
+    isShow: [1, 10, 20],
     propMoney: "createOrderCount",
   },
   {
@@ -434,7 +431,7 @@ const panelInformation = ref([
     money: 0,
     image: userCount,
     imageStyle: "width: 56px; height: 56px",
-    isShow: true,
+    isShow: [1, 10, 20],
     propMoney: "cancellationOrderCount",
   },
   {
@@ -446,7 +443,7 @@ const panelInformation = ref([
     descNum: 0,
     image: userCount,
     imageStyle: "width: 56px; height: 56px",
-    isShow: true,
+    isShow: [1, 10, 20],
     propMoney: "transactionCustomCount",
     propDescNum: "customTotalCount",
   },

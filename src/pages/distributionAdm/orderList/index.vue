@@ -465,7 +465,7 @@ const financialInformation = ref([
     isMoney: false,
     image: file,
     imageStyle: "width: 56px; height: 56px",
-    isShow: true,
+    isShow: [1, 10, 20],
     propMoney: "totalOrderCount",
   },
   {
@@ -475,7 +475,7 @@ const financialInformation = ref([
     isMoney: false,
     image: file,
     imageStyle: "width: 56px; height: 56px",
-    isShow: true,
+    isShow: [1, 10, 20],
     propMoney: "cacanOrderCount",
   },
   {
@@ -485,7 +485,7 @@ const financialInformation = ref([
     isMoney: true,
     image: barChart,
     imageStyle: "width: 104px; height: 42px",
-    isShow: true,
+    isShow: [1, 10, 20],
     propMoney: "concludeAmount",
   },
   {
@@ -495,7 +495,7 @@ const financialInformation = ref([
     isMoney: true,
     image: heartbeat,
     imageStyle: "width: 96px; height: 40px",
-    isShow: true,
+    isShow: [1, 10, 20],
     propMoney: "averageAmount",
   },
   {
@@ -505,7 +505,7 @@ const financialInformation = ref([
     isMoney: true,
     image: barChart,
     imageStyle: "width: 104px; height: 42px",
-    isShow: true,
+    isShow: [1, 10, 20],
     propMoney: "commissionAmount",
   },
 ]);
@@ -858,7 +858,11 @@ onMounted(() => {
 
     :deep(.el-table__cell) {
       background-color: #fff !important;
-      color: rgba(0, 0, 0, 0.4) !important;
+      font-weight: 500;
+    }
+
+    :deep(.el-table .cell) {
+      padding: 0 10px;
     }
 
     .operate-btn {

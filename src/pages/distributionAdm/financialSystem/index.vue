@@ -308,7 +308,7 @@ const financialInformation = ref([
     descNum: 0,
     image: userCount,
     imageStyle: "width: 56px; height: 56px",
-    isShow: true,
+    isShow: [1, 10, 20],
     propMoney: "waitVerifyWithdrawOrderCount",
     propDescNum: "waitVerifyWithdrawOrderAmount",
   },
@@ -321,7 +321,7 @@ const financialInformation = ref([
     descNum: 0,
     image: barChart,
     imageStyle: "width: 104px; height: 42px",
-    isShow: true,
+    isShow: [1, 10, 20],
     propMoney: "waitPaymentWithdrawOrderCount",
     propDescNum: "waitPaymentWithdrawOrderAmount",
   },
@@ -334,7 +334,7 @@ const financialInformation = ref([
     descNum: 0,
     image: barChart,
     imageStyle: "width: 104px; height: 42px",
-    isShow: true,
+    isShow: [1, 10, 20],
     propMoney: "paidWithdrawOrderCount",
     propDescNum: "paidWithdrawOrderAmount",
   },
@@ -347,7 +347,7 @@ const financialInformation = ref([
     descNum: 0,
     image: barChart,
     imageStyle: "width: 104px; height: 42px",
-    isShow: true,
+    isShow: [1, 10, 20],
     propMoney: "rejectedWithdrawOrderCount",
     propDescNum: "rejectedWithdrawOrderAmount",
   },
@@ -667,7 +667,7 @@ onMounted(() => {
 
     :deep(.el-table__cell) {
       background-color: #fff !important;
-      color: rgba(0, 0, 0, 0.4) !important;
+      font-weight: 500;
     }
 
     .header-container {
