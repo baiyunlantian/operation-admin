@@ -55,6 +55,7 @@
       </div>
 
       <data-table
+        class="table"
         :selection="true"
         ref="tableRef"
         :column="salesDataHead"
@@ -120,7 +121,13 @@
       @getNewAgentData="getNewSalesData"
       @cancelCreate="cancelCreate"
       :rules="rules"
-    ></form-dialog>
+    >
+      <template #password>
+        <el-link style="margin-left: 20px" type="primary" @click="copyText">
+          复制
+        </el-link>
+      </template>
+    </form-dialog>
 
     <!-- 详情弹框 -->
     <edit-dialog
@@ -447,6 +454,7 @@ const salesDataHead = [
 
 // 操作方式
 import { ElMessageBox, ElMessage } from "element-plus";
+
 // 状态变化  0 展示  1 状态正常时展示  2 状态封禁时展示  3 状态不为离职时展示
 const operate = reactive([
   {
@@ -475,6 +483,7 @@ const operate = reactive([
             userId: id,
             status: 0, //0 禁用
           };
+
           API.disabledSales(params).then((res) => {
             if (res.code === 0) {
               getSalesList();
@@ -600,7 +609,8 @@ const rules = reactive({
       trigger: "blur",
     },
     {
-      pattern: /^[0-9A-Za-z]{4,16}$/,
+      // pattern: /^[0-9A-Za-z]{4,16}$/,
+      pattern: /^(?=.{4,16}$)(?:[A-Za-z0-9]+|[A-Za-z]+|[0-9]+)$/,
       message: "请输入4-16位的数字和字母!",
       trigger: "blur",
     },
@@ -648,6 +658,18 @@ const addAgent = () => {
     console.log(res.data);
     salesData.password = res.data;
   });
+};
+
+const copyText = () => {
+  const content = salesData.password;
+  navigator.clipboard
+    .writeText(content)
+    .then(() => {
+      ElMessage.success("内容已经复制到剪贴板");
+    })
+    .catch((err) => {
+      ElMessage.error("复制失败");
+    });
 };
 
 const formTitles = [
@@ -862,6 +884,11 @@ const editSalesInfo = (msg) => {
 </script>
 
 <style lang="scss" scoped>
+.table {
+  width: 100%;
+  height: calc(100vh - 540px);
+  min-height: 200px;
+}
 .agent-container {
   .agent-data-head {
     display: flex;

@@ -43,6 +43,7 @@
                       val.append
                     }}</template>
                   </el-input>
+
                   <el-text v-if="val.type == 'text'">
                     {{ agentData[val.name] }}
                   </el-text>
@@ -59,7 +60,7 @@
                     v-if="val.type == 'select'"
                     v-model="agentData[val.name]"
                     class="m-2"
-                    placeholder="全部"
+                    placeholder="请选择"
                   >
                     <el-option
                       v-for="item in options"
@@ -68,6 +69,7 @@
                       :value="item.value"
                     />
                   </el-select>
+                  <slot :name="val.name"></slot>
                 </el-form-item>
               </el-col>
             </el-row>
@@ -78,9 +80,7 @@
     <template #footer>
       <span class="dialog-footer">
         <el-button @click="cancelData(formRef)">取消</el-button>
-        <el-button type="primary" @click="pushFormData(formRef)">
-          确认
-        </el-button>
+        <el-button type="primary" @click="fn(formRef)"> 确认 </el-button>
       </span>
     </template>
   </el-dialog>
@@ -103,26 +103,48 @@ const emits = defineEmits([
   "changeSalesName",
 ]);
 const formRef = ref();
+import { setTimeEscalation } from "@/assets/js/utils";
+const debounce = setTimeEscalation();
+
+const fn = (data) => {
+  debounce(
+    () => {
+      pushFormData(data);
+    },
+    () => {
+      console.log(111);
+    },
+    1000
+  );
+};
 
 const pushFormData = async (data) => {
   console.log(data);
   if (!data[0]) return;
+  let valid1 = false;
   await data[0].validate((valid, fields) => {
-    if (valid) {
+    console.log(valid);
+    valid1 = valid;
+    if (valid1) {
       console.log("submit!");
     } else {
       console.log("error submit!", fields);
     }
   });
   if (!data[1]) return;
+  let valid2 = false;
   await data[1].validate((valid, fields) => {
-    if (valid) {
-      console.log("submit!");
-      emits("getNewAgentData", props.agentData);
+    valid2 = valid;
+    console.log(valid);
+    if (valid2) {
+      console.log("submit!!");
     } else {
       console.log("error submit!", fields);
     }
   });
+  if (valid1 && valid2) {
+    emits("getNewAgentData", props.agentData);
+  }
   // console.log(props.agentData);
 };
 

@@ -72,6 +72,7 @@
       </div>
 
       <data-table
+        class="table"
         :selection="true"
         ref="tableRef"
         :column="agentDataHead"
@@ -125,7 +126,13 @@
       @cancelCreate="cancelCreate"
       :rules="rules"
       :options="salesOptions"
-    ></form-dialog>
+    >
+      <template #password>
+        <el-link style="margin-left: 20px" type="primary" @click="copyText">
+          复制
+        </el-link>
+      </template>
+    </form-dialog>
   </div>
 </template>
 
@@ -608,6 +615,18 @@ const addAgent = () => {
   });
 };
 
+const copyText = () => {
+  const content = agentData.password;
+  navigator.clipboard
+    .writeText(content)
+    .then(() => {
+      ElMessage.success("内容已经复制到剪贴板");
+    })
+    .catch((err) => {
+      ElMessage.error("复制失败");
+    });
+};
+
 const formTitles = [
   { title: "基本信息", name: "baseForm" },
   { title: "提现信息", name: "cashForm" },
@@ -657,7 +676,7 @@ const rules = reactive({
       trigger: "blur",
     },
     {
-      pattern: /^[0-9A-Za-z]{4,16}$/,
+      pattern: /^(?=.{4,16}$)(?:[A-Za-z0-9]+|[A-Za-z]+|[0-9]+)$/,
       message: "请输入4-16位的数字和字母!",
       trigger: "blur",
     },
@@ -683,6 +702,13 @@ const rules = reactive({
     {
       pattern: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/,
       message: "请输入正确的邮箱!",
+      trigger: "blur",
+    },
+  ],
+  salesId: [
+    {
+      required: true,
+      message: "请选择销售!",
       trigger: "blur",
     },
   ],
@@ -753,6 +779,7 @@ const form = reactive({
       name: "password",
       type: "text",
       placeholder: "请输入账号密码",
+      slot: true,
     },
     {
       title: "绑定销售",
@@ -761,7 +788,7 @@ const form = reactive({
         return userIdentity.value == 1 ? "select" : "text";
       }),
       placeholder: "请输入绑定销售",
-      isRequired: false,
+      isRequired: true,
     },
   ],
   cashForm: [
@@ -806,20 +833,23 @@ const getNewAgentData = (data) => {
   };
   API.addAgencyUser(params).then((res) => {
     if (res.code == 0) {
+      agentData.agencyName = "";
+      agentData.account = "";
+      agentData.phone = "";
+      agentData.salesId = "";
+      agentData.password = "";
+      agentData.email = "";
+      agentData.cardName = "";
+      agentData.cardNo = "";
+      agentData.openingBank = "";
+      agentData.bankName = "";
       dialogOpt.dialogVisible = false;
       console.log(res);
       ElMessage({
         type: "success",
         message: "操作成功",
       });
-      getAgentList({
-        status: 1,
-        sortField: "OrderQty",
-        keyword: "",
-        sortType: "DESC",
-        pageIndex: 1,
-        pageSize: 50,
-      });
+      getAgentList();
       formRef.value.formRef[0].resetFields();
       formRef.value.formRef[1].resetFields();
     }
@@ -828,6 +858,11 @@ const getNewAgentData = (data) => {
 </script>
 
 <style lang="scss" scoped>
+.table {
+  width: 100%;
+  height: calc(100vh - 540px);
+  min-height: 200px;
+}
 .agent-container {
   .agent-data-head {
     display: flex;

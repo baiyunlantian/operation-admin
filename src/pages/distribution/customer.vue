@@ -97,6 +97,7 @@
       </div>
 
       <data-table
+        class="table"
         :selection="true"
         ref="tableRef"
         :column="customDataHead"
@@ -639,6 +640,11 @@ const updateCustomInfo = (msg) => {
 </script>
 
 <style lang="scss" scoped>
+.table {
+  width: 100%;
+  height: calc(100vh - 540px);
+  min-height: 200px;
+}
 .agent-container {
   .agent-data-head {
     display: flex;
