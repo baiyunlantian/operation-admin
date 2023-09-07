@@ -1,6 +1,6 @@
 <template>
     <div class="center-container">
-        <payMoneyTipsBox ref="payMoneyRef" v-if="agentInfo.isFreeOfCommission == 0 && agentInfo.isPayCashPledge == 0" @success="handleSuccessPay"/>
+        <payMoneyTipsBox ref="payMoneyRef" />
 
         <div class="main-content">
             <div class="header-container u-m-t-15">
@@ -28,10 +28,10 @@
                             </div>
                         </div>
                     </div>
-            </div>
+                </div>
             </div>
 
-            <div class="box-shadow bg-fff u-m-t-15 padding-2-pre">
+            <div class="box-shadow bg-fff u-m-t-15 padding-2-pre" v-if="agentInfo.roleId == 10 || agentInfo.roleId == 20">
                 <div class="u-font-23 u-font-weight u-m-b-10">提现相关</div>
 
                 <div class="content-container">
@@ -79,7 +79,6 @@
     import { useStore } from 'vuex';
     import API from './api';
     import AutoAvatar from '@/assets/images/account.png';
-    import PayMoneyTipsBox from '@/components/payMoneyTipsBox';
     import { setTimeEscalation } from "@/assets/js/utils";
 
     const setTimeEscalationClone = setTimeEscalation();
@@ -270,11 +269,6 @@
       return text
     }
 
-    function handleSuccessPay() {
-      // 更新用户信息
-      store.dispatch("user/getAgentUserInfo")
-    }
-
     const drawBtnStatus = computed(() => {
       let date = new Date(), btnStatus = false;
       /**
@@ -295,6 +289,7 @@
       () => store.getters["user/agentInfo"],
       (newVal) => {
         if (newVal.roleId == 20) handleGetBankCardInfo()
+        if (newVal.roleId == 10 || newVal.roleId == 20) handleGetOrderCommissionInfo()
         agentInfo.value = newVal
         handleFormatConfig()
       },
@@ -302,8 +297,6 @@
     )
 
     onMounted(() => {
-      handleGetOrderCommissionInfo()
-
       const date = new Date()
       /**
        * 3-6 凌晨
@@ -370,6 +363,7 @@
                 position: relative;
                 display: flex;
                 justify-content: space-between;
+                align-items: unset;
 
                 .left{
                     width: 25%;

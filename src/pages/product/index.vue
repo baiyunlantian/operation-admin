@@ -1,5 +1,7 @@
 <template>
     <div class="product-container">
+        <payMoneyTipsBox />
+
         <div class="product-main">
             <div class="product-menu-container bg-fff box-shadow padding-2-pre">
                 <div class="u-font-22 u-font-weight u-m-r-30">产品目录</div>
@@ -71,7 +73,7 @@
             </div>
             <div class="right">
                 <div class="total-money">共计<span>{{totalPayMoney}}</span>元</div>
-                <div class="btn" @click="handleClickFooterBtn">结算</div>
+                <div class="btn" @click="handleClickPayBtn">结算</div>
             </div>
         </div>
     </div>
@@ -82,7 +84,9 @@
     import { useRouter } from "vue-router";
     import API from './api';
     import CartImg from '@/assets/images/cart.png';
+    import { useDeposit } from '@/utils/useDeposit';
 
+    const { getDepositStatus } = useDeposit();
     const router = useRouter();
     const { proxy } = getCurrentInstance()
 
@@ -161,9 +165,12 @@
       }
     }
 
-    function handleClickFooterBtn() {
+    function handleClickPayBtn() {
       const {productId, title, version} = selectedProduct.value;
       const {price, productVersionId} = version || {};
+
+      if (getDepositStatus() === false) return
+
       // 没有选中商品不可跳转
       if (productId) {
         let params = [{title, price, productMarking:1, count:1, productId: productVersionId}]

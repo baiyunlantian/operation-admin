@@ -5,6 +5,7 @@
             class="pay-money-modal"
             width="700"
             :close-on-click-modal="false"
+            destroy-on-close
             @close="handleClose"
     >
         <div class="dialog-body">
@@ -50,7 +51,7 @@
 </template>
 
 <script setup>
-  import {reactive, ref, defineEmits, defineProps, watch, getCurrentInstance, onUnmounted} from 'vue';
+  import {reactive, ref, defineEmits, defineProps, watch, watchEffect, getCurrentInstance, onUnmounted} from 'vue';
   import QRCodeVue3 from "qrcode-vue3";
   import ACCOUNTAPI from '@/pages/account/api';
   import PRODUCTAPI from '@/pages/product/api';

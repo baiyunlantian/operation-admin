@@ -21,7 +21,7 @@ export default [
       },
       {
         path: "/sales",
-        meta: { title: "销售管理", permission: [10, 1] },
+        meta: { title: "销售管理", permission: [1] },
         component: () => import("@/pages/distribution/sales.vue"),
         name: "sales",
       },

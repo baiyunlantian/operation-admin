@@ -155,7 +155,7 @@ export default [
         menuId: "5-4",
         path: "/sales",
         children: [],
-        permission:[10, 1],
+        permission:[1],
       },
       {
         type: "system",
