@@ -160,6 +160,11 @@
           ></el-button>
         </div>
       </template>
+      <template #agencyOrSales="{ form }">
+        <div style="font-weight: 700">
+          {{ form.agencyName || form.salesName }}
+        </div>
+      </template>
     </edit-dialog>
   </div>
 </template>
@@ -409,6 +414,7 @@ const search = () => {
 // 页码
 const pageIndex = ref(1);
 const currentChange = (val) => {
+  pageIndex.value = val;
   getCustomList({
     keyWords: keyword.value,
     isRemark: isRemark.value,
@@ -601,7 +607,12 @@ const formArr = ref([
   { title: "客户邮箱", name: "email", isChange: true },
   { title: "注册时间", name: "createdTime", isChange: false },
   { title: "管理主体", name: "companyName", isChange: false },
-  { title: "直属代理/销售", name: "agencyName", isChange: false },
+  {
+    title: "直属代理/销售",
+    name: "agencyOrSales",
+    isChange: false,
+    slot: true,
+  },
 ]);
 const salesFormData = ref({});
 

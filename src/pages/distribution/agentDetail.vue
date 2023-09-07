@@ -269,7 +269,7 @@ const changeMsgType = (val) => {
     email: val.editParams.email,
     cardName: val.editParams.cardName,
     cardNo: val.editParams.cardNo,
-    bankName: val.editParams.bankCardId,
+    bankName: val.editParams.openingBank,
   };
   console.log(params);
   API.updateAgencyUser(params).then((res) => {
@@ -297,7 +297,7 @@ const formArr = ref([
     prepend: "户主名称",
   },
   { title: "", name: "cardNo", isChange: true, prepend: "银行卡号" },
-  { title: "", name: "bankCardId", isChange: true, prepend: "开户行" },
+  { title: "", name: "openingBank", isChange: true, prepend: "开户行" },
 ]);
 
 // ------------------------------------------------------------筛选的方式

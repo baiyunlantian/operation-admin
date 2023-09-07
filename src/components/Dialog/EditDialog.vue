@@ -17,6 +17,7 @@
                   <!-- <el-input
                   v-model="agentFormData[data.name]"
                 ></el-input> -->
+                  <slot :name="data.name" v-if="data.slot" :form="form"></slot>
                   <el-text v-if="msgType === 'text' || !data.isChange">{{
                     form && form[data.name]
                   }}</el-text>

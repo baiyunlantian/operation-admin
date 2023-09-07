@@ -80,6 +80,11 @@
         @sort-change="handleTableSort"
         v-loading="dataLoading"
       >
+        <template #status="{ row }">
+          <div>
+            {{ row.statusName }}
+          </div>
+        </template>
         <template #operate="{ row }">
           <div class="operate-container">
             <template v-for="operate in row.operate" :key="operate.func">
@@ -111,6 +116,7 @@
           small
           layout="prev, pager, next"
           :total="agentDataLength"
+          @current-change="currentChange"
         />
       </div>
     </module-card>
@@ -298,8 +304,12 @@ const getStatusList = () => {
         label: val.value,
       };
     });
+    statusOptions.unshift({
+      value: "-1",
+      label: "全部",
+    });
     console.log(statusOptions);
-    status.value = 1;
+    status.value = "-1";
   });
 };
 
@@ -349,6 +359,7 @@ const handleTableSort = (e) => {
 // 页码
 const pageIndex = ref(1);
 const currentChange = (val) => {
+  pageIndex.value = val;
   getAgentList({
     keyWord: keyword.value,
     status: status.value,
@@ -364,7 +375,7 @@ const agentDataLength = ref();
 const getAgentList = () => {
   dataLoading.value = true;
   const params = {
-    status: status.value || 1,
+    status: status.value || "-1",
     sortField: sortField.value || "OrderQty",
     keyWord: keyword.value,
     sortType: sortType.value || "DESC",
@@ -475,12 +486,13 @@ const agentDataHead = [
     }),
   },
   {
-    prop: "statusName",
+    prop: "status",
     label: "状态",
     width: "180",
     header: true,
     sortable: true,
     isPermission: true,
+    slot: true,
   },
   {
     prop: "createdTime",
