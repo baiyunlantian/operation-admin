@@ -4,15 +4,16 @@
       <div class="tag_view_tags">
         <TransitionGroup name="list">
           <el-tag
-            v-for="(items,index) in dynamicTags"
+            v-for="(items, index) in dynamicTags"
             :key="items.fullPath"
             class="tag_item u-cursor"
             :closable="items.closable"
-            :type="active != items.fullPath?'info':''"
+            :type="active != items.fullPath ? 'info' : ''"
             :disable-transitions="false"
             @click="goToPage(items)"
             @close="handleClose(index, items)"
-          >{{ items.meta.title }}</el-tag>
+            >{{ items.meta.title }}</el-tag
+          >
         </TransitionGroup>
       </div>
     </el-scrollbar>
@@ -35,23 +36,29 @@ const dynamicTags = computed(() => {
 });
 watch(
   () => router.currentRoute.value.fullPath,
-  value => {
+  (value) => {
     // 添加信息
     let { fullPath, meta, name, path } = router.currentRoute.value;
 
     // 不添加结算商品页面tag
-    if (path !== '/settleAccount') {
-      store.dispatch("tagsView/addView", {fullPath, meta, name, path, closable:path !== '/home'});
+    if (path !== "/settleAccount") {
+      store.dispatch("tagsView/addView", {
+        fullPath,
+        meta,
+        name,
+        path,
+        closable: path !== "/home",
+      });
       active.value = value;
     }
     // 结算商品页面刷新时保留商品目录tag
     else {
       store.dispatch("tagsView/addView", {
-        fullPath:"/product",
-        meta:{title: "商品目录", permission: [10, 20, 0, 1]},
-        name:"product",
-        path:"/product",
-        closable:true
+        fullPath: "/product",
+        meta: { title: "商品目录", permission: [10, 20, 0, 1] },
+        name: "product",
+        path: "/product",
+        closable: true,
       });
       active.value = "/product";
     }
@@ -60,23 +67,25 @@ watch(
 );
 // 关闭tags标签
 const handleClose = (index, item) => {
+  console.log(index, item, active.value);
   // 关闭当前激活的标签
-  if (active.value == item.path) {
-    router.push({path:dynamicTags.value[index - 1]['path']})
+  const currPath = active.value.split("?")[0];
+  if (currPath == item.path) {
+    router.push({ path: dynamicTags.value[index - 1]["path"] });
   }
   dynamicTags.value.splice(index, 1);
 };
 
-const goToPage = items => {
+const goToPage = (items) => {
   router.push({
-    path: items.fullPath
+    path: items.fullPath,
   });
 };
 </script>
 
 <style lang="scss" scoped>
 .tag_view_container {
-    padding: 8px 20px;
+  padding: 8px 20px;
   .tag_view_tags {
     display: flex;
     .tag_item {
