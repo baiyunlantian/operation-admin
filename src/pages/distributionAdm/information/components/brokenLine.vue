@@ -78,11 +78,15 @@ function formatLineData(list) {
     lineData.value = [];
     return;
   }
-  if (currentClick.value == 0 || currentClick.value == -1) {
+  console.log(dayjs(searchParams.value.startTime).format("YYYY-MM-DD"));
+  if (
+    dayjs(searchParams.value.startTime).format("YYYY-MM-DD") ==
+    dayjs(searchParams.value.endTime).format("YYYY-MM-DD")
+  ) {
     list = list.map((item) => {
       return {
         orderCount: item.orderCount,
-        time: dayjs(item.time).hour(),
+        time: `${dayjs(item.time).hour()}时`,
         totalIncome: item.totalIncome,
       };
     });
@@ -118,13 +122,13 @@ function formatLineData(list) {
     ]);
   let tooltip = {
     trigger: "axis",
-    formatter: "{b}<br />",
+    // formatter: "{b}<br />",
   };
-  _seriesData.value.forEach((item, index) => {
-    tooltip.formatter += `{a${index}}：{c${index}}<br />`;
-  });
+  // _seriesData.value.forEach((item, index) => {
+  //   tooltip.formatter += `{a${index}}：{c${index}}<br />`;
+  // });
   list.forEach((items, index) => {
-    _xAxisData.push(items.time);
+    _xAxisData.push(String(items.time).split(" ")[0]);
   });
 
   echartsOptions.tooltip = { ...echartsOptions.tooltip, ...tooltip };
