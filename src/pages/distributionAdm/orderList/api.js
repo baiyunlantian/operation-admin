@@ -17,7 +17,7 @@ const editOrderCancel = (params) => {
 
 // 订单完成
 const editOrderCarry = (params) => {
-  return HTTP.post("/AgencyOrder/Order/Carry", params);
+  return HTTP.post("/AgencyOrder/Order/Complete", params);
 };
 
 // 订单详情

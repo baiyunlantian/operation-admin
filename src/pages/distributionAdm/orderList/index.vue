@@ -858,7 +858,11 @@ onMounted(() => {
 
     :deep(.el-table__cell) {
       background-color: #fff !important;
-      color: rgba(0, 0, 0, 0.4) !important;
+      font-weight: 500;
+    }
+
+    :deep(.el-table .cell) {
+      padding: 0 10px;
     }
 
     .operate-btn {

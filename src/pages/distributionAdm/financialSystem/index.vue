@@ -667,7 +667,7 @@ onMounted(() => {
 
     :deep(.el-table__cell) {
       background-color: #fff !important;
-      color: rgba(0, 0, 0, 0.4) !important;
+      font-weight: 500;
     }
 
     .header-container {
