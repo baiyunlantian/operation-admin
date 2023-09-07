@@ -27,7 +27,7 @@
                   v-model="status"
                   @change="getStatus(way.name)"
                   class="m-2"
-                  placeholder="状态"
+                  placeholder="全部状态"
                 >
                   <el-option
                     v-for="item in statusOptions"
@@ -65,7 +65,7 @@
             v-model:page-size="pageSize"
             :page-sizes="[50, 100, 200]"
             layout="sizes"
-            :total="1000"
+            :total="agentDataLength"
             @size-change="handleSizeChange"
           />
         </div>
@@ -82,11 +82,11 @@
         <template #operate="{ row }">
           <div class="operate-container">
             <template v-for="operate in row.operate" :key="operate.func">
-              <!-- !(
-                    !operate.isShow.includes(row.status) && operate.isPermission
-                  ) -->
               <el-link
-                v-if="true"
+                v-if="
+                  operate.isShow.includes(`[${row.status}]`) &&
+                  operate.isPermission
+                "
                 type="primary"
                 @click="operate.clickEvent(row.agencyId)"
                 >{{ operate.func }}</el-link
@@ -98,16 +98,18 @@
 
       <div class="pagination-container">
         <el-pagination
+          v-model:page-size="pageSize"
           background
           small
           layout="total"
-          :total="agentDataRow?.length"
+          :total="agentDataLength"
         />
         <el-pagination
+          v-model:page-size="pageSize"
           background
           small
           layout="prev, pager, next"
-          :total="agentDataRow?.length"
+          :total="agentDataLength"
         />
       </div>
     </module-card>
@@ -265,14 +267,18 @@ const searchWay = reactive([
 const pageSize = ref(50);
 const handleSizeChange = (val) => {
   pageSize.value = val;
+  pageIndex.value = 1;
   getAgentList({
     keyWord: keyword.value,
     status: status.value,
     pageSize: pageSize.value,
+    sortType: sortType.value,
+    sortField: sortField.value,
   });
 };
 
 // 状态的选择器
+let statusOptions = [];
 const getStatusList = () => {
   const params = {
     type: "agencyUserStatus",
@@ -285,27 +291,33 @@ const getStatusList = () => {
       };
     });
     console.log(statusOptions);
+    status.value = 1;
   });
 };
-let statusOptions = [];
 
 // 状态变化
 const status = ref();
 const getStatus = (val) => {
+  pageIndex.value = 1;
   getAgentList({
     keyWord: keyword.value,
     status: status.value,
     pageSize: pageSize.value,
+    sortType: sortType.value,
+    sortField: sortField.value,
   });
 };
 
 // 搜索
 const keyword = ref();
 const search = (val, e) => {
+  pageIndex.value = 1;
   getAgentList({
     keyWord: keyword.value,
     status: status.value,
     pageSize: pageSize.value,
+    sortType: sortType.value,
+    sortField: sortField.value,
   });
 };
 
@@ -314,14 +326,14 @@ const sortField = ref("OrderQty");
 
 const handleTableSort = (e) => {
   // console.log(e);
-  ascending.value = e.order;
+  sortType.value = e.order == "ascending" ? "ASC" : "DESC";
   sortField.value = e.prop;
-  getCustomList({
-    keyWords: keyword.value,
-    isRemark: notes == 1 ? true : false,
-    salesName: salesName.value,
+  pageIndex.value = 1;
+  getAgentList({
+    keyWord: keyword.value,
+    status: status.value,
     pageSize: pageSize.value,
-    ascending: ascending.value,
+    sortType: sortType.value,
     sortField: sortField.value,
   });
 };
@@ -329,17 +341,18 @@ const handleTableSort = (e) => {
 // 页码
 const pageIndex = ref(1);
 const currentChange = (val) => {
-  getCustomList({
-    keyWords: keyword.value,
-    isRemark: isRemark.value,
-    salesName: salesName.value,
+  getAgentList({
+    keyWord: keyword.value,
+    status: status.value,
     pageSize: pageSize.value,
-    pageIndex: pageIndex.value,
+    sortType: sortType.value,
+    sortField: sortField.value,
   });
 };
 
 // 获取代理列表
 const dataLoading = ref(false);
+const agentDataLength = ref();
 const getAgentList = () => {
   dataLoading.value = true;
   const params = {
@@ -351,12 +364,15 @@ const getAgentList = () => {
     pageSize: pageSize.value || 50,
   };
   API.getAgentList(params).then((res) => {
-    // console.log(res.data);
     dataLoading.value = false;
-    agentDataRow.value = res.data;
-    agentDataRow.value?.forEach((val) => {
-      val.operate = operate.value;
-    });
+    if (res.code == 0) {
+      agentDataRow.value = res.data.list;
+      agentDataLength.value = res.data.total;
+      agentDataRow.value?.forEach((val) => {
+        val.operate = operate.value;
+      });
+    }
+
     // console.log('-------------',agentDataRow.value);
     // agentDataRow.value = res.data;
   });
@@ -451,7 +467,7 @@ const agentDataHead = [
     }),
   },
   {
-    prop: "status",
+    prop: "statusName",
     label: "状态",
     width: "180",
     header: true,
@@ -480,8 +496,8 @@ const agentDataHead = [
 import { ElMessage } from "element-plus";
 const operate = ref([
   {
-    func: "查看",
-    isShow: "1,10,20,30",
+    func: "详情",
+    isShow: "[1],[10],[20],[30]",
     isPermission: true,
     clickEvent: (id) => {
       router.push({ path: "/agentDetail", query: { userId: id } });
@@ -489,7 +505,7 @@ const operate = ref([
   },
   {
     func: "禁用",
-    isShow: "1",
+    isShow: "[1]",
     isPermission: computed(() => {
       return roleIdentity.value == 20 || userIdentity.value == 1;
     }),
@@ -510,7 +526,7 @@ const operate = ref([
   },
   {
     func: "退款",
-    isShow: "10",
+    isShow: "[10]",
     isPermission: computed(() => {
       return roleIdentity.value == 20 || userIdentity.value == 1;
     }),
@@ -531,7 +547,7 @@ const operate = ref([
   },
   {
     func: "免佣",
-    isShow: "30",
+    isShow: "[30]",
     isPermission: computed(() => {
       return userIdentity.value == 1;
     }),

@@ -38,7 +38,7 @@
           v-model:page-size="pageSize"
           :page-sizes="[50, 100, 200]"
           layout="sizes"
-          :total="1000"
+          :total="agentDataTotal"
           @size-change="handleSizeChange"
           small
         />
@@ -69,8 +69,16 @@
     </data-table>
 
     <div class="pagination-container">
-      <el-pagination :key='tableTitle' background small layout="total" :total="agentDataTotal" />
       <el-pagination
+        v-model:page-size="pageSize"
+        :key="tableTitle"
+        background
+        small
+        layout="total"
+        :total="agentDataTotal"
+      />
+      <el-pagination
+        v-model:page-size="pageSize"
         v-model:current-page="pageIndex"
         background
         small
@@ -116,6 +124,9 @@ const searchData = (val) => {
 const tableSearchRef = ref();
 const datePickerRef = ref();
 const resetSearchData = () => {
+  props.searchParams.customerName = "";
+  props.searchParams.orderId = "";
+  props.searchParams.status = "-1";
   props.searchParams.customerId = "";
   props.searchParams.phone = "";
   props.searchParams.startTime = "";

@@ -34,9 +34,10 @@
                     <!-- <el-input
                   v-model="agentFormData[data.name]"
                 ></el-input> -->
-                    <el-text class="mx-1">{{
-                      agentFormData[data.name]
-                    }}</el-text>
+                    <el-text class="mx-1">
+                      <span>{{ data.aliasName }}</span
+                      >{{ agentFormData[data.name] }}</el-text
+                    >
                   </el-form-item>
                 </el-col>
               </template>
@@ -75,7 +76,7 @@
               <el-select
                 v-model="status"
                 class="m-2"
-                style="width: 80px; margin-right: 10px"
+                style="width: 100px; margin-right: 10px"
                 size="small"
                 @change="handleStatusChange"
               >
@@ -210,6 +211,7 @@ const agentDataArr = reactive([
     isPermission: computed(() => {
       return roleIdentity.value == 20 || userIdentity.value == 1;
     }),
+    aliasName: "户主名称:",
   },
   {
     title: "",
@@ -217,6 +219,7 @@ const agentDataArr = reactive([
     isPermission: computed(() => {
       return roleIdentity.value == 20 || userIdentity.value == 1;
     }),
+    aliasName: "银行卡号:",
   },
   {
     title: "",
@@ -224,6 +227,7 @@ const agentDataArr = reactive([
     isPermission: computed(() => {
       return roleIdentity.value == 20 || userIdentity.value == 1;
     }),
+    aliasName: "开户行:",
   },
 ]);
 
@@ -267,8 +271,11 @@ const changeMsgType = (val) => {
     bankName: val.editParams.bankCardId,
   };
   console.log(params);
-  // API.agencyUser(params);
-  dialogOpt.dialogVisible = false;
+  API.updateAgencyUser(params).then((res) => {
+    if (res.code == 0) {
+      dialogOpt.dialogVisible = false;
+    }
+  });
 };
 
 const dialogOpt = reactive({
@@ -304,8 +311,8 @@ const searchWay = [
   },
 ];
 const orderSearchWay = [
-  { prefix: "订单ID", name: "customerId" },
-  { prefix: "客户名称", name: "phone" },
+  { prefix: "订单ID", name: "orderId" },
+  { prefix: "客户名称", name: "customerName" },
   {
     prefix: "创建时间:",
     prefixWidth: "60px",
@@ -315,14 +322,15 @@ const orderSearchWay = [
 ];
 
 const statusOpt = [
-  { value: "-1", label: "已取消" },
-  { value: "0", label: "未支付" },
-  { value: "1", label: "已支付" },
-  { value: "2", label: "已完成" },
-  { value: "3", label: "待提现" },
-  { value: "4", label: "已提现" },
+  { value: "-1", label: "全部状态" },
+  { value: "0", label: "未提交" },
+  { value: "20", label: "实施中" },
+  { value: "30", label: "已完成" },
+  { value: "31", label: "已提现" },
+  { value: "40", label: "订单超时取消" },
+  { value: "41", label: "已取消" },
 ];
-const status = ref("1");
+const status = ref("-1");
 const handleStatusChange = (val) => {
   status.value = val;
   getOrderList();
@@ -397,6 +405,7 @@ const agentDataRow = ref([]);
 const agentDataTotal = ref();
 const getCustomerList = () => {
   const params = {
+    agencyId: route.query.userId,
     customName: searchParams.customerId || "",
     phone: searchParams.phone || "",
     startTime: searchParams.startTime || "",
@@ -407,10 +416,12 @@ const getCustomerList = () => {
     pageSize: searchParams.pageSize || 50,
   };
   API.getCustomerList(params).then((res) => {
-    // agentDataRow.value = res.data.list;
-    agentDataRow.value = res.data;
-    agentDataTotal.value = res.data.total;
-    console.log(res);
+    if (res.code == 0) {
+      // agentDataRow.value = res.data.list;
+      agentDataRow.value = res.data.list;
+      agentDataTotal.value = res.data.total;
+      console.log(res);
+    }
   });
 };
 
@@ -421,18 +432,18 @@ const orderParams = reactive({
   startTime: "",
   endTime: "",
   status: "",
-  sortType: "",
+  ascending: "",
   pageIndex: "",
   pageSize: "",
 });
 
 const changeOrderParams = (val) => {
   console.log(val);
-  orderParams.customerId = val.customerId;
-  orderParams.phone = val.phone;
+  orderParams.orderId = val.orderId;
+  orderParams.customerName = val.customerName;
   orderParams.startTime = val.startTime;
   orderParams.endTime = val.endTime;
-  orderParams.sortType = val.sortType;
+  orderParams.ascending = val.sortType;
   orderParams.pageIndex = val.pageIndex;
   orderParams.pageSize = val.pageSize;
   getOrderList();
@@ -442,20 +453,23 @@ const orderDataRow = ref([]);
 const orderDataTotal = ref();
 const getOrderList = () => {
   const params = {
-    customName: orderParams.customerId || "",
-    phone: orderParams.phone || "",
+    agencyId: route.query.userId,
+    orderId: orderParams.orderId || 0,
+    customerName: orderParams.customerName || "",
     startTime: orderParams.startTime || "",
     endTime: orderParams.endTime || "",
-    sortField: "CreatedTime",
-    sortType: orderParams.sortType || "DESC",
+    sortField: "OrderTime",
+    ascending: orderParams.ascending || "DESC",
     pageIndex: orderParams.pageIndex || 1,
     pageSize: orderParams.pageSize || 50,
-    status: status.value || 1,
+    status: status.value || "-1",
   };
   API.getOrderList(params).then((res) => {
-    orderDataRow.value = res.data.list;
-    orderDataTotal.value = res.data.total;
-    console.log(res);
+    if (res.code == 0) {
+      orderDataRow.value = res.data.list;
+      orderDataTotal.value = res.data.total;
+      console.log(res);
+    }
   });
 };
 
