@@ -107,6 +107,7 @@
           small
           layout="prev, pager, next"
           :total="salesDataLength"
+          @current-change="currentChange"
         />
       </div>
     </module-card>
@@ -323,6 +324,7 @@ const handleTableSort = (e) => {
 // 页码
 const pageIndex = ref(1);
 const currentChange = (val) => {
+  pageIndex.value = val;
   getSalesList({
     sortField: sortField.value,
     keyWords: keyword.value,

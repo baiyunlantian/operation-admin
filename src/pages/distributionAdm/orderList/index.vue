@@ -334,15 +334,15 @@
             </el-row>
             <el-row>
               <el-col :span="12">
-                <el-form-item label="付款ID：" prop="orderCode">
+                <el-form-item label="付款ID：" prop="ordercode">
                   <el-input
-                    :v-model="formData.orderCode == 0 ? '' : formData.orderCode"
+                    :v-model="formData.ordercode == 0 ? '' : formData.ordercode"
                     readonly
                     style="width: 50%"
                   />
                 </el-form-item>
               </el-col>
-              <el-col :span="12">
+              <!-- <el-col :span="12">
                 <el-form-item label="订单实施时间：" prop="carryTime">
                   <el-input
                     v-model="formData.carryTime"
@@ -350,7 +350,7 @@
                     style="width: 50%"
                   />
                 </el-form-item>
-              </el-col>
+              </el-col> -->
             </el-row>
             <el-row>
               <el-col>
@@ -450,7 +450,8 @@ import { useStore } from "vuex";
 import dayjs from "dayjs";
 import utils from "@/assets/js/utils.js";
 import { Search } from "@element-plus/icons-vue";
-import { useDeposit } from '@/utils/useDeposit';
+import { useDeposit } from "@/utils/useDeposit";
+import { useZIndex } from "element-plus";
 const { getDepositStatus } = useDeposit();
 
 const { proxy } = getCurrentInstance();
@@ -554,6 +555,7 @@ let searchTableParams = reactive({
   pageSize: 50,
   pageIndex: 1,
   status: -1,
+  keyWords: undefined,
   sortField: undefined,
   ascending: undefined,
 });
@@ -639,7 +641,7 @@ const handleStatusChange = () => {
 
 // 取消操作
 const editOrderOperate = (row) => {
-  if (getDepositStatus() === false) return
+  if (getDepositStatus() === false) return;
   proxy
     .$confirm("确认取消吗?", {
       confirmButtonText: "确认",
@@ -668,7 +670,7 @@ const editOrderOperate = (row) => {
 
 // 完成操作
 const succesOrderOperate = (row) => {
-  if (getDepositStatus() === false) return
+  if (getDepositStatus() === false) return;
   proxy
     .$confirm("确认完成吗?", {
       confirmButtonText: "确认",
@@ -731,7 +733,7 @@ const formData = ref({
   orderTime: "",
   statusName: "",
   paymentTime: "",
-  orderCode: "",
+  ordercode: "",
   carryTime: "",
   remark: "",
   totalOrderDetail: {
@@ -742,7 +744,7 @@ const formData = ref({
 });
 
 const openEditDialog = (row) => {
-  if (getDepositStatus() === false) return
+  if (getDepositStatus() === false) return;
   eidtDialogVisible.value = true;
   currentDialogId.value = row.orderId;
   console.log(row);
@@ -800,7 +802,7 @@ const formRemarKData = reactive({
 
 const eidtRemarkDialogVisible = ref(false);
 const openRemarkDialog = (row) => {
-  if (getDepositStatus() === false) return
+  if (getDepositStatus() === false) return;
   eidtRemarkDialogVisible.value = true;
   formRemarKData.orderId = row.orderId;
   formRemarKData.remark = row.remark;
