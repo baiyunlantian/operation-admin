@@ -1,5 +1,7 @@
 <template>
   <div class="financial-system">
+    <payMoneyTipsBox />
+
     <StatisticsTitle
       title="订单数据"
       :severalRow="false"
@@ -140,23 +142,23 @@
         >
           <template #default="{ row }">
             <div v-if="item.insertSlot && item.prop === 'status'">
-              <el-button
+              <el-tag
                 v-if="row.status == 30 || row.status == 31"
                 size="small"
                 type="success"
-                >已完成</el-button
+                >已完成</el-tag
               >
-              <el-button v-if="row.status == 0" size="small" type="warning"
-                >未成交</el-button
+              <el-tag v-if="row.status == 0" size="small" type="warning"
+                >未成交</el-tag
               >
-              <el-button v-if="row.status == 20" size="small" type="info"
-                >实施中</el-button
+              <el-tag v-if="row.status == 20" size="small" type="info"
+                >实施中</el-tag
               >
-              <el-button
+              <el-tag
                 v-if="row.status == 40 || row.status == 41"
                 size="small"
                 type="danger"
-                >已取消</el-button
+                >已取消</el-tag
               >
             </div>
 
@@ -448,6 +450,9 @@ import { useStore } from "vuex";
 import dayjs from "dayjs";
 import utils from "@/assets/js/utils.js";
 import { Search } from "@element-plus/icons-vue";
+import { useDeposit } from "@/utils/useDeposit";
+import { useZIndex } from "element-plus";
+const { getDepositStatus } = useDeposit();
 
 const { proxy } = getCurrentInstance();
 const store = useStore();
@@ -550,6 +555,7 @@ let searchTableParams = reactive({
   pageSize: 50,
   pageIndex: 1,
   status: -1,
+  keyWords: undefined,
   sortField: undefined,
   ascending: undefined,
 });
@@ -635,6 +641,7 @@ const handleStatusChange = () => {
 
 // 取消操作
 const editOrderOperate = (row) => {
+  if (getDepositStatus() === false) return;
   proxy
     .$confirm("确认取消吗?", {
       confirmButtonText: "确认",
@@ -663,6 +670,7 @@ const editOrderOperate = (row) => {
 
 // 完成操作
 const succesOrderOperate = (row) => {
+  if (getDepositStatus() === false) return;
   proxy
     .$confirm("确认完成吗?", {
       confirmButtonText: "确认",
@@ -736,6 +744,7 @@ const formData = ref({
 });
 
 const openEditDialog = (row) => {
+  if (getDepositStatus() === false) return;
   eidtDialogVisible.value = true;
   currentDialogId.value = row.orderId;
   console.log(row);
@@ -793,6 +802,7 @@ const formRemarKData = reactive({
 
 const eidtRemarkDialogVisible = ref(false);
 const openRemarkDialog = (row) => {
+  if (getDepositStatus() === false) return;
   eidtRemarkDialogVisible.value = true;
   formRemarKData.orderId = row.orderId;
   formRemarKData.remark = row.remark;

@@ -60,7 +60,6 @@ function getData(tagValue) {
 }
 
 function datePickerChange(dates) {
-  console.log(dates);
   const [start, end] = dates;
   if (start && end) {
     const _start = dayjs(start).format("YYYY-MM-DD") + " " + startTimeStr;

@@ -265,6 +265,7 @@ const formConfig = reactive({
 });
 
 function handleSwitchForm(type) {
+  console.log('handleSwitchForm', type)
   Object.keys(formData).forEach((key) => {
     if (type !== "forgetPassword" && key === "account") {
       formData["account"] = Cookie.get("account") || "";
@@ -302,6 +303,13 @@ function handleClickBtn() {
       };
 
       if (formType.value === "update") {
+        if (formData.newPassword === formData.oldPassword) {
+          proxy.$message({
+            type: "warning",
+            message: "新旧密码须不同",
+          });
+          return
+        }
         params.newPassword = cryptojs.encrypt(formData.newPassword);
         params.oldPassword = cryptojs.encrypt(formData.oldPassword);
         // 修改密码
@@ -314,7 +322,7 @@ function handleClickBtn() {
                 type: "success",
                 message: "修改密码成功",
               });
-              handleSwitchForm("password");
+              handleSwitchForm("update");
             }
           })
           .finally(() => {
