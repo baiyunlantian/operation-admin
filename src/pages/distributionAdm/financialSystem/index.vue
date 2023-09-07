@@ -109,17 +109,17 @@
           >
             <template #default="{ row, column, $index }">
               <div v-if="item.insertSlot && item.prop === 'status'">
-                <el-button v-if="row.status == 20" size="small" type="success"
-                  >已打款</el-button
+                <el-tag v-if="row.status == 20" size="small" type="success"
+                  >已打款</el-tag
                 >
-                <el-button v-if="row.status == 10" size="small" type="warning"
-                  >打款中</el-button
+                <el-tag v-if="row.status == 10" size="small" type="warning"
+                  >打款中</el-tag
                 >
-                <el-button v-if="row.status == 0" size="small" type="info"
-                  >待审核</el-button
+                <el-tag v-if="row.status == 0" size="small" type="info"
+                  >待审核</el-tag
                 >
-                <el-button v-if="row.status == 30" size="small" type="danger"
-                  >已拒绝</el-button
+                <el-tag v-if="row.status == 30" size="small" type="danger"
+                  >已拒绝</el-tag
                 >
               </div>
 

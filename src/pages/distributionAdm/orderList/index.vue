@@ -140,23 +140,23 @@
         >
           <template #default="{ row }">
             <div v-if="item.insertSlot && item.prop === 'status'">
-              <el-button
+              <el-tag
                 v-if="row.status == 30 || row.status == 31"
                 size="small"
                 type="success"
-                >已完成</el-button
+                >已完成</el-tag
               >
-              <el-button v-if="row.status == 0" size="small" type="warning"
-                >未成交</el-button
+              <el-tag v-if="row.status == 0" size="small" type="warning"
+                >未成交</el-tag
               >
-              <el-button v-if="row.status == 20" size="small" type="info"
-                >实施中</el-button
+              <el-tag v-if="row.status == 20" size="small" type="info"
+                >实施中</el-tag
               >
-              <el-button
+              <el-tag
                 v-if="row.status == 40 || row.status == 41"
                 size="small"
                 type="danger"
-                >已取消</el-button
+                >已取消</el-tag
               >
             </div>
 
