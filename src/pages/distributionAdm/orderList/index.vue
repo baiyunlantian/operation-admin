@@ -773,23 +773,9 @@ const getSummaries = (param) => {
     }
     const values = data.map((item) => Number(item[column.property]));
     if (!values.every((value) => Number.isNaN(value))) {
-      sums[1] = `${values.reduce((prev, curr) => {
-        const value = Number(curr);
-        if (!Number.isNaN(value)) {
-          return prev + curr;
-        } else {
-          return prev;
-        }
-      }, 0)}`;
+      sums[1] = formData.value.totalOrderDetail.totalCount;
 
-      sums[4] = `共计: ${values.reduce((prev, curr) => {
-        const value = Number(curr);
-        if (!Number.isNaN(value)) {
-          return prev + curr;
-        } else {
-          return prev;
-        }
-      }, 0)}元`;
+      sums[4] = `共计: ${formData.value.totalOrderDetail.totalPrice}元`;
     } else {
       sums[index] = "";
     }
