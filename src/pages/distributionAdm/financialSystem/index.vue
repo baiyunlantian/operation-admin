@@ -365,7 +365,7 @@ const getFinanceInformation = () => {
     if (code == 0) {
       financialInformation.value.forEach((item) => {
         item.money = data[item.propMoney] || 0;
-        if (item.descNum) {
+        if (item.descNum != null) {
           item.descNum = data[item.propDescNum] || 0;
         }
       });

@@ -261,109 +261,209 @@ const getTopInformation = () => {
 };
 
 // 仪表盘参数
-let panelInformation = computed(() => {
-  let _roleIdentity = store.getters["user/agentInfo"];
-  let _userIdentity = store.getters["user/info"];
-  return [
-    {
-      id: 1,
-      title: "总收入",
-      isMoney: true,
-      money: 0,
-      image: barChart,
-      imageStyle: "width: 104px; height: 42px",
-      isShow: true,
-      propMoney: "totalIncome",
-    },
-    {
-      id: 2,
-      title: "返佣金额",
-      isMoney: true,
-      money: 0,
-      desc: "待返金额",
-      descNum: 0,
-      isDescMoney: true,
-      descO: "已返金额",
-      descNumO: 0,
-      isDescOMoney: true,
-      image: barChart,
-      imageStyle: "width: 104px; height: 42px",
-      isShow: true,
-      propMoney: "brokerageCommission",
-      propDescNum: "totalWaitBrokerageCommission",
-      proDescNumO: "totalBrokerageCommission",
-    },
-    {
-      id: 3,
-      title: "冻结金额",
-      isMoney: true,
-      money: 0,
-      image: heartbeat,
-      imageStyle: "width: 96px; height: 40px",
-      isShow: _roleIdentity.roleId != 10 ? true : false, //销售不显示
-      propMoney: "freezeAmount",
-    },
-    {
-      id: 4,
-      title: "成交销售数量",
-      isMoney: false,
-      money: 0,
-      desc: "销售总量",
-      descNum: 0,
-      image: userCount,
-      imageStyle: "width: 56px; height: 56px",
-      isShow: _userIdentity.isAdmin == 1 ? true : false, //销售和代理不显示
-      propMoney: "transactionSalesCount",
-      propDescNum: "salesTotalCount",
-    },
-    {
-      id: 5,
-      title: "产生订单 (个)",
-      isMoney: false,
-      money: 0,
-      image: file,
-      imageStyle: "width: 56px; height: 56px",
-      isShow: true,
-      propMoney: "createOrderCount",
-    },
-    {
-      id: 6,
-      title: "取消订单",
-      isMoney: false,
-      money: 0,
-      image: userCount,
-      imageStyle: "width: 56px; height: 56px",
-      isShow: true,
-      propMoney: "cancellationOrderCount",
-    },
-    {
-      id: 7,
-      title: "成交客户数量",
-      isMoney: false,
-      money: 0,
-      desc: "客户总量",
-      descNum: 0,
-      image: userCount,
-      imageStyle: "width: 56px; height: 56px",
-      isShow: true,
-      propMoney: "transactionCustomCount",
-      propDescNum: "customTotalCount",
-    },
-    {
-      id: 8,
-      title: "成交代理数量",
-      isMoney: false,
-      money: 0,
-      desc: "代理总量",
-      descNum: 0,
-      image: userCount,
-      imageStyle: "width: 56px; height: 56px",
-      isShow: _roleIdentity.roleId != 20 ? true : false, //代理不显示
-      propMoney: "transactionAgentCount",
-      propDescNum: "agentTotalCount",
-    },
-  ];
-});
+// let panelInformation = computed(() => {
+//   let _roleIdentity = store.getters["user/agentInfo"];
+//   let _userIdentity = store.getters["user/info"];
+//   return [
+//     {
+//       id: 1,
+//       title: "总收入",
+//       isMoney: true,
+//       money: 0,
+//       image: barChart,
+//       imageStyle: "width: 104px; height: 42px",
+//       isShow: true,
+//       propMoney: "totalIncome",
+//     },
+//     {
+//       id: 2,
+//       title: "返佣金额",
+//       isMoney: true,
+//       money: 0,
+//       desc: "待返金额",
+//       descNum: 0,
+//       isDescMoney: true,
+//       descO: "已返金额",
+//       descNumO: 0,
+//       isDescOMoney: true,
+//       image: barChart,
+//       imageStyle: "width: 104px; height: 42px",
+//       isShow: true,
+//       propMoney: "brokerageCommission",
+//       propDescNum: "totalWaitBrokerageCommission",
+//       proDescNumO: "totalBrokerageCommission",
+//     },
+//     {
+//       id: 3,
+//       title: "冻结金额",
+//       isMoney: true,
+//       money: 0,
+//       image: heartbeat,
+//       imageStyle: "width: 96px; height: 40px",
+//       isShow: _roleIdentity.roleId != 10 ? true : false, //销售不显示
+//       propMoney: "freezeAmount",
+//     },
+//     {
+//       id: 4,
+//       title: "成交销售数量",
+//       isMoney: false,
+//       money: 0,
+//       desc: "销售总量",
+//       descNum: 0,
+//       image: userCount,
+//       imageStyle: "width: 56px; height: 56px",
+//       isShow: _userIdentity.isAdmin == 1 ? true : false, //销售和代理不显示
+//       propMoney: "transactionSalesCount",
+//       propDescNum: "salesTotalCount",
+//     },
+//     {
+//       id: 5,
+//       title: "产生订单 (个)",
+//       isMoney: false,
+//       money: 0,
+//       image: file,
+//       imageStyle: "width: 56px; height: 56px",
+//       isShow: true,
+//       propMoney: "createOrderCount",
+//     },
+//     {
+//       id: 6,
+//       title: "取消订单",
+//       isMoney: false,
+//       money: 0,
+//       image: userCount,
+//       imageStyle: "width: 56px; height: 56px",
+//       isShow: true,
+//       propMoney: "cancellationOrderCount",
+//     },
+//     {
+//       id: 7,
+//       title: "成交客户数量",
+//       isMoney: false,
+//       money: 0,
+//       desc: "客户总量",
+//       descNum: 0,
+//       image: userCount,
+//       imageStyle: "width: 56px; height: 56px",
+//       isShow: true,
+//       propMoney: "transactionCustomCount",
+//       propDescNum: "customTotalCount",
+//     },
+//     {
+//       id: 8,
+//       title: "成交代理数量",
+//       isMoney: false,
+//       money: 0,
+//       desc: "代理总量",
+//       descNum: 0,
+//       image: userCount,
+//       imageStyle: "width: 56px; height: 56px",
+//       isShow: _roleIdentity.roleId != 20 ? true : false, //代理不显示
+//       propMoney: "transactionAgentCount",
+//       propDescNum: "agentTotalCount",
+//     },
+//   ];
+// });
+
+const panelInformation = ref([
+  {
+    id: 1,
+    title: "总收入",
+    isMoney: true,
+    money: 0,
+    image: barChart,
+    imageStyle: "width: 104px; height: 42px",
+    isShow: true,
+    propMoney: "totalIncome",
+  },
+  {
+    id: 2,
+    title: "返佣金额",
+    isMoney: true,
+    money: 0,
+    desc: "待返金额",
+    descNum: 0,
+    isDescMoney: true,
+    descO: "已返金额",
+    descNumO: 0,
+    isDescOMoney: true,
+    image: barChart,
+    imageStyle: "width: 104px; height: 42px",
+    isShow: true,
+    propMoney: "brokerageCommission",
+    propDescNum: "totalWaitBrokerageCommission",
+    proDescNumO: "totalBrokerageCommission",
+  },
+  {
+    id: 3,
+    title: "冻结金额",
+    isMoney: true,
+    money: 0,
+    image: heartbeat,
+    imageStyle: "width: 96px; height: 40px",
+    isShow: [1, 20], //销售不显示
+    propMoney: "freezeAmount",
+  },
+  {
+    id: 4,
+    title: "成交销售数量",
+    isMoney: false,
+    money: 0,
+    desc: "销售总量",
+    descNum: 0,
+    image: userCount,
+    imageStyle: "width: 56px; height: 56px",
+    isShow: [1], //销售和代理不显示
+    propMoney: "transactionSalesCount",
+    propDescNum: "salesTotalCount",
+  },
+  {
+    id: 5,
+    title: "产生订单 (个)",
+    isMoney: false,
+    money: 0,
+    image: file,
+    imageStyle: "width: 56px; height: 56px",
+    isShow: true,
+    propMoney: "createOrderCount",
+  },
+  {
+    id: 6,
+    title: "取消订单",
+    isMoney: false,
+    money: 0,
+    image: userCount,
+    imageStyle: "width: 56px; height: 56px",
+    isShow: true,
+    propMoney: "cancellationOrderCount",
+  },
+  {
+    id: 7,
+    title: "成交客户数量",
+    isMoney: false,
+    money: 0,
+    desc: "客户总量",
+    descNum: 0,
+    image: userCount,
+    imageStyle: "width: 56px; height: 56px",
+    isShow: true,
+    propMoney: "transactionCustomCount",
+    propDescNum: "customTotalCount",
+  },
+  {
+    id: 8,
+    title: "成交代理数量",
+    isMoney: false,
+    money: 0,
+    desc: "代理总量",
+    descNum: 0,
+    image: userCount,
+    imageStyle: "width: 56px; height: 56px",
+    isShow: [1, 10], //代理不显示
+    propMoney: "transactionAgentCount",
+    propDescNum: "agentTotalCount",
+  },
+]);
 
 const searchParams = ref({
   startTime: utils.getNextDate(-7) + " " + "00:00:00",
@@ -377,10 +477,10 @@ const getPanelInformation = () => {
     if (code == 0) {
       panelInformation.value.forEach((item) => {
         item.money = data[item.propMoney] || 0;
-        if (item.descNum) {
+        if (item.descNum != null) {
           item.descNum = data[item.propDescNum] || 0;
         }
-        if (item.descNumO) {
+        if (item.descNumO != null) {
           item.descNumO = data[item.proDescNumO] || 0;
         }
       });
