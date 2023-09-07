@@ -26,7 +26,7 @@
                   <div class="left-box">
                     <div class="title fw">{{ item.title }}</div>
                     <div class="money fw">
-                      <span v-if="item.isMoney">¥ </span>
+                      <span v-if="item.isMoney">¥&nbsp;</span>
                       <span>{{ item.money }}</span>
                     </div>
                   </div>
@@ -90,11 +90,11 @@
 </template>
 
 <script setup>
-import { ref, defineProps, defineEmits } from "vue";
+import { ref, defineProps, defineEmits, toRefs, watch } from "vue";
 import RightSearch from "./rightSearch";
 
 const emit = defineEmits(["updateParams"]);
-defineProps({
+const props = defineProps({
   isSearch: {
     type: Boolean,
     default: true,

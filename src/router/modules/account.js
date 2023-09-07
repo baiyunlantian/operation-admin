@@ -10,16 +10,10 @@ export default [
     children: [
       {
         path: '/center',
-        meta: {title: "个人中心", permission: [10, 20, 0, 1]},
+        meta: {title: "个人中心", permission: []},
         component: () => import('@/pages/account/center.vue'),
         name: 'info',
       },
-      // {
-      //   path: '/updatePassword',
-      //   meta: {title: "修改密码"},
-      //   component: () => import('@/pages/account/updatePassword.vue'),
-      //   name: 'updatePassword',
-      // },
     ]
   }
 ]

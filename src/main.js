@@ -27,7 +27,6 @@ for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
 }
 //自定义指令
 import * as directives from "@/directives";
-console.log(directives, "directives");
 Object.keys(directives).forEach((key) => {
   app.directive(key, directives[key]);
 });

@@ -23,7 +23,7 @@ const router = createRouter({
       children: [
         {
           path: "home",
-          meta: { title: "首页", tagsDisabled: true, permission: [10, 20, 0, 1] },
+          meta: { title: "首页", tagsDisabled: true, permission: [] },
           name: "home",
           permission: "1",
           component: () =>
@@ -34,13 +34,13 @@ const router = createRouter({
     {
       path: "/login",
       name: "login",
-      meta: { title: "登录页", permission: [10, 20, 0, 1] },
+      meta: { title: "登录页", permission: [] },
       component: Login,
     },
     {
       path: "/404",
       name: "404",
-      meta: { title: "登录页", permission: [10, 20, 0, 1] },
+      meta: { title: "登录页", permission: [] },
       component: layout,
     },
   ],
@@ -73,7 +73,7 @@ router.beforeResolve((to, from, next) => {
 router.beforeEach(async (to, from, next) => {
   // console.log("beforeEach")
   const token = window.localStorage.getItem("token") || "";
-  const roleId = window.localStorage.getItem("roleId") || '0';
+  const roleId = window.localStorage.getItem("roleId") || "";
   const permissionList = to.meta.permission;
   const productList = JSON.parse(sessionStorage.getItem("product"));
 
@@ -96,25 +96,30 @@ router.beforeEach(async (to, from, next) => {
         document.title = to.meta.title;
       }
 
-      if (permissionList.includes(Number(roleId)) === false) {
-        next({path: "/"});
-      } else {
-        if (to.path === "/settleAccount") {
-          if (from.path === "/product") {
-            next();
-          }
-          // 在结算页面刷新页面或者在其它页面通过URL输入跳转
-          else if (
-            from.path === "/" &&
-            Array.isArray(productList) &&
-            productList.length > 0
-          ) {
-            next();
+      // 不需要权限的页面
+      if (!permissionList || permissionList.length === 0) {
+        next()
+      }else {
+        if (permissionList.includes(Number(roleId)) === true) {
+          if (to.path === "/settleAccount") {
+            if (from.path === "/product") {
+              next();
+            }
+            // 在结算页面刷新页面或者在其它页面通过URL输入跳转
+            else if (
+              from.path === "/" &&
+              Array.isArray(productList) &&
+              productList.length > 0
+            ) {
+              next();
+            } else {
+              next({ path: "/product" });
+            }
           } else {
-            next({ path: "/product" });
+            next();
           }
-        } else {
-          next();
+        }else {
+          next({path: "/"});
         }
       }
     }
