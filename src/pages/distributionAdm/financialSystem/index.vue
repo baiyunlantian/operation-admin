@@ -128,7 +128,9 @@
                 v-if="item.insertSlot && item.prop === 'operate'"
               >
                 <el-dropdown v-if="row.status == 0">
-                  <el-button type="primary" link>审核 </el-button>
+                  <el-button class="btn-color" type="primary" link
+                    >审核
+                  </el-button>
                   <template #dropdown>
                     <el-dropdown-menu>
                       <el-dropdown-item>
@@ -144,10 +146,15 @@
                     </el-dropdown-menu>
                   </template>
                 </el-dropdown>
-                <el-button type="primary" @click="openEditDialog(row)" link
+                <el-button
+                  class="btn-color"
+                  type="primary"
+                  @click="openEditDialog(row)"
+                  link
                   >详情
                 </el-button>
                 <el-button
+                  class="btn-color"
                   v-if="row.status == 10"
                   type="primary"
                   @click="checkDispose(row, 20)"
@@ -187,7 +194,7 @@
           :rules="rules"
         >
           <div>
-            <el-form-item label="代理名称/手机号：" prop="keyWords">
+            <el-form-item label="订单号/客户名称：" prop="keyWords">
               <el-input
                 v-model="searchDialogTableParams.keyWords"
                 placeholder="请输入你需要搜索的内容"
@@ -556,6 +563,7 @@ const tableDialogColumnConfig = ref([
 const openEditDialog = (row) => {
   eidtDialogVisible.value = true;
   currentDialogId.value = row.withdrawId;
+  searchDialogTableParams.keyWords = undefined;
   handleGetDialogTableList(row.withdrawId);
 };
 
@@ -701,6 +709,14 @@ onMounted(() => {
       .el-dropdown {
         margin-right: 20px;
       }
+    }
+
+    .btn-color:hover {
+      color: #a0cfff;
+    }
+
+    .btn-color {
+      color: #409eff;
     }
   }
 }

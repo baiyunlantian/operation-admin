@@ -166,10 +166,15 @@
               class="operate-btn"
               v-if="item.insertSlot && item.prop === 'operate'"
             >
-              <el-button type="primary" @click="openEditDialog(row)" link
+              <el-button
+                class="btn-color"
+                type="primary"
+                @click="openEditDialog(row)"
+                link
                 >查看
               </el-button>
               <el-button
+                class="btn-color"
                 v-if="row.status == 0"
                 type="primary"
                 @click="editOrderOperate(row)"
@@ -177,6 +182,7 @@
                 >取消
               </el-button>
               <el-button
+                class="btn-color"
                 v-if="row.status == 20 || row.status == 40 || row.status == 41"
                 type="primary"
                 @click="openRemarkDialog(row)"
@@ -184,6 +190,7 @@
                 >备注
               </el-button>
               <el-button
+                class="btn-color"
                 v-if="row.status == 20"
                 type="primary"
                 @click="succesOrderOperate(row)"
@@ -334,9 +341,9 @@
             </el-row>
             <el-row>
               <el-col :span="12">
-                <el-form-item label="付款ID：" prop="ordercode">
+                <el-form-item label="付款ID：" prop="orderCode">
                   <el-input
-                    :v-model="formData.ordercode == 0 ? '' : formData.ordercode"
+                    v-model="formData.orderCode"
                     readonly
                     style="width: 50%"
                   />
@@ -733,7 +740,7 @@ const formData = ref({
   orderTime: "",
   statusName: "",
   paymentTime: "",
-  ordercode: "",
+  orderCode: "",
   carryTime: "",
   remark: "",
   totalOrderDetail: {
@@ -761,6 +768,7 @@ const handleGetOrderDetails = (orderId) => {
     const { code, data, msg } = res || {};
     if (code == 0) {
       formData.value = data;
+      formData.value.orderCode = data.orderCode == 0 ? " " : data.orderCode;
       console.log(formData.value);
     } else {
       proxy.$message({
@@ -879,6 +887,14 @@ onMounted(() => {
 
     :deep(.el-table .cell) {
       padding: 0 10px;
+    }
+
+    .btn-color:hover {
+      color: #a0cfff;
+    }
+
+    .btn-color {
+      color: #409eff;
     }
 
     .operate-btn {
