@@ -26,7 +26,7 @@
                   <div class="left-box">
                     <div class="title fw">{{ item.title }}</div>
                     <div class="money fw">
-                      <span v-if="item.isMoney">¥ </span>
+                      <span v-if="item.isMoney">¥&nbsp;</span>
                       <span>{{ item.money }}</span>
                     </div>
                   </div>

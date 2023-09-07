@@ -89,14 +89,14 @@ function formatLineData(list) {
   }
   const dataO = computed(() => {
     const dO = ref([]);
-    list.filter((item) => {
+    list.forEach((item) => {
       dO.value.push(item.totalIncome);
     });
     return dO.value;
   });
   const dataT = computed(() => {
     const dT = ref([]);
-    list.filter((item) => {
+    list.forEach((item) => {
       dT.value.push(item.orderCount);
     });
     return dT.value;

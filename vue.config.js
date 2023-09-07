@@ -13,8 +13,8 @@ module.exports = defineConfig({
     open: true,
     proxy: {
       "/api": {
-        target: `http://192.168.194.33:8888`,
-        // target: `https://test-api-adm.maliyaka.com`,
+        // target: `http://192.168.194.33:8888`,
+        target: `https://test-api-adm.maliyaka.com`,
         changeOrigin: true,
         pathRewrite: {
           "^/api": "/",

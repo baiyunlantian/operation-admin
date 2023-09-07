@@ -334,7 +334,7 @@
               <el-col :span="12">
                 <el-form-item label="付款ID：" prop="orderCode">
                   <el-input
-                    v-model="formData.orderCode"
+                    :v-model="formData.orderCode == 0 ? '' : formData.orderCode"
                     readonly
                     style="width: 50%"
                   />
@@ -539,11 +539,11 @@ const handleUpdateParams = (params) => {
 // 表格
 // 下拉框选项
 const orderStatusOptions = ref([
-  { label: "全部", value: null },
+  { label: "全部", value: -1 },
   { label: "未成交", value: 0 },
   { label: "实施中", value: 20 },
   { label: "已完成", value: 30 },
-  { label: "已取消", value: 40 },
+  { label: "已取消", value: 41 },
 ]);
 // 搜索
 let searchTableParams = reactive({
