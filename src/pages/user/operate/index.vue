@@ -69,8 +69,8 @@
                             <el-switch
                                     v-model="row[item.prop]"
                                     :before-change="()=>beforeChange(row[item.prop], row.userId)"
-                                    :inactive-value="1"
-                                    :active-value="0"
+                                    :inactive-value="0"
+                                    :active-value="1"
                             />
                         </div>
 
@@ -235,7 +235,7 @@
     })
   }
 
-  // 删除，重置密码，批量删除，改变状态
+  // 删除，重置密码，批量删除
   function handleOperateTable(eventType, row) {
     let confirmText = '', params = {}, fn = new Function();
     if (eventType === 'del') {

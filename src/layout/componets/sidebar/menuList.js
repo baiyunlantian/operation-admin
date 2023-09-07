@@ -7,7 +7,7 @@ export default [
     path: "/home",
     menuData: "indexAdmin",
     children: [],
-    permission:[10, 20, 0, 1],
+    permission:[],
   },
   {
     type: "user",
@@ -15,7 +15,7 @@ export default [
     descType: "img",
     menuId: "2",
     path: "",
-    permission:[10, 20, 0, 1],
+    permission:[],
     children: [
       {
         type: "user",
@@ -24,7 +24,7 @@ export default [
         menuId: "2-1",
         path: "/center",
         children: [],
-        permission:[10, 20, 0, 1],
+        permission:[],
       },
       {
         type: "user",
@@ -42,7 +42,7 @@ export default [
         menuId: "2-3",
         path: "",
         children: [],
-        permission:[10, 20, 0, 1],
+        permission:[],
       },
     ],
   },
@@ -100,7 +100,7 @@ export default [
     descType: "text",
     menuId: "5",
     path: "",
-    permission:[10, 20, 0, 1],
+    permission:[10, 0, 1],
     children: [
       {
         type: "system",
