@@ -334,15 +334,15 @@
             </el-row>
             <el-row>
               <el-col :span="12">
-                <el-form-item label="付款ID：" prop="orderCode">
+                <el-form-item label="付款ID：" prop="ordercode">
                   <el-input
-                    :v-model="formData.orderCode == 0 ? '' : formData.orderCode"
+                    :v-model="formData.ordercode == 0 ? '' : formData.ordercode"
                     readonly
                     style="width: 50%"
                   />
                 </el-form-item>
               </el-col>
-              <el-col :span="12">
+              <!-- <el-col :span="12">
                 <el-form-item label="订单实施时间：" prop="carryTime">
                   <el-input
                     v-model="formData.carryTime"
@@ -350,7 +350,7 @@
                     style="width: 50%"
                   />
                 </el-form-item>
-              </el-col>
+              </el-col> -->
             </el-row>
             <el-row>
               <el-col>
@@ -733,7 +733,7 @@ const formData = ref({
   orderTime: "",
   statusName: "",
   paymentTime: "",
-  orderCode: "",
+  ordercode: "",
   carryTime: "",
   remark: "",
   totalOrderDetail: {

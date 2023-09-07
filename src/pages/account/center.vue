@@ -278,7 +278,10 @@
        *    提现状态：未提现
        *    提现佣金：大于0
        * */
-      if ((date.getDate() === 1 || date.getDate() === 15) && agentInfo.value.roleId == 20 && agentInfo.value.agencyWithdrawstatus == 0 && withdrawInfo.value.drawBtnStatus > 0) {
+      // if ((date.getDate() === 1 || date.getDate() === 15) && agentInfo.value.roleId == 20 && agentInfo.value.agencyWithdrawstatus == 0 && withdrawInfo.value.drawBtnStatus > 0) {
+      //   btnStatus = true
+      // }
+      if (agentInfo.value.roleId == 20) {
         btnStatus = true
       }
 
