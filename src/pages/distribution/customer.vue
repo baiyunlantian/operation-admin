@@ -192,7 +192,7 @@ import { Search } from "@element-plus/icons-vue";
 import { useStore } from "vuex";
 const store = useStore();
 const roleIdentity = computed(() => {
-  return store.getters["user/info"].roleId;
+  return store.getters["user/agentInfo"].roleId;
 });
 //超管1 非超管0
 const userIdentity = computed(() => {

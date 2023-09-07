@@ -122,89 +122,88 @@
         </el-form>
       </div>
 
-      <div class="u-table-main u-m-t-10 bg-fff u-flex-col">
-        <el-table
-          ref="tableRef"
-          :data="tableData"
-          style="width: 100%"
-          @selection-change="handleSelectionChange"
-          @sort-change="handleTableSort"
+      <el-table
+        ref="tableRef"
+        :data="tableData"
+        style="width: 100%"
+        @selection-change="handleSelectionChange"
+        @sort-change="handleTableSort"
+        height="650"
+      >
+        <el-table-column type="selection" width="35" />
+        <el-table-column
+          v-for="(item, index) in tableColumnConfig"
+          :key="index"
+          :prop="item.prop"
+          :label="item.label"
+          :width="item.width"
+          align="center"
+          :sortable="item.prop != 'operate'"
         >
-          <el-table-column type="selection" width="35" />
-          <el-table-column
-            v-for="(item, index) in tableColumnConfig"
-            :key="index"
-            :prop="item.prop"
-            :label="item.label"
-            :width="item.width"
-            align="center"
-            :sortable="item.prop != 'operate'"
-          >
-            <template #default="{ row }">
-              <div v-if="item.insertSlot && item.prop === 'status'">
-                <el-button
-                  v-if="row.status == 30 || row.status == 31"
-                  size="small"
-                  type="success"
-                  >已完成</el-button
-                >
-                <el-button v-if="row.status == 0" size="small" type="warning"
-                  >未成交</el-button
-                >
-                <el-button v-if="row.status == 20" size="small" type="info"
-                  >实施中</el-button
-                >
-                <el-button
-                  v-if="row.status == 40 || row.status == 41"
-                  size="small"
-                  type="danger"
-                  >已取消</el-button
-                >
-              </div>
-
-              <div
-                class="operate-btn"
-                v-if="item.insertSlot && item.prop === 'operate'"
+          <template #default="{ row }">
+            <div v-if="item.insertSlot && item.prop === 'status'">
+              <el-button
+                v-if="row.status == 30 || row.status == 31"
+                size="small"
+                type="success"
+                >已完成</el-button
               >
-                <el-button type="primary" @click="openEditDialog(row)" link
-                  >查看
-                </el-button>
-                <el-button
-                  v-if="row.status == 0"
-                  type="primary"
-                  @click="editOrderOperate(row)"
-                  link
-                  >取消
-                </el-button>
-                <el-button
-                  v-if="row.status != 0 || row.status != 30"
-                  type="primary"
-                  @click="openRemarkDialog(row)"
-                  link
-                  >备注
-                </el-button>
-                <el-button
-                  v-if="row.status == 20"
-                  type="primary"
-                  @click="succesOrderOperate(row)"
-                  link
-                  >完成
-                </el-button>
-              </div>
-            </template>
-          </el-table-column>
-        </el-table>
+              <el-button v-if="row.status == 0" size="small" type="warning"
+                >未成交</el-button
+              >
+              <el-button v-if="row.status == 20" size="small" type="info"
+                >实施中</el-button
+              >
+              <el-button
+                v-if="row.status == 40 || row.status == 41"
+                size="small"
+                type="danger"
+                >已取消</el-button
+              >
+            </div>
 
-        <div class="u-pagination-container">
-          <el-pagination
-            v-model:current-page="searchTableParams.pageIndex"
-            v-model:page-size="searchTableParams.pageSize"
-            layout="total, prev, pager, next, jumper"
-            :total="tableListTotal"
-            background
-            @current-change="handleGetTableList"
-          />
-        </div>
+            <div
+              class="operate-btn"
+              v-if="item.insertSlot && item.prop === 'operate'"
+            >
+              <el-button type="primary" @click="openEditDialog(row)" link
+                >查看
+              </el-button>
+              <el-button
+                v-if="row.status == 0"
+                type="primary"
+                @click="editOrderOperate(row)"
+                link
+                >取消
+              </el-button>
+              <el-button
+                v-if="row.status == 20 || row.status == 40 || row.status == 41"
+                type="primary"
+                @click="openRemarkDialog(row)"
+                link
+                >备注
+              </el-button>
+              <el-button
+                v-if="row.status == 20"
+                type="primary"
+                @click="succesOrderOperate(row)"
+                link
+                >完成
+              </el-button>
+            </div>
+          </template>
+        </el-table-column>
+      </el-table>
+
+      <div class="u-pagination-container">
+        <el-pagination
+          v-model:current-page="searchTableParams.pageIndex"
+          v-model:page-size="searchTableParams.pageSize"
+          layout="total, prev, pager, next, jumper"
+          :total="tableListTotal"
+          background
+          @current-change="handleGetTableList"
+        />
       </div>
     </div>
 
@@ -306,20 +305,21 @@
             </el-row>
             <el-row>
               <el-col :span="12">
-                <el-form-item label="订单状态：" prop="status">
-                  <!-- <el-input
-                    v-model="formData.status"
+                <el-form-item label="订单状态：" prop="statusName">
+                  <el-input
+                    v-model="formData.statusName"
                     readonly
                     style="width: 50%"
-                  /> -->
-                  <el-select readonly v-model="formData.status">
+                  />
+                  <!-- <el-select readonly v-model="formData.status">
                     <el-option
+                      readonly
                       v-for="item in orderStatusOptions"
                       :key="item.value"
                       :label="item.label"
                       :value="item.value"
                     />
-                  </el-select>
+                  </el-select> -->
                 </el-form-item>
               </el-col>
               <el-col :span="12">
@@ -469,7 +469,7 @@ const financialInformation = ref([
     isMoney: false,
     image: file,
     imageStyle: "width: 56px; height: 56px",
-    isShow: true,
+    isShow: [1, 10, 20],
     propMoney: "totalOrderCount",
   },
   {
@@ -479,7 +479,7 @@ const financialInformation = ref([
     isMoney: false,
     image: file,
     imageStyle: "width: 56px; height: 56px",
-    isShow: true,
+    isShow: [1, 10, 20],
     propMoney: "cacanOrderCount",
   },
   {
@@ -489,7 +489,7 @@ const financialInformation = ref([
     isMoney: true,
     image: barChart,
     imageStyle: "width: 104px; height: 42px",
-    isShow: true,
+    isShow: [1, 10, 20],
     propMoney: "concludeAmount",
   },
   {
@@ -499,7 +499,7 @@ const financialInformation = ref([
     isMoney: true,
     image: heartbeat,
     imageStyle: "width: 96px; height: 40px",
-    isShow: true,
+    isShow: [1, 10, 20],
     propMoney: "averageAmount",
   },
   {
@@ -509,7 +509,7 @@ const financialInformation = ref([
     isMoney: true,
     image: barChart,
     imageStyle: "width: 104px; height: 42px",
-    isShow: true,
+    isShow: [1, 10, 20],
     propMoney: "commissionAmount",
   },
 ]);
@@ -729,7 +729,7 @@ const formData = ref({
   agencyCommission: "",
   customName: "",
   orderTime: "",
-  status: "",
+  statusName: "",
   paymentTime: "",
   orderCode: "",
   carryTime: "",
@@ -842,6 +842,11 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .financial-system {
+  height: 100%;
+  padding-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
   .search-form {
     display: flex;
     align-items: flex-end;
@@ -861,12 +866,17 @@ onMounted(() => {
     }
   }
   .operate-container {
+    flex: 1;
     padding: 34px 58px;
     box-shadow: 0px 2px 3px 0px rgba(0, 0, 0, 0.1);
 
     :deep(.el-table__cell) {
       background-color: #fff !important;
-      color: rgba(0, 0, 0, 0.4) !important;
+      font-weight: 500;
+    }
+
+    :deep(.el-table .cell) {
+      padding: 0 10px;
     }
 
     .operate-btn {

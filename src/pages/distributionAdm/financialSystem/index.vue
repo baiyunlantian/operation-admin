@@ -95,6 +95,7 @@
           style="width: 100%"
           @selection-change="handleSelectionChange"
           @sort-change="handleTableSort"
+          height="630"
         >
           <el-table-column type="selection" width="55" />
           <el-table-column
@@ -308,7 +309,7 @@ const financialInformation = ref([
     descNum: 0,
     image: userCount,
     imageStyle: "width: 56px; height: 56px",
-    isShow: true,
+    isShow: [1, 10, 20],
     propMoney: "waitVerifyWithdrawOrderCount",
     propDescNum: "waitVerifyWithdrawOrderAmount",
   },
@@ -321,7 +322,7 @@ const financialInformation = ref([
     descNum: 0,
     image: barChart,
     imageStyle: "width: 104px; height: 42px",
-    isShow: true,
+    isShow: [1, 10, 20],
     propMoney: "waitPaymentWithdrawOrderCount",
     propDescNum: "waitPaymentWithdrawOrderAmount",
   },
@@ -334,7 +335,7 @@ const financialInformation = ref([
     descNum: 0,
     image: barChart,
     imageStyle: "width: 104px; height: 42px",
-    isShow: true,
+    isShow: [1, 10, 20],
     propMoney: "paidWithdrawOrderCount",
     propDescNum: "paidWithdrawOrderAmount",
   },
@@ -347,7 +348,7 @@ const financialInformation = ref([
     descNum: 0,
     image: barChart,
     imageStyle: "width: 104px; height: 42px",
-    isShow: true,
+    isShow: [1, 10, 20],
     propMoney: "rejectedWithdrawOrderCount",
     propDescNum: "rejectedWithdrawOrderAmount",
   },
@@ -647,6 +648,11 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .financial-system {
+  padding-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  box-sizing: border-box;
   .search-form {
     display: flex;
     align-items: center;
@@ -662,12 +668,13 @@ onMounted(() => {
     }
   }
   .operate-container {
+    flex: 1;
     padding: 34px 58px;
     box-shadow: 0px 2px 3px 0px rgba(0, 0, 0, 0.1);
 
     :deep(.el-table__cell) {
       background-color: #fff !important;
-      color: rgba(0, 0, 0, 0.4) !important;
+      font-weight: 500;
     }
 
     .header-container {

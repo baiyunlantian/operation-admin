@@ -20,6 +20,7 @@
     "js-cookie": "^3.0.5",
     "js-export-excel": "^1.1.4",
     "node-sass": "^9.0.0",
+    "pinyin-pro": "^3.16.4",
     "qrcode-vue3": "^1.6.8",
     "vue": "^3.2.13",
     "vue-router": "^4.2.4",

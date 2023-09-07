@@ -1,5 +1,9 @@
 <template>
-  <el-dialog v-model="dialogOpt.dialogVisible" :width="dialogOpt.width">
+  <el-dialog
+    v-model="dialogOpt.dialogVisible"
+    :width="dialogOpt.width"
+    @close="cancelData(formRef)"
+  >
     <template #header>
       <div class="dialog-header">
         <p>{{ dialogOpt.title }}</p>
@@ -33,6 +37,7 @@
                     v-if="val.type == 'input'"
                     v-model="agentData[val.name]"
                     :placeholder="val.placeholder"
+                    @input="val.changeEvent"
                   >
                     <template #append v-if="val.append">{{
                       val.append
@@ -72,7 +77,7 @@
     </template>
     <template #footer>
       <span class="dialog-footer">
-        <el-button @click="cancelData">取消</el-button>
+        <el-button @click="cancelData(formRef)">取消</el-button>
         <el-button type="primary" @click="pushFormData(formRef)">
           确认
         </el-button>
@@ -121,9 +126,12 @@ const pushFormData = async (data) => {
   // console.log(props.agentData);
 };
 
-const cancelData = () => {
+const cancelData = (data) => {
   emits("cancelCreate");
+  data[0].resetFields();
+  data[1].resetFields();
 };
+defineExpose({ formRef });
 </script>
 
 <style lang="scss" scoped>

@@ -6,7 +6,7 @@
     </div>
     <el-table :data="tableData" style="width: 100%">
       <template v-for="(item, index) in listTitle" :key="index">
-        <el-table-column :prop="item.prop" :label="item.label">
+        <el-table-column :prop="item.prop" :label="item.label" align="center">
           <template #default="{ row }">
             <div
               v-if="item.insertSlot && item.prop === 'ranking'"
@@ -64,7 +64,7 @@ defineProps({
 
 <style lang="scss" scoped>
 .ranking {
-  height: 440px;
+  height: 400px;
   padding: 16px 24px;
   box-sizing: border-box;
   margin-bottom: 16px;
@@ -91,6 +91,13 @@ defineProps({
   .total-title {
     font-size: 20px;
     color: rgba(0, 0, 0, 0.9);
+  }
+
+  :deep(.el-table .cell) {
+    display: flex;
+    justify-content: center;
+    padding: 0 7px;
+    font-weight: 500;
   }
 
   .rankingCol {

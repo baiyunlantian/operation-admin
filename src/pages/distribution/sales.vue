@@ -112,6 +112,7 @@
 
     <!-- 新增销售弹框 -->
     <form-dialog
+      ref="formRef"
       :dialogOpt="dialogOpt"
       :formTitles="formTitles"
       :agentData="salesData"
@@ -668,6 +669,7 @@ const salesData = reactive({
 });
 
 // 表单数据
+import { pinyin } from "pinyin-pro";
 const form = reactive({
   baseForm: [
     {
@@ -676,6 +678,17 @@ const form = reactive({
       type: "input",
       placeholder: "请输入销售名称",
       isRequired: true,
+      changeEvent: (e) => {
+        // const reg = /[\u4e00-\u9fa5]/;
+        // if (reg.test(e)) {
+
+        // } else {
+        //   salesData.email = e + "@maliyaka.com";
+        // }
+        salesData.email =
+          pinyin(e, { toneType: "none", type: "array" }).join("") +
+          "@maliyaka.com";
+      },
     },
     {
       title: "联系电话",
@@ -736,6 +749,8 @@ const form = reactive({
   ],
 });
 
+const formRef = ref();
+
 const getNewSalesData = (data) => {
   // console.log(data);
   const params = {
@@ -750,11 +765,17 @@ const getNewSalesData = (data) => {
       salesData.userName = "";
       salesData.phone = "";
       salesData.weChat = "";
-      salesData.email = "";
+      salesData.email = "" + "@maliyaka.com";
       salesData.notes = "";
       salesData.password = "";
       getSalesList();
       dialogOpt.dialogVisible = false;
+      ElMessage({
+        type: "success",
+        message: "创建成功",
+      });
+      formRef.value.formRef[0].resetFields();
+      formRef.value.formRef[1].resetFields();
     } else {
       dialogOpt.dialogVisible = true;
     }
@@ -804,8 +825,8 @@ const getSalesInfo = (id) => {
     userId: id,
   };
   API.getSalesInfo(params).then((res) => {
-    console.log(res.data);
     salesFormData.value = res.data;
+    salesFormData.value.userId = id;
   });
 };
 
@@ -831,6 +852,8 @@ const editSalesInfo = (msg) => {
     phone: msg.editParams.phone,
     weChat: msg.editParams.weChat,
     email: msg.editParams.email,
+    userId: msg.editParams.userId,
+    // userName: msg.editParams.salesName,
   };
   API.editSalesInfo(params).then((res) => {
     console.log(res);
