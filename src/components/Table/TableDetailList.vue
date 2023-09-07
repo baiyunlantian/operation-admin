@@ -139,7 +139,7 @@ const resetSearchData = () => {
   pageIndex.value = 1;
   pageSize.value = 50;
 
-  emits("resetStatus", "1");
+  emits("resetStatus", "-1");
 };
 
 const sortVal = ref("DESC");
