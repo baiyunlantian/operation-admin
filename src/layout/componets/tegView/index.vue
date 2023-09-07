@@ -44,6 +44,17 @@ watch(
       store.dispatch("tagsView/addView", {fullPath, meta, name, path, closable:path !== '/home'});
       active.value = value;
     }
+    // 结算商品页面刷新时保留商品目录tag
+    else {
+      store.dispatch("tagsView/addView", {
+        fullPath:"/product",
+        meta:{title: "商品目录", permission: [10, 20, 0, 1]},
+        name:"product",
+        path:"/product",
+        closable:true
+      });
+      active.value = "/product";
+    }
   },
   { immediate: true }
 );

@@ -1,5 +1,7 @@
 <template>
   <div class="agent-container">
+    <payMoneyTipsBox />
+
     <module-card>
       <header class="agent-data-head">
         <h1>客户数据</h1>
@@ -166,9 +168,12 @@
 
 <script setup>
 import { InfoFilled } from "@element-plus/icons-vue";
-import { onMounted, reactive, ref, computed, nextTick } from "vue";
+import { onMounted, reactive, ref, computed, nextTick, getCurrentInstance } from "vue";
 import { useRouter } from "vue-router";
 const router = useRouter();
+const { proxy } = getCurrentInstance();
+import { useDeposit } from '@/utils/useDeposit';
+const { getDepositStatus } = useDeposit();
 import API from "./api";
 
 // 代理数据展示组件
@@ -534,6 +539,7 @@ const operate = [
     isShow: true,
     clickEvent: (id, name) => {
       console.log(id);
+      if (getDepositStatus() === false) return
       dialogDetaiOpt.dialogVisible = true;
       getCustomInfo(id);
     },
@@ -542,6 +548,7 @@ const operate = [
     func: "删除",
     isShow: true,
     clickEvent: (id, name) => {
+      if (getDepositStatus() === false) return
       ElMessageBox.confirm(`是否确定删除 ${name} 销售ID ${id} `, "提示", {
         confirmButtonText: "确认",
         cancelButtonText: "取消",

@@ -1,5 +1,5 @@
 <template>
-    <div class="tip-pay u-border-radius-5 u-m-t-5">
+    <div class="tip-pay u-border-radius-5 u-m-b-15" v-if="agentInfo.isFreeOfCommission == 0 && agentInfo.isPayCashPledge == 0">
         <div class="left">
             <div class="point u-m-r-10">!</div>
             <div class="text">尚未支付押金，账号暂无法进行其他操作！！！</div>
@@ -15,17 +15,19 @@
             :formItemsConfig="dialogFormItemsConfig"
             :formData="dialogFormData"
             :payCallback="payCallback"
-            v-bind="$attrs"
+            @success="handleUpdateAgentInfo"
         />
     </div>
 </template>
 
 <script setup>
-  import { ref, useAttrs, defineExpose } from 'vue';
+  import { ref, useAttrs, defineExpose, computed } from 'vue';
+  import { useStore } from 'vuex';
   import PayMoneyDialog from '@/components/payMoneyDialog';
   import API from '@/pages/account/api';
 
   const attrs = useAttrs()
+  const store = useStore()
 
   const dialogVisible = ref(false)
   const dialogFormItemsConfig = ref([
@@ -44,6 +46,14 @@
       }
     })
   }
+
+  function handleUpdateAgentInfo() {
+    store.dispatch("user/getAgentUserInfo")
+  }
+
+  const agentInfo = computed(() => {
+    return store.getters["user/agentInfo"]
+  })
 
   defineExpose({
     handleRecharge
