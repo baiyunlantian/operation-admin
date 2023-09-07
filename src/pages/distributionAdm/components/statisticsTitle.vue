@@ -90,11 +90,11 @@
 </template>
 
 <script setup>
-import { ref, defineProps, defineEmits } from "vue";
+import { ref, defineProps, defineEmits, toRefs, watch } from "vue";
 import RightSearch from "./rightSearch";
 
 const emit = defineEmits(["updateParams"]);
-defineProps({
+const props = defineProps({
   isSearch: {
     type: Boolean,
     default: true,
