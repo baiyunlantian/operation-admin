@@ -1,10 +1,5 @@
 <template>
-  <el-table
-    ref="tableRef"
-    v-bind="$attrs"
-    class="table"
-    style="width: 100%"
-  >
+  <el-table ref="tableRef" v-bind="$attrs" class="table" style="width: 100%">
     <!-- 复选框列，会根据 selection 的值来动态渲染 -->
     <el-table-column v-if="selection" type="selection"></el-table-column>
     <template v-for="column in $attrs.column" :key="column.label">
@@ -50,7 +45,6 @@ defineExpose({ getTableRef });
 </script>
 
 <style lang="scss">
-
 .header-container {
   display: flex;
   align-items: center;

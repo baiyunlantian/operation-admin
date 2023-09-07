@@ -12,7 +12,9 @@
       <main class="agent-data-show">
         <el-row :gutter="16" style="width: 100%" justify="start">
           <template v-for="card in cardData" :key="card.title">
-            <el-col :span="5"> <show-card :cardData="card"></show-card></el-col>
+            <el-col :span="5" v-if="card.isPermission">
+              <show-card :cardData="card"></show-card
+            ></el-col>
           </template>
         </el-row>
       </main>
@@ -132,8 +134,12 @@
       @cancelCreate="cancelCreate"
       :rules="rules"
       :options="salesOptions"
+      :textName="salerName"
     >
       <template #password>
+        <el-text>
+          {{ agentData.password }}
+        </el-text>
         <el-link style="margin-left: 20px" type="primary" @click="copyText">
           复制
         </el-link>
@@ -231,6 +237,7 @@ const cardData = ref([
     name: "completeOrderAgentCount",
     amount: amount.value.completeOrderAgentCount,
     url: require("@/assets/images/user_count.png"),
+    isPermission: true,
     total: {
       totalTitle: "代理总量",
       totalName: "agentTotalCount",
@@ -242,24 +249,30 @@ const cardData = ref([
     name: "completeOrderCount",
     amount: amount.value.completeOrderCount,
     url: require("@/assets/images/file.png"),
+    isPermission: true,
   },
   {
     title: "成交金额",
     name: "transactionAmount",
     amount: amount.value.transactionAmount,
     url: require("@/assets/images/bar_chart.png"),
+    isPermission: true,
   },
   {
     title: "平均单价",
     name: "transactionAvgAmount",
     amount: amount.value.transactionAvgAmount,
     url: require("@/assets/images/normal_chart.png"),
+    isPermission: true,
   },
   {
     title: "返佣金额",
     name: "brokerageCommission",
     amount: amount.value.brokerageCommission,
     url: require("@/assets/images/bar_chart.png"),
+    isPermission: computed(() => {
+      return userIdentity.value == 1;
+    }),
   },
 ]);
 
@@ -409,8 +422,13 @@ const userIdentity = computed(() => {
   return store.getters["user/info"].isAdmin;
 });
 
+//获取销售名称
+const salerName = computed(() => {
+  return store.getters["user/agentInfo"].userName;
+});
+
 // 代理数据的表头
-const agentDataHead = [
+const agentDataHead = reactive([
   {
     prop: "agencyName",
     label: "代理名称",
@@ -482,7 +500,7 @@ const agentDataHead = [
     header: true,
     sortable: true,
     isPermission: computed(() => {
-      return roleIdentity.value == 20 || userIdentity.value == 1;
+      return userIdentity.value == 1;
     }),
   },
   {
@@ -510,7 +528,7 @@ const agentDataHead = [
     isPermission: true,
     placement: "right",
   },
-];
+]);
 
 // 操作方式
 import { ElMessage } from "element-plus";
@@ -789,7 +807,6 @@ const form = reactive({
     {
       title: "账号密码",
       name: "password",
-      type: "text",
       placeholder: "请输入账号密码",
       slot: true,
     },
@@ -800,7 +817,9 @@ const form = reactive({
         return userIdentity.value == 1 ? "select" : "text";
       }),
       placeholder: "请输入绑定销售",
-      isRequired: true,
+      isRequired: computed(() => {
+        return userIdentity.value == 1 ? true : false;
+      }),
     },
   ],
   cashForm: [
