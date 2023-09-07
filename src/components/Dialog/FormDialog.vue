@@ -37,6 +37,7 @@
                     v-if="val.type == 'input'"
                     v-model="agentData[val.name]"
                     :placeholder="val.placeholder"
+                    @input="val.changeEvent"
                   >
                     <template #append v-if="val.append">{{
                       val.append

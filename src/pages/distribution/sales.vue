@@ -669,6 +669,7 @@ const salesData = reactive({
 });
 
 // 表单数据
+import { pinyin } from "pinyin-pro";
 const form = reactive({
   baseForm: [
     {
@@ -677,6 +678,17 @@ const form = reactive({
       type: "input",
       placeholder: "请输入销售名称",
       isRequired: true,
+      changeEvent: (e) => {
+        // const reg = /[\u4e00-\u9fa5]/;
+        // if (reg.test(e)) {
+
+        // } else {
+        //   salesData.email = e + "@maliyaka.com";
+        // }
+        salesData.email =
+          pinyin(e, { toneType: "none", type: "array" }).join("") +
+          "@maliyaka.com";
+      },
     },
     {
       title: "联系电话",
