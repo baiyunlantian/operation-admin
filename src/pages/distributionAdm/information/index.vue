@@ -1,10 +1,7 @@
 <template>
   <div class="information-container">
-    <div
-      class="tipsBox"
-      v-if="agentInfo.isFreeOfCommission == 0 && agentInfo.isPayCashPledge == 0"
-    >
-      <PayMoneyTipsBox :payCallback="payCallback" @success="handleSuccessPay" />
+    <div class="tipsBox">
+      <PayMoneyTipsBox />
     </div>
     <!-- <div class="top-card bg-fff">
       <el-row :span="24" :gutter="70">
@@ -154,7 +151,6 @@ import {
 } from "vue";
 import StatisticsTitle from "../components/statisticsTitle.vue";
 import BrokenLine from "./components/brokenLine";
-import PayMoneyTipsBox from "@/components/payMoneyTipsBox";
 // import Pie from "./components/pie.vue";
 import Ranking from "./components/ranking.vue";
 import barChart from "@/assets/images/bar_chart.png";
@@ -186,23 +182,6 @@ const userIdentity = computed(() => {
 const roleIdentity = computed(() => {
   return store.getters["user/agentInfo"];
 });
-
-const payCallback = ref(API.getDepositPaymentRecord);
-
-const agentInfo = ref({});
-
-watch(
-  () => store.getters["user/agentInfo"],
-  (newVal) => {
-    agentInfo.value = newVal;
-  },
-  { deep: true, immediate: true }
-);
-
-function handleSuccessPay() {
-  // 更新用户信息
-  store.dispatch("user/getAgentUserInfo");
-}
 
 // 顶部总数据
 const collectInformation = ref([

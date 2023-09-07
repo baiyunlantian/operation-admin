@@ -1,5 +1,7 @@
 <template>
   <div class="financial-system">
+    <payMoneyTipsBox />
+
     <StatisticsTitle
       title="订单数据"
       :severalRow="false"
@@ -448,6 +450,8 @@ import { useStore } from "vuex";
 import dayjs from "dayjs";
 import utils from "@/assets/js/utils.js";
 import { Search } from "@element-plus/icons-vue";
+import { useDeposit } from '@/utils/useDeposit';
+const { getDepositStatus } = useDeposit();
 
 const { proxy } = getCurrentInstance();
 const store = useStore();
@@ -635,6 +639,7 @@ const handleStatusChange = () => {
 
 // 取消操作
 const editOrderOperate = (row) => {
+  if (getDepositStatus() === false) return
   proxy
     .$confirm("确认取消吗?", {
       confirmButtonText: "确认",
@@ -663,6 +668,7 @@ const editOrderOperate = (row) => {
 
 // 完成操作
 const succesOrderOperate = (row) => {
+  if (getDepositStatus() === false) return
   proxy
     .$confirm("确认完成吗?", {
       confirmButtonText: "确认",
@@ -736,6 +742,7 @@ const formData = ref({
 });
 
 const openEditDialog = (row) => {
+  if (getDepositStatus() === false) return
   eidtDialogVisible.value = true;
   currentDialogId.value = row.orderId;
   console.log(row);
@@ -793,6 +800,7 @@ const formRemarKData = reactive({
 
 const eidtRemarkDialogVisible = ref(false);
 const openRemarkDialog = (row) => {
+  if (getDepositStatus() === false) return
   eidtRemarkDialogVisible.value = true;
   formRemarKData.orderId = row.orderId;
   formRemarKData.remark = row.remark;

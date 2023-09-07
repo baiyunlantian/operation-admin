@@ -25,6 +25,8 @@ const app = createApp(App);
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
   app.component(key, component);
 }
+import PayMoneyTipsBox from "@/components/payMoneyTipsBox";
+app.component('PayMoneyTipsBox', PayMoneyTipsBox)
 //自定义指令
 import * as directives from "@/directives";
 Object.keys(directives).forEach((key) => {

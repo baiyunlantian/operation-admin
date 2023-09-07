@@ -265,6 +265,7 @@ const formConfig = reactive({
 });
 
 function handleSwitchForm(type) {
+  console.log('handleSwitchForm', type)
   Object.keys(formData).forEach((key) => {
     if (type !== "forgetPassword" && key === "account") {
       formData["account"] = Cookie.get("account") || "";
@@ -314,7 +315,7 @@ function handleClickBtn() {
                 type: "success",
                 message: "修改密码成功",
               });
-              handleSwitchForm("password");
+              handleSwitchForm("update");
             }
           })
           .finally(() => {

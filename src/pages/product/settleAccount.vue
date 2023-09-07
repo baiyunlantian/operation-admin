@@ -1,5 +1,7 @@
 <template>
     <div class="settle-account-container" id="settle-account">
+        <PayMoneyTipsBox />
+
         <div class="main-container bg-fff box-shadow padding-2-pre u-m-t-10 ">
             <div class="u-font-22 u-font-weight">客户信息</div>
 
@@ -34,10 +36,10 @@
                         </div>
                     </el-checkbox-group>
                 </div>
-                <div class="right">
-                    <span>销售名称：{{ sellerInfo.appertainSalesName }}</span>
-                    <span>联系方式：{{ sellerInfo.appertainSalesPhone }}</span>
-                    <span>企业邮箱：{{ sellerInfo.appertainSalesEmail }}</span>
+                <div class="right" v-show="(sellerInfo.roleId == 10 || sellerInfo.roleId == 20) && currentCheckboxValue === true">
+                    <span>销售名称：{{ sellerInfo.roleId == 10 ? sellerInfo.userName : sellerInfo.appertainSalesName }}</span>
+                    <span>联系方式：{{ sellerInfo.roleId == 10 ? sellerInfo.phone : sellerInfo.appertainSalesPhone }}</span>
+                    <span>企业邮箱：{{ sellerInfo.roleId == 10 ? sellerInfo.email : sellerInfo.appertainSalesEmail }}</span>
                 </div>
             </div>
 
@@ -100,10 +102,12 @@
   import { useStore } from 'vuex';
   import API from './api';
   import PayMoneyDialog from '@/components/payMoneyDialog';
+  import { useDeposit } from '@/utils/useDeposit';
 
+  const { getDepositStatus } = useDeposit();
   const router = useRouter();
   const store = useStore();
-  const { proxy } = getCurrentInstance()
+  const { proxy } = getCurrentInstance();
 
   const formConfig = ref([
     { label:'客户名称', prop:'name'},
@@ -186,6 +190,8 @@
   }
 
   function handleClickBtn() {
+    if (getDepositStatus() === false) return;
+
     let params = {
       ...formData,
       isCarry: currentCheckboxValue.value,
@@ -230,7 +236,6 @@
       return
     }
 
-    console.log('params', params)
     API.SettlementOrder(params).then(res=>{
       if (res.code == 0) {
         orderFormData.value = res.data
