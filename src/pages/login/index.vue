@@ -192,9 +192,9 @@ const formConfig = reactive({
     tip: "密码登录",
     form: [
       {
-        label: "手机号码",
+        label: "账号",
         key: "account",
-        placeholder: "手机号码",
+        placeholder: "账号",
         compoentType: "text",
         icon: Iphone,
       },
@@ -229,6 +229,13 @@ const formConfig = reactive({
   update: {
     tip: "立即登录",
     form: [
+      {
+        label: "账号",
+        key: "account",
+        placeholder: "账号",
+        compoentType: "text",
+        icon: Iphone,
+      },
       {
         label: "原密码",
         key: "oldPassword",
