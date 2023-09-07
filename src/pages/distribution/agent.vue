@@ -27,7 +27,7 @@
                   v-model="status"
                   @change="getStatus(way.name)"
                   class="m-2"
-                  placeholder="状态"
+                  placeholder="全部状态"
                 >
                   <el-option
                     v-for="item in statusOptions"
@@ -98,12 +98,14 @@
 
       <div class="pagination-container">
         <el-pagination
+          v-model:page-size="pageSize"
           background
           small
           layout="total"
           :total="agentDataLength"
         />
         <el-pagination
+          v-model:page-size="pageSize"
           background
           small
           layout="prev, pager, next"
@@ -265,14 +267,18 @@ const searchWay = reactive([
 const pageSize = ref(50);
 const handleSizeChange = (val) => {
   pageSize.value = val;
+  pageIndex.value = 1;
   getAgentList({
     keyWord: keyword.value,
     status: status.value,
     pageSize: pageSize.value,
+    sortType: sortType.value,
+    sortField: sortField.value,
   });
 };
 
 // 状态的选择器
+let statusOptions = [];
 const getStatusList = () => {
   const params = {
     type: "agencyUserStatus",
@@ -285,27 +291,33 @@ const getStatusList = () => {
       };
     });
     console.log(statusOptions);
+    status.value = 1;
   });
 };
-let statusOptions = [];
 
 // 状态变化
 const status = ref();
 const getStatus = (val) => {
+  pageIndex.value = 1;
   getAgentList({
     keyWord: keyword.value,
     status: status.value,
     pageSize: pageSize.value,
+    sortType: sortType.value,
+    sortField: sortField.value,
   });
 };
 
 // 搜索
 const keyword = ref();
 const search = (val, e) => {
+  pageIndex.value = 1;
   getAgentList({
     keyWord: keyword.value,
     status: status.value,
     pageSize: pageSize.value,
+    sortType: sortType.value,
+    sortField: sortField.value,
   });
 };
 
@@ -314,14 +326,14 @@ const sortField = ref("OrderQty");
 
 const handleTableSort = (e) => {
   // console.log(e);
-  ascending.value = e.order;
+  sortType.value = e.order == "ascending" ? "ASC" : "DESC";
   sortField.value = e.prop;
-  getCustomList({
-    keyWords: keyword.value,
-    isRemark: notes == 1 ? true : false,
-    salesName: salesName.value,
+  pageIndex.value = 1;
+  getAgentList({
+    keyWord: keyword.value,
+    status: status.value,
     pageSize: pageSize.value,
-    ascending: ascending.value,
+    sortType: sortType.value,
     sortField: sortField.value,
   });
 };
@@ -329,12 +341,12 @@ const handleTableSort = (e) => {
 // 页码
 const pageIndex = ref(1);
 const currentChange = (val) => {
-  getCustomList({
-    keyWords: keyword.value,
-    isRemark: isRemark.value,
-    salesName: salesName.value,
+  getAgentList({
+    keyWord: keyword.value,
+    status: status.value,
     pageSize: pageSize.value,
-    pageIndex: pageIndex.value,
+    sortType: sortType.value,
+    sortField: sortField.value,
   });
 };
 
@@ -344,7 +356,7 @@ const agentDataLength = ref();
 const getAgentList = () => {
   dataLoading.value = true;
   const params = {
-    // status: status.value || 1,
+    status: status.value || 1,
     sortField: sortField.value || "OrderQty",
     keyWord: keyword.value,
     sortType: sortType.value || "DESC",
@@ -352,13 +364,15 @@ const getAgentList = () => {
     pageSize: pageSize.value || 50,
   };
   API.getAgentList(params).then((res) => {
-    console.log(res.data);
     dataLoading.value = false;
-    agentDataRow.value = res.data.list;
-    agentDataLength.value = res.data.total;
-    agentDataRow.value?.forEach((val) => {
-      val.operate = operate.value;
-    });
+    if (res.code == 0) {
+      agentDataRow.value = res.data.list;
+      agentDataLength.value = res.data.total;
+      agentDataRow.value?.forEach((val) => {
+        val.operate = operate.value;
+      });
+    }
+
     // console.log('-------------',agentDataRow.value);
     // agentDataRow.value = res.data;
   });
@@ -482,7 +496,7 @@ const agentDataHead = [
 import { ElMessage } from "element-plus";
 const operate = ref([
   {
-    func: "查看",
+    func: "详情",
     isShow: "[1],[10],[20],[30]",
     isPermission: true,
     clickEvent: (id) => {

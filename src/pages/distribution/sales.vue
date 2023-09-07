@@ -68,7 +68,7 @@
             <el-tag type="success" v-if="row.status == 1">{{
               row.statusName
             }}</el-tag>
-            <el-tag type="danger" v-else-if="row.status == 2">{{
+            <el-tag type="danger" v-else-if="row.status == 0">{{
               row.statusName
             }}</el-tag>
             <el-tag type="info" v-else-if="row.status == 3">{{
@@ -94,12 +94,14 @@
 
       <div class="pagination-container">
         <el-pagination
+          v-model:page-size="pageSize"
           background
           small
           layout="total"
           :total="salesDataLength"
         />
         <el-pagination
+          v-model:page-size="pageSize"
           background
           small
           layout="prev, pager, next"
@@ -269,6 +271,7 @@ const searchWay = reactive([
 
 const pageSize = ref(50);
 const handleSizeChange = (val) => {
+  pageIndex.value = 1;
   pageSize.value = val;
   getSalesList({
     sortField: sortField.value,
@@ -282,6 +285,7 @@ const handleSizeChange = (val) => {
 // 搜索
 const keyword = ref();
 const search = (val, e) => {
+  pageIndex.value = 1;
   getSalesList({
     sortField: sortField.value,
     keyWords: keyword.value,
@@ -296,6 +300,7 @@ const sortField = ref("OrderCount");
 
 const handleTableSort = (e) => {
   // console.log(e);
+  pageIndex.value = 1;
   ascending.value = e.order == "ascending" ? "ASC" : "DESC";
   sortField.value = e.prop;
   getSalesList({

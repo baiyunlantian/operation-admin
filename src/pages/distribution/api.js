@@ -94,7 +94,7 @@ export default {
     return HTTP.post("/SalesAgency/AgentFreeOfCommission", params);
   },
   // 编辑代理信息
-  agencyUser(params) {
+  updateAgencyUser(params) {
     return HTTP.post("/SalesAgency/Edit/AgencyUser", params);
   },
 

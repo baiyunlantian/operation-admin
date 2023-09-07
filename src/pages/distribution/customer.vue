@@ -124,12 +124,14 @@
 
       <div class="pagination-container">
         <el-pagination
+          v-model:page-size="pageSize"
           background
           small
           layout="total"
           :total="customDataLength"
         />
         <el-pagination
+          v-model:page-size="pageSize"
           v-model:current-page="pageIndex"
           background
           small
@@ -365,8 +367,8 @@ const getSalers = (val) => {
   API.getSalers().then((res) => {
     const salesOptionsArr = res.data.map((item) => {
       return {
-        value: item.UserId,
-        label: item.UserName,
+        value: item.userId,
+        label: item.userName,
       };
     });
     salesOptions.value = [...salesOptions.value, ...salesOptionsArr];
@@ -426,7 +428,7 @@ const getCustomList = () => {
     keyWords: keyword.value || "",
     ascending: ascending.value || "DESC",
     sortField: sortField.value || "OrderCount",
-    isRemark: isRemark.value || "-1",
+    isRemark: isRemark.value || "1",
     salesId: salesName.value || "-1",
     pageSize: pageSize.value || 50,
     pageIndex: pageIndex.value || 1,
@@ -434,11 +436,14 @@ const getCustomList = () => {
   API.getCustomList(params).then((res) => {
     // console.log(res.data);
     dataLoading.value = false;
-    customDataLength.value = res.data.total;
-    customDataRow.value = res.data.list;
-    customDataRow.value.forEach((val) => {
-      val.operate = operate;
-    });
+    if (res.code == 0) {
+      customDataLength.value = res.data?.total;
+      customDataRow.value = res.data?.list;
+      customDataRow.value.forEach((val) => {
+        val.operate = operate;
+      });
+    }
+
     // console.log('-------------',customDataRow.value);
     // customDataRow.value = res.data;
   });
@@ -590,7 +595,7 @@ const dialogDetaiOpt = reactive({
 });
 
 const formArr = ref([
-  { title: "手机", name: "phone", isChange: true, prepend:'+86' },
+  { title: "手机", name: "phone", isChange: true, prepend: "+86" },
   { title: "微信", name: "wechat", isChange: true },
   { title: "客户邮箱", name: "email", isChange: true },
   { title: "注册时间", name: "createdTime", isChange: false },
