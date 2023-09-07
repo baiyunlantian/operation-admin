@@ -95,6 +95,7 @@
           style="width: 100%"
           @selection-change="handleSelectionChange"
           @sort-change="handleTableSort"
+          height="630"
         >
           <el-table-column type="selection" width="55" />
           <el-table-column
@@ -647,6 +648,11 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .financial-system {
+  padding-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  box-sizing: border-box;
   .search-form {
     display: flex;
     align-items: center;
@@ -662,6 +668,7 @@ onMounted(() => {
     }
   }
   .operate-container {
+    flex: 1;
     padding: 34px 58px;
     box-shadow: 0px 2px 3px 0px rgba(0, 0, 0, 0.1);
 

@@ -60,6 +60,7 @@ function getData(tagValue) {
 }
 
 function datePickerChange(dates) {
+  console.log(dates);
   const [start, end] = dates;
   if (start && end) {
     const _start = dayjs(start).format("YYYY-MM-DD") + " " + startTimeStr;
@@ -73,9 +74,13 @@ function datePickerChange(dates) {
 }
 
 function dateChange(dates) {
-  searchParam.startTime = dates[0];
-  searchParam.endTime = dates[1];
-  getData();
+  if (dates) {
+    searchParam.startTime = dates[0];
+    searchParam.endTime = dates[1];
+    getData();
+  } else {
+    handleClickTimeTag(-7);
+  }
 }
 
 // 点击图表上的日期tag
