@@ -125,18 +125,17 @@ onMounted(() => {
   getOrderList();
 });
 
-watch(
-  () => route.query.userId,
-  () => {
-    if (!route.query.userId) {
-      console.log(111);
-      router.go(-2);
-    }
-  },
-  {
-    immediate: true,
-  }
-);
+// watch(
+//   () => route.query.userId,
+//   () => {
+//     if (!route.query.userId) {
+//       router.push("/agent");
+//     }
+//   },
+//   {
+//     immediate: true,
+//   }
+// );
 
 // 身份确认
 // 销售 10  代理 20
