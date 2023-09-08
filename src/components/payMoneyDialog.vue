@@ -105,7 +105,6 @@
   }
 
   function handleFooterBtn() {
-    clearInterval(timer.value)
     queryPayStatus(customQueryPayStatus)
   }
 
@@ -116,6 +115,7 @@
         message: '支付成功！',
         duration: 5000
       })
+      handleClose()
       emits('success')
     }else if (payResultStatus == '0') {
       proxy.$message({
@@ -130,8 +130,6 @@
         duration: 5000
       })
     }
-
-    handleClose()
   }
 
   function queryPayStatus(callback) {
