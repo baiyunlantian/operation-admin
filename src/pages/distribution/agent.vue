@@ -554,15 +554,11 @@ const operate = ref([
       return roleIdentity.value == 20 || userIdentity.value == 1;
     }),
     clickEvent: (id, name) => {
-      ElMessageBox.confirm(
-        `是否确定禁用给 ${name} 销售ID ${id} 办理封禁`,
-        "提示",
-        {
-          confirmButtonText: "确认",
-          cancelButtonText: "取消",
-          type: "warning",
-        }
-      )
+      ElMessageBox.confirm(`是否确定禁用 ${name} 代理ID ${id} `, "提示", {
+        confirmButtonText: "确认",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
         .then(() => {
           const params = {
             userId: id,
@@ -591,19 +587,33 @@ const operate = ref([
     isPermission: computed(() => {
       return roleIdentity.value == 20 || userIdentity.value == 1;
     }),
-    clickEvent: (id) => {
-      const params = {
-        userId: id,
-      };
-      API.refunDeposit(params).then((res) => {
-        if (res.code == 0) {
-          ElMessage({
-            type: "success",
-            message: "操作成功",
+    clickEvent: (id, name) => {
+      console.log(id);
+      ElMessageBox.confirm(`是否确定给 ${name} 代理ID ${id} 退款`, "提示", {
+        confirmButtonText: "确认",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+        .then(() => {
+          const params = {
+            userId: id,
+          };
+          API.refunDeposit(params).then((res) => {
+            if (res.code == 0) {
+              ElMessage({
+                type: "success",
+                message: "操作成功",
+              });
+              getAgentList();
+            }
           });
-          getAgentList();
-        }
-      });
+        })
+        .catch(() => {
+          ElMessage({
+            type: "warning",
+            message: "取消操作",
+          });
+        });
     },
   },
   {
@@ -612,20 +622,35 @@ const operate = ref([
     isPermission: computed(() => {
       return userIdentity.value == 1;
     }),
-    clickEvent: (id) => {
-      const params = {
-        userId: id,
-      };
-      API.agentFreeOfCommission(params).then((res) => {
-        if (res.code == 0) {
-          ElMessage({
-            type: "success",
-            message: "操作成功",
+    clickEvent: (id, name) => {
+      console.log(id);
+      ElMessageBox.confirm(`是否确定给 ${name} 代理ID ${id} 免佣`, "提示", {
+        confirmButtonText: "确认",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+        .then(() => {
+          const params = {
+            userId: id,
+          };
+          API.agentFreeOfCommission(params).then((res) => {
+            if (res.code == 0) {
+              ElMessage({
+                type: "success",
+                message: "操作成功",
+              });
+              getAgentList();
+            }
           });
-          getAgentList();
-        }
-      });
+        })
+        .catch(() => {
+          ElMessage({
+            type: "warning",
+            message: "取消操作",
+          });
+        });
     },
+    clickEvent: (id) => {},
   },
 ]);
 
