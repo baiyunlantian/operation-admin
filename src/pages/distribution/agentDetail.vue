@@ -171,7 +171,7 @@ const agentDataArr = reactive([
     title: "待付款佣金",
     name: "notPaymentCommission",
     isPermission: computed(() => {
-      return roleIdentity.value == 20 || userIdentity.value == 1;
+      return userIdentity.value == 1;
     }),
   },
   { title: "实施中订单", name: "carryOutOrdersQty", isPermission: true },
@@ -179,7 +179,7 @@ const agentDataArr = reactive([
     title: "实施中佣金",
     name: "carryOutCommission",
     isPermission: computed(() => {
-      return roleIdentity.value == 20 || userIdentity.value == 1;
+      return userIdentity.value == 1;
     }),
   },
   { title: "冻结押金", name: "agencyCashPledge", isPermission: true },
@@ -188,28 +188,28 @@ const agentDataArr = reactive([
     title: "待提现佣金",
     name: "notWithdrawalCommission",
     isPermission: computed(() => {
-      return roleIdentity.value == 20 || userIdentity.value == 1;
+      return userIdentity.value == 1;
     }),
   },
   {
     title: "共赚取佣金",
     name: "totalCommission",
     isPermission: computed(() => {
-      return roleIdentity.value == 20 || userIdentity.value == 1;
+      return userIdentity.value == 1;
     }),
   },
   {
     title: "已提现佣金",
     name: "withdrawalCommission",
     isPermission: computed(() => {
-      return roleIdentity.value == 20 || userIdentity.value == 1;
+      return userIdentity.value == 1;
     }),
   },
   {
     title: "银行卡信息",
     name: "cardName",
     isPermission: computed(() => {
-      return roleIdentity.value == 20 || userIdentity.value == 1;
+      return userIdentity.value == 1;
     }),
     aliasName: "户主名称:",
   },
@@ -217,7 +217,7 @@ const agentDataArr = reactive([
     title: "",
     name: "cardNo",
     isPermission: computed(() => {
-      return roleIdentity.value == 20 || userIdentity.value == 1;
+      return  userIdentity.value == 1;
     }),
     aliasName: "银行卡号:",
   },
@@ -225,7 +225,7 @@ const agentDataArr = reactive([
     title: "",
     name: "openingBank",
     isPermission: computed(() => {
-      return roleIdentity.value == 20 || userIdentity.value == 1;
+      return userIdentity.value == 1;
     }),
     aliasName: "开户行:",
   },
@@ -357,7 +357,7 @@ const agentDataHead = [
 ];
 const orderDataHead = [
   { prop: "orderId", label: "订单ID", width: "80", isPermission: true },
-  { prop: "customerName", label: "客户名称", width: "110", isPermission: true },
+  { prop: "customName", label: "客户名称", width: "110", isPermission: true },
   { prop: "orderAmount", label: "订单金额", width: "110", isPermission: true },
   {
     prop: "salesCommission",
@@ -373,7 +373,7 @@ const orderDataHead = [
   },
   { prop: "paymentTime", label: "付款时间", width: "100", isPermission: true },
   { prop: "statusName", label: "状态", width: "100", isPermission: true },
-  { prop: "createdTime", label: "创建时间", width: "100", isPermission: true },
+  { prop: "orderTime", label: "创建时间", width: "100", isPermission: true },
 ];
 
 // 搜索
@@ -411,7 +411,7 @@ const getCustomerList = () => {
     phone: searchParams.phone || "",
     startTime: searchParams.startTime || "",
     endTime: searchParams.endTime || "",
-    sortField: "CreatedTime",
+    sortField: "PaymentTime",
     sortType: searchParams.sortType || "DESC",
     pageIndex: searchParams.pageIndex || 1,
     pageSize: searchParams.pageSize || 50,

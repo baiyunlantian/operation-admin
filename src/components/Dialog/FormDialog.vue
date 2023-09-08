@@ -45,7 +45,7 @@
                   </el-input>
 
                   <el-text v-if="val.type == 'text'">
-                    {{ agentData[val.name] }}
+                    {{ textName }}
                   </el-text>
                   <el-input
                     v-if="val.type == 'textarea'"
@@ -95,6 +95,7 @@ const props = defineProps([
   "agentData",
   "rules",
   "options",
+  "textName",
 ]);
 
 const emits = defineEmits([
