@@ -340,9 +340,13 @@ const handleTableSort = (e) => {
   });
 };
 
-const notes = ref("1");
+const notes = ref("null");
 const isRemark = ref();
 const notesOptions = [
+  {
+    label: "全部",
+    value: "null",
+  },
   {
     label: "有备注",
     value: "1",
@@ -352,7 +356,12 @@ const notesOptions = [
 const getNotes = (val) => {
   pageIndex.value = 1;
   notes.value = val;
-  isRemark.value = notes.value;
+  if (notes.value === "null") {
+    isRemark.value = "";
+  }else {
+    isRemark.value = notes.value;
+  }
+
   getCustomList({
     keyWords: keyword.value,
     isRemark: isRemark.value,
@@ -448,11 +457,14 @@ const getCustomList = () => {
     keyWords: keyword.value || "",
     ascending: ascending.value || "DESC",
     sortField: sortField.value || "orderCount",
-    isRemark: isRemark.value || "1",
+    isRemark: isRemark.value || "",
     salesId: salesName.value || "-1",
     pageSize: pageSize.value || 50,
     pageIndex: pageIndex.value || 1,
   };
+
+  if (params.isRemark === "") delete params.isRemark
+
   API.getCustomList(params).then((res) => {
     // console.log(res.data);
     dataLoading.value = false;
