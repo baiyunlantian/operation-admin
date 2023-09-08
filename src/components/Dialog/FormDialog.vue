@@ -144,10 +144,13 @@ const pushFormData = async (data) => {
     }
   });
   if (valid1 && valid2) {
-    if (props.textName.roleId != 0) {
+    if (props.textName && props.textName.roleId != 0) {
+      console.log(111);
       props.agentData.salesId = props.textName.userId;
+      emits("getNewAgentData", props.agentData);
+    } else {
+      emits("getNewAgentData", props.agentData);
     }
-    emits("getNewAgentData", props.agentData);
   }
   // console.log(props.agentData);
 };

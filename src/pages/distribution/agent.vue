@@ -97,7 +97,7 @@
                   operate.isPermission
                 "
                 type="primary"
-                @click="operate.clickEvent(row.agencyId)"
+                @click="operate.clickEvent(row.agencyId, row.agencyName)"
                 >{{ operate.func }}</el-link
               >
             </template>
@@ -537,7 +537,7 @@ const agentDataHead = reactive([
 ]);
 
 // 操作方式
-import { ElMessage } from "element-plus";
+import { ElMessage, ElMessageBox } from "element-plus";
 const operate = ref([
   {
     func: "详情",
@@ -553,19 +553,36 @@ const operate = ref([
     isPermission: computed(() => {
       return roleIdentity.value == 20 || userIdentity.value == 1;
     }),
-    clickEvent: (id) => {
-      const params = {
-        userId: id,
-      };
-      API.disabledAgent(params).then((res) => {
-        if (res.code == 0) {
-          ElMessage({
-            type: "success",
-            message: "操作成功",
-          });
-          getAgentList();
+    clickEvent: (id, name) => {
+      ElMessageBox.confirm(
+        `是否确定禁用给 ${name} 销售ID ${id} 办理封禁`,
+        "提示",
+        {
+          confirmButtonText: "确认",
+          cancelButtonText: "取消",
+          type: "warning",
         }
-      });
+      )
+        .then(() => {
+          const params = {
+            userId: id,
+          };
+          API.disabledAgent(params).then((res) => {
+            if (res.code == 0) {
+              ElMessage({
+                type: "success",
+                message: "操作成功",
+              });
+              getAgentList();
+            }
+          });
+        })
+        .catch(() => {
+          ElMessage({
+            type: "warning",
+            message: "取消操作",
+          });
+        });
     },
   },
   {
