@@ -1,5 +1,10 @@
 <template>
-  <el-table ref="tableRef" v-bind="$attrs" class="common-table-component" style="width: 100%">
+  <el-table
+    ref="tableRef"
+    v-bind="$attrs"
+    class="common-table-component"
+    style="width: 100%"
+  >
     <!-- 复选框列，会根据 selection 的值来动态渲染 -->
     <el-table-column v-if="selection" type="selection"></el-table-column>
     <template v-for="column in $attrs.column" :key="column.label">
@@ -22,16 +27,21 @@
             @click="handleClickColumnHeader(column)"
           >
             <div class="header-title">{{ column.label }}</div>
-            <div :class="[column.prop === sortField ? 'current-sort-field' : '', 'icon-arrow']">
+            <div
+              :class="[
+                column.prop === sortField ? 'current-sort-field' : '',
+                'icon-arrow',
+              ]"
+            >
               <el-icon v-if="column.prop === sortField">
-                <CaretBottom v-if="arrowDown"/>
-                <CaretTop v-else/>
+                <CaretBottom v-if="arrowDown" />
+                <CaretTop v-else />
               </el-icon>
 
-                <el-icon v-else>
-                  <CaretBottom />
-                </el-icon>
-              </div>
+              <el-icon v-else>
+                <CaretBottom />
+              </el-icon>
+            </div>
           </div>
         </template>
       </el-table-column>
@@ -43,8 +53,8 @@
 import { ref, defineEmits, defineOptions } from "vue";
 
 defineOptions({
-  inheritAttrs: false
-})
+  inheritAttrs: false,
+});
 
 // 升序和降序
 const arrowDown = ref(true);
@@ -59,9 +69,8 @@ const props = defineProps({
   sortField: {
     required: false,
     type: String,
-    default: () => ''
+    default: () => "",
   },
-  
 });
 const tableRef = ref(null);
 
@@ -84,7 +93,7 @@ const handleClickColumnHeader = (column) => {
 defineExpose({ getTableRef });
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .header-container {
   display: flex;
   align-items: center;
@@ -94,15 +103,15 @@ defineExpose({ getTableRef });
     align-items: center;
   }
 
-  .current-sort-field{
+  .current-sort-field {
     color: #409eff;
   }
 }
-:deep(.cell ){
+:deep(.cell) {
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
+  font-weight: 700;
 }
-
 </style>

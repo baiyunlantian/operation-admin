@@ -106,7 +106,7 @@
 </template>
 
 <script setup>
-import { onMounted, reactive, ref, computed } from "vue";
+import { onMounted, reactive, ref, computed, watch } from "vue";
 import API from "./api";
 
 import ModuleCard from "@/components/Card/ModuleCard.vue";
@@ -115,14 +115,28 @@ import EditDialog from "@/components/Dialog/EditDialog";
 
 import TableDetailList from "@/components/Table/TableDetailList.vue";
 
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 const route = useRoute();
+const router = useRouter();
 
 onMounted(() => {
   getAgencyUser();
   getCustomerList();
   getOrderList();
 });
+
+watch(
+  () => route.query.userId,
+  () => {
+    if (!route.query.userId) {
+      console.log(111);
+      router.go(-2);
+    }
+  },
+  {
+    immediate: true,
+  }
+);
 
 // 身份确认
 // 销售 10  代理 20
@@ -279,6 +293,7 @@ const changeMsgType = (val) => {
   API.updateAgencyUser(params).then((res) => {
     if (res.code == 0) {
       dialogOpt.dialogVisible = false;
+      getAgencyUser();
     }
   });
 };
