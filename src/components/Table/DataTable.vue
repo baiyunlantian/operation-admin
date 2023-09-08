@@ -1,5 +1,5 @@
 <template>
-  <el-table ref="tableRef" v-bind="$attrs" class="table" style="width: 100%">
+  <el-table ref="tableRef" v-bind="$attrs" class="common-table-component" style="width: 100%">
     <!-- 复选框列，会根据 selection 的值来动态渲染 -->
     <el-table-column v-if="selection" type="selection"></el-table-column>
     <template v-for="column in $attrs.column" :key="column.label">
@@ -21,9 +21,13 @@
           <div class="header-container u-cursor" @click="handleClickColumnHeader(column)">
             <div class="header-title">{{ column.label }}</div>
             <div :class="[column.prop === sortField ? 'current-sort-field' : '', 'icon-arrow']">
-                <el-icon>
-                  <CaretBottom v-if="arrowDown"/>
-                  <CaretTop v-else/>
+              <el-icon v-if="column.prop === sortField">
+                <CaretBottom v-if="arrowDown"/>
+                <CaretTop v-else/>
+              </el-icon>
+
+                <el-icon v-else>
+                  <CaretBottom />
                 </el-icon>
               </div>
           </div>
@@ -69,26 +73,31 @@ defineExpose({ getTableRef });
 </script>
 
 <style scoped lang="scss">
-.header-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  .icon-arrow {
-    display: flex;
-    align-items: center;
+  .common-table-component{
+    .header-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      .icon-arrow {
+        display: flex;
+        align-items: center;
+      }
+
+      .current-sort-field{
+        color: #409eff;
+      }
+    }
+
+    :deep(.cell) {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .el-table__row {
+      font-weight: 700 !important;
+    }
   }
 
-  .current-sort-field{
-    color: #409eff;
-  }
-}
-.cell {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-}
-.el-table__row {
-  font-weight: 700 !important;
-}
 </style>
