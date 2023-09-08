@@ -94,7 +94,6 @@
           :data="tableData"
           style="width: 100%"
           @selection-change="handleSelectionChange"
-          @sort-change="handleTableSort"
           height="630"
         >
           <el-table-column type="selection" width="55" />
@@ -105,7 +104,6 @@
             :label="item.label"
             :width="item.width"
             align="center"
-            :sortable="item.prop != 'operate'"
           >
             <template #default="{ row, column, $index }">
               <div v-if="item.insertSlot && item.prop === 'status'">
@@ -255,7 +253,6 @@
             :key="index"
           >
             <el-table-column
-              v-if="currentStatus != 0 && item.prop != 'operate'"
               :prop="item.prop"
               :label="item.label"
               :width="item.width"
@@ -405,6 +402,7 @@ const handleUpdateParams = (params) => {
 // 表格
 // 下拉框选项
 const orderStatusOptions = ref([
+  { label: "全部状态", value: -1 },
   { label: "已打款", value: 20 },
   { label: "打款中", value: 10 },
   { label: "待审核", value: 0 },
@@ -419,7 +417,7 @@ const orderStatusOptions = ref([
 let searchTableParams = reactive({
   pageSize: 50,
   pageIndex: 1,
-  status: undefined,
+  status: -1,
   keywords: undefined,
   sortField: undefined,
   ascending: undefined,

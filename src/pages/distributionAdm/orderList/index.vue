@@ -127,7 +127,6 @@
         :data="tableData"
         style="width: 100%"
         @selection-change="handleSelectionChange"
-        @sort-change="handleTableSort"
         height="650"
       >
         <el-table-column type="selection" width="35" />
@@ -138,7 +137,6 @@
           :label="item.label"
           :width="item.width"
           align="center"
-          :sortable="item.prop != 'operate'"
         >
           <template #default="{ row }">
             <div v-if="item.insertSlot && item.prop === 'status'">
