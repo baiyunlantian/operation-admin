@@ -63,6 +63,7 @@
         :sortable="true"
         @sort-change="handleTableSort"
         v-loading="dataLoading"
+        :default-sort="{ prop: 'orderCount', order: 'descending' }"
       >
         <template #status="{ row }">
           <div class="status-container">
@@ -122,6 +123,7 @@
       @getNewAgentData="getNewSalesData"
       @cancelCreate="cancelCreate"
       :rules="rules"
+      :destroy-on-close="true"
     >
       <template #password>
         <el-link style="margin-left: 20px" type="primary" @click="copyText">

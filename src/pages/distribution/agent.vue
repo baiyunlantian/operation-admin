@@ -81,6 +81,7 @@
         :data="agentDataRow"
         @sort-change="handleTableSort"
         v-loading="dataLoading"
+        :default-sort="{ prop: 'orderQty', order: 'descending' }"
       >
         <template #status="{ row }">
           <div>
@@ -135,6 +136,7 @@
       :rules="rules"
       :options="salesOptions"
       :textName="saler"
+      :destroy-on-close="true"
     >
       <template #password>
         <el-text>
