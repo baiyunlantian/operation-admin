@@ -522,11 +522,8 @@ const agentDataHead = reactive([
     prop: "status",
     label: "状态",
     width: "180",
-    header: true,
-    sortable: true,
     isPermission: true,
     slot: true,
-    arrowDown: true,
   },
   {
     prop: "createdTime",
