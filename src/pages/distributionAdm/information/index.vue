@@ -401,7 +401,7 @@ const panelInformation = ref([
     image: file,
     imageStyle: "width: 56px; height: 56px",
     isShow: [1, 10, 20],
-    propMoney: "createOrderCount",
+    propMoney: "completeOrderCount",
   },
   {
     id: 6,
