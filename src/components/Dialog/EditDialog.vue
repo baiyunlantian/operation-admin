@@ -86,6 +86,7 @@ const cancelEvent = () => {
 
 const editFormData = () => {
   // console.log("edit");
+  console.log(editParams.value);
   if (!isInputInvalid.value) {
     emits("changeMsgType", { msgType: "text", editParams: editParams.value });
   }

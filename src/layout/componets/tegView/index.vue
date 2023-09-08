@@ -77,8 +77,13 @@ const handleClose = (index, item) => {
 };
 
 const goToPage = (items) => {
+  console.log(items);
+  const query = items.fullPath && items.fullPath.split("?")[1];
+  const key = query && query.split("=")[0];
+  const val = query && query.split("=")[1];
   router.push({
-    path: items.fullPath,
+    path: items.path,
+    query: query ? { [key]: val } : "",
   });
 };
 </script>

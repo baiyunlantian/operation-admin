@@ -125,17 +125,14 @@ onMounted(() => {
   getOrderList();
 });
 
-// watch(
-//   () => route.query.userId,
-//   () => {
-//     if (!route.query.userId) {
-//       router.push("/agent");
-//     }
-//   },
-//   {
-//     immediate: true,
-//   }
-// );
+watch(
+  () => route.query.userId,
+  () => {
+    getAgencyUser();
+    getCustomerList();
+    getOrderList();
+  }
+);
 
 // 身份确认
 // 销售 10  代理 20
