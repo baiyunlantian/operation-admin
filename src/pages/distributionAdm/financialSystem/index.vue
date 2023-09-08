@@ -128,7 +128,9 @@
                 v-if="item.insertSlot && item.prop === 'operate'"
               >
                 <el-dropdown v-if="row.status == 0">
-                  <el-button type="primary" link>审核 </el-button>
+                  <el-button class="btn-color" type="primary" link
+                    >审核
+                  </el-button>
                   <template #dropdown>
                     <el-dropdown-menu>
                       <el-dropdown-item>
@@ -144,10 +146,15 @@
                     </el-dropdown-menu>
                   </template>
                 </el-dropdown>
-                <el-button type="primary" @click="openEditDialog(row)" link
+                <el-button
+                  class="btn-color"
+                  type="primary"
+                  @click="openEditDialog(row)"
+                  link
                   >详情
                 </el-button>
                 <el-button
+                  class="btn-color"
                   v-if="row.status == 10"
                   type="primary"
                   @click="checkDispose(row, 20)"
@@ -187,7 +194,7 @@
           :rules="rules"
         >
           <div>
-            <el-form-item label="代理名称/手机号：" prop="keyWords">
+            <el-form-item label="订单号/客户名称：" prop="keyWords">
               <el-input
                 v-model="searchDialogTableParams.keyWords"
                 placeholder="请输入你需要搜索的内容"
@@ -241,23 +248,34 @@
           :data="tableDialogData"
           style="width: 100%"
           @selection-change="handleSelectionChange"
+          height="400"
         >
-          <el-table-column
+          <template
             v-for="(item, index) in tableDialogColumnConfig"
             :key="index"
-            :prop="item.prop"
-            :label="item.label"
-            :width="item.width"
-            align="center"
           >
-            <template #default="{ row, column, $index }">
-              <div v-if="item.insertSlot && item.prop === 'operate'">
-                <el-button type="danger" link @click="deleteOrder(row)"
-                  >删除
-                </el-button>
-              </div>
-            </template>
-          </el-table-column>
+            <el-table-column
+              v-if="currentStatus != 0 && item.prop != 'operate'"
+              :prop="item.prop"
+              :label="item.label"
+              :width="item.width"
+              align="center"
+            >
+              <template #default="{ row, column, $index }">
+                <div
+                  v-if="
+                    item.insertSlot &&
+                    item.prop == 'operate' &&
+                    currentStatus == 0
+                  "
+                >
+                  <el-button type="danger" link @click="deleteOrder(row)"
+                    >删除
+                  </el-button>
+                </div>
+              </template>
+            </el-table-column>
+          </template>
         </el-table>
 
         <div class="u-pagination-container">
@@ -550,12 +568,15 @@ const tableDialogColumnConfig = ref([
   { label: "客户名称", prop: "customName" },
   { label: "订单金额", prop: "orderAmount" },
   { label: "结算佣金", prop: "orderCommission" },
-  { label: "操作", prop: "operate", insertSlot: "operate" },
+  { label: "操作", prop: "operate", insertSlot: "operate", waitCheck: true },
 ]);
 
+const currentStatus = ref();
 const openEditDialog = (row) => {
   eidtDialogVisible.value = true;
   currentDialogId.value = row.withdrawId;
+  searchDialogTableParams.keyWords = undefined;
+  currentStatus.value = row.status;
   handleGetDialogTableList(row.withdrawId);
 };
 
@@ -701,6 +722,14 @@ onMounted(() => {
       .el-dropdown {
         margin-right: 20px;
       }
+    }
+
+    .btn-color:hover {
+      color: #a0cfff;
+    }
+
+    .btn-color {
+      color: #409eff;
     }
   }
 }
