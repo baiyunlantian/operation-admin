@@ -68,7 +68,7 @@ const handleClickColumnHeader = (column) => {
 defineExpose({ getTableRef });
 </script>
 
-<style lang="scss">
+<style scoped lang="scss">
 .header-container {
   display: flex;
   align-items: center;

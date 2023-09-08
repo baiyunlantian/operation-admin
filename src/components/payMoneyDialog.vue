@@ -105,23 +105,52 @@
   }
 
   function handleFooterBtn() {
-    queryPayStatus()
+    clearInterval(timer.value)
+    queryPayStatus(customQueryPayStatus)
+  }
+
+  function customQueryPayStatus(payResultStatus) {
+    if (payResultStatus == '10') {
+      proxy.$message({
+        type: 'success',
+        message: '支付成功！',
+        duration: 5000
+      })
+      emits('success')
+    }else if (payResultStatus == '0') {
+      proxy.$message({
+        type: 'warning',
+        message: '支付未成功！',
+        duration: 5000
+      })
+    }else if (payResultStatus == '-1') {
+      proxy.$message({
+        type: 'warning',
+        message: '已取消付款！',
+        duration: 5000
+      })
+    }
+
     handleClose()
   }
 
-  function queryPayStatus() {
+  function queryPayStatus(callback) {
     if (props.formData.orderId) {
 
       props.payCallback({orderId: props.formData.orderId}).then(res=>{
         if (res.code == '0') {
-          if (res.data.payResultStatus == '10') {
-            proxy.$message({
-              type: 'success',
-              message: '支付成功',
-              duration: 5000
-            })
-            emits('success')
-            handleClose()
+          if (typeof callback === 'function') {
+            callback(res.data.payResultStatus)
+          }else {
+            if (res.data.payResultStatus == '10') {
+              proxy.$message({
+                type: 'success',
+                message: '支付成功！',
+                duration: 5000
+              })
+              emits('success')
+              handleClose()
+            }
           }
         }else {
           clearInterval(timer.value)
