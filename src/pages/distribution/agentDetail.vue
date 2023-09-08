@@ -125,18 +125,17 @@ onMounted(() => {
   getOrderList();
 });
 
-watch(
-  () => route.query.userId,
-  () => {
-    if (!route.query.userId) {
-      console.log(111);
-      router.go(-2);
-    }
-  },
-  {
-    immediate: true,
-  }
-);
+// watch(
+//   () => route.query.userId,
+//   () => {
+//     if (!route.query.userId) {
+//       router.push("/agent");
+//     }
+//   },
+//   {
+//     immediate: true,
+//   }
+// );
 
 // 身份确认
 // 销售 10  代理 20
@@ -307,7 +306,7 @@ const dialogOpt = reactive({
 
 const formArr = ref([
   { title: "代理名称", name: "userName", isChange: true },
-  { title: "联系方式", name: "phone", isChange: true },
+  { title: "联系方式", name: "phone", isChange: true, validate: true },
   { title: "办公邮箱", name: "email", isChange: true },
   {
     title: "银行卡信息",
