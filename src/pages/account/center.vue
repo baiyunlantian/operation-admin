@@ -261,7 +261,12 @@
     function handleFormatWithDrawText(obj) {
       let {prop, type} = obj, text = '';
       if (prop === 'agencyCashPledge') {
-        text = agentInfo.value.agencyCashPledge === 0 ? '立即缴纳' : `￥ ${agentInfo.value.agencyCashPledge.toFixed(2)}`
+        if (agentInfo.value.isFreeOfCommission == 1) {
+          text = '0.00'
+        }else {
+          text = agentInfo.value.agencyCashPledge === 0 ? '立即缴纳' : `￥ ${agentInfo.value.agencyCashPledge.toFixed(2)}`
+        }
+
       }else {
         text = type === 'money' ? `￥ ${withdrawInfo.value[prop].toFixed(2)}` : withdrawInfo.value[prop]
       }
