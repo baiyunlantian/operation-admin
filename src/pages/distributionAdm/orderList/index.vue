@@ -554,7 +554,7 @@ let searchTableParams = reactive({
   status: -1,
   keyWords: undefined,
   sortField: "orderTime",
-  ascending: "asc",
+  ascending: "desc",
 });
 
 const formRef = ref(null);
