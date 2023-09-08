@@ -442,6 +442,7 @@ const agentDataHead = reactive([
     header: true,
     sortable: true,
     isPermission: true,
+    arrowDown: true,
   },
   {
     prop: "agencyPhone",
@@ -450,6 +451,7 @@ const agentDataHead = reactive([
     header: true,
     sortable: true,
     isPermission: true,
+    arrowDown: true,
   },
   {
     prop: "agencyId",
@@ -458,6 +460,7 @@ const agentDataHead = reactive([
     header: true,
     sortable: true,
     isPermission: true,
+    arrowDown: true,
   },
   {
     prop: "salesName",
@@ -466,6 +469,7 @@ const agentDataHead = reactive([
     header: true,
     sortable: true,
     isPermission: true,
+    arrowDown: true,
   },
   {
     prop: "customerQty",
@@ -474,6 +478,7 @@ const agentDataHead = reactive([
     header: true,
     sortable: true,
     isPermission: true,
+    arrowDown: true,
   },
   {
     prop: "orderQty",
@@ -482,6 +487,7 @@ const agentDataHead = reactive([
     header: true,
     sortable: true,
     isPermission: true,
+    arrowDown: true,
   },
   {
     prop: "orderAmount",
@@ -490,6 +496,7 @@ const agentDataHead = reactive([
     header: true,
     sortable: true,
     isPermission: true,
+    arrowDown: true,
   },
   {
     prop: "avgAmount",
@@ -498,6 +505,7 @@ const agentDataHead = reactive([
     header: true,
     sortable: true,
     isPermission: true,
+    arrowDown: true,
   },
   {
     prop: "totalCommission",
@@ -508,6 +516,7 @@ const agentDataHead = reactive([
     isPermission: computed(() => {
       return userIdentity.value == 1;
     }),
+    arrowDown: true,
   },
   {
     prop: "status",
@@ -517,6 +526,7 @@ const agentDataHead = reactive([
     sortable: true,
     isPermission: true,
     slot: true,
+    arrowDown: true,
   },
   {
     prop: "createdTime",
@@ -525,6 +535,7 @@ const agentDataHead = reactive([
     header: true,
     sortable: true,
     isPermission: true,
+    arrowDown: true,
   },
   {
     prop: "operate",
@@ -533,6 +544,7 @@ const agentDataHead = reactive([
     slot: true,
     isPermission: true,
     placement: "right",
+    arrowDown: true,
   },
 ]);
 

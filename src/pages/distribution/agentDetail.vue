@@ -124,7 +124,6 @@ onMounted(() => {
   getOrderList();
 });
 
-
 // 身份确认
 // 销售 10  代理 20
 import { useStore } from "vuex";
@@ -218,7 +217,7 @@ const agentDataArr = reactive([
     title: "",
     name: "cardNo",
     isPermission: computed(() => {
-      return  userIdentity.value == 1;
+      return userIdentity.value == 1;
     }),
     aliasName: "银行卡号:",
   },
@@ -237,6 +236,7 @@ const getAgencyUser = () => {
   const params = {
     userId: route.query.userId,
   };
+  console.log(params);
   const APIArr = [
     API.getAgencyUser(params),
     API.getOrderCommission(params),
@@ -246,6 +246,9 @@ const getAgencyUser = () => {
     agentFormData.value = res.reduce((prev, curr) => {
       return Object.assign(prev, curr.data);
     }, {});
+    if (agentFormData.value.isFreeOfCommission === true) {
+      agentFormData.value.agencyCashPledge = "免佣用户";
+    }
     console.log(agentFormData.value);
   });
 };
