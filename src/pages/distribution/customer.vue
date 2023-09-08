@@ -104,9 +104,9 @@
         ref="tableRef"
         :column="customDataHead"
         :data="customDataRow"
-        @sort-change="handleTableSort"
+        :sortField="sortField"
+        @click-header="handleTableSort"
         v-loading="dataLoading"
-        :default-sort="{ prop: 'orderCount', order: 'descending' }"
       >
         <template #status="{ row }">
           <div class="status-container">
@@ -324,12 +324,12 @@ const searchWay = reactive([
 ]);
 
 const ascending = ref("DESC");
-const sortField = ref("OrderCount");
+const sortField = ref("orderCount");
 
 const handleTableSort = (e) => {
   console.log(e);
-  ascending.value = e.order == "ascending" ? "ASC" : "DESC";
-  sortField.value = e.prop;
+  ascending.value = e.order == "asc" ? "ASC" : "DESC";
+  sortField.value = e.sortField;
   getCustomList({
     keyWords: keyword.value,
     isRemark: isRemark.value,
@@ -447,7 +447,7 @@ const getCustomList = () => {
   const params = {
     keyWords: keyword.value || "",
     ascending: ascending.value || "DESC",
-    sortField: sortField.value || "OrderCount",
+    sortField: sortField.value || "orderCount",
     isRemark: isRemark.value || "1",
     salesId: salesName.value || "-1",
     pageSize: pageSize.value || 50,

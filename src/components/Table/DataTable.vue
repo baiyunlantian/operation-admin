@@ -94,24 +94,26 @@ defineExpose({ getTableRef });
 </script>
 
 <style lang="scss" scoped>
-.header-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  .icon-arrow {
-    display: flex;
-    align-items: center;
-  }
+  .common-table-component{
+    .header-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      .icon-arrow {
+        display: flex;
+        align-items: center;
+      }
 
-  .current-sort-field {
-    color: #409eff;
+      .current-sort-field{
+        color: #409eff;
+      }
+    }
+    :deep(.cell ){
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-weight: 700 !important;
+    }
   }
-}
-:deep(.cell) {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  font-weight: 700;
-}
 </style>

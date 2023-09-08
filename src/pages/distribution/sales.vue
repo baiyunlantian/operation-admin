@@ -60,10 +60,9 @@
         ref="tableRef"
         :column="salesDataHead"
         :data="salesDataRow"
-        :sortable="true"
-        @sort-change="handleTableSort"
         v-loading="dataLoading"
-        :default-sort="{ prop: 'orderCount', order: 'descending' }"
+        :sortField="sortField"
+        @click-header="handleTableSort"
       >
         <template #status="{ row }">
           <div class="status-container">
@@ -307,13 +306,13 @@ const search = (val, e) => {
 };
 
 const ascending = ref("DESC");
-const sortField = ref("OrderCount");
+const sortField = ref("orderCount");
 
 const handleTableSort = (e) => {
   // console.log(e);
   pageIndex.value = 1;
-  ascending.value = e.order == "ascending" ? "ASC" : "DESC";
-  sortField.value = e.prop;
+  ascending.value = e.order == "asc" ? "ASC" : "DESC";
+  sortField.value = e.sortField;
   getSalesList({
     sortField: sortField.value,
     keyWords: keyword.value,
@@ -343,7 +342,7 @@ const dataLoading = ref(false);
 const getSalesList = () => {
   dataLoading.value = true;
   const params = {
-    sortField: sortField.value || "OrderCount",
+    sortField: sortField.value || "orderCount",
     keyWords: keyword.value,
     ascending: ascending.value || "DESC",
     pageIndex: pageIndex.value || 1,
@@ -425,8 +424,6 @@ const salesDataHead = [
     label: "销售状态",
     width: "180",
     slot: true,
-    header: true,
-    sortable: true,
     isPermission: true,
   },
   {
