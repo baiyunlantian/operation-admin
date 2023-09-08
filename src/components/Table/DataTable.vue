@@ -2,7 +2,7 @@
   <el-table ref="tableRef" v-bind="$attrs" class="common-table-component" style="width: 100%">
     <!-- 复选框列，会根据 selection 的值来动态渲染 -->
     <el-table-column v-if="selection" type="selection"></el-table-column>
-    <template v-for="column in $attrs.column" :key="column.label">
+    <template v-for="column in column" :key="column.label">
       <el-table-column
         :sortable="column.sortable"
         :prop="column.prop"
@@ -38,7 +38,11 @@
 </template>
 
 <script setup>
-import { ref, defineEmits } from "vue";
+import { ref, defineEmits, defineOptions } from "vue";
+
+defineOptions({
+  inheritAttrs: false
+})
 
 // 升序和降序
 const arrowDown = ref(true);
@@ -54,6 +58,11 @@ const props = defineProps({
     required: false,
     type: String,
     default: () => ''
+  },
+  column: {
+    required: false,
+    type: Array,
+    default: () => []
   }
 });
 const tableRef = ref(null);
@@ -93,9 +102,6 @@ defineExpose({ getTableRef });
       align-items: center;
       justify-content: center;
       text-align: center;
-    }
-
-    .el-table__row {
       font-weight: 700 !important;
     }
   }
