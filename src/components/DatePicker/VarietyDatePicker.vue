@@ -24,6 +24,9 @@
           :teleported="false"
           size="small"
           @change="changeDatePick"
+          :disabled-date="disabledDate"
+          @calendar-change="chooseDay = $event[0]"
+          @focus="chooseDay = null"
         />
       </div>
     </div>
@@ -73,9 +76,27 @@ const changeDatePick = () => {
     startDate = dateArr[0] + " " + startTime;
     endDate = dateArr[1] + " " + endTime;
   }
-
+  console.log({ startDate, endDate });
   emits("getBeforeDate", { startDate, endDate });
   emits("getListDate", { startDate, endDate });
+};
+
+const chooseDay = ref(null);
+const disabledDate = (time) => {
+  if (chooseDay.value) {
+    // console.log(chooseDay.value);
+    // 如果选择了一个日期
+    const one = 365 * 24 * 3600 * 1000; // 365天的时间戳
+    const minTime = chooseDay.value - one; // 当前日期 - one = 365天之前
+    const maxTime = chooseDay.value - 0 + one;
+    return (
+      time.getTime() < minTime ||
+      time.getTime() > maxTime ||
+      time.getTime() > Date.now()
+    );
+  } else {
+    return time.getTime() > Date.now();
+  }
 };
 
 defineExpose({ getDate, datePick });

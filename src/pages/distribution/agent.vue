@@ -134,7 +134,7 @@
       @cancelCreate="cancelCreate"
       :rules="rules"
       :options="salesOptions"
-      :textName="salerName"
+      :textName="saler"
     >
       <template #password>
         <el-text>
@@ -423,8 +423,12 @@ const userIdentity = computed(() => {
 });
 
 //获取销售名称
-const salerName = computed(() => {
-  return store.getters["user/agentInfo"].userName;
+const saler = computed(() => {
+  return {
+    roleId: store.getters["user/agentInfo"].roleId,
+    userName: store.getters["user/agentInfo"].userName,
+    userId: store.getters["user/agentInfo"].userId,
+  };
 });
 
 // 代理数据的表头

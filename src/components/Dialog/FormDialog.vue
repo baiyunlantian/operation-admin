@@ -45,7 +45,7 @@
                   </el-input>
 
                   <el-text v-if="val.type == 'text'">
-                    {{ textName }}
+                    {{ textName.userName }}
                   </el-text>
                   <el-input
                     v-if="val.type == 'textarea'"
@@ -144,6 +144,9 @@ const pushFormData = async (data) => {
     }
   });
   if (valid1 && valid2) {
+    if (props.textName.roleId != 0) {
+      props.agentData.salesId = props.textName.userId;
+    }
     emits("getNewAgentData", props.agentData);
   }
   // console.log(props.agentData);
