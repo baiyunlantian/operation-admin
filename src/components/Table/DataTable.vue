@@ -18,12 +18,14 @@
         </template>
 
         <template v-if="column.header" #header>
-          <div class="header-container">
+          <div class="header-container u-cursor" @click="handleClickColumnHeader(column)">
             <div class="header-title">{{ column.label }}</div>
-            <!-- <div class="icon-arrow">
-                <el-icon v-if="!arrowDown"><ArrowUp /></el-icon>
-                <el-icon v-else><ArrowDown /></el-icon>
-              </div> -->
+            <div :class="[column.prop === sortField ? 'current-sort-field' : '', 'icon-arrow']">
+                <el-icon>
+                  <CaretBottom v-if="arrowDown"/>
+                  <CaretTop v-else/>
+                </el-icon>
+              </div>
           </div>
         </template>
       </el-table-column>
@@ -32,15 +34,37 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, defineEmits } from "vue";
+
 // 升序和降序
 const arrowDown = ref(true);
 
-const props = defineProps(["selection"]);
+const emits = defineEmits(['click-header'])
+const props = defineProps({
+  selection: {
+    required: false,
+    type: Boolean,
+    default: () => false
+  },
+  sortField: {
+    required: false,
+    type: String,
+    default: () => ''
+  }
+});
 const tableRef = ref(null);
 const getTableRef = () => {
   return tableRef;
 };
+const handleClickColumnHeader = (column) => {
+  const { prop } = column;
+  if (prop === props.sortField) {
+    arrowDown.value = !arrowDown.value;
+  }else {
+    arrowDown.value = true;
+  }
+  emits('click-header', {sortField: prop, order: arrowDown.value ? 'desc' : 'asc'})
+}
 defineExpose({ getTableRef });
 </script>
 
@@ -52,6 +76,10 @@ defineExpose({ getTableRef });
   .icon-arrow {
     display: flex;
     align-items: center;
+  }
+
+  .current-sort-field{
+    color: #409eff;
   }
 }
 .cell {

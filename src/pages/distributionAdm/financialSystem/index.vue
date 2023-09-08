@@ -89,80 +89,48 @@
       </div>
 
       <div class="u-table-main u-m-t-10 bg-fff u-flex-col">
-        <el-table
-          ref="tableRef"
-          :data="tableData"
-          style="width: 100%"
-          @selection-change="handleSelectionChange"
-          height="630"
+        <data-table
+                ref="tableRef"
+                :data="tableData"
+                :column="tableColumnConfig"
+                :selection="true"
+                :sortField="searchTableParams.sortField"
+                style="width: 100%"
+                @selection-change="handleSelectionChange"
+                @click-header="handleTableSort"
+                height="650"
         >
-          <el-table-column type="selection" width="55" />
-          <el-table-column
-            v-for="(item, index) in tableColumnConfig"
-            :key="index"
-            :prop="item.prop"
-            :label="item.label"
-            :width="item.width"
-            align="center"
-          >
-            <template #default="{ row, column, $index }">
-              <div v-if="item.insertSlot && item.prop === 'status'">
-                <el-tag v-if="row.status == 20" size="small" type="success"
-                  >已打款</el-tag
-                >
-                <el-tag v-if="row.status == 10" size="small" type="warning"
-                  >打款中</el-tag
-                >
-                <el-tag v-if="row.status == 0" size="small" type="info"
-                  >待审核</el-tag
-                >
-                <el-tag v-if="row.status == 30" size="small" type="danger"
-                  >已拒绝</el-tag
-                >
-              </div>
+          <template #status="{ row }">
+            <div>
+              <el-tag v-if="row.status == 20" size="small" type="success">已打款</el-tag>
+              <el-tag v-if="row.status == 10" size="small" type="warning">打款中</el-tag>
+              <el-tag v-if="row.status == 0" size="small" type="info">待审核</el-tag>
+              <el-tag v-if="row.status == 30" size="small" type="danger">已拒绝</el-tag>
+            </div>
+          </template>
 
-              <div
-                class="operate-btn"
-                v-if="item.insertSlot && item.prop === 'operate'"
-              >
-                <el-dropdown v-if="row.status == 0">
-                  <el-button class="btn-color" type="primary" link
-                    >审核
-                  </el-button>
-                  <template #dropdown>
-                    <el-dropdown-menu>
-                      <el-dropdown-item>
-                        <el-button link @click="checkDispose(row, 10)">
-                          同意
-                        </el-button>
-                      </el-dropdown-item>
-                      <el-dropdown-item>
-                        <el-button link @click="checkDispose(row, 30)">
-                          拒绝
-                        </el-button>
-                      </el-dropdown-item>
-                    </el-dropdown-menu>
-                  </template>
-                </el-dropdown>
-                <el-button
-                  class="btn-color"
-                  type="primary"
-                  @click="openEditDialog(row)"
-                  link
-                  >详情
-                </el-button>
-                <el-button
-                  class="btn-color"
-                  v-if="row.status == 10"
-                  type="primary"
-                  @click="checkDispose(row, 20)"
-                  link
-                  >打款
-                </el-button>
-              </div>
-            </template>
-          </el-table-column>
-        </el-table>
+          <template #operate="{ row }">
+            <div class="operate-btn">
+              <el-dropdown v-if="row.status == 0">
+                <el-button class="btn-color" type="primary" link>审核</el-button>
+                <template #dropdown>
+                  <el-dropdown-menu>
+                    <el-dropdown-item>
+                      <el-button link @click="checkDispose(row, 10)">同意</el-button>
+                    </el-dropdown-item>
+                    <el-dropdown-item>
+                      <el-button link @click="checkDispose(row, 30)">拒绝</el-button>
+                    </el-dropdown-item>
+                  </el-dropdown-menu>
+                </template>
+              </el-dropdown>
+
+              <el-button class="btn-color" type="primary" @click="openEditDialog(row)" link>详情</el-button>
+              <el-button v-if="row.status == 10" class="btn-color" type="primary" @click="checkDispose(row, 20)" link>打款</el-button>
+            </div>
+          </template>
+        </data-table>
+
 
         <div class="u-pagination-container">
           <el-pagination
@@ -293,6 +261,7 @@
 <script setup>
 import { ref, reactive, getCurrentInstance, computed, onMounted } from "vue";
 import StatisticsTitle from "../components/statisticsTitle.vue";
+import DataTable from "@/components/Table/DataTable.vue";
 import userCount from "@/assets/images/user_count.png";
 import barChart from "@/assets/images/bar_chart.png";
 import {
@@ -419,8 +388,8 @@ let searchTableParams = reactive({
   pageIndex: 1,
   status: -1,
   keywords: undefined,
-  sortField: undefined,
-  ascending: undefined,
+  sortField: 'withdrawOrderCount',
+  ascending: 'desc',
 });
 
 const formRef = ref(null);
@@ -429,14 +398,14 @@ const pageSizeOptions = ref([50, 100, 200]);
 const tableListTotal = ref(0);
 const tableData = ref([{}]);
 const tableColumnConfig = ref([
-  { label: "提现代理名称", prop: "agentName" },
-  { label: "手机号码", prop: "phone" },
-  { label: "提现单号", prop: "withdrawId" },
-  { label: "提现金额（元）", prop: "withdrawAmount" },
-  { label: "审核状态", prop: "status", insertSlot: "isCheck" },
-  { label: "提现订单量", prop: "withdrawOrderCount" },
-  { label: "提现时间", prop: "withdrawDatetime" },
-  { label: "操作", prop: "operate", insertSlot: "operate" },
+  { label: "提现代理名称", prop: "agentName", header: true, isPermission: true },
+  { label: "手机号码", prop: "phone", header: true, isPermission: true  },
+  { label: "提现单号", prop: "withdrawId", header: true, isPermission: true  },
+  { label: "提现金额（元）", prop: "withdrawAmount", header: true, isPermission: true  },
+  { label: "审核状态", prop: "status", slot: true, isPermission: true  },
+  { label: "提现订单量", prop: "withdrawOrderCount", header: true, isPermission: true  },
+  { label: "提现时间", prop: "withdrawDatetime", header: true, isPermission: true  },
+  { label: "操作", prop: "operate", slot: true, header: true, isPermission: true  },
 ]);
 
 // 列表接口
@@ -445,7 +414,10 @@ const handleGetTableList = (setScrollTop = true) => {
     getFinanceDataPageList(searchTableParams).then((res) => {
       const { code, msg, data } = res || {};
       if (code == 0) {
-        setScrollTop && tableRef.value.setScrollTop(0);
+        if (setScrollTop) {
+          const REF = tableRef.value.getTableRef()
+          REF.value.setScrollTop(0)
+        }
         tableData.value = data.list;
         tableListTotal.value = data.total;
         return resolve(res);
@@ -458,36 +430,6 @@ const handleGetTableList = (setScrollTop = true) => {
     });
   });
 };
-
-// 搜索重置
-// const handleSearchTable = (type) => {
-//   if (type === "search") {
-//     formRef.value.validate((valid) => {
-//       if (valid) {
-//         searchTableParams.pageIndex = 1;
-//         handleGetTableList().then((res) => {
-//           proxy.$message({
-//             type: "success",
-//             message: "查询成功",
-//           });
-//         });
-//       }
-//     });
-//   } else if (type === "reset") {
-//     for (let key in searchTableParams) {
-//       searchTableParams[key] = undefined;
-//       searchTableParams.pageSize = 50;
-//       searchTableParams.pageIndex = 1;
-//     }
-//     handleGetTableList().then((res) => {
-//       proxy.$message({
-//         type: "success",
-//         message: "重置成功",
-//       });
-//     });
-//     formRef.value.clearValidate();
-//   }
-// };
 
 // 下拉搜索触发搜索
 const handleStatusChange = () => {
@@ -537,13 +479,10 @@ const checkDispose = (row, status) => {
 };
 
 // 排序
-const handleTableSort = (column, prop, order) => {
-  searchTableParams.sortField = column.prop;
-  if (column.order == "ascending") {
-    searchTableParams.ascending = "asc";
-  } else if (column.order == "descending") {
-    searchTableParams.ascending = "desc";
-  }
+const handleTableSort = (params) => {
+  const { sortField, order } = params
+  searchTableParams.sortField = sortField;
+  searchTableParams.ascending = order;
   handleGetTableList();
 };
 
