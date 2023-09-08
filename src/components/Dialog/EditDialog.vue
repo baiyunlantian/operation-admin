@@ -26,7 +26,7 @@
                     v-model="editParams[data.name]"
                     v-else-if="msgType === 'input' && data.isChange"
                     :class="{ 'is-invalid': isInputInvalid && data.validate }"
-                    @blur="validateInput(data)"
+                    @blur="data.validate ? validateInput(data) : ''"
                   >
                     <template #prepend v-if="data.prepend">
                       {{ data.prepend }}
