@@ -18,17 +18,20 @@
 
         <template v-if="column.header" #header>
           <div
-            class="header-container"
-            @click="column.sortable ? changeSort(column.prop) : ''"
+            class="header-container u-cursor"
+            @click="handleClickColumnHeader(column)"
           >
             <div class="header-title">{{ column.label }}</div>
-            <div class="icon-arrow" style="margin-left: 4px">
-              <el-icon v-if="!column.arrowDown" :class="{ active: active }"
-                ><ArrowUp
-              /></el-icon>
-              <el-icon v-else :class="{ active: active }"
-                ><ArrowDown
-              /></el-icon>
+            <div
+              :class="[
+                column.prop === sortField ? 'current-sort-field' : '',
+                'icon-arrow',
+              ]"
+            >
+              <el-icon>
+                <CaretBottom v-if="arrowDown" />
+                <CaretTop v-else />
+              </el-icon>
             </div>
           </div>
         </template>
@@ -38,43 +41,47 @@
 </template>
 
 <script setup>
-import { ref, useAttrs, computed } from "vue";
+import { ref, defineEmits } from "vue";
 
-const attrs = useAttrs();
-const props = defineProps(["selection"]);
-const tableRef = ref(null);
+// 升序和降序
+const arrowDown = ref(true);
 
-const active = computed(() => {
-  return;
+const emits = defineEmits(["click-header"]);
+const props = defineProps({
+  selection: {
+    required: false,
+    type: Boolean,
+    default: () => false,
+  },
+  sortField: {
+    required: false,
+    type: String,
+    default: () => "",
+  },
 });
+const tableRef = ref(null);
 
 const getTableRef = () => {
   return tableRef;
 };
-
-const changeSort = (prop) => {
-  attrs.column.forEach((val) => {
-    if (val.prop == prop) {
-      val.arrowDown = !val.arrowDown;
-    }
+const handleClickColumnHeader = (column) => {
+  const { prop } = column;
+  if (prop === props.sortField) {
+    arrowDown.value = !arrowDown.value;
+  } else {
+    arrowDown.value = true;
+  }
+  console.log(arrowDown);
+  emits("click-header", {
+    sortField: prop,
+    order: arrowDown.value ? "desc" : "asc",
   });
-  const order = attrs.column.arrowDown ? "descending" : "ascending";
-
-  
-  console.log({
-    order: order,
-    prop: prop,
-  });
-  return {
-    order: order,
-    prop: prop,
-  };
 };
-
 defineExpose({ getTableRef });
 </script>
 
-<style lang="scss">
+
+<style scoped lang="scss">
 .header-container {
   display: flex;
   align-items: center;
@@ -85,8 +92,16 @@ defineExpose({ getTableRef });
     align-items: center;
     font-weight: 700;
   }
+
+  .current-sort-field {
+    color: #409eff;
+  }
+
+  .current-sort-field {
+    color: #409eff;
+  }
 }
-.cell {
+:deep(.cell) {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -95,7 +110,7 @@ defineExpose({ getTableRef });
 .active {
   color: #409eff;
 }
-.el-table__row {
+:deep(.el-table__row) {
   font-weight: 700 !important;
 }
 </style>

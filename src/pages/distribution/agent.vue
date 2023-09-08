@@ -79,9 +79,9 @@
         ref="tableRef"
         :column="agentDataHead"
         :data="agentDataRow"
-        @sort-change="handleTableSort"
         v-loading="dataLoading"
-        :default-sort="{ prop: 'orderQty', order: 'descending' }"
+        :sortField="sortField"
+        @click-header="handleTableSort"
       >
         <template #status="{ row }">
           <div>
@@ -355,12 +355,12 @@ const search = (val, e) => {
 };
 
 const sortType = ref("DESC");
-const sortField = ref("OrderQty");
+const sortField = ref("orderQty");
 
 const handleTableSort = (e) => {
-  // console.log(e);
-  sortType.value = e.order == "ascending" ? "ASC" : "DESC";
-  sortField.value = e.prop;
+  console.log(e);
+  sortType.value = e.order;
+  sortField.value = e.salesName;
   pageIndex.value = 1;
   getAgentList({
     keyWord: keyword.value,
