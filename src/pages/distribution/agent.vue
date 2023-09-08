@@ -360,7 +360,7 @@ const sortField = ref("orderQty");
 const handleTableSort = (e) => {
   console.log(e);
   sortType.value = e.order;
-  sortField.value = e.salesName;
+  sortField.value = e.sortField;
   pageIndex.value = 1;
   getAgentList({
     keyWord: keyword.value,
