@@ -25,11 +25,16 @@
                     class="mx-1"
                     v-model="editParams[data.name]"
                     v-else-if="msgType === 'input' && data.isChange"
+                    :class="{ 'is-invalid': isInputInvalid && data.validate }"
+                    @blur="validateInput(data)"
                   >
                     <template #prepend v-if="data.prepend">
                       {{ data.prepend }}
                     </template>
                   </el-input>
+                  <span v-if="data.validate" class="error-message">{{
+                    inputErrorMessage
+                  }}</span>
                 </el-form-item>
               </el-col>
             </template>
@@ -60,7 +65,7 @@
 </template>
 
 <script setup>
-import { ref, watch } from "vue";
+import { ref, watch, computed } from "vue";
 const props = defineProps(["dialogOpt", "formArr", "form", "msgType"]);
 const emits = defineEmits(["changeMsgType", "cancelEdit"]);
 
@@ -80,8 +85,27 @@ const cancelEvent = () => {
 };
 
 const editFormData = () => {
-  console.log("edit");
+  // console.log("edit");
   emits("changeMsgType", { msgType: "text", editParams: editParams.value });
+};
+
+const isInputInvalid = ref(false);
+const inputErrorMessage = ref();
+const validateInput = (data) => {
+  console.log(111);
+  const reg = /^1(3|4|5|6|7|8|9)\d{9}$/;
+  console.log(editParams.value[data.name]);
+  // 根据自定义的校验规则进行校验
+  if (!editParams.value[data.name]) {
+    isInputInvalid.value = true;
+    inputErrorMessage.value = "内容不能为空!";
+  } else if (!reg.test(editParams.value[data.name])) {
+    isInputInvalid.value = true;
+    inputErrorMessage.value = "请输入正确的手机号码!";
+  } else {
+    isInputInvalid.value = false;
+    inputErrorMessage.value = "";
+  }
 };
 </script>
 
@@ -116,6 +140,18 @@ const editFormData = () => {
       font-weight: 700;
       color: #2a2a2a;
     }
+  }
+}
+.error-message {
+  color: rgb(255, 89, 89);
+  position: absolute;
+  top: 58px;
+  left: 6px;
+  font-size: 12px;
+}
+.is-invalid {
+  :deep(.el-input__wrapper) {
+    box-shadow: 0 0 0 1px rgb(254, 136, 136) inset;
   }
 }
 </style>

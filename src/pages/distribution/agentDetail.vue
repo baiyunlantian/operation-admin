@@ -307,7 +307,7 @@ const dialogOpt = reactive({
 
 const formArr = ref([
   { title: "代理名称", name: "userName", isChange: true },
-  { title: "联系方式", name: "phone", isChange: true },
+  { title: "联系方式", name: "phone", isChange: true, validate: true },
   { title: "办公邮箱", name: "email", isChange: true },
   {
     title: "银行卡信息",

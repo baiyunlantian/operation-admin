@@ -642,6 +642,7 @@ const operate = ref([
           const params = {
             userId: id,
           };
+          console.log(111);
           API.agentFreeOfCommission(params).then((res) => {
             if (res.code == 0) {
               ElMessage({
@@ -659,7 +660,6 @@ const operate = ref([
           });
         });
     },
-    clickEvent: (id) => {},
   },
 ]);
 
