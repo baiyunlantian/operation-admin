@@ -1,5 +1,5 @@
 <template>
-    <div class="tip-pay u-border-radius-5 u-m-b-15" v-if="agentInfo.isFreeOfCommission == 0 && agentInfo.isPayCashPledge == 0">
+    <div class="tip-pay u-border-radius-5 u-m-b-15" v-if="agentInfo.isFreeOfCommission === false && agentInfo.isPayCashPledge == false">
         <div class="left">
             <div class="point u-m-r-10">!</div>
             <div class="text">尚未支付押金，账号暂无法进行其他操作！！！</div>

@@ -81,6 +81,7 @@
         :data="agentDataRow"
         @sort-change="handleTableSort"
         v-loading="dataLoading"
+        :default-sort="{ prop: 'orderQty', order: 'descending' }"
       >
         <template #status="{ row }">
           <div>
@@ -96,7 +97,7 @@
                   operate.isPermission
                 "
                 type="primary"
-                @click="operate.clickEvent(row.agencyId)"
+                @click="operate.clickEvent(row.agencyId, row.agencyName)"
                 >{{ operate.func }}</el-link
               >
             </template>
@@ -134,7 +135,8 @@
       @cancelCreate="cancelCreate"
       :rules="rules"
       :options="salesOptions"
-      :textName="salerName"
+      :textName="saler"
+      :destroy-on-close="true"
     >
       <template #password>
         <el-text>
@@ -423,8 +425,12 @@ const userIdentity = computed(() => {
 });
 
 //获取销售名称
-const salerName = computed(() => {
-  return store.getters["user/agentInfo"].userName;
+const saler = computed(() => {
+  return {
+    roleId: store.getters["user/agentInfo"].roleId,
+    userName: store.getters["user/agentInfo"].userName,
+    userId: store.getters["user/agentInfo"].userId,
+  };
 });
 
 // 代理数据的表头
@@ -531,7 +537,7 @@ const agentDataHead = reactive([
 ]);
 
 // 操作方式
-import { ElMessage } from "element-plus";
+import { ElMessage, ElMessageBox } from "element-plus";
 const operate = ref([
   {
     func: "详情",
@@ -547,19 +553,32 @@ const operate = ref([
     isPermission: computed(() => {
       return roleIdentity.value == 20 || userIdentity.value == 1;
     }),
-    clickEvent: (id) => {
-      const params = {
-        userId: id,
-      };
-      API.disabledAgent(params).then((res) => {
-        if (res.code == 0) {
-          ElMessage({
-            type: "success",
-            message: "操作成功",
+    clickEvent: (id, name) => {
+      ElMessageBox.confirm(`是否确定禁用 ${name} 代理ID ${id} `, "提示", {
+        confirmButtonText: "确认",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+        .then(() => {
+          const params = {
+            userId: id,
+          };
+          API.disabledAgent(params).then((res) => {
+            if (res.code == 0) {
+              ElMessage({
+                type: "success",
+                message: "操作成功",
+              });
+              getAgentList();
+            }
           });
-          getAgentList();
-        }
-      });
+        })
+        .catch(() => {
+          ElMessage({
+            type: "warning",
+            message: "取消操作",
+          });
+        });
     },
   },
   {
@@ -568,19 +587,33 @@ const operate = ref([
     isPermission: computed(() => {
       return roleIdentity.value == 20 || userIdentity.value == 1;
     }),
-    clickEvent: (id) => {
-      const params = {
-        userId: id,
-      };
-      API.refunDeposit(params).then((res) => {
-        if (res.code == 0) {
-          ElMessage({
-            type: "success",
-            message: "操作成功",
+    clickEvent: (id, name) => {
+      console.log(id);
+      ElMessageBox.confirm(`是否确定给 ${name} 代理ID ${id} 退款`, "提示", {
+        confirmButtonText: "确认",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+        .then(() => {
+          const params = {
+            userId: id,
+          };
+          API.refunDeposit(params).then((res) => {
+            if (res.code == 0) {
+              ElMessage({
+                type: "success",
+                message: "操作成功",
+              });
+              getAgentList();
+            }
           });
-          getAgentList();
-        }
-      });
+        })
+        .catch(() => {
+          ElMessage({
+            type: "warning",
+            message: "取消操作",
+          });
+        });
     },
   },
   {
@@ -589,20 +622,35 @@ const operate = ref([
     isPermission: computed(() => {
       return userIdentity.value == 1;
     }),
-    clickEvent: (id) => {
-      const params = {
-        userId: id,
-      };
-      API.agentFreeOfCommission(params).then((res) => {
-        if (res.code == 0) {
-          ElMessage({
-            type: "success",
-            message: "操作成功",
+    clickEvent: (id, name) => {
+      console.log(id);
+      ElMessageBox.confirm(`是否确定给 ${name} 代理ID ${id} 免佣`, "提示", {
+        confirmButtonText: "确认",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+        .then(() => {
+          const params = {
+            userId: id,
+          };
+          API.agentFreeOfCommission(params).then((res) => {
+            if (res.code == 0) {
+              ElMessage({
+                type: "success",
+                message: "操作成功",
+              });
+              getAgentList();
+            }
           });
-          getAgentList();
-        }
-      });
+        })
+        .catch(() => {
+          ElMessage({
+            type: "warning",
+            message: "取消操作",
+          });
+        });
     },
+    clickEvent: (id) => {},
   },
 ]);
 

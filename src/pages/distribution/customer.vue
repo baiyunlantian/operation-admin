@@ -106,6 +106,7 @@
         :data="customDataRow"
         @sort-change="handleTableSort"
         v-loading="dataLoading"
+        :default-sort="{ prop: 'orderCount', order: 'descending' }"
       >
         <template #status="{ row }">
           <div class="status-container">
@@ -173,11 +174,18 @@
 
 <script setup>
 import { InfoFilled } from "@element-plus/icons-vue";
-import { onMounted, reactive, ref, computed, nextTick, getCurrentInstance } from "vue";
+import {
+  onMounted,
+  reactive,
+  ref,
+  computed,
+  nextTick,
+  getCurrentInstance,
+} from "vue";
 import { useRouter } from "vue-router";
 const router = useRouter();
 const { proxy } = getCurrentInstance();
-import { useDeposit } from '@/utils/useDeposit';
+import { useDeposit } from "@/utils/useDeposit";
 const { getDepositStatus } = useDeposit();
 import API from "./api";
 
@@ -523,7 +531,6 @@ const customDataHead = [
     prop: "remark",
     label: "客户备注",
     width: "180",
-    slot: true,
     isPermission: true,
   },
 
@@ -545,7 +552,7 @@ const operate = [
     isShow: true,
     clickEvent: (id, name) => {
       console.log(id);
-      if (getDepositStatus() === false) return
+      if (getDepositStatus() === false) return;
       dialogDetaiOpt.dialogVisible = true;
       getCustomInfo(id);
     },
@@ -554,7 +561,7 @@ const operate = [
     func: "删除",
     isShow: true,
     clickEvent: (id, name) => {
-      if (getDepositStatus() === false) return
+      if (getDepositStatus() === false) return;
       ElMessageBox.confirm(`是否确定删除 ${name} 销售ID ${id} `, "提示", {
         confirmButtonText: "确认",
         cancelButtonText: "取消",

@@ -44,11 +44,11 @@
                     }}</template>
                   </el-input>
 
-                  <el-text v-if="val.type == 'text'">
-                    {{ textName }}
+                  <el-text v-else-if="val.type == 'text'">
+                    {{ (textName && textName.userName) || agentData[val.name] }}
                   </el-text>
                   <el-input
-                    v-if="val.type == 'textarea'"
+                    v-else-if="val.type == 'textarea'"
                     type="textarea"
                     rows="4"
                     resize="none"
@@ -57,7 +57,7 @@
                   />
 
                   <el-select
-                    v-if="val.type == 'select'"
+                    v-else-if="val.type == 'select'"
                     v-model="agentData[val.name]"
                     class="m-2"
                     placeholder="请选择"
@@ -69,7 +69,7 @@
                       :value="item.value"
                     />
                   </el-select>
-                  <slot :name="val.name"></slot>
+                  <slot :name="val.name" v-else-if="val.slot"></slot>
                 </el-form-item>
               </el-col>
             </el-row>
@@ -144,7 +144,13 @@ const pushFormData = async (data) => {
     }
   });
   if (valid1 && valid2) {
-    emits("getNewAgentData", props.agentData);
+    if (props.textName && props.textName.roleId != 0) {
+      console.log(111);
+      props.agentData.salesId = props.textName.userId;
+      emits("getNewAgentData", props.agentData);
+    } else {
+      emits("getNewAgentData", props.agentData);
+    }
   }
   // console.log(props.agentData);
 };

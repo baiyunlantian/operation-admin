@@ -55,10 +55,10 @@
                             </div>
 
                             <div class="content">
-                                <el-form class="account-form" ref="formRef" :rules="rules" :model="bankInfoCopy" :hide-required-asterisk="true">
+                                <el-form class="account-form" ref="formRef" :rules="rules" :model="bankInfoData" :hide-required-asterisk="true">
                                     <el-form-item v-for="(item, index) in formConfig" :label="item.label" :prop="item.key" :key="item.key">
-                                        <div v-if="formReadonly" class="form-content">{{ bankInfoCopy[item.key] }}</div>
-                                        <el-input v-else v-model="bankInfoCopy[item.key]" :validate-event="false"/>
+                                        <div v-if="formReadonly" class="form-content">{{ bankInfoData[item.key] }}</div>
+                                        <el-input v-else v-model="bankInfoData[item.key]" :validate-event="false"/>
                                     </el-form-item>
                                 </el-form>
                             </div>
@@ -80,7 +80,9 @@
     import API from './api';
     import AutoAvatar from '@/assets/images/account.png';
     import { setTimeEscalation } from "@/assets/js/utils";
+    import { useDeposit } from '@/utils/useDeposit';
 
+    const { getDepositStatus } = useDeposit();
     const setTimeEscalationClone = setTimeEscalation();
     const store = useStore()
     const { proxy } = getCurrentInstance()
@@ -107,7 +109,7 @@
       {label:'开户行:', key:'openingBank'}
     ])
     const bankInfo = ref({})
-    const bankInfoCopy = ref({})
+    const bankInfoData = ref({})
     const formReadonly = ref(true)
     const rules = reactive({
       cardName:[{required: true, message: '户主名称不能为空！', trigger:'blur'}],
@@ -130,10 +132,13 @@
     const time = ref('')
 
     function handlePayMoney() {
-      const {isFreeOfCommission, isPayCashPledge} = agentInfo.value;
-      if (isFreeOfCommission == 0 && isPayCashPledge == 0) {
+      if (getDepositStatus(()=>{}) === false) {
         payMoneyRef.value.handleRecharge()
       }
+      // const {isFreeOfCommission, isPayCashPledge} = agentInfo.value;
+      // if (isFreeOfCommission === false && isPayCashPledge === false) {
+      //   payMoneyRef.value.handleRecharge()
+      // }
     }
 
     function handleClickFormBtn(eventType) {
@@ -151,7 +156,7 @@
           setTimeEscalationClone(() => {
               if (!valid) return
 
-              API.editBankCardInfo(bankInfo).then(res => {
+              API.editBankCardInfo(bankInfoData.value).then(res => {
                 if (res.code == 0) {
                   proxy.$message({
                     type: 'success',
@@ -165,7 +170,7 @@
             () => {proxy.$message.warning('操作过于频繁！')})
         })
       }else if (eventType === 'cancel') {
-        bankInfoCopy.value = {...bankInfo.value}
+        bankInfoData.value = {...bankInfo.value}
         formReadonly.value = true
         formRef.value.clearValidate()
       }
@@ -209,7 +214,7 @@
       API.getBankCardInfo().then(res=>{
         if (res.code == 0) {
           bankInfo.value = {...res.data}
-          bankInfoCopy.value = {...res.data}
+          bankInfoData.value = {...res.data}
         }
       })
     }
@@ -261,7 +266,13 @@
     function handleFormatWithDrawText(obj) {
       let {prop, type} = obj, text = '';
       if (prop === 'agencyCashPledge') {
-        text = agentInfo.value.agencyCashPledge === 0 ? '立即缴纳' : `￥ ${agentInfo.value.agencyCashPledge.toFixed(2)}`
+        // console.log(agentInfo.value)
+        if (agentInfo.value.isFreeOfCommission === true) {
+          text = '0.00'
+        }else {
+          text = agentInfo.value.agencyCashPledge === 0 ? '立即缴纳' : `￥ ${agentInfo.value.agencyCashPledge.toFixed(2)}`
+        }
+
       }else {
         text = type === 'money' ? `￥ ${withdrawInfo.value[prop].toFixed(2)}` : withdrawInfo.value[prop]
       }

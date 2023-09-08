@@ -9,15 +9,19 @@ export function useDeposit() {
     return store.getters["user/agentInfo"]
   })
 
-  const getDepositStatus = () => {
+  const getDepositStatus = (callback) => {
     let status = true;
     const { isFreeOfCommission, isPayCashPledge } = agentInfo.value
 
-    if (isFreeOfCommission == 0 && isPayCashPledge == 0) {
-      proxy.$message({
-        type: 'warning',
-        message: '请先支付押金！'
-      })
+    if (isFreeOfCommission === false && isPayCashPledge === false) {
+      if (typeof callback === 'function') {
+        callback()
+      }else {
+        proxy.$message({
+          type: 'warning',
+          message: '请先支付押金！'
+        })
+      }
 
       status = false
     }
