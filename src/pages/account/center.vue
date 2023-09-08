@@ -80,7 +80,9 @@
     import API from './api';
     import AutoAvatar from '@/assets/images/account.png';
     import { setTimeEscalation } from "@/assets/js/utils";
+    import { useDeposit } from '@/utils/useDeposit';
 
+    const { getDepositStatus } = useDeposit();
     const setTimeEscalationClone = setTimeEscalation();
     const store = useStore()
     const { proxy } = getCurrentInstance()
@@ -130,10 +132,13 @@
     const time = ref('')
 
     function handlePayMoney() {
-      const {isFreeOfCommission, isPayCashPledge} = agentInfo.value;
-      if (isFreeOfCommission == 0 && isPayCashPledge == 0) {
+      if (getDepositStatus(()=>{}) === false) {
         payMoneyRef.value.handleRecharge()
       }
+      // const {isFreeOfCommission, isPayCashPledge} = agentInfo.value;
+      // if (isFreeOfCommission === false && isPayCashPledge === false) {
+      //   payMoneyRef.value.handleRecharge()
+      // }
     }
 
     function handleClickFormBtn(eventType) {
@@ -261,7 +266,8 @@
     function handleFormatWithDrawText(obj) {
       let {prop, type} = obj, text = '';
       if (prop === 'agencyCashPledge') {
-        if (agentInfo.value.isFreeOfCommission == 1) {
+        // console.log(agentInfo.value)
+        if (agentInfo.value.isFreeOfCommission === true) {
           text = '0.00'
         }else {
           text = agentInfo.value.agencyCashPledge === 0 ? '立即缴纳' : `￥ ${agentInfo.value.agencyCashPledge.toFixed(2)}`
