@@ -55,10 +55,10 @@
                             </div>
 
                             <div class="content">
-                                <el-form class="account-form" ref="formRef" :rules="rules" :model="bankInfoCopy" :hide-required-asterisk="true">
+                                <el-form class="account-form" ref="formRef" :rules="rules" :model="bankInfoData" :hide-required-asterisk="true">
                                     <el-form-item v-for="(item, index) in formConfig" :label="item.label" :prop="item.key" :key="item.key">
-                                        <div v-if="formReadonly" class="form-content">{{ bankInfoCopy[item.key] }}</div>
-                                        <el-input v-else v-model="bankInfoCopy[item.key]" :validate-event="false"/>
+                                        <div v-if="formReadonly" class="form-content">{{ bankInfoData[item.key] }}</div>
+                                        <el-input v-else v-model="bankInfoData[item.key]" :validate-event="false"/>
                                     </el-form-item>
                                 </el-form>
                             </div>
@@ -107,7 +107,7 @@
       {label:'开户行:', key:'openingBank'}
     ])
     const bankInfo = ref({})
-    const bankInfoCopy = ref({})
+    const bankInfoData = ref({})
     const formReadonly = ref(true)
     const rules = reactive({
       cardName:[{required: true, message: '户主名称不能为空！', trigger:'blur'}],
@@ -151,7 +151,7 @@
           setTimeEscalationClone(() => {
               if (!valid) return
 
-              API.editBankCardInfo(bankInfo).then(res => {
+              API.editBankCardInfo(bankInfoData.value).then(res => {
                 if (res.code == 0) {
                   proxy.$message({
                     type: 'success',
@@ -165,7 +165,7 @@
             () => {proxy.$message.warning('操作过于频繁！')})
         })
       }else if (eventType === 'cancel') {
-        bankInfoCopy.value = {...bankInfo.value}
+        bankInfoData.value = {...bankInfo.value}
         formReadonly.value = true
         formRef.value.clearValidate()
       }
@@ -209,7 +209,7 @@
       API.getBankCardInfo().then(res=>{
         if (res.code == 0) {
           bankInfo.value = {...res.data}
-          bankInfoCopy.value = {...res.data}
+          bankInfoData.value = {...res.data}
         }
       })
     }
