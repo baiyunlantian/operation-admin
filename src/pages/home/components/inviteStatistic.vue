@@ -131,8 +131,8 @@
     }
 
     setTimeout(()=>{
-      echartsRef.value.init()
-      echartsRef.value.resize()
+      echartsRef.value && echartsRef.value.init()
+      echartsRef.value && echartsRef.value.resize()
     },100)
   }
 

@@ -2,21 +2,23 @@ const tagsView = {
     namespaced: true,
     state() {
         return {
-            visitedViews: [
-                {
-                    fullPath:'/home',
-                    meta:{title:'首页'},
-                    name:'home',
-                    path:'/home'
-                }
-            ],
+            visitedViews: [],
             cachedViews: []
         }
     },
     mutations: {
+        ADD_VISITED_VIEW_IN_INDEX: (state, view, index) => {
+            if (state.visitedViews.some(v => v.fullPath === view.fullPath)) return
+            state.visitedViews.splice(index, 0, view)
+        },
         // 添加tags
         ADD_VISITED_VIEW: (state, view) => {
-            if (state.visitedViews.some(v => v.fullPath === view.fullPath)) return
+            const index = state.visitedViews.findIndex(v => v.fullPath === view.fullPath);
+            if (index >= 0) {
+                state.visitedViews.splice(index, 1, view)
+                return
+            }
+            // if (state.visitedViews.some(v => v.fullPath === view.fullPath)) return
             state.visitedViews.push(
                 Object.assign({}, view, {
                     title: view.meta.title || 'no-name'
@@ -61,8 +63,8 @@ const tagsView = {
 
         DEL_ALL_VISITED_VIEWS: state => {
             // keep affix tags
-            const affixTags = state.visitedViews.filter(tag => tag.meta.affix)
-            state.visitedViews = affixTags
+            // const affixTags = state.visitedViews.filter(tag => tag.meta.affix)
+            state.visitedViews = []
         },
         DEL_ALL_CACHED_VIEWS: state => {
             state.cachedViews = []

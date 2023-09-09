@@ -117,8 +117,9 @@ const rightMenuList = computed(() => {
 function handleSelect(index, indexPath, item) {
   if (!index) {
     // 退出登录
-    localStorage.removeItem("token");
+    localStorage.clear();
     store.commit("tagsView/DEL_ALL_VISITED_VIEWS");
+    store.commit("user/SET_ROLE_ID", '');
     router.push({ path: "/login" });
   } else {
     router.push({ path: index });
@@ -136,7 +137,8 @@ const userInfo = computed(() => {
     obj.roleId = agentInfo.roleId;
   }
 
-  localStorage.setItem("roleId", obj.roleId);
+  // store.commit('user/SET_ROLE_ID', obj.roleId);
+  // localStorage.setItem("roleId", obj.roleId);
   return obj;
 });
 

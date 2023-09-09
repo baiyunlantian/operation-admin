@@ -23,11 +23,11 @@ const router = createRouter({
       children: [
         {
           path: "home",
-          meta: { title: "首页", tagsDisabled: true, permission: [] },
+          meta: { title: "首页", tagsDisabled: true, permission: [0,1] },
           name: "home",
           permission: "1",
           component: () =>
-            import("@/pages/distributionAdm/information/index.vue"),
+            import("@/pages/home/index.vue"),
         },
       ],
     },
@@ -71,16 +71,19 @@ router.beforeResolve((to, from, next) => {
 });
 
 router.beforeEach(async (to, from, next) => {
-  // console.log("beforeEach")
   const token = window.localStorage.getItem("token") || "";
   const roleId = window.localStorage.getItem("roleId") || "";
   const permissionList = to.meta.permission;
   const productList = JSON.parse(sessionStorage.getItem("product"));
 
+  // console.log('beforeEach roleId', roleId)
+  // console.log('permissionList', permissionList)
+  // console.log('to', to.path)
+  // console.log('beforeEach end')
   if (token) {
     // 权限列表为空则调用 获取权限列表的方法
-    if (store.getters["user/permissionList"].length === 0) {
-      await store.dispatch("user/getPermissionList").then((res) => {
+    if (store.getters["user/roleId"] === '') {
+      await store.dispatch("user/getRoleId").then((res) => {
         addRouterList(store.state.user.permission);
         // router.addRoutes之后的next()可能会失效，因为可能next()的时候路由并没有完全add完成，使用 next(to) 重新走一遍router.beforeEach这个钩子
         next(to);
@@ -100,6 +103,7 @@ router.beforeEach(async (to, from, next) => {
       if (!permissionList || permissionList.length === 0) {
         next()
       }else {
+        // 对应权限
         if (permissionList.includes(Number(roleId)) === true) {
           if (to.path === "/settleAccount") {
             if (from.path === "/product") {
@@ -115,10 +119,26 @@ router.beforeEach(async (to, from, next) => {
             } else {
               next({ path: "/product" });
             }
-          } else {
-            next();
           }
-        }else {
+          else if (to.path === "/home"){
+            if (roleId == 10 || roleId == 20) {
+              next({ path: "/marketingData" });
+            }else {
+              next();
+            }
+          }
+
+          next();
+        }
+        // 没有权限跳转到首页
+        else {
+          if (to.path === "/home"){
+            if (roleId == 10 || roleId == 20) {
+              next({ path: "/marketingData" });
+            }else {
+              next();
+            }
+          }
           next({path: "/"});
         }
       }

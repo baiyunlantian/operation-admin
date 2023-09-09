@@ -11,6 +11,7 @@ const user = {
       filterRouter: [],
       info: {},
       agentInfo: {},
+      roleId: '',
     };
   },
   mutations: {
@@ -33,6 +34,9 @@ const user = {
     },
     SET_AGENT_USER_INFO(state, val) {
       state.agentInfo = val;
+    },
+    SET_ROLE_ID(state, val) {
+      state.roleId = val;
     },
   },
   actions: {
@@ -59,18 +63,35 @@ const user = {
       ACCOUNT_API.getAgentUserInfo().then((res) => {
         if (res.code == "0") {
           commit("SET_AGENT_USER_INFO", res.data);
-          window.localStorage.setItem("roleId", res.data.roleId);
         } else {
           commit("SET_AGENT_USER_INFO", {});
         }
       });
     },
+    async getRoleId({commit}) {
+      const resArr = await Promise.all([HOME.getUserInfo(), ACCOUNT_API.getAgentUserInfo()])
+      const userInfo = resArr[0].data, agentInfo = resArr[1].data;
+
+      let roleId = 0;
+
+      if (userInfo.isAdmin == 1) {
+        roleId = 1;
+      } else {
+        roleId = agentInfo.roleId;
+      }
+
+      // console.log('getRoleId', roleId)
+      window.localStorage.setItem("roleId", roleId);
+      commit("SET_ROLE_ID", roleId)
+      return roleId
+    }
   },
   getters: {
     permissionList: (state) => state.permission,
     info: (state) => state.info,
     filterRouter: (state) => state.filterRouter,
     agentInfo: (state) => state.agentInfo,
+    roleId: (state) => state.roleId,
   },
 };
 

@@ -8,6 +8,12 @@ export default [
     name: "分销管理",
     children: [
       {
+        path: "/marketingData",
+        meta: { title: "数据模块" , permission: [10, 20, 1]},
+        component: () => import("@/pages/distributionAdm/information/index.vue"),
+        name: "marketingData",
+      },
+      {
         path: "/agent",
         meta: { title: "代理管理" , permission: [10, 1]},
         component: () => import("@/pages/distribution/agent.vue"),
