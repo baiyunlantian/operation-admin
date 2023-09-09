@@ -268,7 +268,7 @@
       if (prop === 'agencyCashPledge') {
         // console.log(agentInfo.value)
         if (agentInfo.value.isFreeOfCommission === true) {
-          text = '0.00'
+          text = '免佣用户'
         }else {
           text = agentInfo.value.agencyCashPledge === 0 ? '立即缴纳' : `￥ ${agentInfo.value.agencyCashPledge.toFixed(2)}`
         }
