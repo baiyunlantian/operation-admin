@@ -129,7 +129,7 @@ export default [
     menuId: "6",
     path: "/course",
     children: [],
-    permission:[10, 0, 1],
+    permission:[1],
   },
   {
     type: "system",
