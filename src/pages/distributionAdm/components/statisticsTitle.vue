@@ -25,7 +25,13 @@
                 <div class="top-item">
                   <div class="left-box">
                     <div class="title fw">{{ item.title }}</div>
-                    <div class="money fw">
+                    <div
+                      v-if="item.freeOfCommission"
+                      class="freeOfCommission fw"
+                    >
+                      <span>免佣用户</span>
+                    </div>
+                    <div v-else class="money fw">
                       <span class="money-icon" v-if="item.isMoney"
                         >¥&nbsp;</span
                       >
@@ -170,6 +176,10 @@ const handleUpdateParams = (searchParam) => {
       .title {
         margin-bottom: 9px;
         font-size: 14px;
+      }
+
+      .freeOfCommission {
+        font-size: 1.4rem;
       }
       .money {
         display: flex;

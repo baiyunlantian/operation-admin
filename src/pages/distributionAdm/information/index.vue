@@ -179,6 +179,11 @@ const userIdentity = computed(() => {
   return store.getters["user/info"].isAdmin;
 });
 
+// 免佣用户
+const freeOfCommissionIdentity = computed(() => {
+  return store.getters["user/agentInfo"].isFreeOfCommission;
+});
+
 // 顶部总数据
 const collectInformation = ref([
   {
@@ -275,6 +280,9 @@ const panelInformation = ref([
       return roleIdentity.value != 10;
     }), //销售不显示
     propMoney: "freezeAmount",
+    freeOfCommission: computed(() => {
+      return freeOfCommissionIdentity.value;
+    }),
   },
   {
     id: 4,
