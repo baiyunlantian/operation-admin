@@ -456,7 +456,7 @@ const agentDataHead = reactive([
   {
     prop: "agencyId",
     label: "代理ID",
-    width: "110",
+    width: "160",
     header: true,
     sortable: true,
     isPermission: true,

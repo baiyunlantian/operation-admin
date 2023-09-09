@@ -832,7 +832,7 @@ const dialogDetaiOpt = reactive({
 });
 
 const formArr = ref([
-  { title: "手机", name: "phone", isChange: true },
+  { title: "手机", name: "phone", isChange: true, validate: true },
   { title: "微信", name: "weChat", isChange: true },
   { title: "办公邮箱", name: "email", isChange: true },
   { title: "入职时间", name: "entryTime", isChange: false },
@@ -842,8 +842,9 @@ const formArr = ref([
   { title: "离职时间", name: "dimissionTime", isChange: false },
 ]);
 const salesFormData = ref();
-
+const currentId = ref();
 const getSalesInfo = (id) => {
+  currentId.value = id;
   const params = {
     userId: id,
   };
@@ -880,6 +881,7 @@ const editSalesInfo = (msg) => {
   };
   API.editSalesInfo(params).then((res) => {
     console.log(res);
+    getSalesInfo(currentId.value);
   });
 };
 </script>

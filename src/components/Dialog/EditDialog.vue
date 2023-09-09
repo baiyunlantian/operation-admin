@@ -26,7 +26,7 @@
                     v-model="editParams[data.name]"
                     v-else-if="msgType === 'input' && data.isChange"
                     :class="{ 'is-invalid': isInputInvalid && data.validate }"
-                    @blur="validateInput(data)"
+                    @blur="data.validate ? validateInput(data) : ''"
                   >
                     <template #prepend v-if="data.prepend">
                       {{ data.prepend }}
@@ -86,7 +86,10 @@ const cancelEvent = () => {
 
 const editFormData = () => {
   // console.log("edit");
-  emits("changeMsgType", { msgType: "text", editParams: editParams.value });
+  console.log(editParams.value);
+  if (!isInputInvalid.value) {
+    emits("changeMsgType", { msgType: "text", editParams: editParams.value });
+  }
 };
 
 const isInputInvalid = ref(false);
@@ -146,7 +149,7 @@ const validateInput = (data) => {
   color: rgb(255, 89, 89);
   position: absolute;
   top: 58px;
-  left: 6px;
+  left: 4px;
   font-size: 12px;
 }
 .is-invalid {
