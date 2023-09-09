@@ -318,8 +318,8 @@ const formArr = ref([
 
 // ------------------------------------------------------------筛选的方式
 const searchWay = [
-  { prefix: "代理名称", name: "customerId" },
-  { prefix: "代理手机号", name: "phone" },
+  { prefix: "客户名称", name: "customerId" },
+  { prefix: "手机号", name: "phone" },
   {
     prefix: "最后成交时间：",
     prefixWidth: "90px",
