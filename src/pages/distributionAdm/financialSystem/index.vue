@@ -16,7 +16,7 @@
           :rules="rules"
         >
           <div>
-            <el-form-item label="审核状态：" prop="status">
+            <el-form-item prop="status">
               <el-select
                 v-model="searchTableParams.status"
                 placeholder=""
@@ -90,53 +90,85 @@
 
       <div class="u-table-main u-m-t-10 bg-fff u-flex-col">
         <data-table
-                ref="tableRef"
-                :data="tableData"
-                :column="tableColumnConfig"
-                :selection="true"
-                :sortField="searchTableParams.sortField"
-                style="width: 100%"
-                @selection-change="handleSelectionChange"
-                @click-header="handleTableSort"
-                height="650"
+          ref="tableRef"
+          :data="tableData"
+          :column="tableColumnConfig"
+          :selection="true"
+          :sortField="searchTableParams.sortField"
+          style="width: 100%"
+          @selection-change="handleSelectionChange"
+          @click-header="handleTableSort"
+          height="650"
         >
           <template #status="{ row }">
             <div>
-              <el-tag v-if="row.status == 20" size="small" type="success">已打款</el-tag>
-              <el-tag v-if="row.status == 10" size="small" type="warning">打款中</el-tag>
-              <el-tag v-if="row.status == 0" size="small" type="info">待审核</el-tag>
-              <el-tag v-if="row.status == 30" size="small" type="danger">已拒绝</el-tag>
+              <el-tag v-if="row.status == 20" size="small" type="success"
+                >已打款</el-tag
+              >
+              <el-tag v-if="row.status == 10" size="small" type="warning"
+                >打款中</el-tag
+              >
+              <el-tag v-if="row.status == 0" size="small" type="info"
+                >待审核</el-tag
+              >
+              <el-tag v-if="row.status == 30" size="small" type="danger"
+                >已拒绝</el-tag
+              >
             </div>
           </template>
 
           <template #operate="{ row }">
             <div class="operate-btn">
               <el-dropdown v-if="row.status == 0">
-                <el-button class="btn-color" type="primary" link>审核</el-button>
+                <el-button class="btn-color" type="primary" link
+                  >审核</el-button
+                >
                 <template #dropdown>
                   <el-dropdown-menu>
                     <el-dropdown-item>
-                      <el-button link @click="checkDispose(row, 10)">同意</el-button>
+                      <el-button link @click="checkDispose(row, 10)"
+                        >同意</el-button
+                      >
                     </el-dropdown-item>
                     <el-dropdown-item>
-                      <el-button link @click="checkDispose(row, 30)">拒绝</el-button>
+                      <el-button link @click="checkDispose(row, 30)"
+                        >拒绝</el-button
+                      >
                     </el-dropdown-item>
                   </el-dropdown-menu>
                 </template>
               </el-dropdown>
 
-              <el-button class="btn-color" type="primary" @click="openEditDialog(row)" link>详情</el-button>
-              <el-button v-if="row.status == 10" class="btn-color" type="primary" @click="checkDispose(row, 20)" link>打款</el-button>
+              <el-button
+                class="btn-color"
+                type="primary"
+                @click="openEditDialog(row)"
+                link
+                >详情</el-button
+              >
+              <el-button
+                v-if="row.status == 10"
+                class="btn-color"
+                type="primary"
+                @click="checkDispose(row, 20)"
+                link
+                >打款</el-button
+              >
             </div>
           </template>
         </data-table>
 
-
-        <div class="u-pagination-container">
+        <div class="pagination-container">
+          <el-pagination
+            v-model:page-size="searchTableParams.pageSize"
+            background
+            layout="total"
+            :total="tableListTotal"
+          />
           <el-pagination
             v-model:current-page="searchTableParams.pageIndex"
             v-model:page-size="searchTableParams.pageSize"
-            layout="total, prev, pager, next, jumper"
+            layout="total, prev, pager, next"
             :total="tableListTotal"
             background
             @current-change="handleGetTableList"
@@ -243,11 +275,17 @@
           </template>
         </el-table>
 
-        <div class="u-pagination-container">
+        <div class="pagination-container">
+          <el-pagination
+            v-model:page-size="searchDialogTableParams.pageSize"
+            background
+            layout="total"
+            :total="tableDialogListTotal"
+          />
           <el-pagination
             v-model:current-page="searchDialogTableParams.pageIndex"
             v-model:page-size="searchDialogTableParams.pageSize"
-            layout="total, prev, pager, next, jumper"
+            layout="prev, pager, next"
             :total="tableDialogListTotal"
             background
             @current-change="handleGetDialogTableList"
@@ -388,8 +426,8 @@ let searchTableParams = reactive({
   pageIndex: 1,
   status: -1,
   keywords: undefined,
-  sortField: 'withdrawOrderCount',
-  ascending: 'desc',
+  sortField: "withdrawOrderCount",
+  ascending: "desc",
 });
 
 const formRef = ref(null);
@@ -398,14 +436,40 @@ const pageSizeOptions = ref([50, 100, 200]);
 const tableListTotal = ref(0);
 const tableData = ref([{}]);
 const tableColumnConfig = ref([
-  { label: "提现代理名称", prop: "agentName", header: true, isPermission: true },
-  { label: "手机号码", prop: "phone", header: true, isPermission: true  },
-  { label: "提现单号", prop: "withdrawId", header: true, isPermission: true  },
-  { label: "提现金额（元）", prop: "withdrawAmount", header: true, isPermission: true  },
-  { label: "审核状态", prop: "status", slot: true, isPermission: true  },
-  { label: "提现订单量", prop: "withdrawOrderCount", header: true, isPermission: true  },
-  { label: "提现时间", prop: "withdrawDatetime", header: true, isPermission: true  },
-  { label: "操作", prop: "operate", slot: true, header: true, isPermission: true  },
+  {
+    label: "提现代理名称",
+    prop: "agentName",
+    header: true,
+    isPermission: true,
+  },
+  { label: "手机号码", prop: "phone", header: true, isPermission: true },
+  { label: "提现单号", prop: "withdrawId", header: true, isPermission: true },
+  {
+    label: "提现金额（元）",
+    prop: "withdrawAmount",
+    header: true,
+    isPermission: true,
+  },
+  { label: "审核状态", prop: "status", slot: true, isPermission: true },
+  {
+    label: "提现订单量",
+    prop: "withdrawOrderCount",
+    header: true,
+    isPermission: true,
+  },
+  {
+    label: "提现时间",
+    prop: "withdrawDatetime",
+    header: true,
+    isPermission: true,
+  },
+  {
+    label: "操作",
+    prop: "operate",
+    slot: true,
+    header: true,
+    isPermission: true,
+  },
 ]);
 
 // 列表接口
@@ -415,8 +479,8 @@ const handleGetTableList = (setScrollTop = true) => {
       const { code, msg, data } = res || {};
       if (code == 0) {
         if (setScrollTop) {
-          const REF = tableRef.value.getTableRef()
-          REF.value.setScrollTop(0)
+          const REF = tableRef.value.getTableRef();
+          REF.value.setScrollTop(0);
         }
         tableData.value = data.list;
         tableListTotal.value = data.total;
@@ -480,7 +544,7 @@ const checkDispose = (row, status) => {
 
 // 排序
 const handleTableSort = (params) => {
-  const { sortField, order } = params
+  const { sortField, order } = params;
   searchTableParams.sortField = sortField;
   searchTableParams.ascending = order;
   handleGetTableList();
@@ -624,6 +688,13 @@ onMounted(() => {
         padding: 10px 0;
       }
     }
+  }
+
+  .pagination-container {
+    margin-top: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
   .operate-container {
     flex: 1;

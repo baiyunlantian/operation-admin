@@ -1,5 +1,5 @@
 <template>
-  <el-dialog v-model="dialogOpt.dialogVisible" :width="dialogOpt.width">
+  <el-dialog v-model="dialogOpt.dialogVisible" :width="dialogOpt.width" >
     <template #header>
       <div class="dialog-header">
         <p>{{ dialogOpt.title }}</p>
@@ -80,6 +80,8 @@ watch(
 
 const cancelEvent = () => {
   console.log("cancel");
+  isInputInvalid.value = false;
+  inputErrorMessage.value = "";
   editParams.value = { ...props.form };
   emits("cancelEdit");
 };

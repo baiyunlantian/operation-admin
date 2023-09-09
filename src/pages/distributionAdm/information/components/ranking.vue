@@ -4,7 +4,7 @@
       <div class="total-title fw">{{ title }}</div>
       <div class="month">月份</div>
     </div>
-    <el-table :data="tableData" style="width: 100%">
+    <el-table :data="tableData" style="width: 100%" height="300">
       <template v-for="(item, index) in listTitle" :key="index">
         <el-table-column :prop="item.prop" :label="item.label" align="center">
           <template #default="{ row }">
@@ -64,7 +64,6 @@ defineProps({
 
 <style lang="scss" scoped>
 .ranking {
-  height: 400px;
   padding: 16px 24px;
   box-sizing: border-box;
   margin-bottom: 16px;

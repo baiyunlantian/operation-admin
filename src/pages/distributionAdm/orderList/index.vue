@@ -58,7 +58,7 @@
               </el-select>
             </el-form-item> -->
 
-            <el-form-item label="状态:" prop="status">
+            <el-form-item prop="status">
               <el-select
                 v-model="searchTableParams.status"
                 placeholder=""
@@ -192,11 +192,17 @@
         </template>
       </data-table>
 
-      <div class="u-pagination-container">
+      <div class="pagination-container">
+        <el-pagination
+          v-model:page-size="searchTableParams.pageSize"
+          background
+          layout="total"
+          :total="tableListTotal"
+        />
         <el-pagination
           v-model:current-page="searchTableParams.pageIndex"
           v-model:page-size="searchTableParams.pageSize"
-          layout="total, prev, pager, next, jumper"
+          layout="prev, pager, next"
           :total="tableListTotal"
           background
           @current-change="handleGetTableList"
@@ -541,7 +547,7 @@ const handleUpdateParams = (params) => {
 // 表格
 // 下拉框选项
 const orderStatusOptions = ref([
-  { label: "全部", value: -1 },
+  { label: "全部状态", value: -1 },
   { label: "未成交", value: 0 },
   { label: "实施中", value: 20 },
   { label: "已完成", value: 30 },
@@ -826,6 +832,13 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
+
+  .pagination-container {
+    margin-top: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
   .search-form {
     display: flex;
     align-items: flex-end;

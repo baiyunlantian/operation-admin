@@ -100,6 +100,7 @@
       :msgType="msgType"
       @cancelEdit="cancelEdit"
       @changeMsgType="changeMsgType"
+      :close-on-click-modal="false"
     >
     </edit-dialog>
   </div>

@@ -155,6 +155,7 @@
       :msgType="msgType"
       @changeMsgType="changeMsgType"
       @cancelEdit="cancelEdit"
+      :close-on-click-modal="false"
     >
       <template #header>
         <div class="header-edit" v-if="userIdentity == 1">
@@ -358,7 +359,7 @@ const getNotes = (val) => {
   notes.value = val;
   if (notes.value === "null") {
     isRemark.value = "";
-  }else {
+  } else {
     isRemark.value = notes.value;
   }
 
@@ -463,7 +464,7 @@ const getCustomList = () => {
     pageIndex: pageIndex.value || 1,
   };
 
-  if (params.isRemark === "") delete params.isRemark
+  if (params.isRemark === "") delete params.isRemark;
 
   API.getCustomList(params).then((res) => {
     // console.log(res.data);
@@ -628,7 +629,13 @@ const dialogDetaiOpt = reactive({
 });
 
 const formArr = ref([
-  { title: "手机", name: "phone", isChange: true, prepend: "+86" },
+  {
+    title: "手机",
+    name: "phone",
+    isChange: true,
+    prepend: "+86",
+    validate: true,
+  },
   { title: "微信", name: "wechat", isChange: true },
   { title: "客户邮箱", name: "email", isChange: true },
   { title: "注册时间", name: "createdTime", isChange: false },
