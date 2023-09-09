@@ -39,6 +39,11 @@ watch(
   (value) => {
     // 添加信息
     let { fullPath, meta, name, path } = router.currentRoute.value;
+    dynamicTags.value.forEach((val, index) => {
+      if (val.path == "/agentDetail") {
+        dynamicTags.value.splice(index, 1);
+      }
+    });
 
     // 不添加结算商品页面tag
     if (path !== "/settleAccount") {
@@ -67,7 +72,7 @@ watch(
 );
 // 关闭tags标签
 const handleClose = (index, item) => {
-  console.log(index, item, active.value);
+  // console.log(index, item, active.value);
   // 关闭当前激活的标签
   const currPath = active.value.split("?")[0];
   if (currPath == item.path) {
@@ -77,7 +82,7 @@ const handleClose = (index, item) => {
 };
 
 const goToPage = (items) => {
-  console.log(items);
+  // console.log(items);
   const query = items.fullPath && items.fullPath.split("?")[1];
   const key = query && query.split("=")[0];
   const val = query && query.split("=")[1];

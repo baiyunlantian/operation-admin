@@ -103,6 +103,7 @@
         />
         <el-pagination
           v-model:page-size="pageSize"
+          v-model:current-page="pageIndex"
           background
           small
           layout="prev, pager, next"
@@ -140,6 +141,7 @@
       :msgType="msgType"
       @changeMsgType="changeMsgType"
       @cancelEdit="cancelEdit"
+      :close-on-click-modal="false"
     >
       <template #header>
         <div class="header-edit">
@@ -543,7 +545,7 @@ const operate = reactive([
     isPermission: true,
     clickEvent: (id, name) => {
       console.log(id);
-      ElMessageBox.confirm(`是否确定给 ${name} 销售ID ${id} 办理恢复`, "提示", {
+      ElMessageBox.confirm(`是否确定给 ${name} 销售ID ${id} 办理离职`, "提示", {
         confirmButtonText: "确认",
         cancelButtonText: "取消",
         type: "warning",

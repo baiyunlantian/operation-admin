@@ -115,6 +115,7 @@
         />
         <el-pagination
           v-model:page-size="pageSize"
+          v-model:current-page="pageIndex"
           background
           small
           layout="prev, pager, next"
@@ -247,7 +248,7 @@ const cardData = ref([
     },
   },
   {
-    title: "订单总量",
+    title: "成交订单",
     name: "completeOrderCount",
     amount: amount.value.completeOrderCount,
     url: require("@/assets/images/file.png"),

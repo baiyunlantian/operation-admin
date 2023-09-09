@@ -55,7 +55,7 @@ const props = defineProps(["cardData"]);
         color: rgba(0, 0, 0, 0.6);
       }
       .show-card-msg-data {
-        font-size: 1.8rem;
+        font-size: 1.6rem;
         font-weight: 600;
         color: #333;
         margin-top: 8px;
