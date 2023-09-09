@@ -95,11 +95,11 @@ watch(
     let roleId = _roleId ? _roleId : newRoleId
     // 添加信息
     let { fullPath, meta, name, path } = router.currentRoute.value;
-    dynamicTags.value.forEach((val, index) => {
-      if (val.path == "/agentDetail") {
-        dynamicTags.value.splice(index, 1);
-      }
-    });
+    // dynamicTags.value.forEach((val, index) => {
+    //   if (val.path == "/agentDetail") {
+    //     dynamicTags.value.splice(index, 1);
+    //   }
+    // });
 
     // console.log('watch start')
     // console.log('watch roleId', roleId)
@@ -140,19 +140,9 @@ watch(
   },
   { immediate: true }
 );
-// 关闭tags标签
-const handleClose = (index, item) => {
-  // console.log(index, item, active.value);
-  // 关闭当前激活的标签
-  const currPath = active.value.split("?")[0];
-  if (currPath == item.path) {
-    router.push({ path: dynamicTags.value[index - 1]["path"] });
-  }
-  dynamicTags.value.splice(index, 1);
-};
 
-const goToPage = (items) => {
-  // console.log(items);
+// 重定向的路径
+const pushOpt = (items, path) => {
   const query = items.fullPath && items.fullPath.split("?")[1];
   const key = query && query.split("=")[0];
   const val = query && query.split("=")[1];
@@ -160,6 +150,25 @@ const goToPage = (items) => {
     path: items.path,
     query: query ? { [key]: val } : "",
   });
+};
+
+// 关闭tags标签
+const handleClose = (index, item) => {
+  // console.log(index, item, active.value);
+  // 关闭当前激活的标签
+  const currPath = active.value.split("?")[0];
+  if (currPath == item.path) {
+    const route = dynamicTags.value[index - 1];
+    // console.log(route);
+    pushOpt(route, route.path);
+    // router.push({ path: dynamicTags.value[index - 1]["path"] });
+  }
+  dynamicTags.value.splice(index, 1);
+};
+
+const goToPage = (items) => {
+  // console.log(items);
+  pushOpt(items, items.path);
 };
 </script>
 

@@ -126,6 +126,9 @@
       :destroy-on-close="true"
     >
       <template #password>
+        <el-text>
+          {{ salesData.password }}
+        </el-text>
         <el-link style="margin-left: 20px" type="primary" @click="copyText">
           复制
         </el-link>
@@ -732,8 +735,8 @@ const form = reactive({
     {
       title: "账号密码",
       name: "password",
-      type: "text",
       placeholder: "请输入账号密码",
+      slot: true,
     },
     {
       title: "职位",
