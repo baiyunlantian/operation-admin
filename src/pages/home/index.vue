@@ -83,6 +83,21 @@
 
   })
 
+  watch(
+          () => [router.currentRoute.value.fullPath, store.getters["user/roleId"]],
+          ([routerValue, roleId]) => {
+            let { fullPath, meta, name, path } = router.currentRoute.value;
+            // console.log('fullPath', fullPath)
+            // console.log('meta', meta)
+            // console.log('roleId', roleId)
+            // if (roleId == 20 || roleId == 10) {
+            //   store.commit("tagsView/DEL_VISITED_VIEW", {path:'/home'})
+            //   router.push('/marketingData')
+            // }
+          },
+          { immediate: true, deep: true }
+  );
+
 </script>
   
 <style scoped lang="scss">

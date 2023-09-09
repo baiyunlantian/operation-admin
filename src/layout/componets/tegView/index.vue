@@ -32,11 +32,57 @@ const store = useStore();
 const active = ref("");
 
 const dynamicTags = computed(() => {
-  return store.getters["tagsView/visitedViews"];
+  const list = store.getters["tagsView/visitedViews"];
+  const roleId = store.getters["user/roleId"]
+  // console.log('computed dynamicTags start', roleId)
+  // console.log('roleId', roleId)
+  // console.log('list', list)
+  // console.log('computed dynamicTags end', roleId)
+  if (list.length === 0) {
+    if (roleId == 10 || roleId == 20) {
+      store.dispatch("tagsView/addView",   {
+        fullPath:'/marketingData',
+        meta:{title:'数据模块'},
+        name:'marketingData',
+        path:'/marketingData',
+        closable:false
+      })
+    }else if (roleId == 0 || roleId == 1) {
+      store.dispatch("tagsView/addView",   {
+        fullPath:'/home',
+        meta:{title:'首页'},
+        name:'home',
+        path:'/home',
+        closable:false
+      })
+    }
+  }else if (list.length === 1) {
+    if (roleId == 10 || roleId == 20) {
+      store.commit("tagsView/ADD_VISITED_VIEW_IN_INDEX",   {
+        fullPath:'/marketingData',
+        meta:{title:'数据模块'},
+        name:'marketingData',
+        path:'/marketingData',
+        closable:false
+      }, 0)
+    }else if (roleId == 0 || roleId == 1) {
+      store.commit("tagsView/ADD_VISITED_VIEW_IN_INDEX",   {
+        fullPath:'/home',
+        meta:{title:'首页'},
+        name:'home',
+        path:'/home',
+        closable:false
+      }, 0)
+    }
+  }
+
+  return list;
 });
 watch(
-  () => router.currentRoute.value.fullPath,
-  (value) => {
+    [()=>router.currentRoute.value.fullPath, ()=>store.getters["user/roleId"]],
+  ([value, newRoleId]) => {
+    const _roleId = localStorage.getItem('roleId');
+    let roleId = _roleId ? _roleId : newRoleId
     // 添加信息
     let { fullPath, meta, name, path } = router.currentRoute.value;
     // dynamicTags.value.forEach((val, index) => {
@@ -45,27 +91,41 @@ watch(
     //   }
     // });
 
-    // 不添加结算商品页面tag
-    if (path !== "/settleAccount") {
-      store.dispatch("tagsView/addView", {
-        fullPath,
-        meta,
-        name,
-        path,
-        closable: path !== "/home",
-      });
-      active.value = value;
-    }
-    // 结算商品页面刷新时保留商品目录tag
-    else {
-      store.dispatch("tagsView/addView", {
-        fullPath: "/product",
-        meta: { title: "商品目录", permission: [10, 20, 0, 1] },
-        name: "product",
-        path: "/product",
-        closable: true,
-      });
-      active.value = "/product";
+    // console.log('watch start')
+    // console.log('watch roleId', roleId)
+    // console.log('watch path', path)
+    // console.log('watch visitedViews', store.getters["tagsView/visitedViews"])
+    // console.log('watch end')
+
+    if (roleId >= 0) {
+      // 不添加结算商品页面tag
+      if (path !== "/settleAccount") {
+        let viewTag = {
+          fullPath,
+          meta,
+          name,
+          path,
+          closable: path !== "/home",
+        }
+        if (path === "/marketingData" && (roleId == 10 || roleId == 20)) {
+          viewTag.closable = false;
+        }
+        store.dispatch("tagsView/addView", viewTag);
+        active.value = fullPath;
+      }
+      // 结算商品页面刷新时保留商品目录tag
+      else {
+        store.dispatch("tagsView/addView", {
+          fullPath: "/product",
+          meta: { title: "商品目录", permission: [10, 20, 0, 1] },
+          name: "product",
+          path: "/product",
+          closable: true,
+        });
+        active.value = "/product";
+      }
+    }else {
+      store.commit("tagsView/DEL_ALL_VISITED_VIEWS");
     }
   },
   { immediate: true }

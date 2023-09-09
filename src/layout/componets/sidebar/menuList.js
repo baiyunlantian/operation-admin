@@ -7,7 +7,7 @@ export default [
     path: "/home",
     menuData: "indexAdmin",
     children: [],
-    permission:[],
+    permission:[0,1],
   },
   {
     type: "user",
@@ -52,7 +52,7 @@ export default [
     descType: "text",
     menuId: "3",
     path: "",
-    permission:[10, 0, 1],
+    permission:[0, 1],
     children: [
       {
         type: "system",
@@ -62,7 +62,7 @@ export default [
         path: "/member",
         children: [],
         meta: { level: "用户中心" },
-        permission:[10, 0, 1],
+        permission:[ 0, 1],
       },
     ],
   },
@@ -72,7 +72,7 @@ export default [
     descType: "text",
     menuId: "4",
     path: "",
-    permission:[10, 0, 1],
+    permission:[0, 1],
     children: [
       {
         type: "system",
@@ -81,7 +81,7 @@ export default [
         menuId: "4-1",
         path: "/userStatistic",
         children: [],
-        permission:[10, 0, 1],
+        permission:[0, 1],
       },
       {
         type: "system",
@@ -90,7 +90,7 @@ export default [
         menuId: "4-2",
         path: "/tradingStatistic",
         children: [],
-        permission:[10, 0, 1],
+        permission:[0, 1],
       },
     ],
   },
@@ -100,7 +100,7 @@ export default [
     descType: "text",
     menuId: "5",
     path: "",
-    permission:[10, 0, 1],
+    permission:[0, 1],
     children: [
       {
         type: "system",
@@ -109,7 +109,7 @@ export default [
         menuId: "5-1",
         path: "/invite",
         children: [],
-        permission:[10, 0, 1],
+        permission:[0, 1],
       },
       {
         type: "system",
@@ -118,7 +118,7 @@ export default [
         menuId: "5-2",
         path: "/distribution",
         children: [],
-        permission:[10, 1],
+        permission:[1],
       },
     ],
   },
@@ -139,6 +139,15 @@ export default [
     path: "",
     permission:[10, 20, 0, 1],
     children: [
+      {
+        type: "system",
+        name: "数据模块",
+        descType: "text",
+        menuId: "7-9",
+        path: "/marketingData",
+        children: [],
+        permission:[10, 20, 0, 1],
+      },
       {
         type: "system",
         name: "代理管理",
