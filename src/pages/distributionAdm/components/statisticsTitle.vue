@@ -18,19 +18,26 @@
             :md="12"
             :sm="12"
             :xs="24"
-            v-if="
-              (item.isShow.includes(userIdentity) ||
-                item.isShow.includes(roleIdentity)) &&
-              severalRow
-            "
+            v-if="item.isShow && severalRow"
           >
             <el-card class="box-card">
               <div class="item common-item">
                 <div class="top-item">
                   <div class="left-box">
                     <div class="title fw">{{ item.title }}</div>
-                    <div class="money fw">
-                      <span v-if="item.isMoney">¥&nbsp;</span>
+                    <div
+                      v-if="
+                        item.freeOfCommission &&
+                        item.propMoney == 'freezeAmount'
+                      "
+                      class="freeOfCommission fw"
+                    >
+                      <span>免佣用户</span>
+                    </div>
+                    <div v-else class="money fw">
+                      <span class="money-icon" v-if="item.isMoney"
+                        >¥&nbsp;</span
+                      >
                       <span>{{ item.money }}</span>
                     </div>
                   </div>
@@ -55,21 +62,16 @@
               </div>
             </el-card>
           </el-col>
-          <el-col
-            class="xl-5"
-            v-if="
-              (item.isShow.includes(userIdentity) ||
-                item.isShow.includes(roleIdentity)) &&
-              !severalRow
-            "
-          >
+          <el-col class="xl-5" v-if="item.isShow && !severalRow">
             <el-card class="box-card">
               <div class="item common-item">
                 <div class="top-item">
                   <div class="left-box">
                     <div class="title fw">{{ item.title }}</div>
                     <div class="money fw">
-                      <span v-if="item.isMoney">¥&nbsp;</span>
+                      <span class="money-icon" v-if="item.isMoney"
+                        >¥&nbsp;</span
+                      >
                       <span>{{ item.money }}</span>
                     </div>
                   </div>
@@ -178,10 +180,18 @@ const handleUpdateParams = (searchParam) => {
         margin-bottom: 9px;
         font-size: 14px;
       }
+
+      .freeOfCommission {
+        font-size: 1.4rem;
+      }
       .money {
         display: flex;
         align-items: center;
-        font-size: 30px;
+        font-size: 1.5rem;
+      }
+
+      .money-icon {
+        font-size: 1.2rem !important;
       }
     }
   }
@@ -201,7 +211,7 @@ const handleUpdateParams = (searchParam) => {
     align-items: center;
     margin-top: 23px;
     color: rgba(0, 0, 0, 0.4);
-    font-size: 14px;
+    font-size: 0.9rem;
 
     .describe-item {
       display: flex;
@@ -210,6 +220,13 @@ const handleUpdateParams = (searchParam) => {
 
     .text {
       margin-right: 6px;
+      line-height: 1rem;
+    }
+
+    .num {
+      display: flex;
+      align-items: center;
+      line-height: 1rem;
     }
   }
 }
