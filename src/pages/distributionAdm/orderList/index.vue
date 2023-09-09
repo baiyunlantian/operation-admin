@@ -883,9 +883,14 @@ onMounted(() => {
       display: flex;
       justify-content: center;
       align-items: center;
+      flex-wrap: wrap;
 
       .el-dropdown {
         margin-right: 20px;
+      }
+
+      .el-button + .el-button {
+        margin-left: 0 !important;
       }
     }
   }

@@ -30,7 +30,9 @@
                   <div class="left-box">
                     <div class="title fw">{{ item.title }}</div>
                     <div class="money fw">
-                      <span v-if="item.isMoney">¥&nbsp;</span>
+                      <span class="money-icon" v-if="item.isMoney"
+                        >¥&nbsp;</span
+                      >
                       <span>{{ item.money }}</span>
                     </div>
                   </div>
@@ -69,7 +71,9 @@
                   <div class="left-box">
                     <div class="title fw">{{ item.title }}</div>
                     <div class="money fw">
-                      <span v-if="item.isMoney">¥&nbsp;</span>
+                      <span class="money-icon" v-if="item.isMoney"
+                        >¥&nbsp;</span
+                      >
                       <span>{{ item.money }}</span>
                     </div>
                   </div>
@@ -181,7 +185,11 @@ const handleUpdateParams = (searchParam) => {
       .money {
         display: flex;
         align-items: center;
-        font-size: 30px;
+        font-size: 1.5rem;
+      }
+
+      .money-icon {
+        font-size: 1.2rem !important;
       }
     }
   }
@@ -201,7 +209,7 @@ const handleUpdateParams = (searchParam) => {
     align-items: center;
     margin-top: 23px;
     color: rgba(0, 0, 0, 0.4);
-    font-size: 14px;
+    font-size: 0.9rem;
 
     .describe-item {
       display: flex;
@@ -210,6 +218,11 @@ const handleUpdateParams = (searchParam) => {
 
     .text {
       margin-right: 6px;
+    }
+
+    .num {
+      display: flex;
+      align-items: center;
     }
   }
 }
