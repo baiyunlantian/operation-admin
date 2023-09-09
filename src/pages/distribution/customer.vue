@@ -117,6 +117,7 @@
           <div class="operate-container">
             <template v-for="operate in row.operate" :key="operate.func">
               <el-link
+                v-if="operate.isPermission"
                 type="primary"
                 @click="operate.clickEvent(row.customId, row.salesName)"
                 >{{ operate.func }}</el-link
@@ -563,6 +564,7 @@ const operate = [
   {
     func: "详情",
     isShow: true,
+    isPermission: true,
     clickEvent: (id, name) => {
       console.log(id);
       if (getDepositStatus() === false) return;
@@ -573,6 +575,9 @@ const operate = [
   {
     func: "删除",
     isShow: true,
+    isPermission: computed(() => {
+      return userIdentity.value == 1;
+    }),
     clickEvent: (id, name) => {
       if (getDepositStatus() === false) return;
       ElMessageBox.confirm(`是否确定删除 ${name} 销售ID ${id} `, "提示", {
