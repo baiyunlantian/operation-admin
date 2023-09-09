@@ -266,7 +266,6 @@
     function handleFormatWithDrawText(obj) {
       let {prop, type} = obj, text = '';
       if (prop === 'agencyCashPledge') {
-        // console.log(agentInfo.value)
         if (agentInfo.value.isFreeOfCommission === true) {
           text = '免佣用户'
         }else {

@@ -10,7 +10,7 @@ export default [
     children: [
       {
         path: '/course',
-        meta: {title: "课程用户", permission: [10, 0, 1]},
+        meta: {title: "课程用户", permission: [1]},
         component: () => import('@/pages/course/index.vue'),
         name: 'course',
       }

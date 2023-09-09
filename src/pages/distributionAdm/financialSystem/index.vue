@@ -96,7 +96,6 @@
           :selection="true"
           :sortField="searchTableParams.sortField"
           style="width: 100%"
-          @selection-change="handleSelectionChange"
           @click-header="handleTableSort"
           height="650"
         >
@@ -248,31 +247,28 @@
           @selection-change="handleSelectionChange"
           height="400"
         >
-          <template
+          <el-table-column
             v-for="(item, index) in tableDialogColumnConfig"
             :key="index"
+            :prop="item.prop"
+            :label="item.label"
+            :width="item.width"
+            align="center"
+          />
+          <el-table-column
+            v-if="currentStatus == 0"
+            :prop="operate.prop"
+            :label="operate.label"
+            align="center"
           >
-            <el-table-column
-              :prop="item.prop"
-              :label="item.label"
-              :width="item.width"
-              align="center"
-            >
-              <template #default="{ row, column, $index }">
-                <div
-                  v-if="
-                    item.insertSlot &&
-                    item.prop == 'operate' &&
-                    currentStatus == 0
-                  "
-                >
-                  <el-button type="danger" link @click="deleteOrder(row)"
-                    >删除
-                  </el-button>
-                </div>
-              </template>
-            </el-table-column>
-          </template>
+            <template #default="{ row }">
+              <div>
+                <el-button type="danger" link @click="deleteOrder(row)"
+                  >删除
+                </el-button>
+              </div>
+            </template>
+          </el-table-column>
         </el-table>
 
         <div class="pagination-container">
@@ -467,7 +463,6 @@ const tableColumnConfig = ref([
     label: "操作",
     prop: "operate",
     slot: true,
-    header: true,
     isPermission: true,
   },
 ]);
@@ -569,8 +564,12 @@ const tableDialogColumnConfig = ref([
   { label: "客户名称", prop: "customName" },
   { label: "订单金额", prop: "orderAmount" },
   { label: "结算佣金", prop: "orderCommission" },
-  { label: "操作", prop: "operate", insertSlot: "operate", waitCheck: true },
 ]);
+
+const operate = ref({
+  label: "操作",
+  prop: "operate",
+});
 
 const currentStatus = ref();
 const openEditDialog = (row) => {
