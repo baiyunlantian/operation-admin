@@ -577,7 +577,8 @@ const openEditDialog = (row) => {
   currentDialogId.value = row.withdrawId;
   searchDialogTableParams.keyWords = undefined;
   currentStatus.value = row.status;
-  handleGetDialogTableList(row.withdrawId);
+  searchDialogTableParams.pageSize = 50;
+  handleGetDialogTableList(currentDialogId.value);
 };
 
 const closeEditDialog = () => {
@@ -587,9 +588,10 @@ const closeEditDialog = () => {
 // 弹框接口
 const handleGetDialogTableList = (withdrawId) => {
   return new Promise((resolve, reject) => {
+    console.log(withdrawId);
     getFinanceOrderDataPageList({
       ...searchDialogTableParams,
-      withdrawId,
+      withdrawId: currentDialogId.value,
     }).then((res) => {
       const { code, msg, data } = res || {};
       if (code == 0) {
@@ -625,7 +627,7 @@ const handleGetDialogTableList = (withdrawId) => {
 // };
 
 const handleDialogStatusChange = () => {
-  handleGetDialogTableList().then((res) => {
+  handleGetDialogTableList(currentDialogId.value).then((res) => {
     proxy.$message({
       type: "success",
       message: "查询成功",
