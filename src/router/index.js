@@ -176,6 +176,16 @@ function addRouterList(permissionList) {
   //   }
   //   return !!item.children.length > 0 || !!item['permission'];
   // })
+  // let list = {
+  //   path: "/",
+  //   title: "",
+  //   meta: "",
+  //   name: "",
+  //   component: layout,
+  //   redirect:""
+  // }
+
+  // router.addRoute("",list)
   routerPackag(routerList);
 
   store.commit("user/SET_FILTERROUTER_LIST", routerList);

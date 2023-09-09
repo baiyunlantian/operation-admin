@@ -46,7 +46,7 @@ export default [
       },
       {
         path: "/orderList",
-        meta: { title: "订单列表", permission: [10, 20, 0, 1] },
+        meta: { title: "订单列表", permission: [10, 20, 1] },
         component: () => import("@/pages/distributionAdm/orderList/index.vue"),
         name: "orderList",
       },

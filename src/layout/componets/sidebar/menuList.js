@@ -137,7 +137,7 @@ export default [
     descType: "text",
     menuId: "7",
     path: "",
-    permission:[10, 20, 0, 1],
+    permission:[10, 20, 1],
     children: [
       {
         type: "system",
@@ -146,7 +146,7 @@ export default [
         menuId: "7-9",
         path: "/marketingData",
         children: [],
-        permission:[10, 20, 0, 1],
+        permission:[10, 20, 1],
       },
       {
         type: "system",
@@ -191,7 +191,7 @@ export default [
         menuId: "7-3",
         path: "/orderList",
         children: [],
-        permission:[10, 20, 0, 1],
+        permission:[10, 20, 1],
       },
     ],
   },
@@ -202,6 +202,6 @@ export default [
     menuId: "8",
     path: "/product",
     children: [],
-    permission:[10, 20, 0, 1],
+    permission:[10, 20, 1],
   },
 ];

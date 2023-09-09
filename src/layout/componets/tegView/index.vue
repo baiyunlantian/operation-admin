@@ -33,13 +33,19 @@ const active = ref("");
 
 const dynamicTags = computed(() => {
   const list = store.getters["tagsView/visitedViews"];
-  const roleId = store.getters["user/roleId"]
+  const roleId = store.getters["user/roleId"];
   // console.log('computed dynamicTags start', roleId)
   // console.log('roleId', roleId)
   // console.log('list', list)
   // console.log('computed dynamicTags end', roleId)
-  if (list.length === 0) {
-    if (roleId == 10 || roleId == 20) {
+  if (!roleId && roleId !== 0) {
+    store.commit("tagsView/DEL_ALL_VISITED_VIEWS");
+  }
+
+  if (list.length === 0 && roleId >= 0) {
+    // console.log('42')
+    if (roleId == 10 || roleId === 20) {
+      // console.log('44')
       store.dispatch("tagsView/addView",   {
         fullPath:'/marketingData',
         meta:{title:'数据模块'},
@@ -47,7 +53,8 @@ const dynamicTags = computed(() => {
         path:'/marketingData',
         closable:false
       })
-    }else if (roleId == 0 || roleId == 1) {
+    }else if (roleId === 0 || roleId === 1) {
+      // console.log('52 首页')
       store.dispatch("tagsView/addView",   {
         fullPath:'/home',
         meta:{title:'首页'},
@@ -56,8 +63,10 @@ const dynamicTags = computed(() => {
         closable:false
       })
     }
-  }else if (list.length === 1) {
-    if (roleId == 10 || roleId == 20) {
+  }else if (list.length === 1  && roleId >= 0) {
+    // console.log('61')
+    if (roleId === 10 || roleId === 20) {
+      // console.log('63')
       store.commit("tagsView/ADD_VISITED_VIEW_IN_INDEX",   {
         fullPath:'/marketingData',
         meta:{title:'数据模块'},
@@ -65,7 +74,8 @@ const dynamicTags = computed(() => {
         path:'/marketingData',
         closable:false
       }, 0)
-    }else if (roleId == 0 || roleId == 1) {
+    }else if (roleId === 0 || roleId === 1) {
+      // console.log('67 首页')
       store.commit("tagsView/ADD_VISITED_VIEW_IN_INDEX",   {
         fullPath:'/home',
         meta:{title:'首页'},
@@ -94,10 +104,12 @@ watch(
     // console.log('watch start')
     // console.log('watch roleId', roleId)
     // console.log('watch path', path)
-    // console.log('watch visitedViews', store.getters["tagsView/visitedViews"])
+    // console.log('watch visitedViews', dynamicTags.value)
     // console.log('watch end')
 
-    if (roleId >= 0) {
+    if (!roleId && roleId !== 0) {
+      store.commit("tagsView/DEL_ALL_VISITED_VIEWS");
+    }else {
       // 不添加结算商品页面tag
       if (path !== "/settleAccount") {
         let viewTag = {
@@ -124,8 +136,6 @@ watch(
         });
         active.value = "/product";
       }
-    }else {
-      store.commit("tagsView/DEL_ALL_VISITED_VIEWS");
     }
   },
   { immediate: true }
