@@ -18,11 +18,7 @@
             :md="12"
             :sm="12"
             :xs="24"
-            v-if="
-              (item.isShow.includes(userIdentity) ||
-                item.isShow.includes(roleIdentity)) &&
-              severalRow
-            "
+            v-if="item.isShow && severalRow"
           >
             <el-card class="box-card">
               <div class="item common-item">
@@ -57,14 +53,7 @@
               </div>
             </el-card>
           </el-col>
-          <el-col
-            class="xl-5"
-            v-if="
-              (item.isShow.includes(userIdentity) ||
-                item.isShow.includes(roleIdentity)) &&
-              !severalRow
-            "
-          >
+          <el-col class="xl-5" v-if="item.isShow && !severalRow">
             <el-card class="box-card">
               <div class="item common-item">
                 <div class="top-item">

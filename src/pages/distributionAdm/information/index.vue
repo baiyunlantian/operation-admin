@@ -85,7 +85,7 @@
 
     <el-row :gutter="28">
       <el-col
-        v-if="userIdentity.isAdmin == 1"
+        v-if="userIdentity == 1"
         :xl="12"
         :lg="12"
         :md="24"
@@ -106,7 +106,7 @@
         />
       </el-col>
       <el-col
-        v-if="userIdentity.isAdmin == 1"
+        v-if="userIdentity == 1"
         :xl="12"
         :lg="12"
         :md="24"
@@ -120,7 +120,7 @@
         />
       </el-col>
       <el-col
-        v-if="roleIdentity.roleId != 20"
+        v-if="roleIdentity != 20"
         :xl="12"
         :lg="12"
         :md="24"
@@ -170,14 +170,13 @@ import utils from "@/assets/js/utils.js";
 const { proxy } = getCurrentInstance();
 const store = useStore();
 
-// 超管1 非超管0
-const userIdentity = computed(() => {
-  return store.getters["user/info"];
-});
-
-// 10:销售 20：代理
+// 销售10 代理20
 const roleIdentity = computed(() => {
-  return store.getters["user/agentInfo"];
+  return store.getters["user/agentInfo"].roleId;
+});
+//超管1 非超管0
+const userIdentity = computed(() => {
+  return store.getters["user/info"].isAdmin;
 });
 
 // 顶部总数据
@@ -188,7 +187,7 @@ const collectInformation = ref([
     money: 0,
     image: barChart,
     imageStyle: "width: 104px; height: 42px",
-    isShow: [1, 10, 20],
+    isShow: true,
     propMoney: "totalIncome",
   },
   {
@@ -197,7 +196,7 @@ const collectInformation = ref([
     money: 0,
     image: barChart,
     imageStyle: "width: 104px; height: 42px",
-    isShow: [1, 10, 20],
+    isShow: true,
     propMoney: "yesterdayIncome",
   },
   {
@@ -206,7 +205,7 @@ const collectInformation = ref([
     money: 0,
     image: barChart,
     imageStyle: "width: 104px; height: 42px",
-    isShow: [1, 10, 20],
+    isShow: true,
     propMoney: "lastWeekIncome",
   },
   {
@@ -215,7 +214,7 @@ const collectInformation = ref([
     money: 0,
     image: barChart,
     imageStyle: "width: 104px; height: 42px",
-    isShow: [1, 10, 20],
+    isShow: true,
     propMoney: "lastMonthIncome",
   },
 ]);
@@ -236,111 +235,6 @@ const getTopInformation = () => {
   });
 };
 
-// 仪表盘参数
-// const panelInformation = computed(() => {
-//   let _roleIdentity = store.getters["user/agentInfo"];
-//   let _userIdentity = store.getters["user/info"];
-//   return [
-//     {
-//       id: 1,
-//       title: "总收入",
-//       isMoney: true,
-//       money: 0,
-//       image: barChart,
-//       imageStyle: "width: 104px; height: 42px",
-//       isShow: [1, 10, 20],
-//       propMoney: "totalIncome",
-//     },
-//     {
-//       id: 2,
-//       title: "返佣金额",
-//       isMoney: true,
-//       money: 0,
-//       desc: "待返金额",
-//       descNum: 0,
-//       isDescMoney: true,
-//       descO: "已返金额",
-//       descNumO: 0,
-//       isDescOMoney: true,
-//       image: barChart,
-//       imageStyle: "width: 104px; height: 42px",
-//       isShow: [1, 10, 20],
-//       propMoney: "brokerageCommission",
-//       propDescNum: "totalWaitBrokerageCommission",
-//       proDescNumO: "totalBrokerageCommission",
-//     },
-//     {
-//       id: 3,
-//       title: "冻结金额",
-//       isMoney: true,
-//       money: 0,
-//       image: heartbeat,
-//       imageStyle: "width: 96px; height: 40px",
-//       isShow: _roleIdentity.roleId != 10 ? true : false, //销售不显示
-//       propMoney: "freezeAmount",
-//     },
-//     {
-//       id: 4,
-//       title: "成交销售数量",
-//       isMoney: false,
-//       money: 0,
-//       desc: "销售总量",
-//       descNum: 0,
-//       image: userCount,
-//       imageStyle: "width: 56px; height: 56px",
-//       isShow: _userIdentity.isAdmin == 1 ? true : false, //销售和代理不显示
-//       propMoney: "transactionSalesCount",
-//       propDescNum: "salesTotalCount",
-//     },
-//     {
-//       id: 5,
-//       title: "产生订单 (个)",
-//       isMoney: false,
-//       money: 0,
-//       image: file,
-//       imageStyle: "width: 56px; height: 56px",
-//       isShow: [1, 10, 20],
-//       propMoney: "createOrderCount",
-//     },
-//     {
-//       id: 6,
-//       title: "取消订单",
-//       isMoney: false,
-//       money: 0,
-//       image: userCount,
-//       imageStyle: "width: 56px; height: 56px",
-//       isShow: [1, 10, 20],
-//       propMoney: "cancellationOrderCount",
-//     },
-//     {
-//       id: 7,
-//       title: "成交客户数量",
-//       isMoney: false,
-//       money: 0,
-//       desc: "客户总量",
-//       descNum: 0,
-//       image: userCount,
-//       imageStyle: "width: 56px; height: 56px",
-//       isShow: [1, 10, 20],
-//       propMoney: "transactionCustomCount",
-//       propDescNum: "customTotalCount",
-//     },
-//     {
-//       id: 8,
-//       title: "成交代理数量",
-//       isMoney: false,
-//       money: 0,
-//       desc: "代理总量",
-//       descNum: 0,
-//       image: userCount,
-//       imageStyle: "width: 56px; height: 56px",
-//       isShow: _roleIdentity.roleId != 20 ? true : false, //代理不显示
-//       propMoney: "transactionAgentCount",
-//       propDescNum: "agentTotalCount",
-//     },
-//   ];
-// });
-
 const panelInformation = ref([
   {
     id: 1,
@@ -349,7 +243,7 @@ const panelInformation = ref([
     money: 0,
     image: barChart,
     imageStyle: "width: 104px; height: 42px",
-    isShow: [1, 10, 20],
+    isShow: true,
     propMoney: "totalIncome",
   },
   {
@@ -365,7 +259,7 @@ const panelInformation = ref([
     isDescOMoney: true,
     image: barChart,
     imageStyle: "width: 104px; height: 42px",
-    isShow: [1, 10, 20],
+    isShow: true,
     propMoney: "brokerageCommission",
     propDescNum: "totalWaitBrokerageCommission",
     proDescNumO: "totalBrokerageCommission",
@@ -377,7 +271,9 @@ const panelInformation = ref([
     money: 0,
     image: heartbeat,
     imageStyle: "width: 96px; height: 40px",
-    isShow: [1, 20], //销售不显示
+    isShow: computed(() => {
+      return roleIdentity.value != 10;
+    }), //销售不显示
     propMoney: "freezeAmount",
   },
   {
@@ -389,7 +285,9 @@ const panelInformation = ref([
     descNum: 0,
     image: userCount,
     imageStyle: "width: 56px; height: 56px",
-    isShow: [1], //销售和代理不显示
+    isShow: computed(() => {
+      return userIdentity.value == 1;
+    }), //销售和代理不显示
     propMoney: "transactionSalesCount",
     propDescNum: "salesTotalCount",
   },
@@ -400,7 +298,7 @@ const panelInformation = ref([
     money: 0,
     image: file,
     imageStyle: "width: 56px; height: 56px",
-    isShow: [1, 10, 20],
+    isShow: true,
     propMoney: "completeOrderCount",
   },
   {
@@ -410,7 +308,7 @@ const panelInformation = ref([
     money: 0,
     image: userCount,
     imageStyle: "width: 56px; height: 56px",
-    isShow: [1, 10, 20],
+    isShow: true,
     propMoney: "cancellationOrderCount",
   },
   {
@@ -422,7 +320,7 @@ const panelInformation = ref([
     descNum: 0,
     image: userCount,
     imageStyle: "width: 56px; height: 56px",
-    isShow: [1, 10, 20],
+    isShow: true,
     propMoney: "transactionCustomCount",
     propDescNum: "customTotalCount",
   },
@@ -435,7 +333,9 @@ const panelInformation = ref([
     descNum: 0,
     image: userCount,
     imageStyle: "width: 56px; height: 56px",
-    isShow: [1, 10], //代理不显示
+    isShow: computed(() => {
+      return roleIdentity.value != 20;
+    }), //代理不显示
     propMoney: "transactionAgentCount",
     propDescNum: "agentTotalCount",
   },
