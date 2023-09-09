@@ -42,7 +42,7 @@ const searchParams = ref({
 const currentClick = ref();
 
 let currentTimeList = ref([]);
-for (let i = 1; i <= 24; i++) {
+for (let i = 0; i <= 23; i++) {
   currentTimeList.value.push(i);
 }
 
