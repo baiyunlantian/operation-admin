@@ -96,7 +96,6 @@
           :selection="true"
           :sortField="searchTableParams.sortField"
           style="width: 100%"
-          @selection-change="handleSelectionChange"
           @click-header="handleTableSort"
           height="650"
         >
@@ -464,7 +463,6 @@ const tableColumnConfig = ref([
     label: "操作",
     prop: "operate",
     slot: true,
-    header: true,
     isPermission: true,
   },
 ]);
