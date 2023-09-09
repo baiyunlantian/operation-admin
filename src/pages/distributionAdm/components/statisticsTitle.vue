@@ -26,7 +26,10 @@
                   <div class="left-box">
                     <div class="title fw">{{ item.title }}</div>
                     <div
-                      v-if="item.freeOfCommission"
+                      v-if="
+                        item.freeOfCommission &&
+                        item.propMoney == 'freezeAmount'
+                      "
                       class="freeOfCommission fw"
                     >
                       <span>免佣用户</span>
