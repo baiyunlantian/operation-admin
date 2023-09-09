@@ -220,11 +220,13 @@ const handleUpdateParams = (searchParam) => {
 
     .text {
       margin-right: 6px;
+      line-height: 1rem;
     }
 
     .num {
       display: flex;
       align-items: center;
+      line-height: 1rem;
     }
   }
 }
