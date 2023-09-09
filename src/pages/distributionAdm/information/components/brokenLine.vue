@@ -15,11 +15,13 @@
       </el-col>
     </el-row>
 
-    <MutiLine
-      :x-axis-data="xAxisData"
-      :line-data="lineData"
-      :option-config="echartsOptions"
-    />
+    <div class="echarts">
+      <MutiLine
+              :x-axis-data="xAxisData"
+              :line-data="lineData"
+              :option-config="echartsOptions"
+      />
+    </div>
   </div>
 </template>
 
@@ -151,12 +153,16 @@ onMounted(() => {
 .brokenLine {
   height: 451px;
   box-sizing: border-box;
-  padding: 16px 24px 32px 24px;
+  padding: 1% 1% 0 1%;
   // margin-right: 16px;
   box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.1);
 
   .brokenLine-title {
     margin-bottom: 16px;
+  }
+
+  .echarts{
+    height: calc(100% - 50px);
   }
 
   .top-title {

@@ -3,7 +3,7 @@
         <div class="title">筛选</div>
 
         <div class="search-container u-m-t-15 u-m-b-10">
-            <el-form class="search-form" ref="formRef" :inline="true" :model="searchTableParams" :rules="rules">
+            <el-form class="search-form" ref="formRef" :inline="true" :model="searchTableParams" :rules="rules" @submit.prevent>
 
                 <el-form-item v-for="(item, index) in searchFormConfig" :prop="item.prop" :label="item.label" :key="item.prop" label-position="left">
                     <el-input v-model="searchTableParams[item.prop]" clearable/>
@@ -101,7 +101,7 @@
 
 
             <div class="dialog-body">
-                <el-input v-model="phoneList" class="textarea" type="textarea" placeholder="请输入手机号" />
+                <el-input v-model="dataList" class="textarea" type="textarea" placeholder="请输入手机号" />
             </div>
 
             <template #footer>
@@ -140,6 +140,7 @@
   const tableData = ref([])
   const tableColumnConfig = ref([
     {label:'手机号', prop:'phoneNumber'},
+    {label:'姓名', prop:'name'},
     {label:'录入时间', prop:'createdTime'},
     {label:'注册状态', prop:'registrationStatus'},
     {label:'赠送状态', prop:'giveStatus'},
@@ -154,7 +155,7 @@
   const tableListTotal = ref(0)
   const formRef = ref(null)
   const dialogVisible = ref(false)
-  const phoneList = ref('')
+  const dataList = ref('')
   const tableRef = ref()
   const btnLoading = ref(false)
   const giveStatusOptions = ref(['未赠送','部分赠送','已赠送'])
@@ -214,22 +215,24 @@
 
   // 手机录入弹出框
   function handleToggleDialog(visible) {
-    if (visible === false) phoneList.value = ''
+    if (visible === false) dataList.value = ''
     dialogVisible.value = visible
   }
 
   function handleClickDialogBtn(type) {
     if (type === 'ok') {
-      let phoneArray = [], reg = /^1(3|4|5|6|7|8|9)\d{9}$/, errIndexArray = [];
-      phoneList.value.split('\n').forEach((phone,index) => {
-        if (reg.test(phone)) {
-          phoneArray.push(phone)
+      let addsReqs = [], reg = /^1(3|4|5|6|7|8|9)\d{9}$/, errIndexArray = [];
+      dataList.value.split('\n').forEach((data,index) => {
+        const array = data.split(' ');
+        let name = array[0], number = array[1];
+        if (reg.test(number)) {
+          addsReqs.push({name, number})
         }else {
           errIndexArray.push(index + 1)
         }
       })
-      console.log('phoneArray', phoneArray)
-      if (phoneArray.length === 0) {
+
+      if (addsReqs.length === 0) {
         proxy.$message({
           type:'warning',
           message:'请输入正确的手机号！'
@@ -238,7 +241,7 @@
       }
 
       btnLoading.value = true
-      API.batchAddPhone({numbers: phoneArray}).then(res=>{
+      API.batchAddPhone({addsReqs}).then(res=>{
         if (res.code == 0) {
           proxy.$message({
             type:'success',
