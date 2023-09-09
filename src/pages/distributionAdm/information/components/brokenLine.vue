@@ -17,9 +17,9 @@
 
     <div class="echarts">
       <MutiLine
-              :x-axis-data="xAxisData"
-              :line-data="lineData"
-              :option-config="echartsOptions"
+        :x-axis-data="xAxisData"
+        :line-data="lineData"
+        :option-config="echartsOptions"
       />
     </div>
   </div>
@@ -40,6 +40,23 @@ const searchParams = ref({
   endTime: dayjs().subtract(1, "day").format("YYYY-MM-DD") + " " + "23:59:59",
 });
 const currentClick = ref();
+
+let currentTimeList = ref([]);
+for (let i = 1; i <= 24; i++) {
+  currentTimeList.value.push(i);
+}
+
+let currentDataList = ref([]);
+const getCurrentDataList = () => {
+  currentDataList.value = getDateStr(
+    searchParams.value.startTime,
+    searchParams.value.endTime,
+    0
+  );
+  currentDataList.value.unshift(searchParams.value.startTime.split(" ")[0]);
+};
+
+getCurrentDataList();
 
 const lineData = ref([]);
 const xAxisData = ref([]);
@@ -88,11 +105,32 @@ function formatLineData(list) {
     list = list.map((item) => {
       return {
         orderCount: item.orderCount,
-        time: `${dayjs(item.time).hour()}时`,
+        time: dayjs(item.time).hour(),
         totalIncome: item.totalIncome,
       };
     });
+
+    timeFormat(list, currentTimeList.value);
+
+    list = list.map((item) => {
+      return {
+        orderCount: item.orderCount,
+        time: `${item.time}时`,
+        totalIncome: item.totalIncome,
+      };
+    });
+  } else {
+    list = list.map((item) => {
+      return {
+        orderCount: item.orderCount,
+        time: item.time.split(" ")[0],
+        totalIncome: item.totalIncome,
+      };
+    });
+
+    timeFormat(list, currentDataList.value);
   }
+
   const dataO = computed(() => {
     const dO = ref([]);
     list.forEach((item) => {
@@ -130,7 +168,7 @@ function formatLineData(list) {
   //   tooltip.formatter += `{a${index}}：{c${index}}<br />`;
   // });
   list.forEach((items, index) => {
-    _xAxisData.push(String(items.time).split(" ")[0]);
+    _xAxisData.push(String(items.time));
   });
 
   echartsOptions.tooltip = { ...echartsOptions.tooltip, ...tooltip };
@@ -138,10 +176,63 @@ function formatLineData(list) {
   lineData.value = _seriesData.value;
 }
 
+const timeFormat = (list, formatData) => {
+  list.forEach((item) => {
+    if (formatData.includes(item.time)) {
+      formatData = formatData.filter((iten) => iten !== item.time);
+    }
+  });
+
+  formatData.forEach((item) => {
+    list.push({
+      orderCount: 0,
+      time: item,
+      totalIncome: 0,
+    });
+  });
+
+  list.sort((a, b) => {
+    return dayjs(a.time) - dayjs(b.time);
+  });
+};
+
 function handleUpdateParams(params, tagValue) {
   searchParams.value = params;
   currentClick.value = tagValue;
+  getCurrentDataList();
   handleGetUserStatistic();
+}
+
+// 获取间隔的每天
+function getDateStr(startDate, endDate, dayLength) {
+  let dataList = [];
+  // var str = startDate;
+  for (var i = 0; ; i++) {
+    var getDate = getTargetDate(startDate, dayLength);
+    startDate = getDate;
+    if (getDate <= endDate) {
+      dataList.push(getDate);
+      // str += "," + getDate;
+    } else {
+      break;
+    }
+  }
+  return dataList;
+}
+
+// startDate: 开始时间；dayLength：每隔几天，0-代表获取每天，1-代表日期间隔一天
+function getTargetDate(date, dayLength) {
+  dayLength = dayLength + 1;
+  var tempDate = new Date(date);
+  tempDate.setDate(tempDate.getDate() + dayLength);
+  var year = tempDate.getFullYear();
+  var month =
+    tempDate.getMonth() + 1 < 10
+      ? "0" + (tempDate.getMonth() + 1)
+      : tempDate.getMonth() + 1;
+  var day =
+    tempDate.getDate() < 10 ? "0" + tempDate.getDate() : tempDate.getDate();
+  return year + "-" + month + "-" + day;
 }
 
 onMounted(() => {
@@ -161,7 +252,7 @@ onMounted(() => {
     margin-bottom: 16px;
   }
 
-  .echarts{
+  .echarts {
     height: calc(100% - 50px);
   }
 
