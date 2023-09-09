@@ -263,7 +263,11 @@
           >
             <template #default="{ row }">
               <div>
-                <el-button type="danger" link @click="deleteOrder(row)"
+                <el-button
+                  class="btn-color2"
+                  type="danger"
+                  link
+                  @click="deleteOrder(row)"
                   >删除
                 </el-button>
               </div>
@@ -577,7 +581,8 @@ const openEditDialog = (row) => {
   currentDialogId.value = row.withdrawId;
   searchDialogTableParams.keyWords = undefined;
   currentStatus.value = row.status;
-  handleGetDialogTableList(row.withdrawId);
+  searchDialogTableParams.pageSize = 50;
+  handleGetDialogTableList();
 };
 
 const closeEditDialog = () => {
@@ -585,11 +590,11 @@ const closeEditDialog = () => {
 };
 
 // 弹框接口
-const handleGetDialogTableList = (withdrawId) => {
+const handleGetDialogTableList = () => {
   return new Promise((resolve, reject) => {
     getFinanceOrderDataPageList({
       ...searchDialogTableParams,
-      withdrawId,
+      withdrawId: currentDialogId.value,
     }).then((res) => {
       const { code, msg, data } = res || {};
       if (code == 0) {
@@ -645,11 +650,13 @@ const deleteOrder = (row) => {
       getFinanceOrderDelete({ orderId: row.orderId }).then((res) => {
         const { code, msg } = res;
         if (code == 0) {
+          // eidtDialogVisible.value = false;
+          // handleGetTableList();
           proxy.$message({
             type: "success",
             message: "删除成功",
           });
-          handleGetDialogTableList(currentDialogId.value);
+          handleGetDialogTableList();
         } else {
           proxy.$message({
             type: "error",
@@ -738,6 +745,13 @@ onMounted(() => {
     .btn-color {
       color: #409eff;
     }
+  }
+
+  .btn-color2:hover {
+    color: #fab6b6;
+  }
+  .btn-color2 {
+    color: #f56c6c;
   }
 }
 </style>
