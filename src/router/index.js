@@ -76,17 +76,17 @@ router.beforeEach(async (to, from, next) => {
   const permissionList = to.meta.permission;
   const productList = JSON.parse(sessionStorage.getItem("product"));
 
-  // console.log('beforeEach roleId', roleId)
-  // console.log('permissionList', permissionList)
-  // console.log('to', to.path)
-  // console.log('beforeEach end')
   if (token) {
     // 权限列表为空则调用 获取权限列表的方法
-    if (store.getters["user/roleId"] === '') {
+    if (store.getters["user/roleId"] === '' && roleId === "") {
       await store.dispatch("user/getRoleId").then((res) => {
         addRouterList(store.state.user.permission);
         // router.addRoutes之后的next()可能会失效，因为可能next()的时候路由并没有完全add完成，使用 next(to) 重新走一遍router.beforeEach这个钩子
         next(to);
+      }).catch(err=>{
+        next({
+          path: "/",
+        });
       });
     } else if (white.indexOf(to.name) > -1) {
       // 跳转的页面是登录页时跳转到主页

@@ -2,7 +2,8 @@ import axios from 'axios'
 import { ElLoading, ElMessage } from 'element-plus'
 // import config from './index'
 import router from '../router';
-import { requestGuid } from './idGenerator'
+import { requestGuid } from './idGenerator';
+import store from "@/store/index.js";
 
 // console.log(process.env.VUE_APP_BASE_API, "地址")
 // console.log(process.env.VUE_APP_MODE, "地址")
@@ -51,10 +52,13 @@ service.interceptors.response.use(response => {
     } else if (result.code !== 0) {
         switch (result.code) {
             case '401':
+            case '501':
             case 401:
+            case 501:
                 ElMessage.error('登录已过期，重新登录');
-                window.localStorage.removeItem("token");
-                window.localStorage.removeItem('userInfo');
+                window.localStorage.clear();
+                store.commit("tagsView/DEL_ALL_VISITED_VIEWS");
+                store.commit("user/SET_ROLE_ID", '');
                 router.push({
                     name: 'login'
                 });
@@ -66,10 +70,6 @@ service.interceptors.response.use(response => {
             case '201':
             case '301':
                 ElMessage.error(result.msg);
-                break;
-            case '501':
-            case 501:
-                ElMessage.error('权限错误，请联系管理员');
                 break;
             case '601':
             case 601:
