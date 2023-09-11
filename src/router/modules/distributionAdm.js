@@ -9,7 +9,7 @@ export default [
     children: [
       {
         path: "/marketingData",
-        meta: { title: "数据模块" , permission: [10, 20, 1]},
+        meta: { title: "数据页面" , permission: [10, 20, 1]},
         component: () => import("@/pages/distributionAdm/information/index.vue"),
         name: "marketingData",
       },
@@ -39,14 +39,14 @@ export default [
       },
       {
         path: "/financialSystem",
-        meta: { title: "财务管理", permission: [1] },
+        meta: { title: "提现单管理", permission: [1] },
         component: () =>
           import("@/pages/distributionAdm/financialSystem/index.vue"),
         name: "financialSystem",
       },
       {
         path: "/orderList",
-        meta: { title: "订单列表", permission: [10, 20, 1] },
+        meta: { title: "订单管理", permission: [10, 20, 1] },
         component: () => import("@/pages/distributionAdm/orderList/index.vue"),
         name: "orderList",
       },

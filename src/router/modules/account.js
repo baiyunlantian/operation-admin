@@ -14,6 +14,12 @@ export default [
         component: () => import('@/pages/account/center.vue'),
         name: 'info',
       },
+      // {
+      //   path: '/updatePassword',
+      //   meta: {title: "修改密码", permission: []},
+      //   component: () => import('@/pages/account/updatePassword.vue'),
+      //   name: 'updatePassword',
+      // },
     ]
   }
 ]

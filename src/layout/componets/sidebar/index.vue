@@ -21,11 +21,7 @@
           <template v-if="menuItems === 'left'">
             <template v-for="(menu, index) in leftMenuList" :key="menu.menuId">
               <el-menu-item
-                v-if="
-                  menu.children.length === 0 &&
-                  (menu.permission.length === 0 ||
-                    menu.permission.includes(userInfo.roleId))
-                "
+                v-if="menu.children.length === 0 && handleShowMenu(menu.permission)"
                 class="menu-item"
                 :index="menu.path"
               >
@@ -33,11 +29,7 @@
               </el-menu-item>
 
               <el-sub-menu
-                v-else-if="
-                  menu.children.length > 0 &&
-                  (menu.permission.length === 0 ||
-                    menu.permission.includes(userInfo.roleId))
-                "
+                v-else-if="menu.children.length > 0 && handleShowMenu(menu.permission)"
                 class="sub-menu-item"
                 :index="index + 'b'"
               >
@@ -46,14 +38,27 @@
                   v-for="(secondMenu, sIndex) in menu.children"
                   :key="secondMenu.menuId"
                 >
-                  <el-menu-item
-                    v-if="
-                      secondMenu.permission.length === 0 ||
-                      secondMenu.permission.includes(userInfo.roleId)
-                    "
-                    :index="secondMenu.path"
-                    >{{ secondMenu.name }}</el-menu-item
-                  >
+                  <!--   没有三级路由  -->
+                  <template v-if="secondMenu.children.length === 0">
+                    <el-menu-item v-if="handleShowMenu(secondMenu.permission)" :index="secondMenu.path">
+                      {{ secondMenu.name }}
+                    </el-menu-item>
+                  </template>
+
+                  <!--   三级路由  -->
+                  <template v-else>
+                    <template v-if="handleShowMenu(secondMenu.permission)">
+                      <div class="third-menu-item">
+                        <div class="sub-menu-item-desc u-font-weight">{{ secondMenu.name }}</div>
+                        <template v-for="(thirdMenu) in secondMenu.children" :key="thirdMenu.menuId">
+                          <el-menu-item v-if="handleShowMenu(thirdMenu.permission)" :index="thirdMenu.path">
+                            {{ thirdMenu.name }}
+                          </el-menu-item>
+                        </template>
+                      </div>
+                    </template>
+
+                  </template>
                 </template>
               </el-sub-menu>
             </template>
@@ -126,6 +131,10 @@ function handleSelect(index, indexPath, item) {
   }
 }
 
+function handleShowMenu(permission = []) {
+  return permission.length === 0 || permission.includes(userInfo.value.roleId)
+}
+
 const userInfo = computed(() => {
   const userInfo = store.getters["user/info"];
   const agentInfo = store.getters["user/agentInfo"];
@@ -161,6 +170,17 @@ watch(
 
   .el-menu-item {
     color: #000;
+  }
+
+  .third-menu-item{
+    display: flex;
+    align-items: center;
+    padding-right: 10px;
+
+    .sub-menu-item-desc{
+      padding: 0 10px;
+      font-size: 14px;
+    }
   }
 }
 
