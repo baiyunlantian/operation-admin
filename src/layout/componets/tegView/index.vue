@@ -150,25 +150,25 @@ watch(
     }
 
     // 替换‘代理详情’，不出现两个相同的标签
-    const firstIndex = dynamicTags.value.findIndex((val) => {
-      return val.path == "/agentDetail";
-    });
-    const lastIndex = dynamicTags.value.findLastIndex((val) => {
-      return val.path == "/agentDetail";
-    });
-    console.log(firstIndex, lastIndex);
-    if (firstIndex != -1 && firstIndex !== lastIndex) {
-      console.log("有多个代理详情页面");
-      const query = fullPath && fullPath.split("?")[1];
-      const key = query && query.split("=")[0];
-      const value = query && query.split("=")[1];
-      console.log(key, value);
-      dynamicTags.value.splice(firstIndex, 1);
-      router.push({
-        path: path,
-        query: query ? { [key]: value } : "",
-      });
-    }
+    // const firstIndex = dynamicTags.value.findIndex((val) => {
+    //   return val.path == "/agentDetail";
+    // });
+    // const lastIndex = dynamicTags.value.findLastIndex((val) => {
+    //   return val.path == "/agentDetail";
+    // });
+    // console.log(firstIndex, lastIndex);
+    // if (firstIndex != -1 && firstIndex !== lastIndex) {
+    //   console.log("有多个代理详情页面");
+    //   const query = fullPath && fullPath.split("?")[1];
+    //   const key = query && query.split("=")[0];
+    //   const value = query && query.split("=")[1];
+    //   console.log(key, value);
+    //   dynamicTags.value.splice(firstIndex, 1);
+    //   router.push({
+    //     path: path,
+    //     query: query ? { [key]: value } : "",
+    //   });
+    // }
     // dynamicTags.value.forEach((val, index) => {
     //   const agentDetailArr = [];
     //   if (val.path == "/agentDetail") {
