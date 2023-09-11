@@ -46,53 +46,64 @@ const dynamicTags = computed(() => {
     // console.log('42')
     if (roleId == 10 || roleId === 20) {
       // console.log('44')
-      store.dispatch("tagsView/addView",   {
-        fullPath:'/marketingData',
-        meta:{title:'数据模块'},
-        name:'marketingData',
-        path:'/marketingData',
-        closable:false
-      })
-    }else if (roleId === 0 || roleId === 1) {
+      store.dispatch("tagsView/addView", {
+        fullPath: "/marketingData",
+        meta: { title: "数据模块" },
+        name: "marketingData",
+        path: "/marketingData",
+        closable: false,
+      });
+    } else if (roleId === 0 || roleId === 1) {
       // console.log('52 首页')
-      store.dispatch("tagsView/addView",   {
-        fullPath:'/home',
-        meta:{title:'首页'},
-        name:'home',
-        path:'/home',
-        closable:false
-      })
+      store.dispatch("tagsView/addView", {
+        fullPath: "/home",
+        meta: { title: "首页" },
+        name: "home",
+        path: "/home",
+        closable: false,
+      });
     }
-  }else if (list.length === 1  && roleId >= 0) {
+  } else if (list.length === 1 && roleId >= 0) {
     // console.log('61')
     if (roleId === 10 || roleId === 20) {
       // console.log('63')
-      store.commit("tagsView/ADD_VISITED_VIEW_IN_INDEX",   {
-        fullPath:'/marketingData',
-        meta:{title:'数据模块'},
-        name:'marketingData',
-        path:'/marketingData',
-        closable:false
-      }, 0)
-    }else if (roleId === 0 || roleId === 1) {
+      store.commit(
+        "tagsView/ADD_VISITED_VIEW_IN_INDEX",
+        {
+          fullPath: "/marketingData",
+          meta: { title: "数据模块" },
+          name: "marketingData",
+          path: "/marketingData",
+          closable: false,
+        },
+        0
+      );
+    } else if (roleId === 0 || roleId === 1) {
       // console.log('67 首页')
-      store.commit("tagsView/ADD_VISITED_VIEW_IN_INDEX",   {
-        fullPath:'/home',
-        meta:{title:'首页'},
-        name:'home',
-        path:'/home',
-        closable:false
-      }, 0)
+      store.commit(
+        "tagsView/ADD_VISITED_VIEW_IN_INDEX",
+        {
+          fullPath: "/home",
+          meta: { title: "首页" },
+          name: "home",
+          path: "/home",
+          closable: false,
+        },
+        0
+      );
     }
   }
 
   return list;
 });
 watch(
-    [()=>router.currentRoute.value.fullPath, ()=>store.getters["user/roleId"]],
+  [
+    () => router.currentRoute.value.fullPath,
+    () => store.getters["user/roleId"],
+  ],
   ([value, newRoleId]) => {
-    const _roleId = localStorage.getItem('roleId');
-    let roleId = _roleId ? _roleId : newRoleId
+    const _roleId = localStorage.getItem("roleId");
+    let roleId = _roleId ? _roleId : newRoleId;
     // 添加信息
     let { fullPath, meta, name, path } = router.currentRoute.value;
     // dynamicTags.value.forEach((val, index) => {
@@ -109,7 +120,7 @@ watch(
 
     if (!roleId && roleId !== 0) {
       store.commit("tagsView/DEL_ALL_VISITED_VIEWS");
-    }else {
+    } else {
       // 不添加结算商品页面tag
       if (path !== "/settleAccount") {
         let viewTag = {
@@ -118,7 +129,7 @@ watch(
           name,
           path,
           closable: path !== "/home",
-        }
+        };
         if (path === "/marketingData" && (roleId == 10 || roleId == 20)) {
           viewTag.closable = false;
         }
@@ -137,6 +148,45 @@ watch(
         active.value = "/product";
       }
     }
+
+    // 替换‘代理详情’，不出现两个相同的标签
+    const firstIndex = dynamicTags.value.findIndex((val) => {
+      return val.path == "/agentDetail";
+    });
+    const lastIndex = dynamicTags.value.findLastIndex((val) => {
+      return val.path == "/agentDetail";
+    });
+    console.log(firstIndex, lastIndex);
+    if (firstIndex != -1 && firstIndex !== lastIndex) {
+      console.log("有多个代理详情页面");
+      const query = fullPath && fullPath.split("?")[1];
+      const key = query && query.split("=")[0];
+      const value = query && query.split("=")[1];
+      console.log(key, value);
+      dynamicTags.value.splice(firstIndex, 1);
+      router.push({
+        path: path,
+        query: query ? { [key]: value } : "",
+      });
+    }
+    // dynamicTags.value.forEach((val, index) => {
+    //   const agentDetailArr = [];
+    //   if (val.path == "/agentDetail") {
+    //     count++;
+    //     agentDetailArr.push({ i: index });
+    //     if (count > 1) {
+    //       const query = fullPath && fullPath.split("?")[1];
+    //       const key = query && query.split("=")[0];
+    //       const value = query && query.split("=")[1];
+    //       router.push({
+    //         path: val.path,
+    //         query: query ? { [key]: value } : "",
+    //       });
+    //       console.log(index);
+    //       dynamicTags.value.splice(agentDetailArr[0].i, 1);
+    //     }
+    //   }
+    // });
   },
   { immediate: true }
 );

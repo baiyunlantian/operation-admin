@@ -35,7 +35,7 @@ const props = defineProps(["cardData"]);
 
 <style lang="scss" scoped>
 .show-card-container {
-  padding: 20px 28px;
+  padding: 1rem 1.25rem;
   box-shadow: 0px 2px 3px 0px rgba(0, 0, 0, 0.1);
   border-radius: 4px;
   // margin-bottom: 16px;
