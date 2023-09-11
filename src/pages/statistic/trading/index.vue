@@ -63,7 +63,7 @@
   ])
   const totalStatisticData = reactive({
     todayIncomeAmount: 0,
-    yesterdayIncomeAmount: 0,
+    currentWeekIncomeAmount: 0,
     currentMonthIncomeAmount: 0,
     totalIncomeAmount: 0,
   })
