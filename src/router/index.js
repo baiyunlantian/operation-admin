@@ -76,6 +76,10 @@ router.beforeEach(async (to, from, next) => {
   const permissionList = to.meta.permission;
   const productList = JSON.parse(sessionStorage.getItem("product"));
 
+  // 添加title
+  if (to.meta.title) {
+    document.title = to.meta.title;
+  }
   if (token) {
     // 权限列表为空则调用 获取权限列表的方法
     if (store.getters["user/roleId"] === '') {
@@ -83,10 +87,6 @@ router.beforeEach(async (to, from, next) => {
         addRouterList(store.state.user.permission);
         // router.addRoutes之后的next()可能会失效，因为可能next()的时候路由并没有完全add完成，使用 next(to) 重新走一遍router.beforeEach这个钩子
         next(to);
-      }).catch(err=>{
-        next({
-          path: "/",
-        });
       });
     } else if (white.indexOf(to.name) > -1) {
       // 跳转的页面是登录页时跳转到主页
@@ -94,10 +94,6 @@ router.beforeEach(async (to, from, next) => {
         path: "/",
       });
     } else {
-      // 添加title
-      if (to.meta.title) {
-        document.title = to.meta.title;
-      }
 
       // 不需要权限的页面
       if (!permissionList || permissionList.length === 0) {

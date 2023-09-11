@@ -55,7 +55,12 @@ service.interceptors.response.use(response => {
             case '501':
             case 401:
             case 501:
-                ElMessage.error('登录已过期，重新登录');
+                ElMessage({
+                    type: 'error',
+                    message: '登录已过期，重新登录',
+                    grouping: true,
+                    repeatNum: 1,
+                });
                 window.localStorage.clear();
                 store.commit("tagsView/DEL_ALL_VISITED_VIEWS");
                 store.commit("user/SET_ROLE_ID", '');
@@ -69,7 +74,12 @@ service.interceptors.response.use(response => {
             case '101':
             case '201':
             case '301':
-                ElMessage.error(result.msg);
+                ElMessage({
+                    type: 'error',
+                    message: result.msg,
+                    grouping: true,
+                    repeatNum: 1,
+                });
                 break;
             case '601':
             case 601:
@@ -77,7 +87,12 @@ service.interceptors.response.use(response => {
                 break;
             case '999':
             case 999:
-                ElMessage.error('系统错误，请稍后再试');
+                ElMessage({
+                    type: 'error',
+                    message: '系统错误，请稍后再试',
+                    grouping: true,
+                    repeatNum: 1,
+                });
                 break;
             default:
                 ElMessage.error(result.msg);
