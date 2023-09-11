@@ -78,7 +78,7 @@ router.beforeEach(async (to, from, next) => {
 
   if (token) {
     // 权限列表为空则调用 获取权限列表的方法
-    if (store.getters["user/roleId"] === '' && roleId === "") {
+    if (store.getters["user/roleId"] === '') {
       await store.dispatch("user/getRoleId").then((res) => {
         addRouterList(store.state.user.permission);
         // router.addRoutes之后的next()可能会失效，因为可能next()的时候路由并没有完全add完成，使用 next(to) 重新走一遍router.beforeEach这个钩子
