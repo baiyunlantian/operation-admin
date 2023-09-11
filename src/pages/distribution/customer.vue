@@ -119,7 +119,7 @@
               <el-link
                 v-if="operate.isPermission"
                 type="primary"
-                @click="operate.clickEvent(row.customId, row.salesName)"
+                @click="operate.clickEvent(row.customId, row.customName)"
                 >{{ operate.func }}</el-link
               >
             </template>
@@ -580,7 +580,7 @@ const operate = [
     }),
     clickEvent: (id, name) => {
       if (getDepositStatus() === false) return;
-      ElMessageBox.confirm(`是否确定删除 ${name} 销售ID ${id} `, "提示", {
+      ElMessageBox.confirm(`是否确定删除 ${name} 客户ID ${id} `, "提示", {
         confirmButtonText: "确认",
         cancelButtonText: "取消",
         type: "warning",

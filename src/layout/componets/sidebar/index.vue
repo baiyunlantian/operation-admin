@@ -124,7 +124,7 @@ function handleSelect(index, indexPath, item) {
     // 退出登录
     localStorage.clear();
     store.commit("tagsView/DEL_ALL_VISITED_VIEWS");
-    store.commit("user/SET_ROLE_ID", '');
+    store.commit("user/SET_ROLE_ID", "");
     router.push({ path: "/login" });
   } else {
     router.push({ path: index });
