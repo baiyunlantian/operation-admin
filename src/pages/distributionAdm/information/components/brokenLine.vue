@@ -82,11 +82,6 @@ function handleGetUserStatistic() {
     const { code, data, msg } = res || {};
     if (code == 0) {
       formatLineData(data);
-    } else {
-      proxy.$message({
-        type: "error",
-        message: msg,
-      });
     }
   });
 }
