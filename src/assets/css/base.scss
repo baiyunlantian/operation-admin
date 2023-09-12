@@ -508,3 +508,9 @@ body {
     justify-content: flex-end;
   }
 }
+
+.el-message--error{
+  .el-message__badge{
+    display: none;
+  }
+}
