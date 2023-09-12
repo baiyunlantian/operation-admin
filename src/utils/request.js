@@ -61,8 +61,6 @@ service.interceptors.response.use(response => {
                     grouping: true,
                 });
                 window.localStorage.clear();
-                store.commit("tagsView/DEL_ALL_VISITED_VIEWS");
-                store.commit("user/SET_ROLE_ID", '');
                 router.push({
                     name: 'login'
                 });

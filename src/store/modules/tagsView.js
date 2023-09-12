@@ -7,7 +7,7 @@ const tagsView = {
         }
     },
     mutations: {
-        ADD_VISITED_VIEW_IN_INDEX: (state, view, index) => {
+        SPLICE_VISITED_VIEW: (state, view, index) => {
             if (state.visitedViews.some(v => v.fullPath === view.fullPath)) return
             state.visitedViews.splice(index, 0, view)
         },

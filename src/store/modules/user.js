@@ -51,9 +51,7 @@ const user = {
     getUserInfo({ commit }) {
       HOME.getUserInfo().then((res) => {
         if (res.code == "0") {
-          // res.data.isAdmin = 1
           commit("SET_USER_INFO", res.data);
-          window.localStorage.setItem("isAdmin", res.data.isAdmin || 0);
         } else {
           commit("SET_USER_INFO", {});
         }
@@ -68,22 +66,21 @@ const user = {
         }
       });
     },
-    async getRoleId({commit}) {
-      const resArr = await Promise.all([HOME.getUserInfo(), ACCOUNT_API.getAgentUserInfo()])
-      const userInfo = resArr[0].data, agentInfo = resArr[1].data;
+    getRoleId({commit}) {
+      return Promise.all([HOME.getUserInfo(), ACCOUNT_API.getAgentUserInfo()]).then(resArr=>{
+        const userInfo = resArr[0].data, agentInfo = resArr[1].data;
+        let roleId = 0;
+        if (userInfo.isAdmin == 1) {
+          roleId = 1;
+        } else {
+          roleId = agentInfo.roleId;
+        }
 
-      let roleId = 0;
-
-      if (userInfo.isAdmin == 1) {
-        roleId = 1;
-      } else {
-        roleId = agentInfo.roleId;
-      }
-
-      // console.log('getRoleId', roleId)
-      window.localStorage.setItem("roleId", roleId);
-      commit("SET_ROLE_ID", roleId)
-      return roleId
+        window.localStorage.setItem("roleId", roleId);
+        commit("SET_ROLE_ID", roleId)
+        commit("SET_AGENT_USER_INFO", agentInfo || {});
+        commit("SET_USER_INFO", userInfo || {});
+      })
     }
   },
   getters: {

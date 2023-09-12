@@ -25,7 +25,6 @@ const router = createRouter({
           path: "home",
           meta: { title: "首页", tagsDisabled: true, permission: [0,1] },
           name: "home",
-          permission: "1",
           component: () =>
             import("@/pages/home/index.vue"),
         },
@@ -40,7 +39,7 @@ const router = createRouter({
     {
       path: "/404",
       name: "404",
-      meta: { title: "登录页", permission: [] },
+      meta: { title: "404", permission: [] },
       component: layout,
     },
   ],
@@ -72,7 +71,7 @@ router.beforeResolve((to, from, next) => {
 
 router.beforeEach(async (to, from, next) => {
   const token = window.localStorage.getItem("token") || "";
-  const roleId = window.localStorage.getItem("roleId") || "";
+  const roleId = store.getters["user/roleId"];
   const permissionList = to.meta.permission;
   const productList = JSON.parse(sessionStorage.getItem("product"));
 
@@ -81,61 +80,55 @@ router.beforeEach(async (to, from, next) => {
     document.title = to.meta.title;
   }
   if (token) {
-    // 权限列表为空则调用 获取权限列表的方法
-    if (store.getters["user/roleId"] === '') {
-      await store.dispatch("user/getRoleId").then((res) => {
+    // 判断roleId是否存在，不存在则调用接口获取
+    if (roleId === '') {
+      await store.dispatch("user/getRoleId").then(()=>{
         addRouterList(store.state.user.permission);
         // router.addRoutes之后的next()可能会失效，因为可能next()的时候路由并没有完全add完成，使用 next(to) 重新走一遍router.beforeEach这个钩子
         next(to);
-      });
+      }).catch(err=>{
+        // 获取用户信息接口报错，无法判断roleId
+        localStorage.clear();
+        next({path:'/login'});
+      })
     } else if (white.indexOf(to.name) > -1) {
       // 跳转的页面是登录页时跳转到主页
       next({
         path: "/",
       });
     } else {
-
       // 不需要权限的页面
       if (!permissionList || permissionList.length === 0) {
         next()
       }else {
-        // 对应权限
-        if (permissionList.includes(Number(roleId)) === true) {
+        // 角色是否有权限
+        if (permissionList.includes(roleId) === true) {
           if (to.path === "/settleAccount") {
-            if (from.path === "/product") {
+            /**
+             *   导航到结算页的条件：
+             *      1：从商品目录页跳转
+             *      2：在结算页F5刷新页面时且选购商品不为空
+             *   其它方式都被导航到商品目录页
+             * */
+            if (from.path === "/product" || (from.path === "/" && Array.isArray(productList) && productList.length > 0)) {
               next();
             }
-            // 在结算页面刷新页面或者在其它页面通过URL输入跳转
-            else if (
-              from.path === "/" &&
-              Array.isArray(productList) &&
-              productList.length > 0
-            ) {
-              next();
-            } else {
+            else {
               next({ path: "/product" });
             }
           }
-          else if (to.path === "/home"){
-            if (roleId == 10 || roleId == 20) {
-              next({ path: "/marketingData" });
-            }else {
-              next();
-            }
+          else {
+            next();
           }
-
-          next();
         }
-        // 没有权限跳转到首页
+        // 没有权限跳转到默认页
         else {
-          if (to.path === "/home"){
-            if (roleId == 10 || roleId == 20) {
-              next({ path: "/marketingData" });
-            }else {
-              next();
-            }
+          // 角色身份 10、20 默认页   数据模块页面
+          if (roleId === 10 || roleId === 20) {
+            next({ path: "/marketingData" });
+          }else {
+            next({path: "/home"});
           }
-          next({path: "/"});
         }
       }
     }
