@@ -22,8 +22,6 @@
   const store = useStore();
 
   onMounted(() => {
-    store.dispatch('user/getAgentUserInfo')
-    store.dispatch('user/getUserInfo')
     store.dispatch('platformType/getPlatformTypeList')
   })
 
