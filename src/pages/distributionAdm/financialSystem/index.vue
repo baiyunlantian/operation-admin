@@ -392,11 +392,6 @@ const getFinanceInformation = () => {
           item.descNum = data[item.propDescNum] || 0;
         }
       });
-    } else {
-      proxy.$message({
-        type: "error",
-        message: msg,
-      });
     }
   });
 };
@@ -484,11 +479,6 @@ const handleGetTableList = (setScrollTop = true) => {
         tableData.value = data.list;
         tableListTotal.value = data.total;
         return resolve(res);
-      } else {
-        proxy.$message({
-          type: "error",
-          message: msg,
-        });
       }
     });
   });
@@ -528,10 +518,6 @@ const checkDispose = (row, status) => {
               handleGetTableList(false);
               return resolve(true);
             } else {
-              proxy.$message({
-                type: "error",
-                message: msg,
-              });
               return reject(false);
             }
           }
@@ -601,11 +587,6 @@ const handleGetDialogTableList = () => {
         tableDialogData.value = data.list;
         tableDialogListTotal.value = data.total;
         return resolve(res);
-      } else {
-        proxy.$message({
-          type: "error",
-          message: msg,
-        });
       }
     });
   });
@@ -657,11 +638,6 @@ const deleteOrder = (row) => {
             message: "删除成功",
           });
           handleGetDialogTableList();
-        } else {
-          proxy.$message({
-            type: "error",
-            message: msg,
-          });
         }
       });
     })

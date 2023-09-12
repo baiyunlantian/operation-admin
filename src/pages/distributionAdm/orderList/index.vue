@@ -530,11 +530,6 @@ const getOrderInformation = () => {
       financialInformation.value.forEach((item) => {
         item.money = data[item.propMoney] || 0;
       });
-    } else {
-      proxy.$message({
-        type: "error",
-        message: msg,
-      });
     }
   });
 };
@@ -605,11 +600,6 @@ const handleGetTableList = (setScrollTop = true) => {
         tableData.value = data.list;
         tableListTotal.value = data.total;
         return resolve(res);
-      } else {
-        proxy.$message({
-          type: "error",
-          message: msg,
-        });
       }
     });
   });
@@ -643,11 +633,6 @@ const editOrderOperate = (row) => {
             message: "操作成功",
           });
           handleGetTableList(false);
-        } else {
-          proxy.$message({
-            type: "error",
-            message: msg,
-          });
         }
       });
     })
@@ -672,11 +657,6 @@ const succesOrderOperate = (row) => {
             message: "操作成功",
           });
           handleGetTableList(false);
-        } else {
-          proxy.$message({
-            type: "error",
-            message: msg,
-          });
         }
       });
     })
@@ -745,11 +725,6 @@ const handleGetOrderDetails = (orderId) => {
       formData.value = data;
       formData.value.orderCode = data.orderCode == 0 ? " " : data.orderCode;
       console.log(formData.value);
-    } else {
-      proxy.$message({
-        type: "error",
-        message: msg,
-      });
     }
   });
 };
@@ -808,11 +783,6 @@ const submitRemarKEditForm = () => {
           });
           eidtRemarkDialogVisible.value = false;
           handleGetTableList(false);
-        } else {
-          proxy.$message({
-            type: "error",
-            message: msg,
-          });
         }
       });
     }

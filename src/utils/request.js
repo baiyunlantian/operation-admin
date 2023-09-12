@@ -55,7 +55,11 @@ service.interceptors.response.use(response => {
             case '501':
             case 401:
             case 501:
-                ElMessage.error('登录已过期，重新登录');
+                ElMessage({
+                    type: 'error',
+                    message: '登录已过期，重新登录',
+                    grouping: true,
+                });
                 window.localStorage.clear();
                 store.commit("tagsView/DEL_ALL_VISITED_VIEWS");
                 store.commit("user/SET_ROLE_ID", '');
@@ -69,18 +73,35 @@ service.interceptors.response.use(response => {
             case '101':
             case '201':
             case '301':
-                ElMessage.error(result.msg);
+                ElMessage({
+                    type: 'error',
+                    message: result.msg,
+                    grouping: true,
+                });
                 break;
             case '601':
             case 601:
-                ElMessage.error('会员权限错误');
+                ElMessage({
+                    type: 'error',
+                    message: '会员权限错误',
+                    grouping: true,
+                });
                 break;
             case '999':
             case 999:
-                ElMessage.error('系统错误，请稍后再试');
+                ElMessage({
+                    type: 'error',
+                    message: '系统错误，请稍后再试',
+                    grouping: true,
+                });
                 break;
             default:
-                ElMessage.error(result.msg);
+                ElMessage({
+                    type: 'error',
+                    message: result.msg,
+                    grouping: true,
+                });
+                break;
         }
         // return Promise.reject({ msg: result.msg })
     }

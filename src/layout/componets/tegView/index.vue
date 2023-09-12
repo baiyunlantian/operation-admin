@@ -156,13 +156,10 @@ watch(
     const lastIndex = dynamicTags.value.findLastIndex((val) => {
       return val.path == "/agentDetail";
     });
-    console.log(firstIndex, lastIndex);
     if (firstIndex != -1 && firstIndex !== lastIndex) {
-      console.log("有多个代理详情页面");
       const query = fullPath && fullPath.split("?")[1];
       const key = query && query.split("=")[0];
       const value = query && query.split("=")[1];
-      console.log(key, value);
       dynamicTags.value.splice(firstIndex, 1);
       router.push({
         path: path,

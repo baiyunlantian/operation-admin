@@ -231,11 +231,6 @@ const getTopInformation = () => {
       collectInformation.value.forEach((item) => {
         item.money = data[item.propMoney] || 0;
       });
-    } else {
-      proxy.$message({
-        type: "error",
-        message: msg,
-      });
     }
   });
 };
@@ -368,11 +363,6 @@ const getPanelInformation = () => {
           item.descNumO = data[item.proDescNumO] || 0;
         }
       });
-    } else {
-      proxy.$message({
-        type: "error",
-        message: msg,
-      });
     }
   });
 };
@@ -413,11 +403,6 @@ const handleGetSaleRanking = () => {
         processData.value.push({ ...item, ranking: index + 1 });
       });
       sellTableData.value = processData.value;
-    } else {
-      proxy.$message({
-        type: "error",
-        message: msg,
-      });
     }
   });
 };
@@ -456,11 +441,6 @@ const handleGetOrderList = () => {
     const { code, data, msg } = res || {};
     if (code == 0) {
       orderTableData.value = data;
-    } else {
-      proxy.$message({
-        type: "error",
-        message: msg,
-      });
     }
   });
 };
@@ -500,11 +480,6 @@ const handleGetCustomCountRanking = () => {
         processData.value.push({ ...item, ranking: index + 1 });
       });
       customTableData.value = processData.value;
-    } else {
-      proxy.$message({
-        type: "error",
-        message: msg,
-      });
     }
   });
 };
@@ -544,11 +519,6 @@ const handleGetAgentRanking = () => {
         processData.value.push({ ...item, ranking: index + 1 });
       });
       agencyTableData.value = processData.value;
-    } else {
-      proxy.$message({
-        type: "error",
-        message: msg,
-      });
     }
   });
 };
