@@ -419,6 +419,7 @@ onMounted(() => {
   // 重置用户信息，防止登录时有上次登录的用户信息缓存
   localStorage.clear();
   store.commit("user/SET_USER_INFO", {});
+  store.commit("user/SET_AGENT_USER_INFO", {});
   store.commit("user/SET_ROLE_ID", '');
   store.commit("tagsView/DEL_ALL_VISITED_VIEWS");
 });
