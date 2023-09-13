@@ -31,7 +31,7 @@
                 </div>
             </div>
 
-            <div class="box-shadow bg-fff u-m-t-15 padding-2-pre" v-if="agentInfo.roleId == 10 || agentInfo.roleId == 20">
+            <div class="box-shadow bg-fff u-m-t-15 padding-2-pre" v-permission="[10,20]">
                 <div class="u-font-23 u-font-weight u-m-b-10">提现相关</div>
 
                 <div class="content-container">
@@ -44,7 +44,7 @@
                         </div>
                     </div>
 
-                    <div class="bank-container" v-if="agentInfo.roleId == 20">
+                    <div class="bank-container" v-permission="[20]">
                         <div class="left">
                             <div class="header">
                                 <div class="title">银行卡信息</div>
@@ -63,7 +63,7 @@
                                 </el-form>
                             </div>
                         </div>
-                        <div class="right" v-if="agentInfo.roleId == 20">
+                        <div class="right" v-permission="[20]">
                             <div v-if="drawBtnStatus" class="btn u-m-b-15 u-cursor" @click="handleClickDraw">提现</div>
                             <el-button v-else type="info" plain disabled>提现</el-button>
                         </div>
