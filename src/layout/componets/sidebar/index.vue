@@ -21,7 +21,8 @@
           <template v-if="menuItems === 'left'">
             <template v-for="(menu, index) in leftMenuList" :key="menu.menuId">
               <el-menu-item
-                v-if="menu.children.length === 0 && handleShowMenu(menu.permission)"
+                v-if="menu.children.length === 0"
+                v-permission="menu.permission"
                 class="menu-item"
                 :index="menu.path"
               >
@@ -29,7 +30,8 @@
               </el-menu-item>
 
               <el-sub-menu
-                v-else-if="menu.children.length > 0 && handleShowMenu(menu.permission)"
+                v-else
+                v-permission="menu.permission"
                 class="sub-menu-item"
                 :index="index + 'b'"
               >
@@ -40,18 +42,18 @@
                 >
                   <!--   没有三级路由  -->
                   <template v-if="secondMenu.children.length === 0">
-                    <el-menu-item v-if="handleShowMenu(secondMenu.permission)" :index="secondMenu.path">
+                    <el-menu-item v-permission="secondMenu.permission" :index="secondMenu.path">
                       {{ secondMenu.name }}
                     </el-menu-item>
                   </template>
 
                   <!--   三级路由  -->
                   <template v-else>
-                    <template v-if="handleShowMenu(secondMenu.permission)">
+                    <template v-permission="secondMenu.permission">
                       <div class="third-menu-item">
                         <div class="sub-menu-item-desc u-font-weight">{{ secondMenu.name }}</div>
                         <template v-for="(thirdMenu) in secondMenu.children" :key="thirdMenu.menuId">
-                          <el-menu-item v-if="handleShowMenu(thirdMenu.permission)" :index="thirdMenu.path">
+                          <el-menu-item v-permission="thirdMenu.permission" :index="thirdMenu.path">
                             {{ thirdMenu.name }}
                           </el-menu-item>
                         </template>
@@ -81,14 +83,7 @@
                   v-for="(secondMenu, sIndex) in menu.children"
                   :key="secondMenu.menuId"
                 >
-                  <el-menu-item
-                    v-if="
-                      secondMenu.permission.length === 0 ||
-                      secondMenu.permission.includes(userInfo.roleId)
-                    "
-                    :index="secondMenu.path"
-                    >{{ secondMenu.name }}</el-menu-item
-                  >
+                  <el-menu-item v-permission="secondMenu.permission" :index="secondMenu.path">{{ secondMenu.name }}</el-menu-item>
                 </template>
               </el-sub-menu>
             </template>
@@ -129,24 +124,9 @@ function handleSelect(index, indexPath, item) {
   }
 }
 
-function handleShowMenu(permission = []) {
-  return permission.length === 0 || permission.includes(userInfo.value.roleId)
-}
 
 const userInfo = computed(() => {
-  const userInfo = store.getters["user/info"];
-  const agentInfo = store.getters["user/agentInfo"];
-  let obj = { ...userInfo };
-
-  if (userInfo.isAdmin == 1) {
-    obj.roleId = 1;
-  } else {
-    obj.roleId = agentInfo.roleId;
-  }
-
-  // store.commit('user/SET_ROLE_ID', obj.roleId);
-  // localStorage.setItem("roleId", obj.roleId);
-  return obj;
+  return store.getters["user/info"];
 });
 
 watch(

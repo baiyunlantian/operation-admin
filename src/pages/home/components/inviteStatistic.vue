@@ -47,7 +47,7 @@
                 </div>
 
 
-                <div v-if="userInfo.isAdmin === 1" class="check-detail" @click="handleJumpRoute">查看详情</div>
+                <div v-permission="[1]" class="check-detail" @click="handleJumpRoute">查看详情</div>
             </el-col>
 
         </el-row>
